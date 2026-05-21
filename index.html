@@ -46,11 +46,7 @@
     display: flex; align-items: center; gap: 6px;
   }
   .app-title .name::before { content: "🎯"; font-size: 1.2rem; }
-  .app-title .menu-btn {
-    background: rgba(255,255,255,0.18); border: none; color: white;
-    width: 32px; height: 32px; border-radius: 8px;
-    font-size: 1rem; cursor: pointer;
-  }
+  .app-title .date { font-size: 0.78rem; opacity: 0.85; }
   .band-grid {
     display: grid; grid-template-columns: 1fr 1fr 1fr;
     gap: 12px; text-align: center;
@@ -79,6 +75,21 @@
     font-size: 0.7rem; padding: 1px 7px; border-radius: 999px;
     font-weight: 700; letter-spacing: 0; text-transform: none;
   }
+  .today-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+  }
+  .today-tile {
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 12px; padding: 14px;
+    text-decoration: none; color: var(--fg);
+    display: flex; flex-direction: column; gap: 6px;
+    transition: transform 0.1s, border-color 0.1s;
+    min-height: 92px;
+  }
+  .today-tile:active { transform: scale(0.98); border-color: var(--accent); }
+  .today-tile .icon { font-size: 1.6rem; }
+  .today-tile .ttl { font-size: 0.92rem; font-weight: 600; }
+  .today-tile .sub { font-size: 0.76rem; color: var(--muted); }
   .weak-tags { display: flex; flex-wrap: wrap; gap: 6px; }
   .tag {
     background: var(--border); color: var(--fg);
@@ -107,9 +118,6 @@
     color: var(--accent); font-family: "SF Mono", Menlo, monospace;
     font-size: 0.82rem;
   }
-  table.practice { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
-  table.practice td { padding: 8px 0; border-bottom: 1px solid var(--border); }
-  table.practice tr:last-child td { border-bottom: none; }
   .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   .stat-cell {
     background: var(--bg); border: 1px solid var(--border);
@@ -117,15 +125,88 @@
   }
   .stat-cell .num { font-size: 1.7rem; font-weight: 700; color: var(--warn); }
   .stat-cell .lbl { color: var(--muted); font-size: 0.82rem; margin-top: 2px; }
-  .empty {
-    text-align: center; padding: 32px 16px; color: var(--muted);
-  }
+  .empty { text-align: center; padding: 32px 16px; color: var(--muted); }
   .empty .icon { font-size: 2.5rem; margin-bottom: 8px; opacity: 0.5; }
   .empty .hint { font-size: 0.88rem; }
   .empty .cmd {
     margin-top: 12px; background: var(--card); color: var(--accent);
     padding: 8px 14px; border-radius: 8px; display: inline-block;
     font-family: "SF Mono", Menlo, monospace; font-size: 0.85rem;
+  }
+  .item-list { display: flex; flex-direction: column; gap: 10px; }
+  .item-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 14px;
+    text-decoration: none; color: var(--fg);
+    display: flex; gap: 12px;
+    transition: transform 0.1s, border-color 0.1s;
+  }
+  .item-card:active { transform: scale(0.985); border-color: var(--accent); }
+  .item-card .thumb {
+    flex-shrink: 0; width: 56px; height: 56px;
+    border-radius: 10px;
+    background: var(--header-bg);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem; color: white;
+  }
+  .item-card .info { flex: 1; min-width: 0; }
+  .item-card .info .ttl {
+    font-weight: 600; font-size: 0.95rem; line-height: 1.3;
+    margin-bottom: 4px;
+    overflow: hidden; text-overflow: ellipsis;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  }
+  .item-card .info .meta {
+    color: var(--muted); font-size: 0.78rem;
+    display: flex; gap: 6px; align-items: center; flex-wrap: wrap;
+  }
+  .item-card .info .meta .dot { color: var(--border); }
+  .item-card .info .meta .pill {
+    background: var(--bg); padding: 1px 7px; border-radius: 99px;
+    color: var(--muted); font-size: 0.72rem;
+  }
+  .item-card .chev {
+    color: var(--muted); font-size: 1.2rem; align-self: center;
+  }
+  .date-group {
+    color: var(--muted); font-size: 0.78rem;
+    text-transform: uppercase; letter-spacing: 0.06em;
+    padding: 8px 4px; font-weight: 700;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .date-group .count {
+    background: var(--card); padding: 1px 8px; border-radius: 999px;
+    font-size: 0.72rem; font-weight: 600; color: var(--accent);
+  }
+  .speaking-card {
+    background: linear-gradient(135deg, rgba(219,39,119,0.08), rgba(124,58,237,0.08));
+    border: 1px solid var(--border);
+    border-radius: 14px; padding: 16px;
+    margin-bottom: 14px;
+  }
+  .speaking-card .label {
+    font-size: 0.7rem; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 0.06em;
+    margin-bottom: 8px; font-weight: 700;
+  }
+  .speaking-card .topic {
+    font-size: 1rem; font-weight: 600; margin-bottom: 8px;
+    line-height: 1.4;
+  }
+  .speaking-card .bullets {
+    font-size: 0.88rem; color: var(--fg); padding-left: 20px;
+    margin: 0;
+  }
+  .speaking-card .bullets li { padding: 2px 0; }
+  .speaking-card .hint {
+    margin-top: 10px; padding: 8px 10px;
+    background: var(--bg); border-radius: 8px;
+    font-size: 0.82rem; color: var(--muted);
+  }
+  .speaking-card .hint code {
+    background: var(--card); padding: 1px 6px; border-radius: 4px;
+    color: var(--accent); font-family: "SF Mono", Menlo, monospace;
+    font-size: 0.78rem;
   }
   .plan-week {
     background: var(--card); border: 1px solid var(--border);
@@ -147,17 +228,6 @@
     border-bottom: 1px solid var(--border);
   }
   .plan-week .body li:last-child { border-bottom: none; }
-  .commands { background: var(--card); border-radius: 12px; padding: 14px 16px; }
-  .commands h3 {
-    font-size: 0.78rem; margin: 0 0 10px;
-    color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em;
-  }
-  .commands div { padding: 5px 0; font-size: 0.88rem; }
-  .commands code {
-    background: var(--bg); padding: 2px 7px; border-radius: 5px;
-    color: var(--accent); font-family: "SF Mono", Menlo, monospace;
-    font-size: 0.82rem;
-  }
   .tabbar {
     position: fixed; bottom: 0; left: 0; right: 0;
     background: var(--nav-bg);
@@ -177,17 +247,10 @@
   }
   .tab-btn .icon { font-size: 1.25rem; line-height: 1; }
   .tab-btn.active { color: var(--accent); }
-  .tab-btn.active .icon { transform: scale(1.05); }
   .foot-meta {
     text-align: center; color: var(--muted);
     font-size: 0.72rem; margin: 16px 0 8px;
   }
-  .note {
-    background: rgba(217,119,6,0.1); border-left: 3px solid var(--warn);
-    padding: 10px 12px; border-radius: 6px; margin-bottom: 14px;
-    font-size: 0.85rem; color: var(--fg);
-  }
-  .note strong { color: var(--warn); }
 </style>
 </head>
 <body>
@@ -195,7 +258,7 @@
 <header class="app-header">
   <div class="app-title">
     <span class="name">IELTS Coach</span>
-    <button class="menu-btn" title="刷新提示" onclick="alert('在终端运行 /ielts --web 可重新生成本页')">⟳</button>
+    <span class="date">2026-05-21 (周四) · Day 1</span>
   </div>
   <div class="band-grid">
     <div class="band-cell">
@@ -217,19 +280,53 @@
 
 <section class="tab-content active" id="tab-home">
 
-  <div class="note">
-    <strong>📝 真实数据已就绪</strong>。考试日期暂设为 2026-08-19 (90 天估算),实际考试报名后,运行 <code>/ielts setup</code> 更新。
+  <div class="card">
+    <h2>🌅 今日学习 <span class="badge">Day 1</span></h2>
+    <div class="today-grid">
+      <a class="today-tile" href="vocab-20260521.html">
+        <div class="icon">📝</div>
+        <div class="ttl">150 词卡</div>
+        <div class="sub">Education 主题 · 滑动学</div>
+      </a>
+      <a class="today-tile" href="quiz-20260521-reading.html">
+        <div class="icon">📖</div>
+        <div class="ttl">阅读小测</div>
+        <div class="sub">T/F/NG + 词汇 · 5 题</div>
+      </a>
+      <a class="today-tile" href="#materials" onclick="switchTab('tab-materials')">
+        <div class="icon">🎬</div>
+        <div class="ttl">10 视频</div>
+        <div class="sub">BBC + IELTS Liz</div>
+      </a>
+      <div class="today-tile" style="cursor:default;">
+        <div class="icon">🗣️</div>
+        <div class="ttl">口语题</div>
+        <div class="sub">见下方</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="speaking-card">
+    <div class="label">🗣️ 今日口语题 · Part 2</div>
+    <div class="topic">Describe a person who taught you something useful</div>
+    <ul class="bullets">
+      <li>Who this person is</li>
+      <li>What they taught you</li>
+      <li>How they taught you</li>
+      <li>Why it was useful</li>
+    </ul>
+    <div class="hint">1 分钟笔记 + 1.5-2 分钟独白。今天有空到 Mac 时用 <code>/ielts practice grade speaking</code> 给我看你的回答</div>
   </div>
 
   <div class="card">
     <h2>📅 本周计划 <span class="badge">Week 1</span></h2>
     <ul class="tasks">
-      <li class="done"><span class="checkbox"></span><span class="task-text">周一 5-21: <code>/ielts setup</code> 配置档案</span></li>
-      <li><span class="checkbox"></span><span class="task-text">周二 5-22: 写作 Task 2 诊断 <code>/ielts practice mock writing task2</code></span></li>
-      <li><span class="checkbox"></span><span class="task-text">周三 5-23: 阅读 1 套 <code>/ielts practice mock reading</code></span></li>
-      <li><span class="checkbox"></span><span class="task-text">周四 5-24: 口语 P2 诊断</span></li>
+      <li class="done"><span class="checkbox"></span><span class="task-text">周一 5-21: 配置档案 + Day 1 学习包</span></li>
+      <li><span class="checkbox"></span><span class="task-text">周二 5-22: 写作 Task 2 诊断 (Mac 端 <code>/ielts practice mock writing task2</code>)</span></li>
+      <li><span class="checkbox"></span><span class="task-text">周三 5-23: 阅读 1 套</span></li>
+      <li><span class="checkbox"></span><span class="task-text">周四 5-24: 口语 Part 2 (Mac 端 grade)</span></li>
       <li><span class="checkbox"></span><span class="task-text">周五 5-25: 听力 1 套</span></li>
-      <li><span class="checkbox"></span><span class="task-text">周六 5-26: BBC 6 Minute English 影子跟读</span></li>
+      <li><span class="checkbox"></span><span class="task-text">周六 5-26: 选 1 个 BBC 视频影子跟读</span></li>
       <li><span class="checkbox"></span><span class="task-text">周日 5-27: 复盘 + 错题入库</span></li>
     </ul>
   </div>
@@ -238,8 +335,8 @@
     <h2>📈 最近练习</h2>
     <div class="empty">
       <div class="icon">📊</div>
-      <div class="hint">还没有练习记录</div>
-      <div class="cmd">/ielts practice mock writing task2</div>
+      <div class="hint">还没有 grade 过的练习记录</div>
+      <div style="font-size:0.78rem;margin-top:4px;">到 Mac 跑 <code style="background:var(--bg);padding:1px 6px;border-radius:4px;color:var(--accent);">/ielts practice grade ...</code></div>
     </div>
   </div>
 
@@ -252,7 +349,7 @@
       </div>
       <div class="stat-cell">
         <div class="num">80</div>
-        <div class="lbl">记忆卡 (种子)</div>
+        <div class="lbl">种子记忆卡</div>
       </div>
     </div>
   </div>
@@ -270,33 +367,137 @@
     </div>
   </div>
 
-  <div class="commands">
-    <h3>下一步建议</h3>
-    <div>1. <code>/ielts quick memory</code> 试 5 张种子卡</div>
-    <div>2. <code>/ielts practice mock writing task2</code> 做一次诊断</div>
-    <div>3. <code>/ielts materials find BBC 6 Minute English</code> 找练习视频</div>
-    <div>4. <code>/ielts plan</code> 查看完整 90 天计划</div>
-  </div>
-
 </section>
 
 <section class="tab-content" id="tab-materials">
-  <div class="empty">
-    <div class="icon">📺</div>
-    <div class="hint">还没有学习材料</div>
-    <div style="font-size:0.85rem;margin-top:4px;">运行命令找视频并生成跟读/总结页</div>
-    <div class="cmd">/ielts materials find &lt;topic&gt;</div>
-    <div class="cmd" style="margin-top:8px;">/ielts materials shadow &lt;youtube-url&gt;</div>
+
+  <div class="date-group">
+    <span>2026-05-21 · 今日</span>
+    <span class="count">10 个</span>
   </div>
+
+  <div class="item-list">
+    <a class="item-card" href="https://www.youtube.com/watch?v=YjwHsdFZPxE" target="_blank" rel="noopener">
+      <div class="thumb">📺</div>
+      <div class="info">
+        <div class="ttl">The future of food ⏲️ 6 Minute English</div>
+        <div class="meta"><span class="pill">BBC LE</span><span>~6 min</span><span class="dot">·</span><span>听力</span></div>
+      </div>
+      <div class="chev">↗</div>
+    </a>
+    <a class="item-card" href="https://www.youtube.com/watch?v=QdE63sYqwd8" target="_blank" rel="noopener">
+      <div class="thumb">📺</div>
+      <div class="info">
+        <div class="ttl">Why are we all so stressed? ⏲️ 6 Minute English</div>
+        <div class="meta"><span class="pill">BBC LE</span><span>~6 min</span><span class="dot">·</span><span>听力</span></div>
+      </div>
+      <div class="chev">↗</div>
+    </a>
+    <a class="item-card" href="https://www.youtube.com/watch?v=hhmNNs47PMo" target="_blank" rel="noopener">
+      <div class="thumb">📺</div>
+      <div class="info">
+        <div class="ttl">Searching for life on another planet ⏲️ 6 Minute English</div>
+        <div class="meta"><span class="pill">BBC LE</span><span>~6 min</span><span class="dot">·</span><span>听力</span></div>
+      </div>
+      <div class="chev">↗</div>
+    </a>
+    <a class="item-card" href="https://www.youtube.com/watch?v=5ZQ65RbsAB8" target="_blank" rel="noopener">
+      <div class="thumb">📺</div>
+      <div class="info">
+        <div class="ttl">Young women on social media ⏲️ 6 Minute English</div>
+        <div class="meta"><span class="pill">BBC LE</span><span>~6 min</span><span class="dot">·</span><span>听力</span></div>
+      </div>
+      <div class="chev">↗</div>
+    </a>
+    <a class="item-card" href="https://www.youtube.com/watch?v=7m75Bi3rzjM" target="_blank" rel="noopener">
+      <div class="thumb">📺</div>
+      <div class="info">
+        <div class="ttl">BOX SET: 6 Minute English — 'Being human'</div>
+        <div class="meta"><span class="pill">BBC LE</span><span>~60 min</span><span class="dot">·</span><span>长合集</span></div>
+      </div>
+      <div class="chev">↗</div>
+    </a>
+    <a class="item-card" href="https://www.youtube.com/watch?v=LxR8Z7NvRD0" target="_blank" rel="noopener">
+      <div class="thumb">🎤</div>
+      <div class="info">
+        <div class="ttl">Every IELTS Speaking Question for 2026 Explained</div>
+        <div class="meta"><span class="pill">IELTS Liz</span><span>~20 min</span><span class="dot">·</span><span>口语</span></div>
+      </div>
+      <div class="chev">↗</div>
+    </a>
+    <a class="item-card" href="https://www.youtube.com/watch?v=csCJW1THsCs" target="_blank" rel="noopener">
+      <div class="thumb">🎤</div>
+      <div class="info">
+        <div class="ttl">IELTS 2026 Speaking &amp; Writing Mock Test</div>
+        <div class="meta"><span class="pill">IELTS Liz</span><span>~30 min</span><span class="dot">·</span><span>口语+写作</span></div>
+      </div>
+      <div class="chev">↗</div>
+    </a>
+    <a class="item-card" href="https://www.youtube.com/watch?v=K6chKGPF8JM" target="_blank" rel="noopener">
+      <div class="thumb">🔮</div>
+      <div class="info">
+        <div class="ttl">Feb 2026 IELTS Predictions: Speaking Cue Cards + Writing Task 2</div>
+        <div class="meta"><span class="pill">IELTS Liz</span><span>~15 min</span><span class="dot">·</span><span>预测</span></div>
+      </div>
+      <div class="chev">↗</div>
+    </a>
+    <a class="item-card" href="https://www.youtube.com/watch?v=Zbh4doGGxsI" target="_blank" rel="noopener">
+      <div class="thumb">✍️</div>
+      <div class="info">
+        <div class="ttl">Advanced IELTS Writing Task 2 Lessons</div>
+        <div class="meta"><span class="pill">IELTS Liz</span><span>~25 min</span><span class="dot">·</span><span>写作进阶</span></div>
+      </div>
+      <div class="chev">↗</div>
+    </a>
+    <a class="item-card" href="https://www.youtube.com/watch?v=4hI-ST678rI" target="_blank" rel="noopener">
+      <div class="thumb">✍️</div>
+      <div class="info">
+        <div class="ttl">The ONLY IELTS Writing Task 2 Strategy You Need</div>
+        <div class="meta"><span class="pill">IELTS Liz</span><span>~12 min</span><span class="dot">·</span><span>写作</span></div>
+      </div>
+      <div class="chev">↗</div>
+    </a>
+  </div>
+
+  <div class="empty" style="margin-top:24px;">
+    <div style="font-size:0.82rem;">想做带字幕分段的影子跟读? 到 Mac 跑</div>
+    <div class="cmd">/ielts materials shadow &lt;url&gt;</div>
+  </div>
+
 </section>
 
 <section class="tab-content" id="tab-quizzes">
-  <div class="empty">
-    <div class="icon">✏️</div>
-    <div class="hint">还没有生成测验</div>
-    <div style="font-size:0.85rem;margin-top:4px;">碎片时间出题,带 --web 生成手机可做的页面</div>
-    <div class="cmd">/ielts quick test reading --web</div>
+
+  <div class="date-group">
+    <span>2026-05-21 · 今日</span>
+    <span class="count">2 项</span>
   </div>
+
+  <div class="item-list">
+    <a class="item-card" href="quiz-20260521-reading.html">
+      <div class="thumb">✏️</div>
+      <div class="info">
+        <div class="ttl">Reading T/F/NG + 词汇 (5 题)</div>
+        <div class="meta"><span class="pill">阅读</span><span>~5 min</span></div>
+      </div>
+      <div class="chev">›</div>
+    </a>
+
+    <a class="item-card" href="vocab-20260521.html">
+      <div class="thumb">📝</div>
+      <div class="info">
+        <div class="ttl">今日 150 词卡 (Education)</div>
+        <div class="meta"><span class="pill">词汇</span><span>无时限</span></div>
+      </div>
+      <div class="chev">›</div>
+    </a>
+  </div>
+
+  <div class="empty" style="margin-top:24px;">
+    <div style="font-size:0.82rem;">生成更多碎片测验 (听力 / 句式升级) 到 Mac 跑</div>
+    <div class="cmd">/ielts quick test &lt;module&gt; --web</div>
+  </div>
+
 </section>
 
 <section class="tab-content" id="tab-plan">
@@ -308,12 +509,12 @@
     </div>
     <div class="body">
       <ul>
-        <li>✅ 周一: /ielts setup 配置档案</li>
-        <li>○ 周二: Writing Task 2 诊断</li>
+        <li>✅ 周一: setup 配置档案 + Day 1 学习包</li>
+        <li>○ 周二: Writing Task 2 诊断 (Mac)</li>
         <li>○ 周三: Reading 1 套</li>
         <li>○ 周四: Speaking Part 2 诊断</li>
         <li>○ 周五: Listening 1 套</li>
-        <li>○ 周六: BBC 6 Minute English 跟读</li>
+        <li>○ 周六: BBC 视频影子跟读</li>
         <li>○ 周日: 复盘 + 错题入库</li>
       </ul>
     </div>
@@ -321,29 +522,15 @@
 
   <div class="plan-week">
     <div class="head">
-      <span>Week 2 · 基础打牢</span>
-      <span class="dates">5-28 → 6-03</span>
+      <span>Week 2-4 · 基础打牢</span>
+      <span class="dates">5-28 → 6-17</span>
     </div>
     <div class="body">
       <ul>
-        <li>○ 词汇: Education + Environment</li>
-        <li>○ Writing Task 2 × 1 + Task 1 × 1</li>
-        <li>○ Reading × 2 + 同义替换整理</li>
-        <li>○ Listening × 2 + 场景词</li>
-        <li>○ Shadow reading × 2</li>
-      </ul>
-    </div>
-  </div>
-
-  <div class="plan-week">
-    <div class="head">
-      <span>Week 3-4 · 基础打牢 (续)</span>
-      <span class="dates">6-04 → 6-17</span>
-    </div>
-    <div class="body">
-      <ul>
-        <li>○ 词汇: Technology / Health / Government / Work</li>
-        <li>○ 长难句拆解 + 11 类阅读题型识别</li>
+        <li>○ 每天 150 词 (轮换主题)</li>
+        <li>○ 每周写作 2 篇 (Task 1 + Task 2)</li>
+        <li>○ 每周 Listening + Reading 各 3 套</li>
+        <li>○ 每天 1 个视频 shadow / summary</li>
       </ul>
     </div>
   </div>
@@ -356,10 +543,9 @@
     <div class="body">
       <ul>
         <li>○ T/F/NG + Matching Headings 突破</li>
-        <li>○ Listening Section 4 讲座专项</li>
-        <li>○ Writing Task 2 五大题型轮训</li>
-        <li>○ Speaking 当季题库 25 张 P2 卡片</li>
-        <li>○ Speaking P3 抽象题 + DRER 训练</li>
+        <li>○ Listening Section 4 专项</li>
+        <li>○ Writing 五大题型轮训</li>
+        <li>○ Speaking Q2 题库 25 张 P2</li>
       </ul>
     </div>
   </div>
@@ -371,40 +557,37 @@
     </div>
     <div class="body">
       <ul>
-        <li>○ Week 10: 模考 × 3 按真考节奏</li>
-        <li>○ Week 11: 错题深化 + 口语题库全过</li>
-        <li>○ Week 12: 状态调整, 不练新内容</li>
+        <li>○ Week 10: 全套模考 × 3</li>
+        <li>○ Week 11: 错题深化 + 口语全过</li>
+        <li>○ Week 12: 状态调整</li>
       </ul>
     </div>
   </div>
 
 </section>
 
-<div class="foot-meta">由 /ielts skill 生成 · 2026-05-21 · 真实档案</div>
+<div class="foot-meta">由 /ielts daily 生成 · 2026-05-21 · 真实数据</div>
 
 </main>
 
 <nav class="tabbar">
-  <button class="tab-btn active" data-target="tab-home"><span class="icon">🏠</span>概览</button>
-  <button class="tab-btn" data-target="tab-materials"><span class="icon">📺</span>材料</button>
-  <button class="tab-btn" data-target="tab-quizzes"><span class="icon">✏️</span>测验</button>
-  <button class="tab-btn" data-target="tab-plan"><span class="icon">📋</span>计划</button>
+  <button class="tab-btn active" data-target="tab-home" onclick="switchTab('tab-home')"><span class="icon">🏠</span>概览</button>
+  <button class="tab-btn" data-target="tab-materials" onclick="switchTab('tab-materials')"><span class="icon">📺</span>材料</button>
+  <button class="tab-btn" data-target="tab-quizzes" onclick="switchTab('tab-quizzes')"><span class="icon">✏️</span>测验</button>
+  <button class="tab-btn" data-target="tab-plan" onclick="switchTab('tab-plan')"><span class="icon">📋</span>计划</button>
 </nav>
 
 <script>
-  document.querySelectorAll(".tab-btn").forEach(btn => {
-    btn.addEventListener("click", () => {
-      document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
-      document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
-      btn.classList.add("active");
-      document.getElementById(btn.dataset.target).classList.add("active");
-      window.scrollTo({top: 0, behavior: "instant"});
-      history.replaceState(null, "", "#" + btn.dataset.target.replace("tab-",""));
-    });
-  });
+  function switchTab(target) {
+    document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+    document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
+    document.querySelector(`[data-target="${target}"]`)?.classList.add("active");
+    document.getElementById(target).classList.add("active");
+    window.scrollTo({top: 0, behavior: "instant"});
+    history.replaceState(null, "", "#" + target.replace("tab-",""));
+  }
   const hash = (location.hash || "#home").replace("#","");
-  const targetBtn = document.querySelector(`[data-target="tab-${hash}"]`);
-  if (targetBtn && hash !== "home") targetBtn.click();
+  if (hash !== "home") switchTab("tab-" + hash);
   document.querySelectorAll("ul.tasks li").forEach(li => {
     li.querySelector(".checkbox")?.addEventListener("click", () => li.classList.toggle("done"));
   });
