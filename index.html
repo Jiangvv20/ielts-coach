@@ -253,6 +253,73 @@
   }
   .tom-saved.show { display: block; }
   .tom-saved strong { color: var(--ok); }
+
+  /* Settings gear in header */
+  .gear-btn {
+    background: rgba(255,255,255,0.18); border: none; color: white;
+    width: 32px; height: 32px; border-radius: 8px;
+    font-size: 1rem; cursor: pointer;
+  }
+  /* Modal */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.5);
+    display: none; align-items: center; justify-content: center;
+    z-index: 100; padding: 20px;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal {
+    background: var(--bg); border-radius: 16px;
+    max-width: 440px; width: 100%;
+    max-height: 85vh; overflow-y: auto;
+    padding: 20px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+  }
+  .modal h3 { margin: 0 0 12px; font-size: 1.05rem; }
+  .modal .desc {
+    color: var(--muted); font-size: 0.85rem;
+    margin-bottom: 14px; line-height: 1.5;
+  }
+  .modal label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; }
+  .modal input {
+    width: 100%; padding: 10px 12px;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 8px; font-size: 0.9rem; color: var(--fg);
+    font-family: "SF Mono", Menlo, monospace;
+  }
+  .modal .status {
+    margin: 10px 0; padding: 8px 12px;
+    border-radius: 6px; font-size: 0.85rem;
+    display: none;
+  }
+  .modal .status.show { display: block; }
+  .modal .status.ok { background: rgba(5,150,105,0.1); color: var(--ok); }
+  .modal .status.err { background: rgba(220,38,38,0.1); color: var(--err); }
+  .modal-actions {
+    display: flex; gap: 8px; margin-top: 16px;
+  }
+  .modal-actions button {
+    flex: 1; padding: 10px;
+    border: none; border-radius: 8px;
+    font-size: 0.9rem; font-weight: 600; cursor: pointer;
+    font-family: inherit;
+  }
+  .modal-actions .test { background: var(--card); color: var(--fg); border: 1px solid var(--border); }
+  .modal-actions .save { background: var(--accent); color: white; }
+  .modal-actions .close { background: transparent; color: var(--muted); border: 1px solid var(--border); }
+  .modal-actions .clear { background: transparent; color: var(--err); border: 1px solid var(--border); }
+  .pat-help {
+    background: var(--card); padding: 12px;
+    border-radius: 8px; font-size: 0.82rem;
+    color: var(--muted); line-height: 1.6;
+    margin-top: 12px;
+  }
+  .pat-help a { color: var(--accent); }
+  .pat-help code {
+    background: var(--bg); padding: 1px 5px; border-radius: 3px;
+    font-family: "SF Mono", Menlo, monospace; font-size: 0.78rem;
+    color: var(--accent);
+  }
   .plan-week {
     background: var(--card); border: 1px solid var(--border);
     border-radius: 12px; margin-bottom: 12px; overflow: hidden;
@@ -303,7 +370,10 @@
 <header class="app-header">
   <div class="app-title">
     <span class="name">IELTS Coach</span>
-    <span class="date">2026-05-21 (周四) · Day 1</span>
+    <span style="display:flex;align-items:center;gap:10px;">
+      <span class="date">2026-05-21 (周四) · Day 1</span>
+      <button class="gear-btn" title="设置 / 同步" onclick="openSettings()">⚙️</button>
+    </span>
   </div>
   <div class="band-grid">
     <div class="band-cell">
@@ -363,20 +433,6 @@
     <div class="hint">1 分钟笔记 + 1.5-2 分钟独白。今天有空到 Mac 时用 <code>/ielts practice grade speaking</code> 给我看你的回答</div>
   </div>
 
-  <div class="tomorrow-card">
-    <h2>🌙 明日 5-22 学习选择</h2>
-    <div class="tom-opts">
-      <button class="tom-opt" data-key="listening-s1"><span class="ttl">🎧 听力</span><span class="sub">Section 1 日常对话</span></button>
-      <button class="tom-opt" data-key="reading-tfng"><span class="ttl">📖 阅读</span><span class="sub">T/F/NG 专项</span></button>
-      <button class="tom-opt" data-key="writing-t2"><span class="ttl">✍️ 写作</span><span class="sub">Task 2 议论文</span></button>
-      <button class="tom-opt" data-key="speaking-p3"><span class="ttl">🗣️ 口语</span><span class="sub">Part 3 抽象题</span></button>
-    </div>
-    <button class="tom-submit" id="tomSubmit" disabled onclick="saveTomorrow()">请先选择上方一项</button>
-    <div class="tom-saved" id="tomSaved">
-      <strong>✓ 已保存</strong>: <span id="tomSavedText"></span><br>
-      <span style="font-size:0.78rem;color:var(--muted);">下次和 Claude 说"明日选 &lt;module&gt;"我读取这个选择生成对应内容</span>
-    </div>
-  </div>
 
   <div class="card">
     <h2>📅 本周计划 <span class="badge">Week 1</span></h2>
@@ -570,6 +626,21 @@
 
 <section class="tab-content" id="tab-plan">
 
+  <div class="tomorrow-card">
+    <h2>🌙 明日 (<span id="tomDate">5-22</span>) 小测内容</h2>
+    <div class="tom-opts">
+      <button class="tom-opt" data-key="listening-s1"><span class="ttl">🎧 听力</span><span class="sub">Section 1 日常对话</span></button>
+      <button class="tom-opt" data-key="reading-tfng"><span class="ttl">📖 阅读</span><span class="sub">T/F/NG 专项</span></button>
+      <button class="tom-opt" data-key="writing-t2"><span class="ttl">✍️ 写作</span><span class="sub">Task 2 议论文</span></button>
+      <button class="tom-opt" data-key="speaking-p3"><span class="ttl">🗣️ 口语</span><span class="sub">Part 3 抽象题</span></button>
+    </div>
+    <button class="tom-submit" id="tomSubmit" disabled onclick="syncTomorrow()">请先选择上方一项</button>
+    <div class="tom-saved" id="tomSaved">
+      <strong id="tomSavedHead">✓ 已选择</strong>: <span id="tomSavedText"></span><br>
+      <span id="tomSavedSub" style="font-size:0.78rem;color:var(--muted);">明早 06:00 (UTC+8) 自动生成对应内容</span>
+    </div>
+  </div>
+
   <div class="plan-week current">
     <div class="head">
       <span>Week 1 · 诊断 + 立基础</span>
@@ -645,6 +716,36 @@
   <button class="tab-btn" data-target="tab-plan" onclick="switchTab('tab-plan')"><span class="icon">📋</span>计划</button>
 </nav>
 
+<div class="modal-overlay" id="settingsModal" onclick="if(event.target===this)closeSettings()">
+  <div class="modal">
+    <h3>⚙️ 设置 · GitHub 同步</h3>
+    <div class="desc">配置 GitHub Personal Access Token (PAT) 后, 你在"计划"tab 选的明日内容会自动写回仓库, 早上 6 点 cron agent 读取生成。</div>
+
+    <label>GitHub PAT</label>
+    <input type="password" id="patInput" placeholder="github_pat_..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+    <div class="status" id="patStatus"></div>
+
+    <div class="modal-actions">
+      <button class="test" onclick="testPAT()">测试</button>
+      <button class="save" onclick="savePAT()">保存</button>
+    </div>
+    <div class="modal-actions">
+      <button class="clear" onclick="clearPAT()">清除 PAT</button>
+      <button class="close" onclick="closeSettings()">关闭</button>
+    </div>
+
+    <div class="pat-help">
+      <strong>如何获取 PAT</strong>:<br>
+      1. 浏览器开 <a href="https://github.com/settings/personal-access-tokens/new" target="_blank">github.com/settings/personal-access-tokens/new</a><br>
+      2. Token name: <code>ielts-coach</code> · Expiration: 90 天<br>
+      3. Repository access: Only select repositories → <code>ielts-coach</code><br>
+      4. Permissions → Repository permissions → <strong>Contents: Read and write</strong><br>
+      5. Generate token, 复制 <code>github_pat_xxx</code>, 粘贴到上方框, 测试 → 保存<br><br>
+      <strong>存在哪</strong>: 仅本机 localStorage, 不上传, 不离开你的浏览器。
+    </div>
+  </div>
+</div>
+
 <script>
   function switchTab(target) {
     document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
@@ -660,15 +761,27 @@
     li.querySelector(".checkbox")?.addEventListener("click", () => li.classList.toggle("done"));
   });
 
-  // ---- Tomorrow's quiz selection ----
-  const TOM_KEY = "ielts_tomorrow_20260522";
+  // ---- Tomorrow's quiz selection (with GitHub sync via PAT) ----
+  const REPO = "Jiangvv20/ielts-coach";
   const TOM_LABELS = {
     "listening-s1": "🎧 听力 · Section 1 日常对话",
     "reading-tfng": "📖 阅读 · T/F/NG 专项",
     "writing-t2": "✍️ 写作 · Task 2 议论文",
     "speaking-p3": "🗣️ 口语 · Part 3 抽象题"
   };
+  function tomorrowDateISO() {
+    const t = new Date(); t.setDate(t.getDate() + 1);
+    return t.toISOString().slice(0,10);
+  }
+  function tomorrowDateLabel() {
+    const iso = tomorrowDateISO();
+    return iso.slice(5).replace("-","-"); // "05-22"
+  }
+  const TOM_KEY = "ielts_tomorrow_" + tomorrowDateISO().replace(/-/g,"");
   let tomChoice = localStorage.getItem(TOM_KEY) || "";
+
+  document.getElementById("tomDate") && (document.getElementById("tomDate").textContent = tomorrowDateLabel());
+
   function applyTomUI() {
     document.querySelectorAll(".tom-opt").forEach(b => {
       b.classList.toggle("selected", b.dataset.key === tomChoice);
@@ -676,11 +789,16 @@
     const submit = document.getElementById("tomSubmit");
     if (tomChoice) {
       submit.disabled = false;
-      submit.textContent = "确认选择";
+      const synced = localStorage.getItem(TOM_KEY + "_synced");
+      submit.textContent = synced === tomChoice ? "✓ 已同步 · 重新同步" : (localStorage.getItem("ielts_pat") ? "同步到 GitHub" : "保存 (本地)");
       const saved = localStorage.getItem(TOM_KEY + "_saved");
       if (saved === tomChoice) {
         document.getElementById("tomSaved").classList.add("show");
         document.getElementById("tomSavedText").textContent = TOM_LABELS[saved];
+        document.getElementById("tomSavedHead").textContent = synced === tomChoice ? "✓ 已同步到 GitHub" : "○ 仅本地保存";
+        document.getElementById("tomSavedSub").textContent = synced === tomChoice
+          ? "明早 06:00 (UTC+8) cron agent 读取此选择自动生成内容"
+          : "未配置 PAT, 选择只存本地。配置 PAT 才能跨设备同步。";
       } else {
         document.getElementById("tomSaved").classList.remove("show");
       }
@@ -696,12 +814,98 @@
       applyTomUI();
     });
   });
-  function saveTomorrow() {
+
+  async function syncTomorrow() {
     if (!tomChoice) return;
     localStorage.setItem(TOM_KEY + "_saved", tomChoice);
-    applyTomUI();
+    const pat = localStorage.getItem("ielts_pat");
+    if (!pat) {
+      applyTomUI();
+      alert("已保存到本地。配置 GitHub PAT (右上角 ⚙️) 后可同步到云端,云端 cron 每天 6 点自动读取。");
+      return;
+    }
+    const submit = document.getElementById("tomSubmit");
+    submit.disabled = true; submit.textContent = "同步中...";
+    try {
+      const path = "tomorrow.json";
+      // Get existing SHA if file exists
+      let sha = null;
+      const getRes = await fetch(`https://api.github.com/repos/${REPO}/contents/${path}`, {
+        headers: { Authorization: "Bearer " + pat, Accept: "application/vnd.github+json" }
+      });
+      if (getRes.ok) sha = (await getRes.json()).sha;
+      const body = {
+        date: tomorrowDateISO(),
+        module: tomChoice,
+        moduleLabel: TOM_LABELS[tomChoice],
+        selectedAt: new Date().toISOString()
+      };
+      const content = btoa(unescape(encodeURIComponent(JSON.stringify(body, null, 2))));
+      const putRes = await fetch(`https://api.github.com/repos/${REPO}/contents/${path}`, {
+        method: "PUT",
+        headers: { Authorization: "Bearer " + pat, Accept: "application/vnd.github+json", "Content-Type": "application/json" },
+        body: JSON.stringify({ message: `tomorrow: ${tomChoice}`, content, sha })
+      });
+      if (!putRes.ok) throw new Error("GitHub API " + putRes.status + ": " + (await putRes.text()).slice(0, 200));
+      localStorage.setItem(TOM_KEY + "_synced", tomChoice);
+      applyTomUI();
+    } catch (e) {
+      alert("同步失败: " + e.message);
+      applyTomUI();
+    }
   }
   applyTomUI();
+
+  // ---- Settings modal (PAT config) ----
+  function openSettings() {
+    document.getElementById("settingsModal").classList.add("show");
+    const pat = localStorage.getItem("ielts_pat") || "";
+    document.getElementById("patInput").value = pat;
+    document.getElementById("patStatus").classList.remove("show", "ok", "err");
+  }
+  function closeSettings() {
+    document.getElementById("settingsModal").classList.remove("show");
+  }
+  async function testPAT() {
+    const pat = document.getElementById("patInput").value.trim();
+    const st = document.getElementById("patStatus");
+    st.className = "status show"; st.textContent = "测试中...";
+    try {
+      const r = await fetch("https://api.github.com/user", {
+        headers: { Authorization: "Bearer " + pat, Accept: "application/vnd.github+json" }
+      });
+      if (!r.ok) throw new Error("Auth failed (status " + r.status + ")");
+      const u = await r.json();
+      // Try the repo access
+      const rr = await fetch(`https://api.github.com/repos/${REPO}`, {
+        headers: { Authorization: "Bearer " + pat, Accept: "application/vnd.github+json" }
+      });
+      if (!rr.ok) throw new Error("No access to " + REPO);
+      st.className = "status show ok";
+      st.textContent = `✓ 认证成功 · 用户 ${u.login} · 可访问 ${REPO}`;
+    } catch (e) {
+      st.className = "status show err";
+      st.textContent = "✗ " + e.message;
+    }
+  }
+  function savePAT() {
+    const pat = document.getElementById("patInput").value.trim();
+    if (!pat) { alert("请粘贴 PAT"); return; }
+    localStorage.setItem("ielts_pat", pat);
+    const st = document.getElementById("patStatus");
+    st.className = "status show ok";
+    st.textContent = "✓ 已保存到本机 localStorage";
+    setTimeout(closeSettings, 800);
+    applyTomUI();
+  }
+  function clearPAT() {
+    if (!confirm("清除本机 PAT?")) return;
+    localStorage.removeItem("ielts_pat");
+    document.getElementById("patInput").value = "";
+    const st = document.getElementById("patStatus");
+    st.className = "status show"; st.textContent = "已清除";
+    applyTomUI();
+  }
 </script>
 
 </body>
