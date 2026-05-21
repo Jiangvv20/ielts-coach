@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#2563eb">
+<title>影子跟读 · {{videoTitle}}</title>
+<style>
+  :root {
+    --bg: #ffffff; --fg: #1a1a1a; --muted: #6b7280;
+    --accent: #2563eb; --ok: #059669; --hard: #dc2626;
+    --card: #f9fafb; --border: #e5e7eb;
+    --nav-bg: rgba(255,255,255,0.92);
+    --header-bg: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f172a; --fg: #f1f5f9; --muted: #94a3b8;
+      --accent: #60a5fa; --ok: #34d399; --hard: #f87171;
+      --card: #1e293b; --border: #334155;
+      --nav-bg: rgba(15,23,42,0.92);
+      --header-bg: linear-gradient(135deg, #1e40af 0%, #6b21a8 100%);
+    }
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg); }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif;
+    line-height: 1.65;
+    min-height: 100vh;
+    padding-bottom: calc(64px + env(safe-area-inset-bottom, 0));
+  }
+
+  /* Shared app header */
+  .app-header {
+    background: var(--header-bg); color: white;
+    padding: calc(env(safe-area-inset-top, 16px) + 12px) 16px 14px;
+    position: sticky; top: 0; z-index: 20;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .back-btn {
+    background: rgba(255,255,255,0.18); border: none;
+    color: white; width: 34px; height: 34px; border-radius: 10px;
+    font-size: 1.1rem; cursor: pointer; flex-shrink: 0;
+    text-decoration: none; display: flex; align-items: center; justify-content: center;
+  }
+  .app-header .ttl {
+    flex: 1; min-width: 0;
+    font-size: 1rem; font-weight: 700;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .app-header .sub {
+    font-size: 0.72rem; opacity: 0.85;
+    margin-top: 1px; letter-spacing: 0.04em; text-transform: uppercase;
+  }
+
+  /* Video */
+  .video-wrap {
+    width: 100%; aspect-ratio: 16 / 9; background: #000;
+  }
+  .video-wrap iframe { width: 100%; height: 100%; border: none; }
+  .video-fallback {
+    padding: 6px 16px; background: var(--card);
+    border-bottom: 1px solid var(--border);
+    font-size: 0.8rem; text-align: center;
+  }
+  .video-fallback a { color: var(--accent); text-decoration: none; }
+
+  /* Controls */
+  .controls {
+    padding: 10px 16px;
+    display: flex; gap: 8px; flex-wrap: wrap;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg); position: sticky;
+    top: calc(env(safe-area-inset-top, 16px) + 60px);
+    z-index: 5;
+  }
+  .btn {
+    background: var(--card); color: var(--fg);
+    border: 1px solid var(--border);
+    padding: 7px 13px; border-radius: 999px;
+    font-size: 0.82rem; cursor: pointer;
+  }
+  .btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+
+  /* Sentences */
+  main { max-width: 760px; margin: 0 auto; }
+  .sentences { padding: 8px 16px 24px; }
+  .sentence {
+    padding: 14px 0; border-bottom: 1px solid var(--border);
+    position: relative;
+  }
+  .sentence-text { font-size: 1.05rem; line-height: 1.7; margin: 0; }
+  .hidden .sentence-text { color: transparent; user-select: none; }
+  .hidden .sentence-text::after {
+    content: "(轻触显示)"; color: var(--muted);
+    position: absolute; left: 0; font-size: 0.9rem;
+  }
+  .hard-word {
+    color: var(--hard); font-weight: 600;
+    border-bottom: 1px dashed var(--hard); cursor: pointer;
+  }
+  .hard-word .zh {
+    display: none; color: var(--muted); font-weight: normal;
+    font-size: 0.85rem; margin-left: 4px;
+  }
+  .hard-word.show .zh { display: inline; }
+  .sentence-num {
+    color: var(--muted); font-size: 0.75rem;
+    margin-right: 8px; font-family: "SF Mono", Menlo, monospace;
+  }
+  .notes {
+    margin-top: 10px; width: 100%;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 8px; padding: 8px 10px;
+    font-size: 0.9rem; color: var(--fg);
+    font-family: inherit; resize: vertical; min-height: 36px;
+  }
+  .notes::placeholder { color: var(--muted); }
+
+  /* Tab bar (same as index) */
+  .tabbar {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: var(--nav-bg);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    border-top: 1px solid var(--border);
+    display: flex;
+    padding-bottom: env(safe-area-inset-bottom, 0);
+    z-index: 30;
+  }
+  .tab-btn {
+    flex: 1; background: transparent; border: none;
+    padding: 10px 4px 8px;
+    color: var(--muted); font-size: 0.68rem;
+    cursor: pointer;
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    font-family: inherit; text-decoration: none;
+  }
+  .tab-btn .icon { font-size: 1.25rem; line-height: 1; }
+  .tab-btn.active { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <a class="back-btn" href="index.html#materials">←</a>
+  <div style="flex:1;min-width:0;">
+    <div class="ttl">{{videoTitle}}</div>
+    <div class="sub">影子跟读 · Shadow Reading</div>
+  </div>
+</header>
+
+<div class="video-wrap">
+  <iframe src="https://www.youtube-nocookie.com/embed/{{videoId}}?rel=0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
+</div>
+<div class="video-fallback">视频无法播放? <a href="https://www.youtube.com/watch?v={{videoId}}" target="_blank" rel="noopener">在 YouTube 打开 ↗</a></div>
+
+<div class="controls">
+  <button class="btn" onclick="toggleAll()">隐藏/显示全部</button>
+  <button class="btn active" onclick="toggleHardWords()" id="hwBtn">标注难词</button>
+  <button class="btn" onclick="clearNotes()">清空笔记</button>
+</div>
+
+<main>
+  <div class="sentences" id="sentences">
+    {{sentences}}
+  </div>
+</main>
+
+<nav class="tabbar">
+  <a class="tab-btn" href="index.html#home"><span class="icon">🏠</span>概览</a>
+  <a class="tab-btn active" href="index.html#materials"><span class="icon">📺</span>材料</a>
+  <a class="tab-btn" href="index.html#quizzes"><span class="icon">✏️</span>测验</a>
+  <a class="tab-btn" href="index.html#plan"><span class="icon">📋</span>计划</a>
+</nav>
+
+<script>
+  const VIDEO_KEY = "ielts_shadow_{{videoId}}";
+
+  document.addEventListener("DOMContentLoaded", () => {
+    const stored = JSON.parse(localStorage.getItem(VIDEO_KEY) || "{}");
+    document.querySelectorAll(".sentence textarea").forEach((ta, idx) => {
+      if (stored[idx]) ta.value = stored[idx];
+      ta.addEventListener("input", () => saveNote(idx, ta.value));
+    });
+  });
+
+  function saveNote(idx, val) {
+    const stored = JSON.parse(localStorage.getItem(VIDEO_KEY) || "{}");
+    stored[idx] = val;
+    localStorage.setItem(VIDEO_KEY, JSON.stringify(stored));
+  }
+
+  function toggleAll() {
+    document.querySelectorAll(".sentence").forEach(s => s.classList.toggle("hidden"));
+  }
+
+  function toggleHardWords() {
+    const btn = document.getElementById("hwBtn");
+    const showing = btn.classList.toggle("active");
+    document.querySelectorAll(".hard-word").forEach(w => {
+      w.style.borderBottomStyle = showing ? "dashed" : "none";
+      w.style.color = showing ? "" : "inherit";
+      w.style.fontWeight = showing ? "600" : "inherit";
+    });
+  }
+
+  function clearNotes() {
+    if (!confirm("清空所有笔记?")) return;
+    localStorage.removeItem(VIDEO_KEY);
+    document.querySelectorAll(".sentence textarea").forEach(ta => ta.value = "");
+  }
+
+  document.querySelectorAll(".sentence-text").forEach(p => {
+    p.addEventListener("click", e => {
+      if (e.target.classList.contains("hard-word") || e.target.parentElement.classList.contains("hard-word")) return;
+      p.parentElement.classList.toggle("hidden");
+    });
+  });
+
+  document.querySelectorAll(".hard-word").forEach(w => {
+    w.addEventListener("click", e => {
+      e.stopPropagation();
+      w.classList.toggle("show");
+    });
+  });
+</script>
+
+</body>
+</html>

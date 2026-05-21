@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#2563eb">
+<title>知识点 · {{videoTitle}}</title>
+<style>
+  :root {
+    --bg: #ffffff; --fg: #1a1a1a; --muted: #6b7280;
+    --accent: #2563eb; --vocab: #2563eb; --colo: #7c3aed;
+    --pattern: #db2777; --grammar: #059669;
+    --card: #f9fafb; --border: #e5e7eb;
+    --nav-bg: rgba(255,255,255,0.92);
+    --header-bg: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f172a; --fg: #f1f5f9; --muted: #94a3b8;
+      --accent: #60a5fa; --vocab: #60a5fa; --colo: #a78bfa;
+      --pattern: #f472b6; --grammar: #34d399;
+      --card: #1e293b; --border: #334155;
+      --nav-bg: rgba(15,23,42,0.92);
+      --header-bg: linear-gradient(135deg, #1e40af 0%, #6b21a8 100%);
+    }
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg); }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif;
+    line-height: 1.6;
+    min-height: 100vh;
+    padding-bottom: calc(64px + env(safe-area-inset-bottom, 0));
+  }
+
+  /* Shared app header */
+  .app-header {
+    background: var(--header-bg); color: white;
+    padding: calc(env(safe-area-inset-top, 16px) + 12px) 16px 14px;
+    position: sticky; top: 0; z-index: 20;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .back-btn {
+    background: rgba(255,255,255,0.18); border: none;
+    color: white; width: 34px; height: 34px; border-radius: 10px;
+    font-size: 1.1rem; cursor: pointer; flex-shrink: 0;
+    text-decoration: none; display: flex; align-items: center; justify-content: center;
+  }
+  .app-header .ttl {
+    font-size: 1rem; font-weight: 700;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .app-header .sub {
+    font-size: 0.72rem; opacity: 0.85;
+    margin-top: 1px; letter-spacing: 0.04em; text-transform: uppercase;
+  }
+
+  .video-wrap { width: 100%; aspect-ratio: 16 / 9; background: #000; }
+  .video-wrap iframe { width: 100%; height: 100%; border: none; }
+  .video-fallback {
+    padding: 6px 16px; background: var(--card);
+    border-bottom: 1px solid var(--border);
+    font-size: 0.8rem; text-align: center;
+  }
+  .video-fallback a { color: var(--accent); text-decoration: none; }
+
+  main { max-width: 760px; margin: 0 auto; }
+
+  /* Topic tabs */
+  .topic-tabs {
+    display: flex; border-bottom: 1px solid var(--border);
+    overflow-x: auto; -webkit-overflow-scrolling: touch;
+    background: var(--bg); position: sticky;
+    top: calc(env(safe-area-inset-top, 16px) + 60px);
+    z-index: 5;
+  }
+  .topic-tab {
+    flex: 1; min-width: 80px; padding: 12px 8px;
+    text-align: center; color: var(--muted);
+    font-size: 0.88rem; font-weight: 600; cursor: pointer;
+    border-bottom: 2px solid transparent;
+    background: transparent; border-top: none; border-left: none; border-right: none;
+    font-family: inherit;
+  }
+  .topic-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  .section { padding: 12px 16px 24px; display: none; }
+  .section.active { display: block; }
+  .section h2 {
+    margin: 0 0 10px; font-size: 0.78rem; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 0.06em; font-weight: 700;
+  }
+  .item { padding: 12px 0; border-bottom: 1px solid var(--border); }
+  .item:last-child { border-bottom: none; }
+  .item .en { font-weight: 600; font-size: 1rem; }
+  .vocab .en { color: var(--vocab); }
+  .collo .en { color: var(--colo); }
+  .pattern .en { color: var(--pattern); }
+  .grammar .en { color: var(--grammar); }
+  .item .pos { color: var(--muted); font-weight: 400; font-size: 0.82rem; margin-left: 4px; }
+  .item .zh { color: var(--muted); font-size: 0.9rem; margin-top: 2px; }
+  .item .ex {
+    margin-top: 6px; padding: 8px 10px;
+    background: var(--card); border-left: 3px solid var(--border);
+    border-radius: 4px; font-size: 0.9rem; font-style: italic;
+  }
+  .add-deck {
+    margin: 16px 16px 0; padding: 12px 16px;
+    background: var(--accent); color: white;
+    border: none; border-radius: 10px;
+    width: calc(100% - 32px);
+    font-size: 0.95rem; font-weight: 600; cursor: pointer;
+  }
+
+  /* Tab bar */
+  .tabbar {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: var(--nav-bg);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    border-top: 1px solid var(--border);
+    display: flex;
+    padding-bottom: env(safe-area-inset-bottom, 0);
+    z-index: 30;
+  }
+  .tab-btn {
+    flex: 1; background: transparent; border: none;
+    padding: 10px 4px 8px;
+    color: var(--muted); font-size: 0.68rem;
+    cursor: pointer;
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    font-family: inherit; text-decoration: none;
+  }
+  .tab-btn .icon { font-size: 1.25rem; line-height: 1; }
+  .tab-btn.active { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <a class="back-btn" href="index.html#materials">←</a>
+  <div style="flex:1;min-width:0;">
+    <div class="ttl">{{videoTitle}}</div>
+    <div class="sub">知识点总结 · Summary</div>
+  </div>
+</header>
+
+<div class="video-wrap">
+  <iframe src="https://www.youtube-nocookie.com/embed/{{videoId}}?rel=0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
+</div>
+<div class="video-fallback">视频无法播放? <a href="https://www.youtube.com/watch?v={{videoId}}" target="_blank" rel="noopener">在 YouTube 打开 ↗</a></div>
+
+<main>
+
+  <div class="topic-tabs">
+    <button class="topic-tab active" data-target="vocab">词汇</button>
+    <button class="topic-tab" data-target="collo">搭配</button>
+    <button class="topic-tab" data-target="pattern">句型</button>
+    <button class="topic-tab" data-target="grammar">语法</button>
+  </div>
+
+  <div class="section active vocab" id="vocab">
+    <h2>词汇 Vocabulary</h2>
+    {{vocab}}
+  </div>
+
+  <div class="section collo" id="collo">
+    <h2>搭配 Collocations</h2>
+    {{collocations}}
+  </div>
+
+  <div class="section pattern" id="pattern">
+    <h2>句型 Sentence Patterns</h2>
+    {{patterns}}
+  </div>
+
+  <div class="section grammar" id="grammar">
+    <h2>语法 Grammar</h2>
+    {{grammar}}
+  </div>
+
+  <button class="add-deck" onclick="alert('在终端运行: /ielts quick add 把本页内容加入记忆卡')">📥 加入记忆卡 (Memory Deck)</button>
+
+</main>
+
+<nav class="tabbar">
+  <a class="tab-btn" href="index.html#home"><span class="icon">🏠</span>概览</a>
+  <a class="tab-btn active" href="index.html#materials"><span class="icon">📺</span>材料</a>
+  <a class="tab-btn" href="index.html#quizzes"><span class="icon">✏️</span>测验</a>
+  <a class="tab-btn" href="index.html#plan"><span class="icon">📋</span>计划</a>
+</nav>
+
+<script>
+  document.querySelectorAll(".topic-tab").forEach(tab => {
+    tab.addEventListener("click", () => {
+      document.querySelectorAll(".topic-tab").forEach(t => t.classList.remove("active"));
+      document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+      tab.classList.add("active");
+      document.getElementById(tab.dataset.target).classList.add("active");
+    });
+  });
+</script>
+
+</body>
+</html>
