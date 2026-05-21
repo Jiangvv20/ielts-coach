@@ -208,6 +208,51 @@
     color: var(--accent); font-family: "SF Mono", Menlo, monospace;
     font-size: 0.78rem;
   }
+  .tomorrow-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 14px; padding: 16px; margin-bottom: 14px;
+  }
+  .tomorrow-card h2 {
+    font-size: 0.78rem; margin: 0 0 12px; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 0.06em; font-weight: 700;
+  }
+  .tom-opts {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 8px; margin-bottom: 10px;
+  }
+  .tom-opt {
+    padding: 12px 10px;
+    background: var(--bg); border: 1.5px solid var(--border);
+    border-radius: 10px; cursor: pointer;
+    font-family: inherit; color: var(--fg);
+    text-align: center; font-size: 0.88rem;
+  }
+  .tom-opt:active { transform: scale(0.97); }
+  .tom-opt.selected {
+    border-color: var(--accent);
+    background: rgba(37,99,235,0.08);
+    color: var(--accent); font-weight: 600;
+  }
+  .tom-opt .ttl { font-weight: 600; }
+  .tom-opt .sub { display: block; font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
+  .tom-opt.selected .sub { color: var(--accent); opacity: 0.85; }
+  .tom-submit {
+    width: 100%; padding: 11px;
+    background: var(--accent); color: white; border: none;
+    border-radius: 10px; font-size: 0.92rem; font-weight: 600;
+    cursor: pointer; font-family: inherit;
+  }
+  .tom-submit:disabled { background: var(--border); color: var(--muted); cursor: not-allowed; }
+  .tom-saved {
+    margin-top: 10px; padding: 10px 12px;
+    background: rgba(5,150,105,0.08);
+    border-left: 3px solid var(--ok);
+    border-radius: 6px;
+    font-size: 0.85rem; color: var(--fg);
+    display: none;
+  }
+  .tom-saved.show { display: block; }
+  .tom-saved strong { color: var(--ok); }
   .plan-week {
     background: var(--card); border: 1px solid var(--border);
     border-radius: 12px; margin-bottom: 12px; overflow: hidden;
@@ -318,6 +363,21 @@
     <div class="hint">1 分钟笔记 + 1.5-2 分钟独白。今天有空到 Mac 时用 <code>/ielts practice grade speaking</code> 给我看你的回答</div>
   </div>
 
+  <div class="tomorrow-card">
+    <h2>🌙 明日 5-22 学习选择</h2>
+    <div class="tom-opts">
+      <button class="tom-opt" data-key="listening-s1"><span class="ttl">🎧 听力</span><span class="sub">Section 1 日常对话</span></button>
+      <button class="tom-opt" data-key="reading-tfng"><span class="ttl">📖 阅读</span><span class="sub">T/F/NG 专项</span></button>
+      <button class="tom-opt" data-key="writing-t2"><span class="ttl">✍️ 写作</span><span class="sub">Task 2 议论文</span></button>
+      <button class="tom-opt" data-key="speaking-p3"><span class="ttl">🗣️ 口语</span><span class="sub">Part 3 抽象题</span></button>
+    </div>
+    <button class="tom-submit" id="tomSubmit" disabled onclick="saveTomorrow()">请先选择上方一项</button>
+    <div class="tom-saved" id="tomSaved">
+      <strong>✓ 已保存</strong>: <span id="tomSavedText"></span><br>
+      <span style="font-size:0.78rem;color:var(--muted);">下次和 Claude 说"明日选 &lt;module&gt;"我读取这个选择生成对应内容</span>
+    </div>
+  </div>
+
   <div class="card">
     <h2>📅 本周计划 <span class="badge">Week 1</span></h2>
     <ul class="tasks">
@@ -372,51 +432,11 @@
 <section class="tab-content" id="tab-materials">
 
   <div class="date-group">
-    <span>2026-05-21 · 今日</span>
-    <span class="count">10 个</span>
+    <span>📚 雅思主题</span>
+    <span class="count">5 个</span>
   </div>
 
   <div class="item-list">
-    <a class="item-card" href="https://www.youtube.com/watch?v=YjwHsdFZPxE" target="_blank" rel="noopener">
-      <div class="thumb">📺</div>
-      <div class="info">
-        <div class="ttl">The future of food ⏲️ 6 Minute English</div>
-        <div class="meta"><span class="pill">BBC LE</span><span>~6 min</span><span class="dot">·</span><span>听力</span></div>
-      </div>
-      <div class="chev">↗</div>
-    </a>
-    <a class="item-card" href="https://www.youtube.com/watch?v=QdE63sYqwd8" target="_blank" rel="noopener">
-      <div class="thumb">📺</div>
-      <div class="info">
-        <div class="ttl">Why are we all so stressed? ⏲️ 6 Minute English</div>
-        <div class="meta"><span class="pill">BBC LE</span><span>~6 min</span><span class="dot">·</span><span>听力</span></div>
-      </div>
-      <div class="chev">↗</div>
-    </a>
-    <a class="item-card" href="https://www.youtube.com/watch?v=hhmNNs47PMo" target="_blank" rel="noopener">
-      <div class="thumb">📺</div>
-      <div class="info">
-        <div class="ttl">Searching for life on another planet ⏲️ 6 Minute English</div>
-        <div class="meta"><span class="pill">BBC LE</span><span>~6 min</span><span class="dot">·</span><span>听力</span></div>
-      </div>
-      <div class="chev">↗</div>
-    </a>
-    <a class="item-card" href="https://www.youtube.com/watch?v=5ZQ65RbsAB8" target="_blank" rel="noopener">
-      <div class="thumb">📺</div>
-      <div class="info">
-        <div class="ttl">Young women on social media ⏲️ 6 Minute English</div>
-        <div class="meta"><span class="pill">BBC LE</span><span>~6 min</span><span class="dot">·</span><span>听力</span></div>
-      </div>
-      <div class="chev">↗</div>
-    </a>
-    <a class="item-card" href="https://www.youtube.com/watch?v=7m75Bi3rzjM" target="_blank" rel="noopener">
-      <div class="thumb">📺</div>
-      <div class="info">
-        <div class="ttl">BOX SET: 6 Minute English — 'Being human'</div>
-        <div class="meta"><span class="pill">BBC LE</span><span>~60 min</span><span class="dot">·</span><span>长合集</span></div>
-      </div>
-      <div class="chev">↗</div>
-    </a>
     <a class="item-card" href="https://www.youtube.com/watch?v=LxR8Z7NvRD0" target="_blank" rel="noopener">
       <div class="thumb">🎤</div>
       <div class="info">
@@ -454,6 +474,54 @@
       <div class="info">
         <div class="ttl">The ONLY IELTS Writing Task 2 Strategy You Need</div>
         <div class="meta"><span class="pill">IELTS Liz</span><span>~12 min</span><span class="dot">·</span><span>写作</span></div>
+      </div>
+      <div class="chev">↗</div>
+    </a>
+  </div>
+
+  <div class="date-group" style="margin-top:24px;">
+    <span>🎙️ 影子跟读语料</span>
+    <span class="count">5 个 · 任意主题</span>
+  </div>
+
+  <div class="item-list">
+    <a class="item-card" href="https://www.youtube.com/watch?v=YjwHsdFZPxE" target="_blank" rel="noopener">
+      <div class="thumb">📺</div>
+      <div class="info">
+        <div class="ttl">The future of food ⏲️ 6 Minute English</div>
+        <div class="meta"><span class="pill">BBC LE</span><span>~6 min</span><span class="dot">·</span><span>英音</span></div>
+      </div>
+      <div class="chev">↗</div>
+    </a>
+    <a class="item-card" href="https://www.youtube.com/watch?v=QdE63sYqwd8" target="_blank" rel="noopener">
+      <div class="thumb">📺</div>
+      <div class="info">
+        <div class="ttl">Why are we all so stressed? ⏲️ 6 Minute English</div>
+        <div class="meta"><span class="pill">BBC LE</span><span>~6 min</span><span class="dot">·</span><span>英音</span></div>
+      </div>
+      <div class="chev">↗</div>
+    </a>
+    <a class="item-card" href="https://www.youtube.com/watch?v=f2O6mQkFiiw" target="_blank" rel="noopener">
+      <div class="thumb">🎬</div>
+      <div class="info">
+        <div class="ttl">How to practice effectively...for just about anything</div>
+        <div class="meta"><span class="pill">TED-Ed</span><span>~5 min</span><span class="dot">·</span><span>动画 · 清晰</span></div>
+      </div>
+      <div class="chev">↗</div>
+    </a>
+    <a class="item-card" href="https://www.youtube.com/watch?v=aISXCw0Pi94" target="_blank" rel="noopener">
+      <div class="thumb">🎬</div>
+      <div class="info">
+        <div class="ttl">How Every Child Can Thrive by Five · Molly Wright</div>
+        <div class="meta"><span class="pill">TED</span><span>~7 min</span><span class="dot">·</span><span>澳音</span></div>
+      </div>
+      <div class="chev">↗</div>
+    </a>
+    <a class="item-card" href="https://www.youtube.com/watch?v=5MuIMqhT8DM" target="_blank" rel="noopener">
+      <div class="thumb">🎬</div>
+      <div class="info">
+        <div class="ttl">Sleep is your superpower · Matt Walker</div>
+        <div class="meta"><span class="pill">TED</span><span>~19 min</span><span class="dot">·</span><span>英音 · 进阶</span></div>
       </div>
       <div class="chev">↗</div>
     </a>
@@ -591,6 +659,49 @@
   document.querySelectorAll("ul.tasks li").forEach(li => {
     li.querySelector(".checkbox")?.addEventListener("click", () => li.classList.toggle("done"));
   });
+
+  // ---- Tomorrow's quiz selection ----
+  const TOM_KEY = "ielts_tomorrow_20260522";
+  const TOM_LABELS = {
+    "listening-s1": "🎧 听力 · Section 1 日常对话",
+    "reading-tfng": "📖 阅读 · T/F/NG 专项",
+    "writing-t2": "✍️ 写作 · Task 2 议论文",
+    "speaking-p3": "🗣️ 口语 · Part 3 抽象题"
+  };
+  let tomChoice = localStorage.getItem(TOM_KEY) || "";
+  function applyTomUI() {
+    document.querySelectorAll(".tom-opt").forEach(b => {
+      b.classList.toggle("selected", b.dataset.key === tomChoice);
+    });
+    const submit = document.getElementById("tomSubmit");
+    if (tomChoice) {
+      submit.disabled = false;
+      submit.textContent = "确认选择";
+      const saved = localStorage.getItem(TOM_KEY + "_saved");
+      if (saved === tomChoice) {
+        document.getElementById("tomSaved").classList.add("show");
+        document.getElementById("tomSavedText").textContent = TOM_LABELS[saved];
+      } else {
+        document.getElementById("tomSaved").classList.remove("show");
+      }
+    } else {
+      submit.disabled = true;
+      submit.textContent = "请先选择上方一项";
+    }
+  }
+  document.querySelectorAll(".tom-opt").forEach(b => {
+    b.addEventListener("click", () => {
+      tomChoice = b.dataset.key;
+      localStorage.setItem(TOM_KEY, tomChoice);
+      applyTomUI();
+    });
+  });
+  function saveTomorrow() {
+    if (!tomChoice) return;
+    localStorage.setItem(TOM_KEY + "_saved", tomChoice);
+    applyTomUI();
+  }
+  applyTomUI();
 </script>
 
 </body>
