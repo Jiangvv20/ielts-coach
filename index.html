@@ -8,361 +8,118 @@
 <meta name="theme-color" content="#2563eb">
 <title>IELTS · 6.0→7.0</title>
 <style>
-  :root {
-    --bg: #ffffff; --fg: #1a1a1a; --muted: #6b7280;
-    --accent: #2563eb; --warn: #d97706; --ok: #059669; --err: #dc2626;
-    --card: #f9fafb; --border: #e5e7eb;
-    --nav-bg: rgba(255,255,255,0.92);
-    --header-bg: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
-  }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #0f172a; --fg: #f1f5f9; --muted: #94a3b8;
-      --accent: #60a5fa; --warn: #fbbf24; --ok: #34d399; --err: #f87171;
-      --card: #1e293b; --border: #334155;
-      --nav-bg: rgba(15,23,42,0.92);
-      --header-bg: linear-gradient(135deg, #1e40af 0%, #6b21a8 100%);
-    }
-  }
-  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg); }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif;
-    line-height: 1.55;
-    min-height: 100vh;
-    padding-bottom: calc(64px + env(safe-area-inset-bottom, 0));
-  }
-  .app-header {
-    background: var(--header-bg); color: white;
-    padding: calc(env(safe-area-inset-top, 16px) + 16px) 20px 20px;
-    position: sticky; top: 0; z-index: 20;
-  }
-  .app-title {
-    display: flex; align-items: center; justify-content: space-between;
-    margin-bottom: 12px;
-  }
-  .app-title .name {
-    font-size: 1.05rem; font-weight: 700; letter-spacing: 0.02em;
-    display: flex; align-items: center; gap: 6px;
-  }
-  .app-title .name::before { content: "🎯"; font-size: 1.2rem; }
-  .app-title .date { font-size: 0.78rem; opacity: 0.85; }
-  .band-grid {
-    display: grid; grid-template-columns: 1fr 1fr 1fr;
-    gap: 12px; text-align: center;
-  }
-  .band-cell .num { font-size: 1.5rem; font-weight: 700; line-height: 1.2; }
-  .band-cell .lbl {
-    font-size: 0.7rem; opacity: 0.85; letter-spacing: 0.04em;
-    text-transform: uppercase; margin-top: 2px;
-  }
-  .band-cell.target .num { color: #fef08a; }
-  .band-cell.days .num { color: #fef3c7; }
-  main { max-width: 760px; margin: 0 auto; padding: 16px; }
-  .tab-content { display: none; }
-  .tab-content.active { display: block; }
-  .card {
-    background: var(--card); border: 1px solid var(--border);
-    border-radius: 14px; padding: 16px; margin-bottom: 14px;
-  }
-  .card h2 {
-    font-size: 0.78rem; margin: 0 0 12px; color: var(--muted);
-    text-transform: uppercase; letter-spacing: 0.06em; font-weight: 700;
-    display: flex; align-items: center; gap: 6px;
-  }
-  .card h2 .badge {
-    background: var(--accent); color: white;
-    font-size: 0.7rem; padding: 1px 7px; border-radius: 999px;
-    font-weight: 700; letter-spacing: 0; text-transform: none;
-  }
-  .today-grid {
-    display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
-  }
-  .today-tile {
-    background: var(--bg); border: 1px solid var(--border);
-    border-radius: 12px; padding: 14px;
-    text-decoration: none; color: var(--fg);
-    display: flex; flex-direction: column; gap: 6px;
-    transition: transform 0.1s, border-color 0.1s;
-    min-height: 92px;
-  }
-  .today-tile:active { transform: scale(0.98); border-color: var(--accent); }
-  .today-tile .icon { font-size: 1.6rem; }
-  .today-tile .ttl { font-size: 0.92rem; font-weight: 600; }
-  .today-tile .sub { font-size: 0.76rem; color: var(--muted); }
-  .weak-tags { display: flex; flex-wrap: wrap; gap: 6px; }
-  .tag {
-    background: var(--border); color: var(--fg);
-    padding: 3px 10px; border-radius: 999px; font-size: 0.78rem;
-  }
-  ul.tasks { list-style: none; padding: 0; margin: 0; }
-  ul.tasks li {
-    padding: 10px 0; border-bottom: 1px solid var(--border);
-    display: flex; align-items: flex-start; gap: 10px;
-    font-size: 0.93rem;
-  }
-  ul.tasks li:last-child { border-bottom: none; }
-  .checkbox {
-    flex-shrink: 0; width: 18px; height: 18px;
-    border: 2px solid var(--muted); border-radius: 5px; margin-top: 3px;
-    cursor: pointer;
-  }
-  ul.tasks li.done .checkbox {
-    background: var(--ok); border-color: var(--ok);
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='white'><path d='M4 8.5l3 3 5-7' stroke='white' stroke-width='2' fill='none'/></svg>");
-    background-position: center; background-repeat: no-repeat; background-size: 14px;
-  }
-  ul.tasks li.done .task-text { text-decoration: line-through; color: var(--muted); }
-  .task-text code {
-    background: var(--bg); padding: 1px 6px; border-radius: 4px;
-    color: var(--accent); font-family: "SF Mono", Menlo, monospace;
-    font-size: 0.82rem;
-  }
-  .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  .stat-cell {
-    background: var(--bg); border: 1px solid var(--border);
-    border-radius: 10px; padding: 12px; text-align: center;
-  }
-  .stat-cell .num { font-size: 1.7rem; font-weight: 700; color: var(--warn); }
-  .stat-cell .lbl { color: var(--muted); font-size: 0.82rem; margin-top: 2px; }
-  .empty { text-align: center; padding: 32px 16px; color: var(--muted); }
-  .empty .icon { font-size: 2.5rem; margin-bottom: 8px; opacity: 0.5; }
-  .empty .hint { font-size: 0.88rem; }
-  .empty .cmd {
-    margin-top: 12px; background: var(--card); color: var(--accent);
-    padding: 8px 14px; border-radius: 8px; display: inline-block;
-    font-family: "SF Mono", Menlo, monospace; font-size: 0.85rem;
-  }
-  .item-list { display: flex; flex-direction: column; gap: 10px; }
-  .item-card {
-    background: var(--card); border: 1px solid var(--border);
-    border-radius: 12px; padding: 14px;
-    text-decoration: none; color: var(--fg);
-    display: flex; gap: 12px;
-    transition: transform 0.1s, border-color 0.1s;
-  }
-  .item-card:active { transform: scale(0.985); border-color: var(--accent); }
-  .item-card .thumb {
-    flex-shrink: 0; width: 56px; height: 56px;
-    border-radius: 10px;
-    background: var(--header-bg);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 1.4rem; color: white;
-  }
-  .item-card .info { flex: 1; min-width: 0; }
-  .item-card .info .ttl {
-    font-weight: 600; font-size: 0.95rem; line-height: 1.3;
-    margin-bottom: 4px;
-    overflow: hidden; text-overflow: ellipsis;
-    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
-  }
-  .item-card .info .meta {
-    color: var(--muted); font-size: 0.78rem;
-    display: flex; gap: 6px; align-items: center; flex-wrap: wrap;
-  }
-  .item-card .info .meta .dot { color: var(--border); }
-  .item-card .info .meta .pill {
-    background: var(--bg); padding: 1px 7px; border-radius: 99px;
-    color: var(--muted); font-size: 0.72rem;
-  }
-  .item-card .chev {
-    color: var(--muted); font-size: 1.2rem; align-self: center;
-  }
-  .date-group {
-    color: var(--muted); font-size: 0.78rem;
-    text-transform: uppercase; letter-spacing: 0.06em;
-    padding: 8px 4px; font-weight: 700;
-    display: flex; justify-content: space-between; align-items: center;
-  }
-  .date-group .count {
-    background: var(--card); padding: 1px 8px; border-radius: 999px;
-    font-size: 0.72rem; font-weight: 600; color: var(--accent);
-  }
-  .speaking-card {
-    background: linear-gradient(135deg, rgba(219,39,119,0.08), rgba(124,58,237,0.08));
-    border: 1px solid var(--border);
-    border-radius: 14px; padding: 16px;
-    margin-bottom: 14px;
-  }
-  .speaking-card .label {
-    font-size: 0.7rem; color: var(--muted);
-    text-transform: uppercase; letter-spacing: 0.06em;
-    margin-bottom: 8px; font-weight: 700;
-  }
-  .speaking-card .topic {
-    font-size: 1rem; font-weight: 600; margin-bottom: 8px;
-    line-height: 1.4;
-  }
-  .speaking-card .bullets {
-    font-size: 0.88rem; color: var(--fg); padding-left: 20px;
-    margin: 0;
-  }
-  .speaking-card .bullets li { padding: 2px 0; }
-  .speaking-card .hint {
-    margin-top: 10px; padding: 8px 10px;
-    background: var(--bg); border-radius: 8px;
-    font-size: 0.82rem; color: var(--muted);
-  }
-  .speaking-card .hint code {
-    background: var(--card); padding: 1px 6px; border-radius: 4px;
-    color: var(--accent); font-family: "SF Mono", Menlo, monospace;
-    font-size: 0.78rem;
-  }
-  .tomorrow-card {
-    background: var(--card); border: 1px solid var(--border);
-    border-radius: 14px; padding: 16px; margin-bottom: 14px;
-  }
-  .tomorrow-card h2 {
-    font-size: 0.78rem; margin: 0 0 12px; color: var(--muted);
-    text-transform: uppercase; letter-spacing: 0.06em; font-weight: 700;
-  }
-  .tom-opts {
-    display: grid; grid-template-columns: 1fr 1fr;
-    gap: 8px; margin-bottom: 10px;
-  }
-  .tom-opt {
-    padding: 12px 10px;
-    background: var(--bg); border: 1.5px solid var(--border);
-    border-radius: 10px; cursor: pointer;
-    font-family: inherit; color: var(--fg);
-    text-align: center; font-size: 0.88rem;
-  }
-  .tom-opt:active { transform: scale(0.97); }
-  .tom-opt.selected {
-    border-color: var(--accent);
-    background: rgba(37,99,235,0.08);
-    color: var(--accent); font-weight: 600;
-  }
-  .tom-opt .ttl { font-weight: 600; }
-  .tom-opt .sub { display: block; font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
-  .tom-opt.selected .sub { color: var(--accent); opacity: 0.85; }
-  .tom-submit {
-    width: 100%; padding: 11px;
-    background: var(--accent); color: white; border: none;
-    border-radius: 10px; font-size: 0.92rem; font-weight: 600;
-    cursor: pointer; font-family: inherit;
-  }
-  .tom-submit:disabled { background: var(--border); color: var(--muted); cursor: not-allowed; }
-  .tom-saved {
-    margin-top: 10px; padding: 10px 12px;
-    background: rgba(5,150,105,0.08);
-    border-left: 3px solid var(--ok);
-    border-radius: 6px;
-    font-size: 0.85rem; color: var(--fg);
-    display: none;
-  }
-  .tom-saved.show { display: block; }
-  .tom-saved strong { color: var(--ok); }
-
-  /* Settings gear in header */
-  .gear-btn {
-    background: rgba(255,255,255,0.18); border: none; color: white;
-    width: 32px; height: 32px; border-radius: 8px;
-    font-size: 1rem; cursor: pointer;
-  }
-  /* Modal */
-  .modal-overlay {
-    position: fixed; inset: 0;
-    background: rgba(0,0,0,0.5);
-    display: none; align-items: center; justify-content: center;
-    z-index: 100; padding: 20px;
-  }
-  .modal-overlay.show { display: flex; }
-  .modal {
-    background: var(--bg); border-radius: 16px;
-    max-width: 440px; width: 100%;
-    max-height: 85vh; overflow-y: auto;
-    padding: 20px;
-    box-shadow: 0 20px 50px rgba(0,0,0,0.3);
-  }
-  .modal h3 { margin: 0 0 12px; font-size: 1.05rem; }
-  .modal .desc {
-    color: var(--muted); font-size: 0.85rem;
-    margin-bottom: 14px; line-height: 1.5;
-  }
-  .modal label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; }
-  .modal input {
-    width: 100%; padding: 10px 12px;
-    background: var(--card); border: 1px solid var(--border);
-    border-radius: 8px; font-size: 0.9rem; color: var(--fg);
-    font-family: "SF Mono", Menlo, monospace;
-  }
-  .modal .status {
-    margin: 10px 0; padding: 8px 12px;
-    border-radius: 6px; font-size: 0.85rem;
-    display: none;
-  }
-  .modal .status.show { display: block; }
-  .modal .status.ok { background: rgba(5,150,105,0.1); color: var(--ok); }
-  .modal .status.err { background: rgba(220,38,38,0.1); color: var(--err); }
-  .modal-actions {
-    display: flex; gap: 8px; margin-top: 16px;
-  }
-  .modal-actions button {
-    flex: 1; padding: 10px;
-    border: none; border-radius: 8px;
-    font-size: 0.9rem; font-weight: 600; cursor: pointer;
-    font-family: inherit;
-  }
-  .modal-actions .test { background: var(--card); color: var(--fg); border: 1px solid var(--border); }
-  .modal-actions .save { background: var(--accent); color: white; }
-  .modal-actions .close { background: transparent; color: var(--muted); border: 1px solid var(--border); }
-  .modal-actions .clear { background: transparent; color: var(--err); border: 1px solid var(--border); }
-  .pat-help {
-    background: var(--card); padding: 12px;
-    border-radius: 8px; font-size: 0.82rem;
-    color: var(--muted); line-height: 1.6;
-    margin-top: 12px;
-  }
-  .pat-help a { color: var(--accent); }
-  .pat-help code {
-    background: var(--bg); padding: 1px 5px; border-radius: 3px;
-    font-family: "SF Mono", Menlo, monospace; font-size: 0.78rem;
-    color: var(--accent);
-  }
-  .plan-week {
-    background: var(--card); border: 1px solid var(--border);
-    border-radius: 12px; margin-bottom: 12px; overflow: hidden;
-  }
-  .plan-week.current { border-color: var(--accent); border-width: 2px; }
-  .plan-week .head {
-    background: var(--bg); padding: 10px 14px;
-    border-bottom: 1px solid var(--border);
-    display: flex; justify-content: space-between; align-items: center;
-    font-weight: 600; font-size: 0.92rem;
-  }
-  .plan-week.current .head { background: rgba(37,99,235,0.06); color: var(--accent); }
-  .plan-week .head .dates { color: var(--muted); font-size: 0.78rem; font-weight: 400; }
-  .plan-week .body { padding: 4px 14px; }
-  .plan-week .body ul { list-style: none; padding: 0; margin: 0; }
-  .plan-week .body li {
-    padding: 8px 0; font-size: 0.88rem;
-    border-bottom: 1px solid var(--border);
-  }
-  .plan-week .body li:last-child { border-bottom: none; }
-  .tabbar {
-    position: fixed; bottom: 0; left: 0; right: 0;
-    background: var(--nav-bg);
-    backdrop-filter: saturate(180%) blur(20px);
-    -webkit-backdrop-filter: saturate(180%) blur(20px);
-    border-top: 1px solid var(--border);
-    display: flex;
-    padding-bottom: env(safe-area-inset-bottom, 0);
-    z-index: 30;
-  }
-  .tab-btn {
-    flex: 1; background: transparent; border: none;
-    padding: 10px 4px 8px; color: var(--muted); font-size: 0.68rem;
-    cursor: pointer;
-    display: flex; flex-direction: column; align-items: center; gap: 3px;
-    font-family: inherit;
-  }
-  .tab-btn .icon { font-size: 1.25rem; line-height: 1; }
-  .tab-btn.active { color: var(--accent); }
-  .foot-meta {
-    text-align: center; color: var(--muted);
-    font-size: 0.72rem; margin: 16px 0 8px;
-  }
+  :root { --bg:#fff; --fg:#1a1a1a; --muted:#6b7280; --accent:#2563eb; --warn:#d97706; --ok:#059669; --err:#dc2626; --card:#f9fafb; --border:#e5e7eb; --nav-bg:rgba(255,255,255,0.92); --header-bg:linear-gradient(135deg,#2563eb 0%,#7c3aed 100%); }
+  @media (prefers-color-scheme: dark) { :root { --bg:#0f172a; --fg:#f1f5f9; --muted:#94a3b8; --accent:#60a5fa; --warn:#fbbf24; --ok:#34d399; --err:#f87171; --card:#1e293b; --border:#334155; --nav-bg:rgba(15,23,42,0.92); --header-bg:linear-gradient(135deg,#1e40af 0%,#6b21a8 100%); } }
+  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body { margin:0; padding:0; background:var(--bg); color:var(--fg); }
+  body { font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue",sans-serif; line-height:1.55; min-height:100vh; padding-bottom:calc(64px + env(safe-area-inset-bottom,0)); }
+  .app-header { background:var(--header-bg); color:white; padding:calc(env(safe-area-inset-top,16px) + 16px) 20px 20px; position:sticky; top:0; z-index:20; }
+  .app-title { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+  .app-title .name { font-size:1.05rem; font-weight:700; letter-spacing:0.02em; display:flex; align-items:center; gap:6px; }
+  .app-title .name::before { content:"🎯"; font-size:1.2rem; }
+  .app-title .date { font-size:0.78rem; opacity:0.85; }
+  .gear-btn { background:rgba(255,255,255,0.18); border:none; color:white; width:32px; height:32px; border-radius:8px; font-size:1rem; cursor:pointer; }
+  .band-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; text-align:center; }
+  .band-cell .num { font-size:1.5rem; font-weight:700; line-height:1.2; }
+  .band-cell .lbl { font-size:0.7rem; opacity:0.85; letter-spacing:0.04em; text-transform:uppercase; margin-top:2px; }
+  .band-cell.target .num { color:#fef08a; }
+  .band-cell.days .num { color:#fef3c7; }
+  main { max-width:760px; margin:0 auto; padding:16px; }
+  .tab-content { display:none; }
+  .tab-content.active { display:block; }
+  .card { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:16px; margin-bottom:14px; }
+  .card h2 { font-size:0.78rem; margin:0 0 12px; color:var(--muted); text-transform:uppercase; letter-spacing:0.06em; font-weight:700; display:flex; align-items:center; gap:6px; }
+  .card h2 .badge { background:var(--accent); color:white; font-size:0.7rem; padding:1px 7px; border-radius:999px; font-weight:700; letter-spacing:0; text-transform:none; }
+  .today-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .today-tile { background:var(--bg); border:1px solid var(--border); border-radius:12px; padding:14px; text-decoration:none; color:var(--fg); display:flex; flex-direction:column; gap:6px; transition:transform 0.1s, border-color 0.1s; min-height:92px; }
+  .today-tile:active { transform:scale(0.98); border-color:var(--accent); }
+  .today-tile .icon { font-size:1.6rem; }
+  .today-tile .ttl { font-size:0.92rem; font-weight:600; }
+  .today-tile .sub { font-size:0.76rem; color:var(--muted); }
+  .weak-tags { display:flex; flex-wrap:wrap; gap:6px; }
+  .tag { background:var(--border); color:var(--fg); padding:3px 10px; border-radius:999px; font-size:0.78rem; }
+  ul.tasks { list-style:none; padding:0; margin:0; }
+  ul.tasks li { padding:10px 0; border-bottom:1px solid var(--border); display:flex; align-items:flex-start; gap:10px; font-size:0.93rem; }
+  ul.tasks li:last-child { border-bottom:none; }
+  .checkbox { flex-shrink:0; width:18px; height:18px; border:2px solid var(--muted); border-radius:5px; margin-top:3px; cursor:pointer; }
+  ul.tasks li.done .checkbox { background:var(--ok); border-color:var(--ok); background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='white'><path d='M4 8.5l3 3 5-7' stroke='white' stroke-width='2' fill='none'/></svg>"); background-position:center; background-repeat:no-repeat; background-size:14px; }
+  ul.tasks li.done .task-text { text-decoration:line-through; color:var(--muted); }
+  .task-text code { background:var(--bg); padding:1px 6px; border-radius:4px; color:var(--accent); font-family:"SF Mono",Menlo,monospace; font-size:0.82rem; }
+  .stat-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .stat-cell { background:var(--bg); border:1px solid var(--border); border-radius:10px; padding:12px; text-align:center; }
+  .stat-cell .num { font-size:1.7rem; font-weight:700; color:var(--warn); }
+  .stat-cell .lbl { color:var(--muted); font-size:0.82rem; margin-top:2px; }
+  .empty { text-align:center; padding:32px 16px; color:var(--muted); }
+  .empty .icon { font-size:2.5rem; margin-bottom:8px; opacity:0.5; }
+  .empty .hint { font-size:0.88rem; }
+  .empty .cmd { margin-top:12px; background:var(--card); color:var(--accent); padding:8px 14px; border-radius:8px; display:inline-block; font-family:"SF Mono",Menlo,monospace; font-size:0.85rem; }
+  .item-list { display:flex; flex-direction:column; gap:10px; }
+  .item-card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:14px; text-decoration:none; color:var(--fg); display:flex; gap:12px; transition:transform 0.1s, border-color 0.1s; }
+  .item-card:active { transform:scale(0.985); border-color:var(--accent); }
+  .item-card .thumb { flex-shrink:0; width:56px; height:56px; border-radius:10px; background:var(--header-bg); display:flex; align-items:center; justify-content:center; font-size:1.4rem; color:white; }
+  .item-card .info { flex:1; min-width:0; }
+  .item-card .info .ttl { font-weight:600; font-size:0.95rem; line-height:1.3; margin-bottom:4px; overflow:hidden; text-overflow:ellipsis; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; }
+  .item-card .info .meta { color:var(--muted); font-size:0.78rem; display:flex; gap:6px; align-items:center; flex-wrap:wrap; }
+  .item-card .info .meta .dot { color:var(--border); }
+  .item-card .info .meta .pill { background:var(--bg); padding:1px 7px; border-radius:99px; color:var(--muted); font-size:0.72rem; }
+  .item-card .chev { color:var(--muted); font-size:1.2rem; align-self:center; }
+  .date-group { color:var(--muted); font-size:0.78rem; text-transform:uppercase; letter-spacing:0.06em; padding:8px 4px; font-weight:700; display:flex; justify-content:space-between; align-items:center; }
+  .date-group .count { background:var(--card); padding:1px 8px; border-radius:999px; font-size:0.72rem; font-weight:600; color:var(--accent); }
+  .speaking-card { background:linear-gradient(135deg,rgba(219,39,119,0.08),rgba(124,58,237,0.08)); border:1px solid var(--border); border-radius:14px; padding:16px; margin-bottom:14px; }
+  .speaking-card .label { font-size:0.7rem; color:var(--muted); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:8px; font-weight:700; }
+  .speaking-card .topic { font-size:1rem; font-weight:600; margin-bottom:8px; line-height:1.4; }
+  .speaking-card .bullets { font-size:0.88rem; color:var(--fg); padding-left:20px; margin:0; }
+  .speaking-card .bullets li { padding:2px 0; }
+  .speaking-card .hint { margin-top:10px; padding:8px 10px; background:var(--bg); border-radius:8px; font-size:0.82rem; color:var(--muted); }
+  .speaking-card .hint code { background:var(--card); padding:1px 6px; border-radius:4px; color:var(--accent); font-family:"SF Mono",Menlo,monospace; font-size:0.78rem; }
+  .tomorrow-card { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:16px; margin-bottom:14px; }
+  .tomorrow-card h2 { font-size:0.78rem; margin:0 0 12px; color:var(--muted); text-transform:uppercase; letter-spacing:0.06em; font-weight:700; }
+  .tom-opts { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:10px; }
+  .tom-opt { padding:12px 10px; background:var(--bg); border:1.5px solid var(--border); border-radius:10px; cursor:pointer; font-family:inherit; color:var(--fg); text-align:center; font-size:0.88rem; }
+  .tom-opt:active { transform:scale(0.97); }
+  .tom-opt.selected { border-color:var(--accent); background:rgba(37,99,235,0.08); color:var(--accent); font-weight:600; }
+  .tom-opt .ttl { font-weight:600; }
+  .tom-opt .sub { display:block; font-size:0.72rem; color:var(--muted); margin-top:2px; }
+  .tom-opt.selected .sub { color:var(--accent); opacity:0.85; }
+  .tom-submit { width:100%; padding:11px; background:var(--accent); color:white; border:none; border-radius:10px; font-size:0.92rem; font-weight:600; cursor:pointer; font-family:inherit; }
+  .tom-submit:disabled { background:var(--border); color:var(--muted); cursor:not-allowed; }
+  .tom-saved { margin-top:10px; padding:10px 12px; background:rgba(5,150,105,0.08); border-left:3px solid var(--ok); border-radius:6px; font-size:0.85rem; color:var(--fg); display:none; }
+  .tom-saved.show { display:block; }
+  .tom-saved strong { color:var(--ok); }
+  .plan-week { background:var(--card); border:1px solid var(--border); border-radius:12px; margin-bottom:12px; overflow:hidden; }
+  .plan-week.current { border-color:var(--accent); border-width:2px; }
+  .plan-week .head { background:var(--bg); padding:10px 14px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; font-weight:600; font-size:0.92rem; }
+  .plan-week.current .head { background:rgba(37,99,235,0.06); color:var(--accent); }
+  .plan-week .head .dates { color:var(--muted); font-size:0.78rem; font-weight:400; }
+  .plan-week .body { padding:4px 14px; }
+  .plan-week .body ul { list-style:none; padding:0; margin:0; }
+  .plan-week .body li { padding:8px 0; font-size:0.88rem; border-bottom:1px solid var(--border); }
+  .plan-week .body li:last-child { border-bottom:none; }
+  .tabbar { position:fixed; bottom:0; left:0; right:0; background:var(--nav-bg); backdrop-filter:saturate(180%) blur(20px); -webkit-backdrop-filter:saturate(180%) blur(20px); border-top:1px solid var(--border); display:flex; padding-bottom:env(safe-area-inset-bottom,0); z-index:30; }
+  .tab-btn { flex:1; background:transparent; border:none; padding:10px 4px 8px; color:var(--muted); font-size:0.68rem; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:3px; font-family:inherit; }
+  .tab-btn .icon { font-size:1.25rem; line-height:1; }
+  .tab-btn.active { color:var(--accent); }
+  .foot-meta { text-align:center; color:var(--muted); font-size:0.72rem; margin:16px 0 8px; }
+  .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.5); display:none; align-items:center; justify-content:center; z-index:100; padding:20px; }
+  .modal-overlay.show { display:flex; }
+  .modal { background:var(--bg); border-radius:16px; max-width:440px; width:100%; max-height:85vh; overflow-y:auto; padding:20px; box-shadow:0 20px 50px rgba(0,0,0,0.3); }
+  .modal h3 { margin:0 0 12px; font-size:1.05rem; }
+  .modal .desc { color:var(--muted); font-size:0.85rem; margin-bottom:14px; line-height:1.5; }
+  .modal label { display:block; font-size:0.85rem; font-weight:600; margin-bottom:6px; }
+  .modal input { width:100%; padding:10px 12px; background:var(--card); border:1px solid var(--border); border-radius:8px; font-size:0.9rem; color:var(--fg); font-family:"SF Mono",Menlo,monospace; }
+  .modal .status { margin:10px 0; padding:8px 12px; border-radius:6px; font-size:0.85rem; display:none; }
+  .modal .status.show { display:block; }
+  .modal .status.ok { background:rgba(5,150,105,0.1); color:var(--ok); }
+  .modal .status.err { background:rgba(220,38,38,0.1); color:var(--err); }
+  .modal-actions { display:flex; gap:8px; margin-top:16px; }
+  .modal-actions button { flex:1; padding:10px; border:none; border-radius:8px; font-size:0.9rem; font-weight:600; cursor:pointer; font-family:inherit; }
+  .modal-actions .test { background:var(--card); color:var(--fg); border:1px solid var(--border); }
+  .modal-actions .save { background:var(--accent); color:white; }
+  .modal-actions .close { background:transparent; color:var(--muted); border:1px solid var(--border); }
+  .modal-actions .clear { background:transparent; color:var(--err); border:1px solid var(--border); }
+  .pat-help { background:var(--card); padding:12px; border-radius:8px; font-size:0.82rem; color:var(--muted); line-height:1.6; margin-top:12px; }
+  .pat-help a { color:var(--accent); }
+  .pat-help code { background:var(--bg); padding:1px 5px; border-radius:3px; font-family:"SF Mono",Menlo,monospace; font-size:0.78rem; color:var(--accent); }
 </style>
 </head>
 <body>
@@ -371,7 +128,7 @@
   <div class="app-title">
     <span class="name">IELTS Coach</span>
     <span style="display:flex;align-items:center;gap:10px;">
-      <span class="date">2026-05-21 (周四) · Day 1</span>
+      <span class="date">2026-05-22 (周五) · Day 2</span>
       <button class="gear-btn" title="设置 / 同步" onclick="openSettings()">⚙️</button>
     </span>
   </div>
@@ -385,7 +142,7 @@
       <div class="lbl">TARGET</div>
     </div>
     <div class="band-cell days">
-      <div class="num">90</div>
+      <div class="num">89</div>
       <div class="lbl">DAYS LEFT</div>
     </div>
   </div>
@@ -396,22 +153,22 @@
 <section class="tab-content active" id="tab-home">
 
   <div class="card">
-    <h2>🌅 今日学习 <span class="badge">Day 1</span></h2>
+    <h2>🌅 今日学习 <span class="badge">Day 2</span></h2>
     <div class="today-grid">
-      <a class="today-tile" href="vocab-20260521.html">
+      <a class="today-tile" href="vocab-20260522.html">
         <div class="icon">📝</div>
         <div class="ttl">150 词卡</div>
-        <div class="sub">Education 主题 · 滑动学</div>
+        <div class="sub">Education Day 2 · 滑动学</div>
       </a>
-      <a class="today-tile" href="quiz-20260521-reading.html">
+      <a class="today-tile" href="quiz-20260522-reading.html">
         <div class="icon">📖</div>
         <div class="ttl">阅读小测</div>
-        <div class="sub">T/F/NG + 词汇 · 5 题</div>
+        <div class="sub">T/F/NG + 词汇 · 7 题</div>
       </a>
       <a class="today-tile" href="#materials" onclick="switchTab('tab-materials')">
         <div class="icon">🎬</div>
         <div class="ttl">10 视频</div>
-        <div class="sub">BBC + IELTS Liz</div>
+        <div class="sub">BBC + TED + IELTS Liz</div>
       </a>
       <div class="today-tile" style="cursor:default;">
         <div class="icon">🗣️</div>
@@ -422,17 +179,16 @@
   </div>
 
   <div class="speaking-card">
-    <div class="label">🗣️ 今日口语题 · Part 2</div>
-    <div class="topic">Describe a person who taught you something useful</div>
+    <div class="label">🗣️ 今日口语题 · Part 2 · #2</div>
+    <div class="topic">Describe an interesting old person you have met</div>
     <ul class="bullets">
-      <li>Who this person is</li>
-      <li>What they taught you</li>
-      <li>How they taught you</li>
-      <li>Why it was useful</li>
+      <li>Who they are</li>
+      <li>How you met them</li>
+      <li>What you talked about</li>
+      <li>Why you found them interesting</li>
     </ul>
-    <div class="hint">1 分钟笔记 + 1.5-2 分钟独白。今天有空到 Mac 时用 <code>/ielts practice grade speaking</code> 给我看你的回答</div>
+    <div class="hint">1 分钟笔记 + 1.5-2 分钟独白。今天到 Mac 时用 <code>/ielts practice grade speaking</code> 给我看你的回答</div>
   </div>
-
 
   <div class="card">
     <h2>📅 本周计划 <span class="badge">Week 1</span></h2>
@@ -464,8 +220,8 @@
         <div class="lbl">错题</div>
       </div>
       <div class="stat-cell">
-        <div class="num">80</div>
-        <div class="lbl">种子记忆卡</div>
+        <div class="num">230</div>
+        <div class="lbl">总记忆卡 (Day 1+2)</div>
       </div>
     </div>
   </div>
@@ -489,7 +245,7 @@
 
   <div class="date-group">
     <span>📚 雅思主题</span>
-    <span class="count">5 个</span>
+    <span class="count">5 个 · 长期有效</span>
   </div>
 
   <div class="item-list">
@@ -536,24 +292,32 @@
   </div>
 
   <div class="date-group" style="margin-top:24px;">
-    <span>🎙️ 影子跟读语料</span>
-    <span class="count">5 个 · 任意主题</span>
+    <span>🎙️ 影子跟读语料 · 今日</span>
+    <span class="count">5 个 · 当日新</span>
   </div>
 
   <div class="item-list">
-    <a class="item-card" href="https://www.youtube.com/watch?v=YjwHsdFZPxE" target="_blank" rel="noopener">
+    <a class="item-card" href="https://www.youtube.com/watch?v=gEdPVA-6rVs" target="_blank" rel="noopener">
       <div class="thumb">📺</div>
       <div class="info">
-        <div class="ttl">The future of food ⏲️ 6 Minute English</div>
-        <div class="meta"><span class="pill">BBC LE</span><span>~6 min</span><span class="dot">·</span><span>英音</span></div>
+        <div class="ttl">BOX SET: 6 Minute English — Food and Drink mega-class</div>
+        <div class="meta"><span class="pill">BBC LE</span><span>~60 min</span><span class="dot">·</span><span>合集 · 英音</span></div>
       </div>
       <div class="chev">↗</div>
     </a>
-    <a class="item-card" href="https://www.youtube.com/watch?v=QdE63sYqwd8" target="_blank" rel="noopener">
+    <a class="item-card" href="https://www.youtube.com/watch?v=WMokf0EgTcA" target="_blank" rel="noopener">
       <div class="thumb">📺</div>
       <div class="info">
-        <div class="ttl">Why are we all so stressed? ⏲️ 6 Minute English</div>
-        <div class="meta"><span class="pill">BBC LE</span><span>~6 min</span><span class="dot">·</span><span>英音</span></div>
+        <div class="ttl">BOX SET: 6 Minute English — Wellbeing mega-class</div>
+        <div class="meta"><span class="pill">BBC LE</span><span>~30 min</span><span class="dot">·</span><span>合集 · 英音</span></div>
+      </div>
+      <div class="chev">↗</div>
+    </a>
+    <a class="item-card" href="https://www.youtube.com/watch?v=L5R7yqpN5fg" target="_blank" rel="noopener">
+      <div class="thumb">📺</div>
+      <div class="info">
+        <div class="ttl">BOX SET: 6 Minute English — Coffee mega-class</div>
+        <div class="meta"><span class="pill">BBC LE</span><span>~30 min</span><span class="dot">·</span><span>合集 · 英音</span></div>
       </div>
       <div class="chev">↗</div>
     </a>
@@ -561,15 +325,7 @@
       <div class="thumb">🎬</div>
       <div class="info">
         <div class="ttl">How to practice effectively...for just about anything</div>
-        <div class="meta"><span class="pill">TED-Ed</span><span>~5 min</span><span class="dot">·</span><span>动画 · 清晰</span></div>
-      </div>
-      <div class="chev">↗</div>
-    </a>
-    <a class="item-card" href="https://www.youtube.com/watch?v=aISXCw0Pi94" target="_blank" rel="noopener">
-      <div class="thumb">🎬</div>
-      <div class="info">
-        <div class="ttl">How Every Child Can Thrive by Five · Molly Wright</div>
-        <div class="meta"><span class="pill">TED</span><span>~7 min</span><span class="dot">·</span><span>澳音</span></div>
+        <div class="meta"><span class="pill">TED-Ed</span><span>~5 min</span><span class="dot">·</span><span>动画</span></div>
       </div>
       <div class="chev">↗</div>
     </a>
@@ -593,7 +349,32 @@
 <section class="tab-content" id="tab-quizzes">
 
   <div class="date-group">
-    <span>2026-05-21 · 今日</span>
+    <span>2026-05-22 · 今日 (Day 2)</span>
+    <span class="count">2 项</span>
+  </div>
+
+  <div class="item-list">
+    <a class="item-card" href="quiz-20260522-reading.html">
+      <div class="thumb">✏️</div>
+      <div class="info">
+        <div class="ttl">Reading T/F/NG + 词汇 · AI Tutors (7 题)</div>
+        <div class="meta"><span class="pill">阅读</span><span>~6 min</span></div>
+      </div>
+      <div class="chev">›</div>
+    </a>
+
+    <a class="item-card" href="vocab-20260522.html">
+      <div class="thumb">📝</div>
+      <div class="info">
+        <div class="ttl">今日 150 词卡 (Education Day 2)</div>
+        <div class="meta"><span class="pill">词汇</span><span>无时限</span></div>
+      </div>
+      <div class="chev">›</div>
+    </a>
+  </div>
+
+  <div class="date-group" style="margin-top:20px;">
+    <span>📚 历史 (前几日)</span>
     <span class="count">2 项</span>
   </div>
 
@@ -601,25 +382,19 @@
     <a class="item-card" href="quiz-20260521-reading.html">
       <div class="thumb">✏️</div>
       <div class="info">
-        <div class="ttl">Reading T/F/NG + 词汇 (5 题)</div>
-        <div class="meta"><span class="pill">阅读</span><span>~5 min</span></div>
+        <div class="ttl">Day 1: Reading T/F/NG + 词汇 · Coral Reefs</div>
+        <div class="meta"><span class="pill">阅读</span><span>5-21</span></div>
       </div>
       <div class="chev">›</div>
     </a>
-
     <a class="item-card" href="vocab-20260521.html">
       <div class="thumb">📝</div>
       <div class="info">
-        <div class="ttl">今日 150 词卡 (Education)</div>
-        <div class="meta"><span class="pill">词汇</span><span>无时限</span></div>
+        <div class="ttl">Day 1: 150 词卡 · Education</div>
+        <div class="meta"><span class="pill">词汇</span><span>5-21</span></div>
       </div>
       <div class="chev">›</div>
     </a>
-  </div>
-
-  <div class="empty" style="margin-top:24px;">
-    <div style="font-size:0.82rem;">生成更多碎片测验 (听力 / 句式升级) 到 Mac 跑</div>
-    <div class="cmd">/ielts quick test &lt;module&gt; --web</div>
   </div>
 
 </section>
@@ -627,7 +402,7 @@
 <section class="tab-content" id="tab-plan">
 
   <div class="tomorrow-card">
-    <h2>🌙 明日 (<span id="tomDate">5-22</span>) 小测内容</h2>
+    <h2>🌙 明日 (<span id="tomDate">5-23</span>) 小测内容</h2>
     <div class="tom-opts">
       <button class="tom-opt" data-key="listening-s1"><span class="ttl">🎧 听力</span><span class="sub">Section 1 日常对话</span></button>
       <button class="tom-opt" data-key="reading-tfng"><span class="ttl">📖 阅读</span><span class="sub">T/F/NG 专项</span></button>
@@ -637,7 +412,7 @@
     <button class="tom-submit" id="tomSubmit" disabled onclick="syncTomorrow()">请先选择上方一项</button>
     <div class="tom-saved" id="tomSaved">
       <strong id="tomSavedHead">✓ 已选择</strong>: <span id="tomSavedText"></span><br>
-      <span id="tomSavedSub" style="font-size:0.78rem;color:var(--muted);">明早 06:00 (UTC+8) 自动生成对应内容</span>
+      <span id="tomSavedSub" style="font-size:0.78rem;color:var(--muted);">明早 06:00 (UTC+8) cron agent 读取此选择自动生成内容</span>
     </div>
   </div>
 
@@ -649,7 +424,7 @@
     <div class="body">
       <ul>
         <li>✅ 周一: setup 配置档案 + Day 1 学习包</li>
-        <li>○ 周二: Writing Task 2 诊断 (Mac)</li>
+        <li>⏳ 周二 (今天): Writing Task 2 诊断 (Mac)</li>
         <li>○ 周三: Reading 1 套</li>
         <li>○ 周四: Speaking Part 2 诊断</li>
         <li>○ 周五: Listening 1 套</li>
@@ -666,7 +441,7 @@
     </div>
     <div class="body">
       <ul>
-        <li>○ 每天 150 词 (轮换主题)</li>
+        <li>○ 每天 150 词 (主题轮换 · Education → Environment → ...)</li>
         <li>○ 每周写作 2 篇 (Task 1 + Task 2)</li>
         <li>○ 每周 Listening + Reading 各 3 套</li>
         <li>○ 每天 1 个视频 shadow / summary</li>
@@ -705,7 +480,7 @@
 
 </section>
 
-<div class="foot-meta">由 /ielts daily 生成 · 2026-05-21 · 真实数据</div>
+<div class="foot-meta">由 /ielts daily 生成 · 2026-05-22 · Day 2</div>
 
 </main>
 
@@ -752,7 +527,7 @@
     document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
     document.querySelector(`[data-target="${target}"]`)?.classList.add("active");
     document.getElementById(target).classList.add("active");
-    window.scrollTo({top: 0, behavior: "instant"});
+    window.scrollTo({top:0, behavior:"instant"});
     history.replaceState(null, "", "#" + target.replace("tab-",""));
   }
   const hash = (location.hash || "#home").replace("#","");
@@ -761,7 +536,7 @@
     li.querySelector(".checkbox")?.addEventListener("click", () => li.classList.toggle("done"));
   });
 
-  // ---- Tomorrow's quiz selection (with GitHub sync via PAT) ----
+  // Tomorrow's quiz selection
   const REPO = "Jiangvv20/ielts-coach";
   const TOM_LABELS = {
     "listening-s1": "🎧 听力 · Section 1 日常对话",
@@ -769,17 +544,10 @@
     "writing-t2": "✍️ 写作 · Task 2 议论文",
     "speaking-p3": "🗣️ 口语 · Part 3 抽象题"
   };
-  function tomorrowDateISO() {
-    const t = new Date(); t.setDate(t.getDate() + 1);
-    return t.toISOString().slice(0,10);
-  }
-  function tomorrowDateLabel() {
-    const iso = tomorrowDateISO();
-    return iso.slice(5).replace("-","-"); // "05-22"
-  }
+  function tomorrowDateISO() { const t = new Date(); t.setDate(t.getDate() + 1); return t.toISOString().slice(0,10); }
+  function tomorrowDateLabel() { return tomorrowDateISO().slice(5); }
   const TOM_KEY = "ielts_tomorrow_" + tomorrowDateISO().replace(/-/g,"");
   let tomChoice = localStorage.getItem(TOM_KEY) || "";
-
   document.getElementById("tomDate") && (document.getElementById("tomDate").textContent = tomorrowDateLabel());
 
   function applyTomUI() {
@@ -828,25 +596,19 @@
     submit.disabled = true; submit.textContent = "同步中...";
     try {
       const path = "tomorrow.json";
-      // Get existing SHA if file exists
       let sha = null;
       const getRes = await fetch(`https://api.github.com/repos/${REPO}/contents/${path}`, {
         headers: { Authorization: "Bearer " + pat, Accept: "application/vnd.github+json" }
       });
       if (getRes.ok) sha = (await getRes.json()).sha;
-      const body = {
-        date: tomorrowDateISO(),
-        module: tomChoice,
-        moduleLabel: TOM_LABELS[tomChoice],
-        selectedAt: new Date().toISOString()
-      };
+      const body = { date: tomorrowDateISO(), module: tomChoice, moduleLabel: TOM_LABELS[tomChoice], selectedAt: new Date().toISOString() };
       const content = btoa(unescape(encodeURIComponent(JSON.stringify(body, null, 2))));
       const putRes = await fetch(`https://api.github.com/repos/${REPO}/contents/${path}`, {
         method: "PUT",
         headers: { Authorization: "Bearer " + pat, Accept: "application/vnd.github+json", "Content-Type": "application/json" },
         body: JSON.stringify({ message: `tomorrow: ${tomChoice}`, content, sha })
       });
-      if (!putRes.ok) throw new Error("GitHub API " + putRes.status + ": " + (await putRes.text()).slice(0, 200));
+      if (!putRes.ok) throw new Error("GitHub API " + putRes.status + ": " + (await putRes.text()).slice(0,200));
       localStorage.setItem(TOM_KEY + "_synced", tomChoice);
       applyTomUI();
     } catch (e) {
@@ -856,30 +618,23 @@
   }
   applyTomUI();
 
-  // ---- Settings modal (PAT config) ----
+  // Settings modal
   function openSettings() {
     document.getElementById("settingsModal").classList.add("show");
     const pat = localStorage.getItem("ielts_pat") || "";
     document.getElementById("patInput").value = pat;
-    document.getElementById("patStatus").classList.remove("show", "ok", "err");
+    document.getElementById("patStatus").classList.remove("show","ok","err");
   }
-  function closeSettings() {
-    document.getElementById("settingsModal").classList.remove("show");
-  }
+  function closeSettings() { document.getElementById("settingsModal").classList.remove("show"); }
   async function testPAT() {
     const pat = document.getElementById("patInput").value.trim();
     const st = document.getElementById("patStatus");
     st.className = "status show"; st.textContent = "测试中...";
     try {
-      const r = await fetch("https://api.github.com/user", {
-        headers: { Authorization: "Bearer " + pat, Accept: "application/vnd.github+json" }
-      });
+      const r = await fetch("https://api.github.com/user", { headers: { Authorization: "Bearer " + pat, Accept: "application/vnd.github+json" } });
       if (!r.ok) throw new Error("Auth failed (status " + r.status + ")");
       const u = await r.json();
-      // Try the repo access
-      const rr = await fetch(`https://api.github.com/repos/${REPO}`, {
-        headers: { Authorization: "Bearer " + pat, Accept: "application/vnd.github+json" }
-      });
+      const rr = await fetch(`https://api.github.com/repos/${REPO}`, { headers: { Authorization: "Bearer " + pat, Accept: "application/vnd.github+json" } });
       if (!rr.ok) throw new Error("No access to " + REPO);
       st.className = "status show ok";
       st.textContent = `✓ 认证成功 · 用户 ${u.login} · 可访问 ${REPO}`;
@@ -893,8 +648,7 @@
     if (!pat) { alert("请粘贴 PAT"); return; }
     localStorage.setItem("ielts_pat", pat);
     const st = document.getElementById("patStatus");
-    st.className = "status show ok";
-    st.textContent = "✓ 已保存到本机 localStorage";
+    st.className = "status show ok"; st.textContent = "✓ 已保存到本机 localStorage";
     setTimeout(closeSettings, 800);
     applyTomUI();
   }
