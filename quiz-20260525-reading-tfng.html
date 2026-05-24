@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#2563eb">
+<title>测验 · Reading T/F/NG · 能力本位教育</title>
+<style>
+  :root {
+    --bg: #ffffff; --fg: #1a1a1a; --muted: #6b7280;
+    --accent: #2563eb; --ok: #059669; --err: #dc2626;
+    --card: #f9fafb; --border: #e5e7eb;
+    --nav-bg: rgba(255,255,255,0.92);
+    --header-bg: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f172a; --fg: #f1f5f9; --muted: #94a3b8;
+      --accent: #60a5fa; --ok: #34d399; --err: #f87171;
+      --card: #1e293b; --border: #334155;
+      --nav-bg: rgba(15,23,42,0.92);
+      --header-bg: linear-gradient(135deg, #1e40af 0%, #6b21a8 100%);
+    }
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg); }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif;
+    line-height: 1.6; min-height: 100vh;
+    padding-bottom: calc(64px + env(safe-area-inset-bottom, 0));
+  }
+  .app-header {
+    background: var(--header-bg); color: white;
+    padding: calc(env(safe-area-inset-top, 16px) + 12px) 16px 14px;
+    position: sticky; top: 0; z-index: 20;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .back-btn {
+    background: rgba(255,255,255,0.18); border: none; color: white;
+    width: 34px; height: 34px; border-radius: 10px;
+    font-size: 1.1rem; cursor: pointer; flex-shrink: 0;
+    text-decoration: none; display: flex; align-items: center; justify-content: center;
+  }
+  .app-header .ttl { font-size: 1rem; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .app-header .sub { font-size: 0.72rem; opacity: 0.85; margin-top: 1px; letter-spacing: 0.04em; text-transform: uppercase; }
+  main { max-width: 720px; margin: 0 auto; padding: 16px; }
+  .progress { height: 6px; background: var(--border); border-radius: 3px; margin-bottom: 16px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--accent); transition: width 0.3s ease; }
+  .passage {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 14px 16px; margin-bottom: 16px;
+    font-size: 0.95rem; line-height: 1.75;
+  }
+  .passage h3 { margin: 0 0 10px; font-size: 0.78rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+  .passage h4 { margin: 0 0 10px; font-size: 1rem; font-weight: 700; color: var(--fg); }
+  .question {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 16px; margin-bottom: 14px;
+  }
+  .q-num { color: var(--muted); font-size: 0.78rem; font-family: "SF Mono", Menlo, monospace; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.04em; }
+  .q-text { font-size: 1rem; margin-bottom: 12px; font-weight: 500; }
+  .options { display: flex; flex-direction: column; gap: 8px; }
+  .option { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; cursor: pointer; font-size: 0.95rem; text-align: left; color: var(--fg); font-family: inherit; }
+  .option.selected { border-color: var(--accent); background: rgba(37,99,235,0.08); }
+  .option.correct { border-color: var(--ok); background: rgba(5,150,105,0.1); }
+  .option.wrong { border-color: var(--err); background: rgba(220,38,38,0.1); }
+  .blank-input { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; font-size: 1rem; color: var(--fg); font-family: inherit; }
+  .blank-input.correct { border-color: var(--ok); }
+  .blank-input.wrong { border-color: var(--err); }
+  .explanation { margin-top: 10px; padding: 10px 12px; background: var(--bg); border-left: 3px solid var(--accent); border-radius: 4px; font-size: 0.9rem; color: var(--muted); display: none; }
+  .explanation.show { display: block; }
+  .explanation .answer { color: var(--ok); font-weight: 600; }
+  .actions { display: flex; gap: 10px; margin-top: 20px; }
+  .btn { flex: 1; padding: 12px; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; font-family: inherit; }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-secondary { background: var(--card); color: var(--fg); border: 1px solid var(--border); }
+  .result { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; text-align: center; margin-top: 20px; display: none; }
+  .result.show { display: block; }
+  .score { font-size: 2.5rem; font-weight: 700; color: var(--accent); }
+  .score-label { color: var(--muted); font-size: 0.9rem; margin-top: 4px; }
+  .tabbar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--nav-bg); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px); border-top: 1px solid var(--border); display: flex; padding-bottom: env(safe-area-inset-bottom, 0); z-index: 30; }
+  .tab-btn { flex: 1; background: transparent; border: none; padding: 10px 4px 8px; color: var(--muted); font-size: 0.68rem; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 3px; font-family: inherit; text-decoration: none; }
+  .tab-btn .icon { font-size: 1.25rem; line-height: 1; }
+  .tab-btn.active { color: var(--accent); }
+  .tip-box { background: rgba(37,99,235,0.06); border: 1px solid rgba(37,99,235,0.2); border-radius: 10px; padding: 10px 14px; margin-bottom: 16px; font-size: 0.85rem; color: var(--fg); }
+  .tip-box strong { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <a class="back-btn" href="index.html#quizzes">←</a>
+  <div style="flex:1;min-width:0;">
+    <div class="ttl">Reading T/F/NG + 词汇</div>
+    <div class="sub">8 题 · ~8 分钟 · Day 5</div>
+  </div>
+</header>
+
+<main>
+
+  <div class="progress"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+
+  <div class="tip-box">
+    <strong>解题策略</strong>: 先读题干，再回原文定位。T/F 要有直接证据；NG 指原文根本未提及该信息。避免用常识判断。
+  </div>
+
+  <div class="passage">
+    <h3>Passage · 节选 (~580 词)</h3>
+    <h4>Competency-Based Education: Rethinking How We Measure Learning</h4>
+    <p>Competency-based education (CBE) represents a fundamental rethinking of how learning is measured and credentialed. Unlike traditional time-based systems — where students advance after spending a fixed number of hours in a classroom — CBE allows learners to progress upon demonstrating mastery of specific skills, regardless of how long it takes them. Proponents argue that this approach is more equitable, since it decouples achievement from socioeconomic privilege and rewards genuine ability over mere attendance.</p>
+    <p>The origins of CBE can be traced to vocational training programmes in the mid-twentieth century, where demonstrable job-readiness was valued above academic credentials. In recent decades, however, the model has gained traction in higher education, particularly in the United States, where institutions such as Western Governors University have enrolled hundreds of thousands of students in fully competency-based degree programmes. Internationally, Finland and Singapore have incorporated elements of outcome-based learning into their national curricula, though neither has fully adopted the CBE model.</p>
+    <p>Critics of competency-based education raise several concerns. First, the notion of reducing complex human development to a list of measurable competencies has been called reductive. Not all learning outcomes — empathy, cultural sensitivity, creative problem-solving — are easily quantifiable. A student may demonstrate proficiency on a standardised rubric while lacking the deeper conceptual understanding that traditional education has historically sought to cultivate. Second, the administrative burden of tracking hundreds of individual competency milestones places considerable strain on institutions, particularly those with limited resources.</p>
+    <p>Despite these reservations, advocates maintain that CBE addresses a persistent systemic failure: the tendency of conventional education to reward time served rather than genuine learning. In an era of rapid technological disruption, the capacity to acquire and demonstrate new competencies swiftly is of paramount importance. Employers increasingly favour candidates who can substantiate their skills through portfolios, micro-credentials, and performance assessments, rather than relying solely on a degree certificate obtained years earlier.</p>
+    <p>The digital revolution has accelerated CBE's growth. Online platforms now enable learners to complete competency assessments at any time and from any location, creating genuinely flexible pathways. Artificial intelligence is beginning to play a role in adaptive assessment — tailoring the difficulty and type of challenge to each learner's demonstrated level. Researchers are, however, cautious about extrapolating from early results: many pilot programmes are small-scale, and their findings may not be generalisable to diverse student populations.</p>
+    <p>Whether competency-based education will displace traditional degree programmes remains an open question. What is clear is that it has already forced a broader, overdue conversation about what education is fundamentally for: the transmission of knowledge, the cultivation of character, or the certification of employable skills. Resolving this question may be the most important challenge facing educators in the twenty-first century.</p>
+  </div>
+
+  <div id="questions">
+
+    <div class="question" data-type="mcq" data-answer="A">
+      <div class="q-num">Q01 · T/F/NG</div>
+      <div class="q-text">In CBE systems, students can advance even if they have not spent a fixed number of hours in a classroom.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">正确答案: A (True)</div>
+        原文: "CBE allows learners to progress upon demonstrating mastery of specific skills, regardless of how long it takes them" — 明确说明进步不依赖固定课时。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="C">
+      <div class="q-num">Q02 · T/F/NG</div>
+      <div class="q-text">Western Governors University was the first institution in the world to offer competency-based degrees.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">正确答案: C (Not Given)</div>
+        原文提到 WGU 有大量学生，但从未说它是"全球第一"。此信息在文中无从找到。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="B">
+      <div class="q-num">Q03 · T/F/NG</div>
+      <div class="q-text">Finland has fully adopted the CBE model in its national curriculum.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">正确答案: B (False)</div>
+        原文明确说: "neither has fully adopted the CBE model" — 芬兰和新加坡都没有完全采纳。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="B">
+      <div class="q-num">Q04 · T/F/NG</div>
+      <div class="q-text">Employers today generally prefer candidates who hold traditional degree certificates over those with micro-credentials.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">正确答案: B (False)</div>
+        原文说雇主"increasingly favour candidates who can substantiate their skills through portfolios, micro-credentials" — 与题干相悖。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="C">
+      <div class="q-num">Q05 · T/F/NG</div>
+      <div class="q-text">AI-powered adaptive assessment tools have been proven effective for all types of student populations globally.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">正确答案: C (Not Given)</div>
+        原文说 AI 正在"开始发挥作用"，但研究人员对早期结果持谨慎态度，且发现可能不具有推广性。原文没有证明或否定"对所有人群都有效"。
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="fallacy">
+      <div class="q-num">Q06 · 词汇填空</div>
+      <div class="q-text">The belief that spending more time in class automatically leads to better learning is a common logical ____. (谬误)</div>
+      <input class="blank-input" placeholder="键入答案 (小写)">
+      <div class="explanation">
+        <div class="answer">正确答案: fallacy</div>
+        logical fallacy = 逻辑谬误。搭配: commit a fallacy / a common fallacy。Band 7+ 学术写作高频词。
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="extrapolate">
+      <div class="q-num">Q07 · 词汇填空</div>
+      <div class="q-text">Researchers warned against trying to ____ findings from small pilot studies to the global student population. (动词：外推)</div>
+      <input class="blank-input" placeholder="键入答案 (动词原形)">
+      <div class="explanation">
+        <div class="answer">正确答案: extrapolate</div>
+        extrapolate from X to Y = 从 X 外推到 Y。原文原句: "cautious about extrapolating from early results"。
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="substantiate">
+      <div class="q-num">Q08 · 词汇填空</div>
+      <div class="q-text">A strong IELTS essay must ____ every claim with relevant evidence, not rely on personal opinion. (动词：证实)</div>
+      <input class="blank-input" placeholder="键入答案 (动词原形)">
+      <div class="explanation">
+        <div class="answer">正确答案: substantiate</div>
+        substantiate claims/arguments = 用证据支持论点。也可接受 support / corroborate，但 substantiate 最精准。
+      </div>
+    </div>
+
+  </div>
+
+  <div class="actions">
+    <button class="btn btn-secondary" onclick="resetQuiz()">重做</button>
+    <button class="btn btn-primary" onclick="submitQuiz()">提交对答</button>
+  </div>
+
+  <div class="result" id="result">
+    <div class="score" id="scoreNum">--</div>
+    <div class="score-label">正确率</div>
+    <div id="scoreDetail" style="margin-top:10px;color:var(--muted);font-size:0.9rem;"></div>
+    <div style="margin-top:16px;font-size:0.85rem;color:var(--muted);">错题请重读原文段落，找到证据句后再作判断。</div>
+  </div>
+
+</main>
+
+<nav class="tabbar">
+  <a class="tab-btn" href="index.html#home"><span class="icon">🏠</span>概览</a>
+  <a class="tab-btn" href="index.html#materials"><span class="icon">📺</span>材料</a>
+  <a class="tab-btn active" href="index.html#quizzes"><span class="icon">✏️</span>测验</a>
+  <a class="tab-btn" href="index.html#plan"><span class="icon">📋</span>计划</a>
+</nav>
+
+<script>
+  document.querySelectorAll(".option").forEach(opt => {
+    opt.addEventListener("click", () => {
+      const q = opt.closest(".question");
+      q.querySelectorAll(".option").forEach(o => o.classList.remove("selected"));
+      opt.classList.add("selected");
+      q.dataset.userAnswer = opt.dataset.key;
+      updateProgress();
+    });
+  });
+
+  document.querySelectorAll(".blank-input").forEach(inp => {
+    inp.addEventListener("input", () => {
+      inp.closest(".question").dataset.userAnswer = inp.value.trim().toLowerCase();
+      updateProgress();
+    });
+  });
+
+  function updateProgress() {
+    const total = document.querySelectorAll(".question").length;
+    const done = document.querySelectorAll(".question[data-user-answer]").length;
+    document.getElementById("progressFill").style.width = (done/total*100) + "%";
+  }
+
+  function submitQuiz() {
+    let correct = 0, total = 0;
+    document.querySelectorAll(".question").forEach(q => {
+      total++;
+      const userAns = (q.dataset.userAnswer || "").toLowerCase().trim();
+      const correctAns = q.dataset.answer.toLowerCase().trim();
+      const isCorrect = userAns === correctAns;
+      if (isCorrect) correct++;
+
+      if (q.dataset.type === "mcq") {
+        q.querySelectorAll(".option").forEach(o => {
+          if (o.dataset.key.toLowerCase() === correctAns) o.classList.add("correct");
+          else if (o.dataset.key.toLowerCase() === userAns && !isCorrect) o.classList.add("wrong");
+        });
+      } else {
+        const inp = q.querySelector(".blank-input");
+        inp.classList.add(isCorrect ? "correct" : "wrong");
+      }
+      q.querySelector(".explanation")?.classList.add("show");
+    });
+
+    const result = document.getElementById("result");
+    const pct = Math.round(correct/total*100);
+    document.getElementById("scoreNum").textContent = pct + "%";
+    document.getElementById("scoreDetail").textContent = `${correct} / ${total} 正确`;
+    result.classList.add("show");
+    result.scrollIntoView({behavior:"smooth"});
+  }
+
+  function resetQuiz() {
+    document.querySelectorAll(".question").forEach(q => {
+      delete q.dataset.userAnswer;
+      q.querySelectorAll(".option").forEach(o => o.classList.remove("selected","correct","wrong"));
+      const inp = q.querySelector(".blank-input");
+      if (inp) { inp.value = ""; inp.classList.remove("correct","wrong"); }
+      q.querySelector(".explanation")?.classList.remove("show");
+    });
+    document.getElementById("result").classList.remove("show");
+    document.getElementById("progressFill").style.width = "0%";
+  }
+</script>
+
+</body>
+</html>
