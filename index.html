@@ -44,6 +44,7 @@
   .checkbox { flex-shrink:0; width:18px; height:18px; border:2px solid var(--muted); border-radius:5px; margin-top:3px; cursor:pointer; }
   ul.tasks li.done .checkbox { background:var(--ok); border-color:var(--ok); background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='white'><path d='M4 8.5l3 3 5-7' stroke='white' stroke-width='2' fill='none'/></svg>"); background-position:center; background-repeat:no-repeat; background-size:14px; }
   ul.tasks li.done .task-text { text-decoration:line-through; color:var(--muted); }
+  ul.tasks li.today .task-text { font-weight:600; color:var(--accent); }
   .task-text code { background:var(--bg); padding:1px 6px; border-radius:4px; color:var(--accent); font-family:"SF Mono",Menlo,monospace; font-size:0.82rem; }
   .stat-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
   .stat-cell { background:var(--bg); border:1px solid var(--border); border-radius:10px; padding:12px; text-align:center; }
@@ -128,7 +129,7 @@
   <div class="app-title">
     <span class="name">IELTS Coach</span>
     <span style="display:flex;align-items:center;gap:10px;">
-      <span class="date">2026-05-22 (周五) · Day 2</span>
+      <span class="date">2026-05-24 (周日) · Day 4</span>
       <button class="gear-btn" title="设置 / 同步" onclick="openSettings()">⚙️</button>
     </span>
   </div>
@@ -142,7 +143,7 @@
       <div class="lbl">TARGET</div>
     </div>
     <div class="band-cell days">
-      <div class="num">89</div>
+      <div class="num">87</div>
       <div class="lbl">DAYS LEFT</div>
     </div>
   </div>
@@ -153,17 +154,17 @@
 <section class="tab-content active" id="tab-home">
 
   <div class="card">
-    <h2>🌅 今日学习 <span class="badge">Day 2</span></h2>
+    <h2>🌅 今日学习 <span class="badge">Day 4</span></h2>
     <div class="today-grid">
-      <a class="today-tile" href="vocab-20260522.html">
+      <a class="today-tile" href="vocab-20260524.html">
         <div class="icon">📝</div>
         <div class="ttl">150 词卡</div>
-        <div class="sub">Education Day 2 · 滑动学</div>
+        <div class="sub">Education Day 4 · 滑动学</div>
       </a>
-      <a class="today-tile" href="quiz-20260522-reading.html">
-        <div class="icon">📖</div>
-        <div class="ttl">阅读小测</div>
-        <div class="sub">T/F/NG + 词汇 · 7 题</div>
+      <a class="today-tile" href="quiz-20260524-listening-s1.html">
+        <div class="icon">🎧</div>
+        <div class="ttl">听力小测</div>
+        <div class="sub">Section 1 · 表格填空 · 10 题</div>
       </a>
       <a class="today-tile" href="#materials" onclick="switchTab('tab-materials')">
         <div class="icon">🎬</div>
@@ -179,15 +180,15 @@
   </div>
 
   <div class="speaking-card">
-    <div class="label">🗣️ 今日口语题 · Part 2 · #2</div>
-    <div class="topic">Describe an interesting old person you have met</div>
+    <div class="label">🗣️ 今日口语题 · Part 2 · #4</div>
+    <div class="topic">Describe a person you know who has interesting ideas or opinions</div>
     <ul class="bullets">
       <li>Who they are</li>
-      <li>How you met them</li>
-      <li>What you talked about</li>
-      <li>Why you found them interesting</li>
+      <li>How you know them</li>
+      <li>What kind of ideas they have</li>
+      <li>Why you think their ideas are interesting</li>
     </ul>
-    <div class="hint">1 分钟笔记 + 1.5-2 分钟独白。今天到 Mac 时用 <code>/ielts practice grade speaking</code> 给我看你的回答</div>
+    <div class="hint">1 分钟笔记 + 1.5-2 分钟独白。到 Mac 时用 <code>/ielts practice grade speaking</code> 给我看你的回答</div>
   </div>
 
   <div class="card">
@@ -195,9 +196,9 @@
     <ul class="tasks">
       <li class="done"><span class="checkbox"></span><span class="task-text">周四 5-21: 配置档案 + Day 1 学习包</span></li>
       <li class="done"><span class="checkbox"></span><span class="task-text">周五 5-22: Education Day 2 (词卡 + AI Tutors 阅读)</span></li>
-      <li><span class="checkbox"></span><span class="task-text">周六 5-23: 写作 Task 2 诊断 (Mac 端 <code>/ielts practice mock writing task2</code>)</span></li>
-      <li><span class="checkbox"></span><span class="task-text">周日 5-24: 阅读 1 套</span></li>
-      <li><span class="checkbox"></span><span class="task-text">周一 5-25: 口语 Part 2 (Mac 端 grade)</span></li>
+      <li class="done"><span class="checkbox"></span><span class="task-text">周六 5-23: Education Day 3 (词卡)</span></li>
+      <li class="today"><span class="checkbox"></span><span class="task-text">周日 5-24: Education Day 4 · 词卡 + 听力 Section 1 小测 ← 今日</span></li>
+      <li><span class="checkbox"></span><span class="task-text">周一 5-25: 口语 Part 2 诊断 (Mac 端 <code>/ielts practice grade speaking</code>)</span></li>
       <li><span class="checkbox"></span><span class="task-text">周二 5-26: 听力 1 套 + BBC 影子跟读</span></li>
       <li><span class="checkbox"></span><span class="task-text">周三 5-27: 复盘 + 错题入库</span></li>
     </ul>
@@ -220,8 +221,8 @@
         <div class="lbl">错题</div>
       </div>
       <div class="stat-cell">
-        <div class="num">230</div>
-        <div class="lbl">总记忆卡 (Day 1+2)</div>
+        <div class="num">380</div>
+        <div class="lbl">总记忆卡 (Day 1-4)</div>
       </div>
     </div>
   </div>
@@ -300,43 +301,43 @@
   </div>
 
   <div class="item-list">
-    <a class="item-card" href="https://www.youtube.com/watch?v=gEdPVA-6rVs" target="_blank" rel="noopener">
+    <a class="item-card" href="https://www.youtube.com/watch?v=CYcYeTaBRvE" target="_blank" rel="noopener">
       <div class="thumb">📺</div>
       <div class="info">
-        <div class="ttl">BOX SET: 6 Minute English — Food and Drink mega-class</div>
-        <div class="meta"><span class="pill">BBC LE</span><span>~60 min</span><span class="dot">·</span><span>合集 · 英音</span></div>
-      </div>
-      <div class="chev">↗</div>
-    </a>
-    <a class="item-card" href="https://www.youtube.com/watch?v=WMokf0EgTcA" target="_blank" rel="noopener">
-      <div class="thumb">📺</div>
-      <div class="info">
-        <div class="ttl">BOX SET: 6 Minute English — Wellbeing mega-class</div>
+        <div class="ttl">BOX SET: 6 Minute English — 'The Future' English mega-class</div>
         <div class="meta"><span class="pill">BBC LE</span><span>~30 min</span><span class="dot">·</span><span>合集 · 英音</span></div>
       </div>
       <div class="chev">↗</div>
     </a>
-    <a class="item-card" href="https://www.youtube.com/watch?v=L5R7yqpN5fg" target="_blank" rel="noopener">
+    <a class="item-card" href="https://www.youtube.com/watch?v=d2gitF9_CS4" target="_blank" rel="noopener">
       <div class="thumb">📺</div>
       <div class="info">
-        <div class="ttl">BOX SET: 6 Minute English — Coffee mega-class</div>
+        <div class="ttl">BOX SET: 6 Minute English — 'Entertainment' English mega-class</div>
+        <div class="meta"><span class="pill">BBC LE</span><span>~30 min</span><span class="dot">·</span><span>合集 · 英音 · 最新</span></div>
+      </div>
+      <div class="chev">↗</div>
+    </a>
+    <a class="item-card" href="https://www.youtube.com/watch?v=tEL9bYk2iKE" target="_blank" rel="noopener">
+      <div class="thumb">📺</div>
+      <div class="info">
+        <div class="ttl">BOX SET: 6 Minute English — 'Climate Change' English mega-class</div>
         <div class="meta"><span class="pill">BBC LE</span><span>~30 min</span><span class="dot">·</span><span>合集 · 英音</span></div>
       </div>
       <div class="chev">↗</div>
     </a>
-    <a class="item-card" href="https://www.youtube.com/watch?v=f2O6mQkFiiw" target="_blank" rel="noopener">
+    <a class="item-card" href="https://www.youtube.com/watch?v=Ge7c7otG2mk" target="_blank" rel="noopener">
       <div class="thumb">🎬</div>
       <div class="info">
-        <div class="ttl">How to practice effectively...for just about anything</div>
-        <div class="meta"><span class="pill">TED-Ed</span><span>~5 min</span><span class="dot">·</span><span>动画</span></div>
+        <div class="ttl">Learning a language? Speak it like you're playing a video game · Marianna Pascal</div>
+        <div class="meta"><span class="pill">TEDx</span><span>~12 min</span><span class="dot">·</span><span>语言学习 · 美音</span></div>
       </div>
       <div class="chev">↗</div>
     </a>
-    <a class="item-card" href="https://www.youtube.com/watch?v=5MuIMqhT8DM" target="_blank" rel="noopener">
+    <a class="item-card" href="https://www.youtube.com/watch?v=rxEbDOR5c-M" target="_blank" rel="noopener">
       <div class="thumb">🎬</div>
       <div class="info">
-        <div class="ttl">Sleep is your superpower · Matt Walker</div>
-        <div class="meta"><span class="pill">TED</span><span>~19 min</span><span class="dot">·</span><span>英音 · 进阶</span></div>
+        <div class="ttl">Learn English with TED Talks — Do Schools Kill Creativity? · Ken Robinson</div>
+        <div class="meta"><span class="pill">TED-Ed</span><span>~5 min</span><span class="dot">·</span><span>教育主题 · 英音</span></div>
       </div>
       <div class="chev">↗</div>
     </a>
@@ -352,24 +353,24 @@
 <section class="tab-content" id="tab-quizzes">
 
   <div class="date-group">
-    <span>2026-05-22 · 今日 (Day 2)</span>
+    <span>2026-05-24 · 今日 (Day 4)</span>
     <span class="count">2 项</span>
   </div>
 
   <div class="item-list">
-    <a class="item-card" href="quiz-20260522-reading.html">
-      <div class="thumb">✏️</div>
+    <a class="item-card" href="quiz-20260524-listening-s1.html">
+      <div class="thumb">🎧</div>
       <div class="info">
-        <div class="ttl">Reading T/F/NG + 词汇 · AI Tutors (7 题)</div>
-        <div class="meta"><span class="pill">阅读</span><span>~6 min</span></div>
+        <div class="ttl">Listening Section 1 · 课程报名对话 (10 题)</div>
+        <div class="meta"><span class="pill">听力</span><span>~8 min</span></div>
       </div>
       <div class="chev">›</div>
     </a>
 
-    <a class="item-card" href="vocab-20260522.html">
+    <a class="item-card" href="vocab-20260524.html">
       <div class="thumb">📝</div>
       <div class="info">
-        <div class="ttl">今日 150 词卡 (Education Day 2)</div>
+        <div class="ttl">今日 150 词卡 (Education Day 4)</div>
         <div class="meta"><span class="pill">词汇</span><span>无时限</span></div>
       </div>
       <div class="chev">›</div>
@@ -378,10 +379,26 @@
 
   <div class="date-group" style="margin-top:20px;">
     <span>📚 历史 (前几日)</span>
-    <span class="count">2 项</span>
+    <span class="count">4 项</span>
   </div>
 
   <div class="item-list">
+    <a class="item-card" href="quiz-20260522-reading.html">
+      <div class="thumb">✏️</div>
+      <div class="info">
+        <div class="ttl">Day 2: Reading T/F/NG + 词汇 · AI Tutors (7 题)</div>
+        <div class="meta"><span class="pill">阅读</span><span>5-22</span></div>
+      </div>
+      <div class="chev">›</div>
+    </a>
+    <a class="item-card" href="vocab-20260522.html">
+      <div class="thumb">📝</div>
+      <div class="info">
+        <div class="ttl">Day 2: 150 词卡 · Education</div>
+        <div class="meta"><span class="pill">词汇</span><span>5-22</span></div>
+      </div>
+      <div class="chev">›</div>
+    </a>
     <a class="item-card" href="quiz-20260521-reading.html">
       <div class="thumb">✏️</div>
       <div class="info">
@@ -429,8 +446,8 @@
       <ul>
         <li>✅ 周四 5-21: setup + Day 1 学习包</li>
         <li>✅ 周五 5-22: Day 2 词卡 + AI Tutors 阅读</li>
-        <li>○ 周六 5-23: Writing Task 2 诊断 (Mac)</li>
-        <li>○ 周日 5-24: Reading 1 套</li>
+        <li>✅ 周六 5-23: Day 3 词卡</li>
+        <li>▶ 周日 5-24: Day 4 词卡 + 听力 Section 1 ← 今日</li>
         <li>○ 周一 5-25: Speaking Part 2 诊断</li>
         <li>○ 周二 5-26: Listening 1 套 + BBC 影子跟读</li>
         <li>○ 周三 5-27: 复盘 + 错题入库</li>
@@ -484,7 +501,7 @@
 
 </section>
 
-<div class="foot-meta">由 /ielts daily 生成 · 2026-05-22 · Day 2</div>
+<div class="foot-meta">由 /ielts daily 生成 · 2026-05-24 · Day 4</div>
 
 </main>
 
@@ -552,7 +569,7 @@
   function tomorrowDateLabel() { return tomorrowDateISO().slice(5); }
   const TOM_KEY = "ielts_tomorrow_" + tomorrowDateISO().replace(/-/g,"");
   let tomChoices = JSON.parse(localStorage.getItem(TOM_KEY) || "[]");
-  if (!Array.isArray(tomChoices)) tomChoices = [];  // backward compat
+  if (!Array.isArray(tomChoices)) tomChoices = [];
   document.getElementById("tomDate") && (document.getElementById("tomDate").textContent = tomorrowDateLabel());
 
   function applyTomUI() {
