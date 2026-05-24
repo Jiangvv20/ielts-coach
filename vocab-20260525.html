@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#2563eb">
+<title>今日 150 词 · 2026-05-25 · Education</title>
+<style>
+  :root {
+    --bg: #ffffff; --fg: #1a1a1a; --muted: #6b7280;
+    --accent: #2563eb; --ok: #059669; --warn: #d97706;
+    --card: #f9fafb; --border: #e5e7eb;
+    --nav-bg: rgba(255,255,255,0.92);
+    --header-bg: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f172a; --fg: #f1f5f9; --muted: #94a3b8;
+      --accent: #60a5fa; --ok: #34d399; --warn: #fbbf24;
+      --card: #1e293b; --border: #334155;
+      --nav-bg: rgba(15,23,42,0.92);
+      --header-bg: linear-gradient(135deg, #1e40af 0%, #6b21a8 100%);
+    }
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg); }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif;
+    line-height: 1.5;
+    min-height: 100vh;
+    padding-bottom: calc(64px + env(safe-area-inset-bottom, 0));
+  }
+  .app-header {
+    background: var(--header-bg); color: white;
+    padding: calc(env(safe-area-inset-top, 16px) + 12px) 16px 14px;
+    position: sticky; top: 0; z-index: 20;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .back-btn {
+    background: rgba(255,255,255,0.18); border: none; color: white;
+    width: 34px; height: 34px; border-radius: 10px;
+    font-size: 1.1rem; cursor: pointer; flex-shrink: 0;
+    text-decoration: none; display: flex; align-items: center; justify-content: center;
+  }
+  .app-header .ttl { font-size: 1rem; font-weight: 700; }
+  .app-header .sub {
+    font-size: 0.72rem; opacity: 0.85; margin-top: 1px;
+    letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  .stats {
+    background: var(--card); padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px; text-align: center;
+  }
+  .stat .num { font-size: 1.4rem; font-weight: 700; }
+  .stat .num.know { color: var(--ok); }
+  .stat .num.weak { color: var(--warn); }
+  .stat .num.left { color: var(--accent); }
+  .stat .lbl { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; margin-top: 2px; }
+  .progress-bar { height: 4px; background: var(--border); overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--accent); transition: width 0.3s; }
+  .card-stage { margin: 24px 16px; perspective: 1000px; }
+  .card-3d {
+    position: relative; width: 100%; min-height: 260px;
+    transform-style: preserve-3d; transition: transform 0.5s; cursor: pointer;
+  }
+  .card-3d.flipped { transform: rotateY(180deg); }
+  .face {
+    position: absolute; width: 100%; height: 100%;
+    backface-visibility: hidden; -webkit-backface-visibility: hidden;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 18px; padding: 24px 20px;
+    display: flex; flex-direction: column; justify-content: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .face.front { text-align: center; }
+  .face.front .word { font-size: 2rem; font-weight: 700; color: var(--accent); margin-bottom: 8px; word-break: break-word; }
+  .face.front .pos { color: var(--muted); font-size: 0.95rem; font-style: italic; }
+  .face.front .hint { margin-top: 28px; color: var(--muted); font-size: 0.82rem; }
+  .face.back { transform: rotateY(180deg); }
+  .face.back .zh { font-size: 1.3rem; font-weight: 600; color: var(--accent); margin-bottom: 12px; }
+  .face.back .collo { background: var(--bg); padding: 8px 12px; border-radius: 8px; font-size: 0.92rem; color: var(--fg); margin-bottom: 10px; border-left: 3px solid var(--accent); }
+  .face.back .ex { font-size: 0.95rem; font-style: italic; color: var(--fg); line-height: 1.6; }
+  .face.back .ex strong { color: var(--accent); font-style: normal; }
+  .speaker { position: absolute; top: 14px; right: 14px; width: 36px; height: 36px; border-radius: 50%; background: var(--bg); border: 1px solid var(--border); cursor: pointer; font-size: 1.1rem; padding: 0; color: var(--accent); }
+  .view-toggle { display: flex; padding: 12px 16px 0; gap: 8px; }
+  .view-toggle button { flex: 1; padding: 8px; background: var(--card); border: 1px solid var(--border); border-radius: 8px; color: var(--muted); font-size: 0.85rem; cursor: pointer; font-family: inherit; }
+  .view-toggle button.active { background: var(--accent); color: white; border-color: var(--accent); }
+  .list-view { display: none; padding: 12px 16px 24px; }
+  .list-view.active { display: block; }
+  .list-row { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-bottom: 1px solid var(--border); background: var(--card); border-radius: 8px; margin-bottom: 6px; }
+  .list-row .num { flex-shrink: 0; width: 28px; color: var(--muted); font-size: 0.72rem; font-family: "SF Mono", Menlo, monospace; }
+  .list-row .word { flex: 1; min-width: 0; }
+  .list-row .w { font-weight: 600; font-size: 0.95rem; color: var(--fg); }
+  .list-row .w.knew { color: var(--ok); }
+  .list-row .w.weak { color: var(--warn); }
+  .list-row .zh { font-size: 0.78rem; color: var(--muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .list-row .spk { flex-shrink: 0; width: 32px; height: 32px; border-radius: 50%; background: var(--bg); border: 1px solid var(--border); cursor: pointer; color: var(--accent); font-size: 0.9rem; padding: 0; }
+  .list-row .mk { flex-shrink: 0; width: 24px; text-align: center; color: var(--muted); }
+  .list-row .mk.know { color: var(--ok); }
+  .list-row .mk.weak { color: var(--warn); }
+  .curriculum-note { margin: 16px; padding: 12px 14px; background: var(--card); border-left: 3px solid var(--accent); border-radius: 8px; font-size: 0.82rem; color: var(--muted); line-height: 1.5; }
+  .curriculum-note strong { color: var(--fg); }
+  .actions { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; padding: 0 16px; }
+  .btn { padding: 14px 8px; border: 1px solid var(--border); border-radius: 12px; background: var(--card); color: var(--fg); font-size: 0.95rem; font-weight: 600; cursor: pointer; font-family: inherit; -webkit-tap-highlight-color: transparent; }
+  .btn .ico { display: block; font-size: 1.4rem; margin-bottom: 2px; }
+  .btn.weak { color: var(--warn); }
+  .btn.weak:active { background: rgba(217,119,6,0.1); }
+  .btn.flip { color: var(--accent); }
+  .btn.flip:active { background: rgba(37,99,235,0.1); }
+  .btn.know { color: var(--ok); }
+  .btn.know:active { background: rgba(5,150,105,0.1); }
+  .meta { text-align: center; color: var(--muted); font-size: 0.78rem; margin-top: 20px; }
+  .tabbar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--nav-bg); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px); border-top: 1px solid var(--border); display: flex; padding-bottom: env(safe-area-inset-bottom, 0); z-index: 30; }
+  .tab-btn { flex: 1; background: transparent; border: none; padding: 10px 4px 8px; color: var(--muted); font-size: 0.68rem; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 3px; font-family: inherit; text-decoration: none; }
+  .tab-btn .icon { font-size: 1.25rem; line-height: 1; }
+  .tab-btn.active { color: var(--accent); }
+  .done-screen { text-align: center; padding: 60px 24px; display: none; }
+  .done-screen.show { display: block; }
+  .done-screen .big { font-size: 4rem; }
+  .done-screen .ttl { font-size: 1.3rem; font-weight: 700; margin: 8px 0; }
+  .done-screen .sub { color: var(--muted); margin-bottom: 24px; }
+  .done-screen button { background: var(--accent); color: white; border: none; padding: 12px 24px; border-radius: 12px; font-size: 0.95rem; font-weight: 600; cursor: pointer; font-family: inherit; margin: 4px; }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <a class="back-btn" href="index.html#home">←</a>
+  <div style="flex:1;">
+    <div class="ttl">今日 150 词 · Education</div>
+    <div class="sub">2026-05-25 · Day 5</div>
+  </div>
+</header>
+
+<div class="stats">
+  <div class="stat"><div class="num know" id="kn">0</div><div class="lbl">知道</div></div>
+  <div class="stat"><div class="num weak" id="wk">0</div><div class="lbl">不熟</div></div>
+  <div class="stat"><div class="num left" id="lf">150</div><div class="lbl">剩余</div></div>
+</div>
+<div class="progress-bar"><div class="progress-fill" id="pg" style="width:0%"></div></div>
+
+<div class="view-toggle">
+  <button id="vtFlash" class="active" onclick="setView('flash')">📇 卡片</button>
+  <button id="vtList" onclick="setView('list')">📋 列表</button>
+</div>
+
+<div id="deck">
+  <div class="card-stage">
+    <div class="card-3d" id="card" onclick="flip()">
+      <div class="face front">
+        <button class="speaker" onclick="event.stopPropagation();speak(document.getElementById('w').textContent)">🔊</button>
+        <div class="word" id="w">—</div>
+        <div class="pos" id="p">—</div>
+        <div class="hint">轻触卡片 · 翻看释义</div>
+      </div>
+      <div class="face back">
+        <button class="speaker" onclick="event.stopPropagation();speak(document.getElementById('w').textContent)">🔊</button>
+        <div class="zh" id="zh">—</div>
+        <div class="collo" id="cl">—</div>
+        <div class="ex" id="ex">—</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="btn weak" onclick="mark('weak')"><span class="ico">😣</span>不熟</button>
+    <button class="btn flip" onclick="flip()"><span class="ico">🔄</span>翻转</button>
+    <button class="btn know" onclick="mark('know')"><span class="ico">✅</span>知道</button>
+  </div>
+
+  <div class="meta" id="meta">1 / 150 · 今日主题 Education</div>
+</div>
+
+<div class="list-view" id="listView">
+  <div id="listBody"></div>
+</div>
+
+<div class="curriculum-note">
+  <strong>词汇来源</strong>: 8 天主题轮换,涵盖雅思高频话题。<br>
+  Day 1-7 <strong>Education</strong> · Day 8-14 <strong>Environment</strong> · Day 15-21 <strong>Technology</strong> · Day 22-28 <strong>Health</strong> · Day 29-35 <strong>Government &amp; Society</strong> · Day 36-42 <strong>Work &amp; Economy</strong> · Day 43-49 <strong>Family</strong> · Day 50-56 <strong>Travel &amp; Culture</strong> · 之后循环。<br>
+  词汇为 Band 7+ 难度, 每条含 词性 · 中文 · 搭配 · 例句, 由 IELTS 高分话题词库扩展生成。
+</div>
+
+<div class="done-screen" id="done">
+  <div class="big">🎉</div>
+  <div class="ttl" id="doneTtl">今日 150 词完成!</div>
+  <div class="sub" id="doneSub">知道 0 · 不熟 0</div>
+  <button onclick="resetAll()">重新开始</button>
+  <button onclick="reviewWeak()">只复习不熟</button>
+  <button onclick="location.href='index.html'">回主页</button>
+</div>
+
+<nav class="tabbar">
+  <a class="tab-btn active" href="index.html#home"><span class="icon">🏠</span>概览</a>
+  <a class="tab-btn" href="index.html#materials"><span class="icon">📺</span>材料</a>
+  <a class="tab-btn" href="index.html#quizzes"><span class="icon">✏️</span>测验</a>
+  <a class="tab-btn" href="index.html#plan"><span class="icon">📋</span>计划</a>
+</nav>
+
+<script>
+const CARDS = [
+{"w":"rhetoric","p":"n.","zh":"修辞学；辩论术","cl":"employ rhetoric","ex":"Skilled debaters <strong>employ rhetoric</strong> to sway audiences beyond mere logic."},
+{"w":"eloquence","p":"n.","zh":"口才；雄辩","cl":"speak with eloquence","ex":"She spoke with such <strong>eloquence</strong> that the entire hall fell silent."},
+{"w":"discourse","p":"n.","zh":"话语；论述","cl":"academic discourse","ex":"Participating in <strong>academic discourse</strong> requires both critical reading and persuasive writing."},
+{"w":"hypothesis","p":"n.","zh":"假设","cl":"formulate a hypothesis","ex":"Researchers must <strong>formulate a hypothesis</strong> before designing an experiment."},
+{"w":"empirical","p":"adj.","zh":"实证的；基于观察的","cl":"empirical evidence","ex":"<strong>Empirical evidence</strong>, not mere opinion, must underpin every academic argument."},
+{"w":"postulate","p":"v.","zh":"假设；推断","cl":"postulate that","ex":"Scientists <strong>postulate that</strong> early childhood stimulation permanently alters brain architecture."},
+{"w":"premise","p":"n.","zh":"前提","cl":"operate on the premise","ex":"Much education policy <strong>operates on the premise</strong> that smaller class sizes improve outcomes."},
+{"w":"fallacy","p":"n.","zh":"谬误；谬论","cl":"logical fallacy","ex":"The belief that attendance equals learning is a common <strong>logical fallacy</strong>."},
+{"w":"syllogism","p":"n.","zh":"三段论","cl":"construct a syllogism","ex":"Philosophy class taught us to <strong>construct a syllogism</strong> to test logical consistency."},
+{"w":"conjecture","p":"n.","zh":"推测；猜想","cl":"remain conjecture","ex":"Without peer-reviewed data, the claims <strong>remain mere conjecture</strong>."},
+{"w":"corroborate","p":"v.","zh":"佐证；证实","cl":"corroborate findings","ex":"Several longitudinal studies <strong>corroborate findings</strong> that outdoor play boosts academic performance."},
+{"w":"substantiate","p":"v.","zh":"证实；支持","cl":"substantiate claims","ex":"Students must learn to <strong>substantiate claims</strong> with credible, peer-reviewed sources."},
+{"w":"refute","p":"v.","zh":"驳斥；反驳","cl":"refute an argument","ex":"A Band 7 essay should clearly <strong>refute opposing arguments</strong> before presenting its own view."},
+{"w":"plausible","p":"adj.","zh":"合理的；可信的","cl":"plausible explanation","ex":"The student offered a <strong>plausible explanation</strong> for the discrepancy in the survey data."},
+{"w":"anecdotal","p":"adj.","zh":"轶事性的","cl":"anecdotal evidence","ex":"<strong>Anecdotal evidence</strong> alone cannot substitute for rigorous statistical research."},
+{"w":"mnemonic","p":"n.","zh":"助记法","cl":"use a mnemonic","ex":"Many students <strong>use a mnemonic</strong> to memorise grammatical rules or vocabulary sequences."},
+{"w":"extrapolate","p":"v.","zh":"外推；推断延伸","cl":"extrapolate from","ex":"It is risky to <strong>extrapolate from</strong> a small sample to the entire student population."},
+{"w":"replicate","p":"v.","zh":"复制；重复实验","cl":"replicate results","ex":"Findings must be <strong>replicated</strong> across diverse contexts before they influence education policy."},
+{"w":"exemplify","p":"v.","zh":"举例说明","cl":"exemplify the point","ex":"The teacher asked each student to <strong>exemplify the point</strong> with a real-world scenario."},
+{"w":"indoctrinate","p":"v.","zh":"灌输思想","cl":"indoctrinate rather than educate","ex":"Authoritarian systems risk <strong>indoctrinating</strong> students rather than truly educating them."},
+{"w":"pedagogue","p":"n.","zh":"教师；迂腐的教育者","cl":"traditional pedagogue","ex":"Unlike a rigid <strong>pedagogue</strong>, great teachers adapt their style to each individual learner."},
+{"w":"axiom","p":"n.","zh":"公理；不证自明的道理","cl":"educational axiom","ex":"It is a widely accepted <strong>educational axiom</strong> that engaged students retain information longer."},
+{"w":"precept","p":"n.","zh":"准则；信条","cl":"guiding precepts","ex":"The institution's <strong>guiding precepts</strong> place student well-being above academic pressure."},
+{"w":"inquisitive","p":"adj.","zh":"好奇的；求知欲强的","cl":"foster an inquisitive mind","ex":"Good education should <strong>foster an inquisitive mind</strong>, not suppress natural curiosity."},
+{"w":"cogent","p":"adj.","zh":"有说服力的；令人信服的","cl":"cogent argument","ex":"A <strong>cogent argument</strong> is logically structured and supported by relevant, credible evidence."},
+{"w":"succinct","p":"adj.","zh":"简明扼要的","cl":"succinct explanation","ex":"A good teacher delivers a <strong>succinct explanation</strong> before elaborating with examples."},
+{"w":"verbose","p":"adj.","zh":"冗长啰嗦的","cl":"overly verbose","ex":"An <strong>overly verbose</strong> essay obscures the main point and frustrates the examiner."},
+{"w":"cerebral","p":"adj.","zh":"脑力的；智识的","cl":"cerebral challenge","ex":"The curriculum must offer both creative activities and <strong>cerebral challenges</strong>."},
+{"w":"incisive","p":"adj.","zh":"深刻犀利的","cl":"incisive analysis","ex":"The professor's <strong>incisive analysis</strong> cut through the confusion and clarified the concept at once."},
+{"w":"interpolate","p":"v.","zh":"插入；篡改","cl":"interpolate data","ex":"A researcher must never <strong>interpolate data</strong> to make results fit a predetermined conclusion."},
+{"w":"perceptive","p":"adj.","zh":"有洞察力的","cl":"perceptive learner","ex":"A <strong>perceptive learner</strong> notices subtle patterns that others easily overlook."},
+{"w":"astute","p":"adj.","zh":"精明敏锐的","cl":"astute observation","ex":"The student made an <strong>astute observation</strong> that shifted the entire class discussion."},
+{"w":"sagacious","p":"adj.","zh":"睿智的；有远见的","cl":"sagacious educator","ex":"A <strong>sagacious educator</strong> knows when to challenge students and when to offer support."},
+{"w":"perspicacious","p":"adj.","zh":"洞察力强的；眼光敏锐的","cl":"perspicacious judgment","ex":"Her <strong>perspicacious judgment</strong> allowed her to identify the flaw in the experiment immediately."},
+{"w":"erudition","p":"n.","zh":"博学；学识渊博","cl":"depth of erudition","ex":"The professor's <strong>depth of erudition</strong> impressed even the most advanced doctoral students."},
+{"w":"probity","p":"n.","zh":"诚实正直；廉洁","cl":"academic probity","ex":"<strong>Academic probity</strong> demands that all sources be properly credited and data honestly reported."},
+{"w":"scrupulous","p":"adj.","zh":"一丝不苟的；谨慎的","cl":"scrupulous attention","ex":"<strong>Scrupulous attention</strong> to citation style prevents accusations of academic misconduct."},
+{"w":"painstaking","p":"adj.","zh":"精心细致的","cl":"painstaking research","ex":"<strong>Painstaking research</strong> over three decades led to a breakthrough in literacy instruction."},
+{"w":"dexterity","p":"n.","zh":"技巧；灵巧","cl":"intellectual dexterity","ex":"Switching between perspectives in an essay requires considerable <strong>intellectual dexterity</strong>."},
+{"w":"accolade","p":"n.","zh":"赞誉；荣誉","cl":"earn accolades","ex":"Students who overcome adversity to graduate often <strong>earn accolades</strong> from their entire community."},
+{"w":"statutory","p":"adj.","zh":"法定的","cl":"statutory requirement","ex":"Safeguarding is a <strong>statutory requirement</strong> in every government-funded school."},
+{"w":"jurisdiction","p":"n.","zh":"管辖权","cl":"fall under the jurisdiction","ex":"Private tutoring centres may <strong>fall under the jurisdiction</strong> of local rather than national authorities."},
+{"w":"devolution","p":"n.","zh":"权力下放","cl":"devolution of education","ex":"The <strong>devolution of education</strong> policy to regional bodies has produced uneven results across the country."},
+{"w":"compliance","p":"n.","zh":"合规；顺从","cl":"ensure compliance","ex":"Regular inspections are used to <strong>ensure compliance</strong> with national curriculum standards."},
+{"w":"allocation","p":"n.","zh":"分配；拨款","cl":"budget allocation","ex":"The <strong>budget allocation</strong> for STEM subjects has doubled in the past five years."},
+{"w":"pervasive","p":"adj.","zh":"普遍的；弥漫的","cl":"pervasive inequality","ex":"<strong>Pervasive inequality</strong> in education access remains one of the world's most urgent challenges."},
+{"w":"standardisation","p":"n.","zh":"标准化","cl":"push for standardisation","ex":"Critics argue that an excessive <strong>push for standardisation</strong> stifles teacher creativity and local innovation."},
+{"w":"elitism","p":"n.","zh":"精英主义","cl":"perpetuate elitism","ex":"Selective admissions policies risk <strong>perpetuating elitism</strong> rather than rewarding genuine academic merit."},
+{"w":"egalitarian","p":"adj.","zh":"平等主义的","cl":"egalitarian approach","ex":"An <strong>egalitarian approach</strong> to education ensures every student receives the same quality of instruction."},
+{"w":"democratise","p":"v.","zh":"使民主化；使普及","cl":"democratise education","ex":"Online platforms have the potential to <strong>democratise education</strong> on an unprecedented global scale."},
+{"w":"centralise","p":"v.","zh":"集权；集中管理","cl":"centralise control","ex":"Governments that <strong>centralise control</strong> over curricula often sacrifice local cultural relevance."},
+{"w":"oversight","p":"n.","zh":"监管；疏漏","cl":"independent oversight","ex":"<strong>Independent oversight</strong> of examination boards prevents bias and maintains public trust."},
+{"w":"provision","p":"n.","zh":"提供；供应","cl":"educational provision","ex":"Adequate <strong>educational provision</strong> in remote areas requires sustained government investment."},
+{"w":"entitlement","p":"n.","zh":"权利；资格","cl":"entitlement to education","ex":"Every child has an <strong>entitlement to</strong> a free, quality education regardless of their background."},
+{"w":"compulsion","p":"n.","zh":"强制；驱动力","cl":"under compulsion","ex":"Learning <strong>under compulsion</strong> rarely produces the same depth of understanding as self-motivated study."},
+{"w":"legislative","p":"adj.","zh":"立法的","cl":"legislative framework","ex":"A robust <strong>legislative framework</strong> protects students' rights and sets minimum quality standards."},
+{"w":"selectivity","p":"n.","zh":"选择性；挑剔","cl":"academic selectivity","ex":"<strong>Academic selectivity</strong> in admissions may inadvertently disadvantage students from under-resourced schools."},
+{"w":"preclude","p":"v.","zh":"阻止；排除可能性","cl":"preclude access","ex":"Socioeconomic barriers can <strong>preclude access</strong> to higher education for many talented students."},
+{"w":"validity","p":"n.","zh":"效度；有效性","cl":"ensure validity","ex":"Researchers use multiple methods to <strong>ensure the validity</strong> of their findings."},
+{"w":"reliability","p":"n.","zh":"信度；可靠性","cl":"inter-rater reliability","ex":"<strong>Inter-rater reliability</strong> is crucial when assessors mark subjective pieces of work."},
+{"w":"triangulation","p":"n.","zh":"三角验证","cl":"methodological triangulation","ex":"<strong>Methodological triangulation</strong> combines qualitative and quantitative data to strengthen conclusions."},
+{"w":"methodology","p":"n.","zh":"研究方法论","cl":"research methodology","ex":"The <strong>research methodology</strong> section of a thesis must justify every data collection decision."},
+{"w":"epistemology","p":"n.","zh":"认识论","cl":"educational epistemology","ex":"<strong>Educational epistemology</strong> asks how we know what we know and how that shapes pedagogy."},
+{"w":"credibility","p":"n.","zh":"可信度","cl":"lend credibility","ex":"Peer-reviewed journals <strong>lend credibility</strong> to research in ways that unreviewed blogs cannot."},
+{"w":"objectivity","p":"n.","zh":"客观性","cl":"maintain objectivity","ex":"Good assessment practice requires examiners to <strong>maintain objectivity</strong> at all times."},
+{"w":"falsify","p":"v.","zh":"伪造；歪曲","cl":"falsify results","ex":"Any researcher who <strong>falsifies results</strong> risks permanent damage to their academic career."},
+{"w":"fabricate","p":"v.","zh":"捏造；伪造","cl":"fabricate evidence","ex":"Academic misconduct policies exist to deter students who might <strong>fabricate evidence</strong> to pass."},
+{"w":"generalisable","p":"adj.","zh":"可推广的","cl":"generalisable findings","ex":"Small-scale studies rarely produce <strong>generalisable findings</strong> applicable to all learners worldwide."},
+{"w":"corpus","p":"n.","zh":"语料库","cl":"language corpus","ex":"Linguists analyse a <strong>language corpus</strong> to identify real usage patterns rather than idealised rules."},
+{"w":"lexicon","p":"n.","zh":"词汇；词汇系统","cl":"academic lexicon","ex":"Mastering the <strong>academic lexicon</strong> is essential for reading scholarly texts at university level."},
+{"w":"syntax","p":"n.","zh":"句法","cl":"complex syntax","ex":"Band 8+ candidates demonstrate command of <strong>complex syntax</strong> without making grammatical errors."},
+{"w":"semantics","p":"n.","zh":"语义学","cl":"semantic precision","ex":"<strong>Semantic precision</strong> distinguishes a well-written IELTS essay from a mediocre one."},
+{"w":"diction","p":"n.","zh":"措辞；用词选择","cl":"precise diction","ex":"A marker rewards <strong>precise diction</strong> over vague, over-general language."},
+{"w":"constructivist","p":"adj.","zh":"建构主义的","cl":"constructivist approach","ex":"A <strong>constructivist approach</strong> encourages students to build knowledge through discovery rather than passive reception."},
+{"w":"cooperative","p":"adj.","zh":"合作的","cl":"cooperative learning","ex":"<strong>Cooperative learning</strong> tasks require students to contribute individually while achieving shared goals."},
+{"w":"inclusive","p":"adj.","zh":"包容的；全纳的","cl":"inclusive pedagogy","ex":"<strong>Inclusive pedagogy</strong> adapts instruction so that every learner, regardless of ability, can engage meaningfully."},
+{"w":"expository","p":"adj.","zh":"讲解式的；说明性的","cl":"expository teaching","ex":"<strong>Expository teaching</strong> delivers content efficiently but may reduce opportunities for student-led inquiry."},
+{"w":"diagnostic","p":"adj.","zh":"诊断性的","cl":"diagnostic assessment","ex":"A <strong>diagnostic assessment</strong> at the start of term helps teachers pinpoint each student's baseline."},
+{"w":"self-regulated","p":"adj.","zh":"自我调节的","cl":"self-regulated learning","ex":"<strong>Self-regulated learners</strong> set their own goals, monitor progress, and adjust strategies without prompting."},
+{"w":"inquiry-driven","p":"adj.","zh":"探究驱动的","cl":"inquiry-driven curriculum","ex":"An <strong>inquiry-driven curriculum</strong> places student questions at the very heart of the learning process."},
+{"w":"multisensory","p":"adj.","zh":"多感官的","cl":"multisensory instruction","ex":"<strong>Multisensory instruction</strong> engages hearing, sight, and movement simultaneously to reinforce memory."},
+{"w":"peer-mediated","p":"adj.","zh":"同伴介导的","cl":"peer-mediated intervention","ex":"<strong>Peer-mediated interventions</strong> strategically pair stronger and weaker learners to mutual benefit."},
+{"w":"restorative","p":"adj.","zh":"修复性的；恢复性的","cl":"restorative approach","ex":"A <strong>restorative approach</strong> to discipline focuses on repairing harm rather than punishing behaviour."},
+{"w":"trauma-informed","p":"adj.","zh":"创伤知情的","cl":"trauma-informed practice","ex":"<strong>Trauma-informed practice</strong> helps teachers understand how adverse childhood experiences affect readiness to learn."},
+{"w":"culturally responsive","p":"adj.","zh":"文化回应性的","cl":"culturally responsive teaching","ex":"<strong>Culturally responsive teaching</strong> validates students' identities and backgrounds as assets, not barriers."},
+{"w":"competency-based","p":"adj.","zh":"能力本位的","cl":"competency-based education","ex":"<strong>Competency-based education</strong> measures progress by demonstrated skills, not time spent in class."},
+{"w":"outcome-based","p":"adj.","zh":"结果导向的","cl":"outcome-based curriculum","ex":"An <strong>outcome-based curriculum</strong> clarifies what students should be able to do, not just what they have studied."},
+{"w":"Socratic","p":"adj.","zh":"苏格拉底式的","cl":"Socratic method","ex":"The <strong>Socratic method</strong> uses probing questions to lead students toward understanding rather than providing answers."},
+{"w":"narrative","p":"n.","zh":"叙述；主流说法","cl":"dominant narrative","ex":"The <strong>dominant narrative</strong> in education often overlooks the lived experiences of minority groups."},
+{"w":"exposition","p":"n.","zh":"阐述；说明","cl":"clear exposition","ex":"<strong>Clear exposition</strong> of ideas is the hallmark of strong academic writing."},
+{"w":"argumentation","p":"n.","zh":"论证；辩论","cl":"structured argumentation","ex":"IELTS Writing Task 2 demands <strong>structured argumentation</strong> spread across four paragraphs."},
+{"w":"deliberation","p":"n.","zh":"深思熟虑","cl":"careful deliberation","ex":"Curriculum design should involve <strong>careful deliberation</strong> by educators, parents, and policymakers alike."},
+{"w":"introspection","p":"n.","zh":"内省；自我反思","cl":"practice introspection","ex":"Reflective teaching encourages educators to <strong>practice introspection</strong> after every lesson they deliver."},
+{"w":"exacerbate","p":"v.","zh":"加剧；恶化","cl":"exacerbate inequality","ex":"Reduced per-pupil spending in deprived areas can <strong>exacerbate educational inequality</strong> for generations."},
+{"w":"ameliorate","p":"v.","zh":"改善；改良","cl":"ameliorate conditions","ex":"Targeted interventions can <strong>ameliorate conditions</strong> for students with specific learning difficulties."},
+{"w":"rectify","p":"v.","zh":"纠正；改正","cl":"rectify deficiencies","ex":"Schools should have clear systems to <strong>rectify deficiencies</strong> in understanding before high-stakes tests."},
+{"w":"systemic","p":"adj.","zh":"系统性的；体制性的","cl":"systemic change","ex":"Addressing <strong>systemic inequalities</strong> in education requires policy change at every level of government."},
+{"w":"attain","p":"v.","zh":"达到；获得","cl":"attain proficiency","ex":"The programme was designed to help all students <strong>attain proficiency</strong> in core literacy skills."},
+{"w":"competence","p":"n.","zh":"能力；胜任力","cl":"demonstrate competence","ex":"Graduates must be able to <strong>demonstrate competence</strong> in both technical and interpersonal skills."},
+{"w":"remediate","p":"v.","zh":"补救；纠正学习缺口","cl":"remediate gaps","ex":"Teachers use diagnostic data to <strong>remediate gaps</strong> in understanding before moving to new content."},
+{"w":"authentic assessment","p":"n.","zh":"真实性评估","cl":"conduct authentic assessment","ex":"<strong>Authentic assessment</strong> tasks mirror real-world contexts, such as presentations and project reports."},
+{"w":"criterion-referenced test","p":"n.","zh":"标准参照测验","cl":"use a criterion-referenced test","ex":"A <strong>criterion-referenced test</strong> measures a student against a fixed standard, not against other students."},
+{"w":"norm-referenced test","p":"n.","zh":"常模参照测验","cl":"a norm-referenced test","ex":"A <strong>norm-referenced test</strong> ranks students against each other, producing a bell-curve distribution."},
+{"w":"zone of proximal development","p":"n.","zh":"最近发展区（维果茨基）","cl":"within the zone of proximal development","ex":"Tasks <strong>within the zone of proximal development</strong> challenge students just enough to promote growth."},
+{"w":"cognitive dissonance","p":"n.","zh":"认知失调","cl":"experience cognitive dissonance","ex":"Students <strong>experience cognitive dissonance</strong> when new evidence contradicts their existing beliefs."},
+{"w":"threshold concept","p":"n.","zh":"阈值概念","cl":"grasp a threshold concept","ex":"Once a student <strong>grasps a threshold concept</strong>, their understanding of the entire subject shifts irreversibly."},
+{"w":"conceptual understanding","p":"n.","zh":"概念性理解","cl":"deep conceptual understanding","ex":"Rote memorisation without <strong>deep conceptual understanding</strong> collapses under exam pressure."},
+{"w":"procedural knowledge","p":"n.","zh":"程序性知识","cl":"build procedural knowledge","ex":"Maths education must <strong>build procedural knowledge</strong> alongside conceptual reasoning."},
+{"w":"declarative knowledge","p":"n.","zh":"陈述性知识","cl":"declarative knowledge","ex":"<strong>Declarative knowledge</strong> — knowing that something is true — must be paired with knowing how to apply it."},
+{"w":"case-based learning","p":"n.","zh":"案例教学法","cl":"engage in case-based learning","ex":"Medical schools <strong>engage in case-based learning</strong> to bridge theory and clinical practice effectively."},
+{"w":"service learning","p":"n.","zh":"服务性学习","cl":"participate in service learning","ex":"Students who <strong>participate in service learning</strong> apply academic knowledge to real community challenges."},
+{"w":"self-regulated learning","p":"n.","zh":"自我调节学习","cl":"self-regulated learning strategy","ex":"<strong>Self-regulated learning strategies</strong> include goal-setting, self-monitoring, and evaluating one's own progress."},
+{"w":"peer-assisted learning","p":"n.","zh":"同伴辅助学习","cl":"benefit from peer-assisted learning","ex":"Weaker students significantly <strong>benefit from peer-assisted learning</strong> sessions with trained peers."},
+{"w":"school-to-work transition","p":"n.","zh":"学校到职场的过渡","cl":"smooth school-to-work transition","ex":"Vocational programmes aim to facilitate a <strong>smooth school-to-work transition</strong> for non-academic learners."},
+{"w":"emotional literacy","p":"n.","zh":"情绪素养","cl":"develop emotional literacy","ex":"Schools that help children <strong>develop emotional literacy</strong> report lower rates of behavioural problems."},
+{"w":"academic self-concept","p":"n.","zh":"学业自我概念","cl":"positive academic self-concept","ex":"A <strong>positive academic self-concept</strong> — believing one is capable — is strongly linked to achievement."},
+{"w":"teacher-student rapport","p":"n.","zh":"师生关系","cl":"build teacher-student rapport","ex":"Research consistently shows that <strong>strong teacher-student rapport</strong> boosts motivation and attendance."},
+{"w":"cultural capital","p":"n.","zh":"文化资本","cl":"accumulate cultural capital","ex":"Students from affluent families often <strong>accumulate cultural capital</strong> that gives them an unacknowledged advantage."},
+{"w":"grade inflation","p":"n.","zh":"分数虚高","cl":"combat grade inflation","ex":"Universities are under pressure to <strong>combat grade inflation</strong> without discouraging student effort."},
+{"w":"academic bottleneck","p":"n.","zh":"学业瓶颈","cl":"overcome an academic bottleneck","ex":"Gateway courses with high failure rates are described as <strong>academic bottlenecks</strong> in the system."},
+{"w":"blended instruction","p":"n.","zh":"混合式教学","cl":"deliver blended instruction","ex":"Post-pandemic, many teachers continue to <strong>deliver blended instruction</strong>, combining face-to-face and online elements."},
+{"w":"open-door policy","p":"n.","zh":"开放招生政策","cl":"an open-door admissions policy","ex":"Community colleges with <strong>open-door admissions policies</strong> enrol students regardless of prior grades."},
+{"w":"place-based learning","p":"n.","zh":"场域学习","cl":"place-based learning approach","ex":"A <strong>place-based learning approach</strong> uses the local environment as a classroom, connecting theory to lived experience."},
+{"w":"merit-based system","p":"n.","zh":"绩效制度","cl":"a merit-based system","ex":"In a true <strong>merit-based system</strong>, talent and effort — not privilege — determine educational outcomes."},
+{"w":"academic discourse community","p":"n.","zh":"学术话语社群","cl":"join an academic discourse community","ex":"Writing a peer-reviewed article means joining an <strong>academic discourse community</strong> with its own norms and expectations."},
+{"w":"social mobility ladder","p":"n.","zh":"社会流动阶梯","cl":"climb the social mobility ladder","ex":"Education is widely regarded as the most reliable way to <strong>climb the social mobility ladder</strong>."},
+{"w":"learning disposition","p":"n.","zh":"学习性情；学习倾向","cl":"cultivate positive learning dispositions","ex":"Schools should <strong>cultivate positive learning dispositions</strong> — curiosity, persistence, and openness — alongside subject knowledge."},
+{"w":"micro-credentials","p":"n.","zh":"微认证","cl":"earn micro-credentials","ex":"Professionals who <strong>earn micro-credentials</strong> in targeted skills are increasingly valued by technology employers."},
+{"w":"feedback loop","p":"n.","zh":"反馈循环","cl":"create a feedback loop","ex":"Effective assessment <strong>creates a feedback loop</strong> that informs both teacher planning and student revision."},
+{"w":"learning ecosystem","p":"n.","zh":"学习生态系统","cl":"build a learning ecosystem","ex":"A well-designed school <strong>builds a learning ecosystem</strong> where lessons, clubs, and mentoring reinforce each other."},
+{"w":"put pen to paper","p":"idiom","zh":"动笔写作","cl":"finally put pen to paper","ex":"After weeks of planning, she <strong>finally put pen to paper</strong> and finished her personal statement."},
+{"w":"draw a blank","p":"idiom","zh":"毫无思绪；记不起来","cl":"draw a blank in the exam","ex":"Despite revising for hours, he <strong>drew a blank</strong> the moment he read the essay question."},
+{"w":"hit a wall","p":"idiom","zh":"遇到瓶颈；进展受阻","cl":"hit a wall with","ex":"After rapid progress, many language learners <strong>hit a wall</strong> at the intermediate stage."},
+{"w":"be up to speed","p":"idiom","zh":"跟上进度；了解最新情况","cl":"get up to speed on","ex":"New students need a few weeks to <strong>get up to speed on</strong> university-level academic writing conventions."},
+{"w":"make the grade","p":"idiom","zh":"达到标准；合格","cl":"make the grade","ex":"Not every student who enrols in a demanding programme will ultimately <strong>make the grade</strong>."},
+{"w":"cut corners","p":"idiom","zh":"走捷径；偷工减料","cl":"cut corners on","ex":"Students who <strong>cut corners on</strong> their research risk submitting inaccurate, poorly supported arguments."},
+{"w":"pull one's weight","p":"idiom","zh":"尽自己的责任；做分内之事","cl":"pull one's weight","ex":"In group projects, every member must <strong>pull their weight</strong> or the whole team suffers."},
+{"w":"be in over one's head","p":"idiom","zh":"力不从心；超出能力范围","cl":"feel in over one's head","ex":"When students feel <strong>in over their heads</strong>, a good mentor helps them break the challenge into steps."},
+{"w":"rise to the challenge","p":"idiom","zh":"迎接挑战；迎难而上","cl":"rise to the challenge","ex":"The best measure of a student's character is whether they <strong>rise to the challenge</strong> when results are disappointing."},
+{"w":"have a head start","p":"idiom","zh":"有先发优势","cl":"have a head start over","ex":"Children from book-rich homes often <strong>have a head start over</strong> peers whose families lack reading materials."},
+{"w":"learn from scratch","p":"phrasal v.","zh":"从零开始学","cl":"learn from scratch","ex":"Adult returners often have to <strong>learn from scratch</strong>, rebuilding academic habits abandoned years earlier."},
+{"w":"be second to none","p":"idiom","zh":"首屈一指；无与伦比","cl":"be second to none","ex":"Finland's education system is widely considered to <strong>be second to none</strong> in terms of equity and outcomes."},
+{"w":"up the ante","p":"phrasal v.","zh":"提高要求；加大赌注","cl":"up the ante","ex":"The university <strong>upped the ante</strong> by requiring all dissertations to be submitted with a plagiarism report."},
+{"w":"set the tone","p":"idiom","zh":"定下基调","cl":"set the tone for","ex":"The opening paragraph of an IELTS essay <strong>sets the tone for</strong> the examiner's entire reading experience."},
+{"w":"walk the walk","p":"idiom","zh":"身体力行；言行一致","cl":"not just talk the talk, but walk the walk","ex":"Good teachers must not just <strong>talk the talk</strong> — they must also <strong>walk the walk</strong> by modelling lifelong curiosity."},
+{"w":"separate the wheat from the chaff","p":"idiom","zh":"去粗取精；区分优劣","cl":"separate the wheat from the chaff","ex":"Entrance exams claim to <strong>separate the wheat from the chaff</strong>, identifying the most capable applicants."},
+{"w":"It goes without saying that","p":"sentence stem","zh":"不用说；显而易见","cl":"It goes without saying that","ex":"<strong>It goes without saying that</strong> students who read widely develop a richer, more flexible vocabulary."},
+{"w":"leave no stone unturned","p":"idiom","zh":"竭尽全力；不遗余力","cl":"leave no stone unturned","ex":"A dedicated teacher <strong>leaves no stone unturned</strong> when trying to engage a disinterested student."},
+{"w":"be at the forefront of","p":"sentence stem","zh":"处于…的前沿","cl":"be at the forefront of","ex":"This university <strong>is at the forefront of</strong> research into AI-driven personalised learning systems."},
+{"w":"play a central role in","p":"sentence stem","zh":"发挥核心作用","cl":"play a central role in","ex":"Parental involvement <strong>plays a central role in</strong> shaping a child's attitude toward school and learning."}
+];
+
+const STORE_KEY = "ielts_vocab_20260525";
+let order = [], idx = 0, flipped = false;
+let known = new Set(), weak = new Set();
+
+function load() {
+  const s = localStorage.getItem(STORE_KEY);
+  if (s) { const d = JSON.parse(s); known = new Set(d.k||[]); weak = new Set(d.w||[]); }
+  order = CARDS.map((_,i)=>i); showCard(); buildList(); updateStats();
+}
+
+function save() {
+  localStorage.setItem(STORE_KEY, JSON.stringify({k:[...known],w:[...weak]}));
+}
+
+function showCard() {
+  if (idx >= order.length) { showDone(); return; }
+  const c = CARDS[order[idx]];
+  document.getElementById('w').textContent = c.w;
+  document.getElementById('p').textContent = c.p;
+  document.getElementById('zh').textContent = c.zh;
+  document.getElementById('cl').textContent = c.cl;
+  document.getElementById('ex').innerHTML = c.ex;
+  document.getElementById('card').classList.remove('flipped');
+  flipped = false;
+  document.getElementById('meta').textContent = (idx+1) + ' / ' + order.length + ' · 今日主题 Education';
+}
+
+function flip() {
+  flipped = !flipped;
+  document.getElementById('card').classList.toggle('flipped', flipped);
+}
+
+function mark(type) {
+  const i = order[idx];
+  if (type === 'know') { known.add(i); weak.delete(i); }
+  else { weak.add(i); known.delete(i); }
+  save(); idx++; updateStats(); showCard(); buildList();
+}
+
+function updateStats() {
+  document.getElementById('kn').textContent = known.size;
+  document.getElementById('wk').textContent = weak.size;
+  const left = order.length - idx;
+  document.getElementById('lf').textContent = left;
+  document.getElementById('pg').style.width = (idx / order.length * 100) + '%';
+}
+
+function showDone() {
+  document.getElementById('deck').style.display = 'none';
+  const d = document.getElementById('done');
+  d.classList.add('show');
+  document.getElementById('doneSub').textContent = '知道 ' + known.size + ' · 不熟 ' + weak.size;
+}
+
+function resetAll() {
+  idx = 0; order = CARDS.map((_,i)=>i); known.clear(); weak.clear();
+  save(); document.getElementById('deck').style.display=''; document.getElementById('done').classList.remove('show');
+  showCard(); updateStats(); buildList();
+}
+
+function reviewWeak() {
+  order = [...weak]; idx = 0;
+  document.getElementById('deck').style.display=''; document.getElementById('done').classList.remove('show');
+  showCard(); updateStats();
+}
+
+function setView(v) {
+  document.getElementById('vtFlash').classList.toggle('active', v==='flash');
+  document.getElementById('vtList').classList.toggle('active', v==='list');
+  document.getElementById('deck').style.display = v==='flash' ? '' : 'none';
+  document.getElementById('listView').classList.toggle('active', v==='list');
+}
+
+function buildList() {
+  const body = document.getElementById('listBody');
+  body.innerHTML = CARDS.map((c,i) => {
+    const mk = known.has(i) ? 'know' : weak.has(i) ? 'weak' : '';
+    const icon = known.has(i) ? '✓' : weak.has(i) ? '✗' : '·';
+    return `<div class="list-row">
+      <div class="num">${String(i+1).padStart(3,'0')}</div>
+      <div class="word">
+        <div class="w ${mk}">${c.w}</div>
+        <div class="zh">${c.zh}</div>
+      </div>
+      <button class="spk" onclick="speak('${c.w.replace(/'/g,"\\'")}')">🔊</button>
+      <div class="mk ${mk}">${icon}</div>
+    </div>`;
+  }).join('');
+}
+
+function speak(t) {
+  if (!window.speechSynthesis) return;
+  const u = new SpeechSynthesisUtterance(t);
+  u.lang = 'en-GB'; speechSynthesis.cancel(); speechSynthesis.speak(u);
+}
+
+load();
+</script>
+</body>
+</html>
