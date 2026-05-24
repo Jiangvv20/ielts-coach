@@ -193,13 +193,13 @@
   <div class="card">
     <h2>📅 本周计划 <span class="badge">Week 1</span></h2>
     <ul class="tasks">
-      <li class="done"><span class="checkbox"></span><span class="task-text">周一 5-21: 配置档案 + Day 1 学习包</span></li>
-      <li><span class="checkbox"></span><span class="task-text">周二 5-22: 写作 Task 2 诊断 (Mac 端 <code>/ielts practice mock writing task2</code>)</span></li>
-      <li><span class="checkbox"></span><span class="task-text">周三 5-23: 阅读 1 套</span></li>
-      <li><span class="checkbox"></span><span class="task-text">周四 5-24: 口语 Part 2 (Mac 端 grade)</span></li>
-      <li><span class="checkbox"></span><span class="task-text">周五 5-25: 听力 1 套</span></li>
-      <li><span class="checkbox"></span><span class="task-text">周六 5-26: 选 1 个 BBC 视频影子跟读</span></li>
-      <li><span class="checkbox"></span><span class="task-text">周日 5-27: 复盘 + 错题入库</span></li>
+      <li class="done"><span class="checkbox"></span><span class="task-text">周四 5-21: 配置档案 + Day 1 学习包</span></li>
+      <li class="done"><span class="checkbox"></span><span class="task-text">周五 5-22: Education Day 2 (词卡 + AI Tutors 阅读)</span></li>
+      <li><span class="checkbox"></span><span class="task-text">周六 5-23: 写作 Task 2 诊断 (Mac 端 <code>/ielts practice mock writing task2</code>)</span></li>
+      <li><span class="checkbox"></span><span class="task-text">周日 5-24: 阅读 1 套</span></li>
+      <li><span class="checkbox"></span><span class="task-text">周一 5-25: 口语 Part 2 (Mac 端 grade)</span></li>
+      <li><span class="checkbox"></span><span class="task-text">周二 5-26: 听力 1 套 + BBC 影子跟读</span></li>
+      <li><span class="checkbox"></span><span class="task-text">周三 5-27: 复盘 + 错题入库</span></li>
     </ul>
   </div>
 
@@ -245,7 +245,10 @@
 
   <div class="date-group">
     <span>📚 雅思主题</span>
-    <span class="count">5 个 · 长期有效</span>
+    <span class="count">5 个 · 每周一刷新</span>
+  </div>
+  <div style="color:var(--muted);font-size:0.78rem;padding:0 4px 8px;line-height:1.5;">
+    策略类视频反复学习更有效。<strong>每周一</strong> cron agent 用 WebSearch 找当周新发现的高质量 IELTS 视频替换其中 1-2 个。任何时候你可在 Mac 上跑 <code style="background:var(--card);padding:1px 5px;border-radius:3px;color:var(--accent);font-family:'SF Mono',Menlo,monospace;font-size:0.72rem;">/ielts materials refresh-ielts</code> 立即强制更换。
   </div>
 
   <div class="item-list">
@@ -402,17 +405,18 @@
 <section class="tab-content" id="tab-plan">
 
   <div class="tomorrow-card">
-    <h2>🌙 明日 (<span id="tomDate">5-23</span>) 小测内容</h2>
+    <h2>🌙 明日 (<span id="tomDate">5-25</span>) 小测内容 · 可多选</h2>
+    <div style="color:var(--muted);font-size:0.8rem;margin-bottom:10px;">点选一个或多个模块, cron agent 会为每项生成独立小测页</div>
     <div class="tom-opts">
       <button class="tom-opt" data-key="listening-s1"><span class="ttl">🎧 听力</span><span class="sub">Section 1 日常对话</span></button>
       <button class="tom-opt" data-key="reading-tfng"><span class="ttl">📖 阅读</span><span class="sub">T/F/NG 专项</span></button>
       <button class="tom-opt" data-key="writing-t2"><span class="ttl">✍️ 写作</span><span class="sub">Task 2 议论文</span></button>
       <button class="tom-opt" data-key="speaking-p3"><span class="ttl">🗣️ 口语</span><span class="sub">Part 3 抽象题</span></button>
     </div>
-    <button class="tom-submit" id="tomSubmit" disabled onclick="syncTomorrow()">请先选择上方一项</button>
+    <button class="tom-submit" id="tomSubmit" disabled onclick="syncTomorrow()">请先选择</button>
     <div class="tom-saved" id="tomSaved">
       <strong id="tomSavedHead">✓ 已选择</strong>: <span id="tomSavedText"></span><br>
-      <span id="tomSavedSub" style="font-size:0.78rem;color:var(--muted);">明早 06:00 (UTC+8) cron agent 读取此选择自动生成内容</span>
+      <span id="tomSavedSub" style="font-size:0.78rem;color:var(--muted);">明早 06:00 (UTC+8) cron agent 读取所有选择并各生成一份小测</span>
     </div>
   </div>
 
@@ -423,13 +427,13 @@
     </div>
     <div class="body">
       <ul>
-        <li>✅ 周一: setup 配置档案 + Day 1 学习包</li>
-        <li>⏳ 周二 (今天): Writing Task 2 诊断 (Mac)</li>
-        <li>○ 周三: Reading 1 套</li>
-        <li>○ 周四: Speaking Part 2 诊断</li>
-        <li>○ 周五: Listening 1 套</li>
-        <li>○ 周六: BBC 视频影子跟读</li>
-        <li>○ 周日: 复盘 + 错题入库</li>
+        <li>✅ 周四 5-21: setup + Day 1 学习包</li>
+        <li>✅ 周五 5-22: Day 2 词卡 + AI Tutors 阅读</li>
+        <li>○ 周六 5-23: Writing Task 2 诊断 (Mac)</li>
+        <li>○ 周日 5-24: Reading 1 套</li>
+        <li>○ 周一 5-25: Speaking Part 2 诊断</li>
+        <li>○ 周二 5-26: Listening 1 套 + BBC 影子跟读</li>
+        <li>○ 周三 5-27: 复盘 + 错题入库</li>
       </ul>
     </div>
   </div>
@@ -536,7 +540,7 @@
     li.querySelector(".checkbox")?.addEventListener("click", () => li.classList.toggle("done"));
   });
 
-  // Tomorrow's quiz selection
+  // Tomorrow's quiz selection (MULTI-SELECT)
   const REPO = "Jiangvv20/ielts-coach";
   const TOM_LABELS = {
     "listening-s1": "🎧 听力 · Section 1 日常对话",
@@ -547,45 +551,54 @@
   function tomorrowDateISO() { const t = new Date(); t.setDate(t.getDate() + 1); return t.toISOString().slice(0,10); }
   function tomorrowDateLabel() { return tomorrowDateISO().slice(5); }
   const TOM_KEY = "ielts_tomorrow_" + tomorrowDateISO().replace(/-/g,"");
-  let tomChoice = localStorage.getItem(TOM_KEY) || "";
+  let tomChoices = JSON.parse(localStorage.getItem(TOM_KEY) || "[]");
+  if (!Array.isArray(tomChoices)) tomChoices = [];  // backward compat
   document.getElementById("tomDate") && (document.getElementById("tomDate").textContent = tomorrowDateLabel());
 
   function applyTomUI() {
     document.querySelectorAll(".tom-opt").forEach(b => {
-      b.classList.toggle("selected", b.dataset.key === tomChoice);
+      b.classList.toggle("selected", tomChoices.includes(b.dataset.key));
     });
     const submit = document.getElementById("tomSubmit");
-    if (tomChoice) {
-      submit.disabled = false;
-      const synced = localStorage.getItem(TOM_KEY + "_synced");
-      submit.textContent = synced === tomChoice ? "✓ 已同步 · 重新同步" : (localStorage.getItem("ielts_pat") ? "同步到 GitHub" : "保存 (本地)");
-      const saved = localStorage.getItem(TOM_KEY + "_saved");
-      if (saved === tomChoice) {
-        document.getElementById("tomSaved").classList.add("show");
-        document.getElementById("tomSavedText").textContent = TOM_LABELS[saved];
-        document.getElementById("tomSavedHead").textContent = synced === tomChoice ? "✓ 已同步到 GitHub" : "○ 仅本地保存";
-        document.getElementById("tomSavedSub").textContent = synced === tomChoice
-          ? "明早 06:00 (UTC+8) cron agent 读取此选择自动生成内容"
-          : "未配置 PAT, 选择只存本地。配置 PAT 才能跨设备同步。";
-      } else {
-        document.getElementById("tomSaved").classList.remove("show");
-      }
-    } else {
+    if (tomChoices.length === 0) {
       submit.disabled = true;
-      submit.textContent = "请先选择上方一项";
+      submit.textContent = "请先选择 (可多选)";
+      document.getElementById("tomSaved").classList.remove("show");
+      return;
+    }
+    submit.disabled = false;
+    const savedJson = localStorage.getItem(TOM_KEY + "_saved") || "[]";
+    const syncedJson = localStorage.getItem(TOM_KEY + "_synced") || "[]";
+    const currJson = JSON.stringify([...tomChoices].sort());
+    const isSynced = syncedJson === currJson;
+    const isSaved = savedJson === currJson;
+    const hasPat = !!localStorage.getItem("ielts_pat");
+    submit.textContent = isSynced ? `✓ 已同步 ${tomChoices.length} 项 · 重新同步` : (hasPat ? `同步 ${tomChoices.length} 项到 GitHub` : `保存 ${tomChoices.length} 项 (本地)`);
+    if (isSaved) {
+      document.getElementById("tomSaved").classList.add("show");
+      document.getElementById("tomSavedText").innerHTML = tomChoices.map(k => `<br>· ${TOM_LABELS[k]}`).join("");
+      document.getElementById("tomSavedHead").textContent = isSynced ? `✓ 已同步 ${tomChoices.length} 项到 GitHub` : `○ 仅本地保存 ${tomChoices.length} 项`;
+      document.getElementById("tomSavedSub").textContent = isSynced
+        ? "明早 06:00 (UTC+8) cron agent 读取并各生成一份小测页"
+        : "未配置 PAT, 选择只存本地。配置 PAT 才能跨设备同步。";
+    } else {
+      document.getElementById("tomSaved").classList.remove("show");
     }
   }
   document.querySelectorAll(".tom-opt").forEach(b => {
     b.addEventListener("click", () => {
-      tomChoice = b.dataset.key;
-      localStorage.setItem(TOM_KEY, tomChoice);
+      const k = b.dataset.key;
+      const idx = tomChoices.indexOf(k);
+      if (idx >= 0) tomChoices.splice(idx, 1); else tomChoices.push(k);
+      localStorage.setItem(TOM_KEY, JSON.stringify(tomChoices));
       applyTomUI();
     });
   });
 
   async function syncTomorrow() {
-    if (!tomChoice) return;
-    localStorage.setItem(TOM_KEY + "_saved", tomChoice);
+    if (tomChoices.length === 0) return;
+    const currJson = JSON.stringify([...tomChoices].sort());
+    localStorage.setItem(TOM_KEY + "_saved", currJson);
     const pat = localStorage.getItem("ielts_pat");
     if (!pat) {
       applyTomUI();
@@ -601,15 +614,21 @@
         headers: { Authorization: "Bearer " + pat, Accept: "application/vnd.github+json" }
       });
       if (getRes.ok) sha = (await getRes.json()).sha;
-      const body = { date: tomorrowDateISO(), module: tomChoice, moduleLabel: TOM_LABELS[tomChoice], selectedAt: new Date().toISOString() };
+      const sortedChoices = [...tomChoices].sort();
+      const body = {
+        date: tomorrowDateISO(),
+        modules: sortedChoices,
+        moduleLabels: sortedChoices.map(k => TOM_LABELS[k]),
+        selectedAt: new Date().toISOString()
+      };
       const content = btoa(unescape(encodeURIComponent(JSON.stringify(body, null, 2))));
       const putRes = await fetch(`https://api.github.com/repos/${REPO}/contents/${path}`, {
         method: "PUT",
         headers: { Authorization: "Bearer " + pat, Accept: "application/vnd.github+json", "Content-Type": "application/json" },
-        body: JSON.stringify({ message: `tomorrow: ${tomChoice}`, content, sha })
+        body: JSON.stringify({ message: `tomorrow: ${sortedChoices.join(",")}`, content, sha })
       });
       if (!putRes.ok) throw new Error("GitHub API " + putRes.status + ": " + (await putRes.text()).slice(0,200));
-      localStorage.setItem(TOM_KEY + "_synced", tomChoice);
+      localStorage.setItem(TOM_KEY + "_synced", currJson);
       applyTomUI();
     } catch (e) {
       alert("同步失败: " + e.message);

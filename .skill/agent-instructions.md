@@ -34,16 +34,33 @@ DAY_NUM=$((DAYS_SINCE_START + 1))
 
 ## Step 2 — Read tomorrow.json (user's selection from yesterday)
 
+`tomorrow.json` schema (v2, multi-select):
+```json
+{
+  "date": "YYYY-MM-DD",
+  "modules": ["listening-s1", "reading-tfng"],
+  "moduleLabels": ["🎧 听力 · Section 1 日常对话", "📖 阅读 · T/F/NG 专项"],
+  "selectedAt": "ISO8601 timestamp"
+}
+```
+
+Backward-compat: older `module: "X"` (string) also accepted — treat as `modules: ["X"]`.
+
 ```bash
 TOMORROW_JSON=$(curl -sS -H "$GH_AUTH" -H "$GH_ACCEPT" "$GH_API/tomorrow.json")
-MODULE=$(echo "$TOMORROW_JSON" | jq -r '.content' | base64 -d | jq -r '.module // "reading-tfng"')
-# If module is "not-selected" or missing, default to reading-tfng
-if [ -z "$MODULE" ] || [ "$MODULE" = "not-selected" ] || [ "$MODULE" = "null" ]; then
-  MODULE="reading-tfng"
+DECODED=$(echo "$TOMORROW_JSON" | jq -r '.content' | base64 -d)
+# Try v2 array first, fall back to v1 string
+MODULES=$(echo "$DECODED" | jq -r 'if .modules then .modules[] else .module // empty end')
+# Default if empty or "not-selected"
+if [ -z "$MODULES" ] || echo "$MODULES" | grep -q "not-selected"; then
+  MODULES="reading-tfng"
 fi
+# Now $MODULES is newline-separated list of module keys
 ```
 
 Module values: `listening-s1` / `reading-tfng` / `writing-t2` / `speaking-p3`
+
+**For each module, generate a separate quiz HTML** (`quiz-YYYYMMDD-MODULE.html`). The index.html should list all generated quizzes in the quizzes tab.
 
 ---
 
@@ -87,33 +104,53 @@ Read `.skill/references/high-band-vocab.md` for example structure.
 
 ---
 
-## Step 5 — WebSearch for 10 videos (5 IELTS + 5 shadow)
+## Step 5 — Videos (5 IELTS + 5 shadow)
 
-**IELTS 5**: search queries (rotate weekly to keep fresh):
-- `IELTS speaking part 2 model answer 2026 youtube`
-- `IELTS writing task 2 strategy youtube`
-- `IELTS Liz 2026 youtube`
-- `IELTS predictions <current quarter> youtube`
+### Shadow videos (5 · refresh DAILY)
 
-**Shadow 5** (任意主题, English learning videos):
+Always find 5 fresh English-learning videos each day. Search queries (rotate):
 - `BBC 6 Minute English latest youtube`
 - `TED-Ed short 5 minutes 2026 youtube`
 - `TED talk popular english youtube`
+- `BBC Learning English BOX SET 2026 youtube`
 
-For each video extract: `id` (from URL), `title`, `channel`, approx duration (estimate from search snippet).
+Extract: `id`, `title`, `channel`, approx duration. Prefer mix of British / American / Australian voices.
+
+### IELTS-themed videos (5 · refresh WEEKLY on Mondays)
+
+Check today's weekday:
+```bash
+WEEKDAY=$(TZ='Asia/Shanghai' date +%u)  # 1=Mon, 7=Sun
+```
+
+- **If Monday (WEEKDAY=1)**: WebSearch fresh IELTS strategy videos and **replace 1-2 of the 5** with new ones. Keep evergreen tutorials that score high on engagement.
+- **If not Monday**: fetch yesterday's index.html, parse out the 5 IELTS items, reuse the same list.
+
+Search queries when refreshing IELTS set:
+- `IELTS speaking part 2 model answer 2026 youtube`
+- `IELTS writing task 2 strategy 2026 youtube`
+- `IELTS Liz 2026 youtube`
+- `IELTS predictions <current quarter> youtube`
+- `E2 IELTS 2026 youtube`
+
+**Special trigger**: if a file `.skill/refresh-ielts.flag` exists in the repo (user-created via `/ielts materials refresh-ielts` on Mac), force IELTS refresh regardless of weekday, then delete the flag.
 
 ---
 
-## Step 6 — Generate today's quiz based on MODULE
+## Step 6 — Generate quizzes (one per module in MODULES list)
 
-| Module | Content |
-|---|---|
-| `listening-s1` | 250-word dialogue script (rental/booking/inquiry scenario) + 10 form-completion questions with answers + explanations |
-| `reading-tfng` | 600-word passage on a current topic + 5-7 T/F/NG questions + 3-5 词汇 fill-blank questions |
-| `writing-t2` | Task 2 prompt (one of 5 types) + outline skeleton + sample band-7 thesis statement. Note: user grades on Mac. |
-| `speaking-p3` | 4 Part 3 abstract questions on one theme + suggested DRER answer framework |
+For each module in `$MODULES`, generate a separate HTML file:
+
+| Module | File | Content |
+|---|---|---|
+| `listening-s1` | `quiz-YYYYMMDD-listening-s1.html` | 250-word dialogue script (rental/booking/inquiry scenario) + 10 form-completion questions with answers + explanations |
+| `reading-tfng` | `quiz-YYYYMMDD-reading-tfng.html` | 600-word passage on a current topic + 5-7 T/F/NG questions + 3-5 词汇 fill-blank questions |
+| `writing-t2` | `quiz-YYYYMMDD-writing-t2.html` | Task 2 prompt (one of 5 types) + outline skeleton + sample band-7 thesis statement. Note: user grades on Mac. |
+| `speaking-p3` | `quiz-YYYYMMDD-speaking-p3.html` | 4 Part 3 abstract questions on one theme + suggested DRER answer framework |
 
 Read `.skill/references/reading-strategies.md`, `listening-strategies.md`, `writing-task2-playbook.md`, `speaking-playbook.md` for guidance.
+
+In `index.html` quizzes tab, list **all** generated quiz files for today plus the 150-vocab page. Older days' files move to "📚 历史 (前几日)" group.
 
 ---
 
