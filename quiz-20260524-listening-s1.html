@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#2563eb">
+<title>测验 · 2026-05-24 · 听力 Section 1 表格填空</title>
+<style>
+  :root { --bg:#fff; --fg:#1a1a1a; --muted:#6b7280; --accent:#2563eb; --ok:#059669; --err:#dc2626; --card:#f9fafb; --border:#e5e7eb; --nav-bg:rgba(255,255,255,0.92); --header-bg:linear-gradient(135deg,#2563eb 0%,#7c3aed 100%); }
+  @media (prefers-color-scheme: dark) { :root { --bg:#0f172a; --fg:#f1f5f9; --muted:#94a3b8; --accent:#60a5fa; --ok:#34d399; --err:#f87171; --card:#1e293b; --border:#334155; --nav-bg:rgba(15,23,42,0.92); --header-bg:linear-gradient(135deg,#1e40af 0%,#6b21a8 100%); } }
+  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body { margin:0; padding:0; background:var(--bg); color:var(--fg); }
+  body { font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue",sans-serif; line-height:1.6; min-height:100vh; padding-bottom:calc(64px + env(safe-area-inset-bottom,0)); }
+  .app-header { background:var(--header-bg); color:white; padding:calc(env(safe-area-inset-top,16px) + 12px) 16px 14px; position:sticky; top:0; z-index:20; display:flex; align-items:center; gap:12px; }
+  .back-btn { background:rgba(255,255,255,0.18); border:none; color:white; width:34px; height:34px; border-radius:10px; font-size:1.1rem; cursor:pointer; flex-shrink:0; text-decoration:none; display:flex; align-items:center; justify-content:center; }
+  .app-header .ttl { font-size:1rem; font-weight:700; }
+  .app-header .sub { font-size:0.72rem; opacity:0.85; margin-top:1px; letter-spacing:0.04em; text-transform:uppercase; }
+  main { max-width:720px; margin:0 auto; padding:16px; }
+  .progress { height:6px; background:var(--border); border-radius:3px; margin-bottom:16px; overflow:hidden; }
+  .progress-fill { height:100%; background:var(--accent); transition:width 0.3s ease; }
+  .strategy-tip { background:rgba(37,99,235,0.06); border:1px solid rgba(37,99,235,0.2); border-radius:12px; padding:12px 14px; margin-bottom:14px; font-size:0.85rem; color:var(--fg); line-height:1.5; }
+  .strategy-tip strong { color:var(--accent); }
+  .passage { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:14px 16px; margin-bottom:16px; font-size:0.95rem; line-height:1.75; }
+  .passage h3 { margin:0 0 10px; font-size:0.78rem; color:var(--muted); text-transform:uppercase; letter-spacing:0.06em; }
+  .passage .speaker { display:inline-block; padding:1px 7px; border-radius:4px; font-size:0.75rem; font-weight:600; margin-right:4px; }
+  .passage .sp-r { background:rgba(37,99,235,0.1); color:var(--accent); }
+  .passage .sp-a { background:rgba(5,150,105,0.1); color:var(--ok); }
+  .passage .gap-hint { background:var(--bg); border:1px dashed var(--border); border-radius:4px; padding:0 6px; font-family:"SF Mono",Menlo,monospace; font-size:0.82rem; color:var(--warn); }
+  .form-table { width:100%; border-collapse:collapse; margin-bottom:16px; font-size:0.92rem; }
+  .form-table th { background:var(--accent); color:white; padding:8px 12px; text-align:left; font-size:0.78rem; text-transform:uppercase; letter-spacing:0.04em; }
+  .form-table td { padding:8px 12px; border-bottom:1px solid var(--border); vertical-align:top; }
+  .form-table tr:nth-child(even) td { background:var(--card); }
+  .form-table .field { font-weight:600; width:38%; color:var(--fg); font-size:0.88rem; }
+  .form-table .value { color:var(--muted); font-size:0.85rem; }
+  .question { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:16px; margin-bottom:14px; }
+  .q-num { color:var(--muted); font-size:0.78rem; font-family:"SF Mono",Menlo,monospace; margin-bottom:6px; text-transform:uppercase; letter-spacing:0.04em; }
+  .q-text { font-size:1rem; margin-bottom:12px; font-weight:500; line-height:1.5; }
+  .blank-input { width:100%; background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:10px 12px; font-size:1rem; color:var(--fg); font-family:inherit; }
+  .blank-input.correct { border-color:var(--ok); background:rgba(5,150,105,0.06); }
+  .blank-input.wrong { border-color:var(--err); background:rgba(220,38,38,0.06); }
+  .alt-note { font-size:0.78rem; color:var(--muted); margin-top:4px; }
+  .explanation { margin-top:10px; padding:10px 12px; background:var(--bg); border-left:3px solid var(--accent); border-radius:4px; font-size:0.9rem; color:var(--muted); display:none; }
+  .explanation.show { display:block; }
+  .explanation .answer { color:var(--ok); font-weight:600; margin-bottom:4px; }
+  .explanation .loc { font-size:0.82rem; color:var(--muted); }
+  .actions { display:flex; gap:10px; margin-top:20px; }
+  .btn { flex:1; padding:12px; border:none; border-radius:10px; font-size:1rem; font-weight:600; cursor:pointer; font-family:inherit; }
+  .btn-primary { background:var(--accent); color:white; }
+  .btn-secondary { background:var(--card); color:var(--fg); border:1px solid var(--border); }
+  .result { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:20px; text-align:center; margin-top:20px; display:none; }
+  .result.show { display:block; }
+  .score { font-size:2.5rem; font-weight:700; color:var(--accent); }
+  .score-label { color:var(--muted); font-size:0.9rem; margin-top:4px; }
+  .band-note { margin-top:12px; padding:10px 12px; background:var(--bg); border-radius:8px; font-size:0.85rem; color:var(--muted); }
+  .tabbar { position:fixed; bottom:0; left:0; right:0; background:var(--nav-bg); backdrop-filter:saturate(180%) blur(20px); -webkit-backdrop-filter:saturate(180%) blur(20px); border-top:1px solid var(--border); display:flex; padding-bottom:env(safe-area-inset-bottom,0); z-index:30; }
+  .tab-btn { flex:1; background:transparent; border:none; padding:10px 4px 8px; color:var(--muted); font-size:0.68rem; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:3px; font-family:inherit; text-decoration:none; }
+  .tab-btn .icon { font-size:1.25rem; line-height:1; }
+  .tab-btn.active { color:var(--accent); }
+  .divider { height:1px; background:var(--border); margin:20px 0; }
+  .section-label { font-size:0.78rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:12px; }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <a class="back-btn" href="index.html#quizzes">←</a>
+  <div style="flex:1;min-width:0;">
+    <div class="ttl">听力 Section 1 · 表格填空</div>
+    <div class="sub">Day 4 · 10 题 · 脚本模式 · ~8 分钟</div>
+  </div>
+</header>
+
+<main>
+
+  <div class="progress"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+
+  <div class="strategy-tip">
+    <strong>做题策略:</strong> 先浏览表格，预测每格答案类型 (名字/数字/地点/价格)。听时抓关键词，注意<strong>同义替换</strong>。字数限制 <strong>NO MORE THAN THREE WORDS AND/OR A NUMBER</strong>，A/The 算一词。
+  </div>
+
+  <div class="passage">
+    <h3>📜 听力原文 · Section 1 · 成人教育课程报名 (先做题，完成后查看)</h3>
+    <details>
+      <summary style="cursor:pointer;color:var(--accent);font-size:0.88rem;font-weight:600;padding:4px 0;">点击展开原文 (建议做完题再看)</summary>
+      <div style="margin-top:12px;">
+        <p><span class="speaker sp-r">Receptionist (Maria)</span> Northfield Community Learning Centre, good morning. How can I help?</p>
+        <p><span class="speaker sp-a">Alex</span> Oh, hello. I'd like to register for one of your evening courses, please.</p>
+        <p><span class="speaker sp-r">Maria</span> Of course! Could I start with your full name?</p>
+        <p><span class="speaker sp-a">Alex</span> Yes, it's Alex Harrington. That's H-A-R-R-I-N-G-T-O-N.</p>
+        <p><span class="speaker sp-r">Maria</span> Thank you, Mr Harrington. And a contact number?</p>
+        <p><span class="speaker sp-a">Alex</span> My mobile is 07854 331 209.</p>
+        <p><span class="speaker sp-r">Maria</span> Perfect. Now, which course were you interested in?</p>
+        <p><span class="speaker sp-a">Alex</span> I saw your Advanced Photography course advertised online. Is that still available?</p>
+        <p><span class="speaker sp-r">Maria</span> It is, yes. It starts on the <strong>12th of June</strong> and runs for eight weeks, on <strong>Tuesday</strong> evenings, from half past six to half past eight.</p>
+        <p><span class="speaker sp-a">Alex</span> That sounds perfect. What's the course fee?</p>
+        <p><span class="speaker sp-r">Maria</span> The standard fee is <strong>£85</strong>. However, if you pay before the 1st of June, there's an early-bird discount — you'd only pay <strong>£65</strong>.</p>
+        <p><span class="speaker sp-a">Alex</span> Oh brilliant. I'll definitely take advantage of that. Do I need to bring any special equipment to the first session?</p>
+        <p><span class="speaker sp-r">Maria</span> For the first session, you just need to bring your camera and a <strong>notebook</strong>. We provide all other materials.</p>
+        <p><span class="speaker sp-a">Alex</span> And where exactly is the centre located?</p>
+        <p><span class="speaker sp-r">Maria</span> We're on Elmwood Road — but parking is available on <strong>Cedar Lane</strong>, just around the corner. It's free.</p>
+        <p><span class="speaker sp-a">Alex</span> Oh good. And is there a waiting list? I'm a bit worried about whether there are places left.</p>
+        <p><span class="speaker sp-r">Maria</span> You're in luck — there are still <strong>four</strong> places available. I'd recommend registering today to be safe.</p>
+        <p><span class="speaker sp-a">Alex</span> Wonderful. I'd like to go ahead and register, then, please.</p>
+        <p><span class="speaker sp-r">Maria</span> Excellent. I'll just take a few more details …</p>
+      </div>
+    </details>
+  </div>
+
+  <div class="section-label">📋 报名表 · 填写以下信息</div>
+
+  <table class="form-table">
+    <thead><tr><th>Field</th><th>Information</th></tr></thead>
+    <tbody>
+      <tr><td class="field">Centre name</td><td class="value">Northfield Community Learning Centre</td></tr>
+      <tr><td class="field">Applicant surname</td><td class="value"><strong>Q1</strong> ___________</td></tr>
+      <tr><td class="field">Mobile number</td><td class="value"><strong>Q2</strong> ___________</td></tr>
+      <tr><td class="field">Course name</td><td class="value"><strong>Q3</strong> ___________ Photography</td></tr>
+      <tr><td class="field">Course start date</td><td class="value"><strong>Q4</strong> ___________</td></tr>
+      <tr><td class="field">Day of class</td><td class="value"><strong>Q5</strong> ___________ evenings</td></tr>
+      <tr><td class="field">Standard fee</td><td class="value"><strong>Q6</strong> £___________</td></tr>
+      <tr><td class="field">Early-bird fee (pay before 1 June)</td><td class="value"><strong>Q7</strong> £___________</td></tr>
+      <tr><td class="field">What to bring (first session)</td><td class="value">Camera + <strong>Q8</strong> ___________</td></tr>
+      <tr><td class="field">Free parking location</td><td class="value"><strong>Q9</strong> ___________</td></tr>
+      <tr><td class="field">Places remaining</td><td class="value"><strong>Q10</strong> ___________</td></tr>
+    </tbody>
+  </table>
+
+  <div class="divider"></div>
+  <div class="section-label">✏️ 作答</div>
+
+  <div id="questions">
+
+    <div class="question" data-type="blank" data-answer="harrington">
+      <div class="q-num">Q01 · 拼写</div>
+      <div class="q-text">What is the applicant's surname? (拼写正确)</div>
+      <input class="blank-input" placeholder="键入答案">
+      <div class="alt-note">注意: 首字母大写也接受</div>
+      <div class="explanation">
+        <div class="answer">Harrington</div>
+        <div class="loc">定位: "It's Alex Harrington. That's H-A-R-R-I-N-G-T-O-N." → 考官当场拼读。</div>
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="07854 331 209">
+      <div class="q-num">Q02 · 数字</div>
+      <div class="q-text">What is the applicant's mobile number?</div>
+      <input class="blank-input" placeholder="键入答案">
+      <div class="alt-note">原文照抄: 07854 331 209</div>
+      <div class="explanation">
+        <div class="answer">07854 331 209</div>
+        <div class="loc">定位: "My mobile is 07854 331 209." → 注意空格位置.</div>
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="advanced">
+      <div class="q-num">Q03 · 词汇</div>
+      <div class="q-text">Complete the course name: __________ Photography</div>
+      <input class="blank-input" placeholder="键入答案">
+      <div class="explanation">
+        <div class="answer">Advanced</div>
+        <div class="loc">定位: "I saw your Advanced Photography course advertised online." → 陷阱: 考生可能只写 Photography.</div>
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="12th june">
+      <div class="q-num">Q04 · 日期</div>
+      <div class="q-text">When does the course start? (日期)</div>
+      <input class="blank-input" placeholder="键入答案 e.g. 12 June">
+      <div class="alt-note">也接受: 12 June / June 12 / 12th of June</div>
+      <div class="explanation">
+        <div class="answer">12th June (也接受 12 June / June 12)</div>
+        <div class="loc">定位: "It starts on the 12th of June" → 英式表达，日在前月在后.</div>
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="tuesday">
+      <div class="q-num">Q05 · 星期</div>
+      <div class="q-text">On which day of the week are the classes held?</div>
+      <input class="blank-input" placeholder="键入答案">
+      <div class="explanation">
+        <div class="answer">Tuesday</div>
+        <div class="loc">定位: "on Tuesday evenings" → 注意与 Thursday 的区分 (T-U vs T-H).</div>
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="85">
+      <div class="q-num">Q06 · 价格</div>
+      <div class="q-text">What is the standard course fee? (数字即可, 不含 £)</div>
+      <input class="blank-input" placeholder="键入答案">
+      <div class="explanation">
+        <div class="answer">85</div>
+        <div class="loc">定位: "The standard fee is £85." → 表格中 £ 已给出，只填数字.</div>
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="65">
+      <div class="q-num">Q07 · 价格 (早鸟优惠)</div>
+      <div class="q-text">What is the early-bird fee if paid before 1 June? (数字即可)</div>
+      <input class="blank-input" placeholder="键入答案">
+      <div class="explanation">
+        <div class="answer">65</div>
+        <div class="loc">定位: "you'd only pay £65" → 陷阱: 先说 £85 再给折扣价。选最终价格.</div>
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="notebook">
+      <div class="q-num">Q08 · 物品</div>
+      <div class="q-text">Besides the camera, what else must the applicant bring to the first session?</div>
+      <input class="blank-input" placeholder="键入答案">
+      <div class="explanation">
+        <div class="answer">notebook</div>
+        <div class="loc">定位: "you just need to bring your camera and a notebook" → 相机已在表格中给出；答案是 notebook.</div>
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="cedar lane">
+      <div class="q-num">Q09 · 地点</div>
+      <div class="q-text">Where is the free car park located?</div>
+      <input class="blank-input" placeholder="键入答案">
+      <div class="explanation">
+        <div class="answer">Cedar Lane</div>
+        <div class="loc">定位: "parking is available on Cedar Lane" → 地名需精确拼写. 大小写不影响得分.</div>
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="four">
+      <div class="q-num">Q10 · 数字 (文字)</div>
+      <div class="q-text">How many places are still available on the course?</div>
+      <input class="blank-input" placeholder="键入答案 (英文或数字)">
+      <div class="alt-note">也接受: 4</div>
+      <div class="explanation">
+        <div class="answer">four (也接受 4)</div>
+        <div class="loc">定位: "there are still four places available" → 口语中用单词表达数字，写 four 或 4 均可.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="actions">
+    <button class="btn btn-secondary" onclick="resetQuiz()">重做</button>
+    <button class="btn btn-primary" onclick="submitQuiz()">提交对答</button>
+  </div>
+
+  <div class="result" id="result">
+    <div class="score" id="scoreNum">--</div>
+    <div class="score-label">正确率</div>
+    <div id="scoreDetail" style="margin-top:10px;color:var(--muted);font-size:0.9rem;"></div>
+    <div class="band-note" id="bandNote"></div>
+  </div>
+
+  <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-top:20px;font-size:0.85rem;line-height:1.7;color:var(--muted);">
+    <strong style="color:var(--fg);">Section 1 核心技巧复盘</strong><br>
+    ① <strong>提前看题</strong>: 先扫表格，预判每格答案类型 (人名/数字/地名/物品)<br>
+    ② <strong>听改后</strong>: 对话中先说一个选项再更正 → 选最终答案 (Q07 先报 £85 再说 £65)<br>
+    ③ <strong>拼写即得分</strong>: 人名地名听到拼读信号 (H-A-R-R…) 立刻逐字写<br>
+    ④ <strong>容错提示</strong>: 字母大小写通常不扣分，但单词拼写错误 = 零分
+  </div>
+
+</main>
+
+<nav class="tabbar">
+  <a class="tab-btn" href="index.html#home"><span class="icon">🏠</span>概览</a>
+  <a class="tab-btn" href="index.html#materials"><span class="icon">📺</span>材料</a>
+  <a class="tab-btn active" href="index.html#quizzes"><span class="icon">✏️</span>测验</a>
+  <a class="tab-btn" href="index.html#plan"><span class="icon">📋</span>计划</a>
+</nav>
+
+<script>
+  const ANSWERS = {
+    "harrington": ["harrington"],
+    "07854 331 209": ["07854 331 209", "07854331209"],
+    "advanced": ["advanced"],
+    "12th june": ["12th june","12 june","june 12","12th of june","12/6","june 12th"],
+    "tuesday": ["tuesday"],
+    "85": ["85","£85"],
+    "65": ["65","£65"],
+    "notebook": ["notebook","a notebook"],
+    "cedar lane": ["cedar lane"],
+    "four": ["four","4"]
+  };
+
+  document.querySelectorAll(".blank-input").forEach(inp => {
+    inp.addEventListener("input", () => {
+      inp.closest(".question").dataset.userAnswer = inp.value.trim();
+      updateProgress();
+    });
+  });
+
+  function updateProgress() {
+    const total = document.querySelectorAll(".question").length;
+    const done = document.querySelectorAll(".question[data-user-answer]").length;
+    document.getElementById("progressFill").style.width = (done/total*100) + "%";
+  }
+
+  function submitQuiz() {
+    let correct = 0, total = 0;
+    document.querySelectorAll(".question").forEach(q => {
+      total++;
+      const userAns = (q.dataset.userAnswer || "").toLowerCase().trim();
+      const correctKey = q.dataset.answer.toLowerCase();
+      const acceptedAnswers = ANSWERS[correctKey] || [correctKey];
+      const isCorrect = acceptedAnswers.some(a => userAns === a);
+      if (isCorrect) correct++;
+      const inp = q.querySelector(".blank-input");
+      if (inp) inp.classList.add(isCorrect ? "correct" : "wrong");
+      q.querySelector(".explanation")?.classList.add("show");
+    });
+    const result = document.getElementById("result");
+    const pct = Math.round(correct/total*100);
+    document.getElementById("scoreNum").textContent = pct + "%";
+    document.getElementById("scoreDetail").textContent = `${correct} / ${total} 正确`;
+    const bandNote = document.getElementById("bandNote");
+    if (correct >= 9) bandNote.textContent = "出色! Section 1 目标是 9-10/10。继续保持!";
+    else if (correct >= 7) bandNote.textContent = "良好。错误集中在拼写/数字? 重听并补记错误类型。";
+    else bandNote.textContent = "需加强。重看原文，找出每题的定位句和同义替换点。";
+    result.classList.add("show");
+    result.scrollIntoView({behavior:"smooth"});
+  }
+
+  function resetQuiz() {
+    document.querySelectorAll(".question").forEach(q => {
+      delete q.dataset.userAnswer;
+      const inp = q.querySelector(".blank-input");
+      if (inp) { inp.value = ""; inp.classList.remove("correct","wrong"); }
+      q.querySelector(".explanation")?.classList.remove("show");
+    });
+    document.getElementById("result").classList.remove("show");
+    document.getElementById("progressFill").style.width = "0%";
+    window.scrollTo({top:0,behavior:"smooth"});
+  }
+</script>
+
+</body>
+</html>
