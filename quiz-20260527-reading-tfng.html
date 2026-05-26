@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#2563eb">
+<title>Reading T/F/NG · 神经科学与教学 · Day 7</title>
+<style>
+  :root { --bg:#fff; --fg:#1a1a1a; --muted:#6b7280; --accent:#2563eb; --ok:#059669; --err:#dc2626; --warn:#d97706; --card:#f9fafb; --border:#e5e7eb; --nav-bg:rgba(255,255,255,0.92); --header-bg:linear-gradient(135deg,#2563eb 0%,#7c3aed 100%); }
+  @media (prefers-color-scheme: dark) { :root { --bg:#0f172a; --fg:#f1f5f9; --muted:#94a3b8; --accent:#60a5fa; --ok:#34d399; --err:#f87171; --warn:#fbbf24; --card:#1e293b; --border:#334155; --nav-bg:rgba(15,23,42,0.92); --header-bg:linear-gradient(135deg,#1e40af 0%,#6b21a8 100%); } }
+  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body { margin:0; padding:0; background:var(--bg); color:var(--fg); }
+  body { font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue",sans-serif; line-height:1.6; padding-bottom:calc(64px + env(safe-area-inset-bottom,0)); }
+  .app-header { background:var(--header-bg); color:white; padding:calc(env(safe-area-inset-top,16px)+12px) 16px 14px; position:sticky; top:0; z-index:20; display:flex; align-items:center; gap:12px; }
+  .back-btn { background:rgba(255,255,255,0.18); border:none; color:white; width:34px; height:34px; border-radius:10px; font-size:1.1rem; cursor:pointer; flex-shrink:0; text-decoration:none; display:flex; align-items:center; justify-content:center; }
+  .app-header .ttl { font-size:1rem; font-weight:700; }
+  .app-header .sub { font-size:0.72rem; opacity:0.85; margin-top:1px; letter-spacing:0.04em; text-transform:uppercase; }
+  .score-bar { background:var(--card); padding:12px 16px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; font-size:0.88rem; }
+  .score-badge { background:var(--accent); color:white; padding:2px 10px; border-radius:99px; font-weight:700; font-size:0.82rem; }
+  .passage-wrap { padding:16px; }
+  .passage-label { font-size:0.72rem; color:var(--muted); text-transform:uppercase; letter-spacing:0.06em; font-weight:700; margin-bottom:8px; }
+  .passage { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:16px; font-size:0.95rem; line-height:1.75; }
+  .passage p { margin:0 0 12px; }
+  .passage p:last-child { margin:0; }
+  .questions-wrap { padding:0 16px 24px; }
+  .q-block { margin-bottom:8px; }
+  .q-num { font-size:0.78rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.06em; padding:12px 0 6px; }
+  .q-inst { font-size:0.85rem; color:var(--muted); margin-bottom:16px; line-height:1.5; }
+  .q-item { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:14px; margin-bottom:10px; }
+  .q-text { font-size:0.92rem; margin-bottom:12px; line-height:1.55; }
+  .opt-group { display:flex; gap:8px; flex-wrap:wrap; }
+  .opt-btn { padding:8px 14px; background:var(--bg); border:1.5px solid var(--border); border-radius:8px; font-size:0.85rem; cursor:pointer; font-family:inherit; color:var(--fg); transition:border-color 0.15s; }
+  .opt-btn:active { transform:scale(0.97); }
+  .opt-btn.selected { border-color:var(--accent); background:rgba(37,99,235,0.08); color:var(--accent); font-weight:600; }
+  .opt-btn.correct { border-color:var(--ok); background:rgba(5,150,105,0.1); color:var(--ok); font-weight:700; }
+  .opt-btn.wrong { border-color:var(--err); background:rgba(220,38,38,0.1); color:var(--err); font-weight:700; }
+  .q-explain { margin-top:10px; padding:10px 12px; background:var(--bg); border-left:3px solid var(--ok); border-radius:6px; font-size:0.85rem; color:var(--muted); line-height:1.5; }
+  .correct-tag { color:var(--ok); font-weight:700; display:block; margin-bottom:4px; }
+  .submit-wrap { padding:0 16px 16px; }
+  .submit-btn { width:100%; padding:14px; background:var(--accent); color:white; border:none; border-radius:12px; font-size:1rem; font-weight:700; cursor:pointer; font-family:inherit; }
+  .submit-btn:disabled { background:var(--border); color:var(--muted); cursor:not-allowed; }
+  .result-card { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:20px; margin:0 16px 16px; text-align:center; display:none; }
+  .result-card.show { display:block; }
+  .result-card .score { font-size:2.5rem; font-weight:700; }
+  .result-card .grade { font-size:1rem; color:var(--muted); margin-top:4px; }
+  .tabbar { position:fixed; bottom:0; left:0; right:0; background:var(--nav-bg); backdrop-filter:saturate(180%) blur(20px); -webkit-backdrop-filter:saturate(180%) blur(20px); border-top:1px solid var(--border); display:flex; padding-bottom:env(safe-area-inset-bottom,0); z-index:30; }
+  .tab-btn { flex:1; background:transparent; border:none; padding:10px 4px 8px; color:var(--muted); font-size:0.68rem; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:3px; font-family:inherit; text-decoration:none; }
+  .tab-btn .icon { font-size:1.25rem; line-height:1; }
+  .tab-btn.active { color:var(--accent); }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <a class="back-btn" href="index.html#quizzes">&#8592;</a>
+  <div style="flex:1;">
+    <div class="ttl">阅读 · T/F/NG · 神经科学与教学</div>
+    <div class="sub">2026-05-27 · Day 7 · Education</div>
+  </div>
+</header>
+
+<div class="score-bar">
+  <span style="color:var(--muted);font-size:0.82rem;">11 题 · 约 10 分钟</span>
+  <span class="score-badge" id="liveScore">0 / 11</span>
+</div>
+
+<div class="passage-wrap">
+  <div class="passage-label">&#128214; 阅读文章 · Neuroscience-Informed Teaching</div>
+  <div class="passage">
+<p>Neuroscience-informed teaching — the application of brain research to classroom practice — has moved from the fringes of educational debate to mainstream professional development programmes over the past two decades. Yet significant misunderstandings persist, and the gap between what neuroscientific findings actually demonstrate and what teachers believe they demonstrate remains surprisingly wide.</p>
+
+<p>One of the most robustly supported findings is the benefit of <em>spaced practice</em>. When learners revisit material at gradually increasing intervals rather than in a single intensive session, the brain consolidates information far more durably. A 2022 analysis of over two hundred studies confirmed that the spacing effect is one of the largest and most consistent phenomena in memory research, outperforming massed practice by a wide margin. Despite this, students almost universally default to cramming — intensive revision concentrated immediately before an examination — a strategy that produces short-term recall at the expense of lasting retention.</p>
+
+<p>Equally well-established is the superiority of <em>retrieval practice</em> over passive review. Testing oneself on material, even before it has been formally studied, strengthens memory traces more effectively than re-reading the same content repeatedly. Roediger and Karpicke's landmark 2006 experiment showed that students who took three practice tests retained significantly more information one week later than students who had studied the same material three times. Critically, the testing group initially felt less confident than the re-reading group, illustrating that subjective ease of learning is a poor guide to actual retention — a phenomenon known as the <em>fluency illusion</em>.</p>
+
+<p>A third area of neuroeducational research concerns the role of emotion in learning. The amygdala, a brain structure heavily involved in emotional processing, has dense connections to the hippocampus, the region primarily responsible for memory consolidation. Events associated with moderate positive or negative emotion are typically encoded more vividly than emotionally neutral information. Crucially, however, high levels of stress trigger cortisol release, which actively impairs hippocampal function. This suggests that classrooms characterised by punitive discipline, fear of failure, or chronic competitive pressure may paradoxically undermine the very cognitive processes they aim to sharpen.</p>
+
+<p>One popular but empirically unfounded idea that neuroscience has struggled to displace is the notion of fixed <em>learning styles</em> — the belief that individuals have a dominant sensory modality (visual, auditory, or kinesthetic) through which they learn best. Despite decades of research, no credible study has demonstrated that matching instruction to a learner's preferred style produces better outcomes. A 2018 systematic review in <em>Psychological Science</em> concluded that learning-styles theory lacks empirical support and that continuing to promote it in teacher training represents a misallocation of limited professional development time. Teachers are better advised to vary their instructional modalities not because students have fixed preferences, but because multi-modal input enriches encoding for all learners.</p>
+
+<p>The implications for educators are practical. Lesson sequencing should incorporate regular, low-stakes retrieval activities — brief quizzes, pair-share recall tasks, or exit tickets — distributed across the curriculum rather than concentrated at revision time. Classroom culture should prioritise psychological safety over performance pressure, allowing errors to be welcomed as diagnostic information rather than treated as failures deserving sanction. And professional development programmes should assist teachers in distinguishing neuromyths — such as the hemisphere dominance theory that claims people are either left-brained or right-brained — from findings with genuine classroom applicability.</p>
+</div>
+</div>
+
+<div class="questions-wrap">
+<div class="q-block">
+  <div class="q-num">Questions 1–7 · True / False / Not Given</div>
+  <div class="q-inst">根据文章内容，判断以下说法是 <strong>TRUE</strong>（符合原文）、<strong>FALSE</strong>（与原文相悖）或 <strong>NOT GIVEN</strong>（原文未提及）。</div>
+
+  <div class="q-item" data-ans="TRUE">
+    <div class="q-text">1. A 2022 analysis confirmed that spaced practice leads to better long-term memory retention than massed practice.</div>
+    <div class="opt-group">
+      <button class="opt-btn" data-val="TRUE">TRUE</button>
+      <button class="opt-btn" data-val="FALSE">FALSE</button>
+      <button class="opt-btn" data-val="NG">NOT GIVEN</button>
+    </div>
+    <div class="q-explain" style="display:none;">
+      <span class="correct-tag">✓ TRUE</span> 文章第二段明确指出：2022 年对 200 多项研究的分析证实，间隔效应"outperforming massed practice by a wide margin"。
+    </div>
+  </div>
+
+  <div class="q-item" data-ans="FALSE">
+    <div class="q-text">2. Students who cram tend to perform worse than students who use spaced practice on the day of the examination.</div>
+    <div class="opt-group">
+      <button class="opt-btn" data-val="TRUE">TRUE</button>
+      <button class="opt-btn" data-val="FALSE">FALSE</button>
+      <button class="opt-btn" data-val="NG">NOT GIVEN</button>
+    </div>
+    <div class="q-explain" style="display:none;">
+      <span class="correct-tag">✓ FALSE</span> 文章说的是 "short-term recall" 靠死记硬背是可以的，长期保留才差。文章并未说考试当天成绩更差——相反，cramming "produces short-term recall"，即短期有效。所以该陈述与原文相悖。
+    </div>
+  </div>
+
+  <div class="q-item" data-ans="TRUE">
+    <div class="q-text">3. In Roediger and Karpicke's 2006 experiment, students who were tested multiple times retained more information after one week than those who re-read the material.</div>
+    <div class="opt-group">
+      <button class="opt-btn" data-val="TRUE">TRUE</button>
+      <button class="opt-btn" data-val="FALSE">FALSE</button>
+      <button class="opt-btn" data-val="NG">NOT GIVEN</button>
+    </div>
+    <div class="q-explain" style="display:none;">
+      <span class="correct-tag">✓ TRUE</span> 第三段明确说："students who took three practice tests retained significantly more information one week later than students who had studied the same material three times."
+    </div>
+  </div>
+
+  <div class="q-item" data-ans="TRUE">
+    <div class="q-text">4. Students who used retrieval practice reported feeling less confident about their learning than those who re-read the material.</div>
+    <div class="opt-group">
+      <button class="opt-btn" data-val="TRUE">TRUE</button>
+      <button class="opt-btn" data-val="FALSE">FALSE</button>
+      <button class="opt-btn" data-val="NG">NOT GIVEN</button>
+    </div>
+    <div class="q-explain" style="display:none;">
+      <span class="correct-tag">✓ TRUE</span> 第三段说 "the testing group initially felt less confident than the re-reading group"，与题目完全一致。
+    </div>
+  </div>
+
+  <div class="q-item" data-ans="FALSE">
+    <div class="q-text">5. Research has confirmed that students with a visual learning style perform better when taught through visual methods rather than auditory ones.</div>
+    <div class="opt-group">
+      <button class="opt-btn" data-val="TRUE">TRUE</button>
+      <button class="opt-btn" data-val="FALSE">FALSE</button>
+      <button class="opt-btn" data-val="NG">NOT GIVEN</button>
+    </div>
+    <div class="q-explain" style="display:none;">
+      <span class="correct-tag">✓ FALSE</span> 第五段明确说 "no credible study has demonstrated that matching instruction to a learner's preferred style produces better outcomes"，与题目陈述直接相悖。
+    </div>
+  </div>
+
+  <div class="q-item" data-ans="NG">
+    <div class="q-text">6. Most teachers are unaware of the research on spaced practice and retrieval testing.</div>
+    <div class="opt-group">
+      <button class="opt-btn" data-val="TRUE">TRUE</button>
+      <button class="opt-btn" data-val="FALSE">FALSE</button>
+      <button class="opt-btn" data-val="NG">NOT GIVEN</button>
+    </div>
+    <div class="q-explain" style="display:none;">
+      <span class="correct-tag">✓ NOT GIVEN</span> 文章提到了学生和理论之间的差距，但并未直接讨论"大多数老师是否了解这些研究"，属于原文未提及。
+    </div>
+  </div>
+
+  <div class="q-item" data-ans="FALSE">
+    <div class="q-text">7. High levels of stress improve cognitive performance by increasing arousal and focus in the hippocampus.</div>
+    <div class="opt-group">
+      <button class="opt-btn" data-val="TRUE">TRUE</button>
+      <button class="opt-btn" data-val="FALSE">FALSE</button>
+      <button class="opt-btn" data-val="NG">NOT GIVEN</button>
+    </div>
+    <div class="q-explain" style="display:none;">
+      <span class="correct-tag">✓ FALSE</span> 第四段明确说 "high levels of stress trigger cortisol release, which <em>actively impairs</em> hippocampal function"，与题目"improve"相悖。
+    </div>
+  </div>
+</div>
+
+<div class="q-block" style="margin-top:28px;">
+  <div class="q-num">Questions 8–11 · Vocabulary in Context</div>
+  <div class="q-inst">根据文章内容，从选项中选出最合适的词填入句子（用文章中的词汇）。</div>
+
+  <div class="q-item" data-ans="C">
+    <div class="q-text">8. The phenomenon known as the "______ illusion" explains why students who re-read notes feel they have learned well, even when long-term retention is poor.</div>
+    <div class="opt-group" style="flex-wrap:wrap;">
+      <button class="opt-btn" data-val="A">A. spacing</button>
+      <button class="opt-btn" data-val="B">B. retrieval</button>
+      <button class="opt-btn" data-val="C">C. fluency</button>
+      <button class="opt-btn" data-val="D">D. encoding</button>
+    </div>
+    <div class="q-explain" style="display:none;">
+      <span class="correct-tag">✓ C. fluency</span> 第三段末句："a phenomenon known as the <em>fluency illusion</em>" — 主观学习感觉与实际记忆效果的差异。
+    </div>
+  </div>
+
+  <div class="q-item" data-ans="B">
+    <div class="q-text">9. According to the passage, events linked to moderate ______ are encoded more vividly than neutral information.</div>
+    <div class="opt-group" style="flex-wrap:wrap;">
+      <button class="opt-btn" data-val="A">A. stress</button>
+      <button class="opt-btn" data-val="B">B. emotion</button>
+      <button class="opt-btn" data-val="C">C. retrieval</button>
+      <button class="opt-btn" data-val="D">D. cortisol</button>
+    </div>
+    <div class="q-explain" style="display:none;">
+      <span class="correct-tag">✓ B. emotion</span> 第四段："Events associated with moderate positive or negative <em>emotion</em> are typically encoded more vividly than emotionally neutral information."
+    </div>
+  </div>
+
+  <div class="q-item" data-ans="D">
+    <div class="q-text">10. The 2018 systematic review concluded that promoting learning-styles theory in teacher training represents a misallocation of limited ______ time.</div>
+    <div class="opt-group" style="flex-wrap:wrap;">
+      <button class="opt-btn" data-val="A">A. research</button>
+      <button class="opt-btn" data-val="B">B. classroom</button>
+      <button class="opt-btn" data-val="C">C. assessment</button>
+      <button class="opt-btn" data-val="D">D. professional development</button>
+    </div>
+    <div class="q-explain" style="display:none;">
+      <span class="correct-tag">✓ D. professional development</span> 第五段原文："a misallocation of limited <em>professional development</em> time."
+    </div>
+  </div>
+
+  <div class="q-item" data-ans="A">
+    <div class="q-text">11. The author recommends that teachers incorporate regular, low-stakes ______ activities distributed across the curriculum rather than concentrated at revision time.</div>
+    <div class="opt-group" style="flex-wrap:wrap;">
+      <button class="opt-btn" data-val="A">A. retrieval</button>
+      <button class="opt-btn" data-val="B">B. spacing</button>
+      <button class="opt-btn" data-val="C">C. modality</button>
+      <button class="opt-btn" data-val="D">D. assessment</button>
+    </div>
+    <div class="q-explain" style="display:none;">
+      <span class="correct-tag">✓ A. retrieval</span> 第六段："incorporate regular, low-stakes <em>retrieval</em> activities — brief quizzes, pair-share recall tasks, or exit tickets."
+    </div>
+  </div>
+</div>
+</div>
+
+<div class="result-card" id="resultCard">
+  <div class="score" id="finalScore">-</div>
+  <div class="grade" id="finalGrade">-</div>
+  <button onclick="location.href='index.html'" style="margin-top:16px;padding:10px 24px;background:var(--accent);color:white;border:none;border-radius:10px;font-size:0.95rem;font-weight:600;cursor:pointer;font-family:inherit;">回主页</button>
+</div>
+
+<div class="submit-wrap">
+  <button class="submit-btn" id="submitBtn" onclick="submit()">提交答案</button>
+</div>
+
+<nav class="tabbar">
+  <a class="tab-btn" href="index.html#home"><span class="icon">&#127968;</span>概览</a>
+  <a class="tab-btn" href="index.html#materials"><span class="icon">&#128250;</span>材料</a>
+  <a class="tab-btn active" href="index.html#quizzes"><span class="icon">&#9999;</span>测验</a>
+  <a class="tab-btn" href="index.html#plan"><span class="icon">&#128203;</span>计划</a>
+</nav>
+
+<script>
+let answered = {};
+let submitted = false;
+const total = 11;
+
+document.querySelectorAll(".opt-btn").forEach(btn => {
+  btn.addEventListener("click", function() {
+    if (submitted) return;
+    const item = this.closest(".q-item");
+    item.querySelectorAll(".opt-btn").forEach(b => b.classList.remove("selected"));
+    this.classList.add("selected");
+    const qIdx = [...document.querySelectorAll(".q-item")].indexOf(item);
+    answered[qIdx] = this.dataset.val;
+    updateScore();
+  });
+});
+
+function updateScore() {
+  const score = Object.keys(answered).length;
+  document.getElementById("liveScore").textContent = score + " / " + total;
+  document.getElementById("submitBtn").disabled = score < total;
+}
+
+function submit() {
+  if (submitted) return;
+  submitted = true;
+  let correct = 0;
+  document.querySelectorAll(".q-item").forEach((item, i) => {
+    const ans = item.dataset.ans;
+    const chosen = answered[i];
+    item.querySelectorAll(".opt-btn").forEach(btn => {
+      if (btn.dataset.val === ans) btn.classList.add("correct");
+      else if (btn.dataset.val === chosen && chosen !== ans) btn.classList.add("wrong");
+      btn.style.cursor = "default";
+    });
+    item.querySelector(".q-explain").style.display = "block";
+    if (chosen === ans) correct++;
+  });
+  document.getElementById("liveScore").textContent = correct + " / " + total;
+  const pct = Math.round(correct / total * 100);
+  const grade = correct >= 10 ? "优秀 · Band 7.5+" : correct >= 8 ? "良好 · Band 7.0" : correct >= 6 ? "合格 · Band 6.5" : "需要加强 · Band 6.0-";
+  document.getElementById("finalScore").textContent = correct + " / " + total + " (" + pct + "%)";
+  document.getElementById("finalGrade").textContent = grade;
+  document.getElementById("resultCard").classList.add("show");
+  document.getElementById("submitBtn").textContent = "已提交";
+  document.getElementById("submitBtn").disabled = true;
+  window.scrollTo({top: document.body.scrollHeight, behavior: "smooth"});
+}
+updateScore();
+</script>
+</body>
+</html>
