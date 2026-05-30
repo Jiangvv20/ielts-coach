@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#2563eb">
+<title>Reading T/F/NG · 碳市场争议 · Day 11</title>
+<style>
+  :root { --bg:#fff; --fg:#1a1a1a; --muted:#6b7280; --accent:#2563eb; --ok:#059669; --err:#dc2626; --warn:#d97706; --card:#f9fafb; --border:#e5e7eb; --nav-bg:rgba(255,255,255,0.92); --header-bg:linear-gradient(135deg,#2563eb 0%,#7c3aed 100%); }
+  @media (prefers-color-scheme: dark) { :root { --bg:#0f172a; --fg:#f1f5f9; --muted:#94a3b8; --accent:#60a5fa; --ok:#34d399; --err:#f87171; --warn:#fbbf24; --card:#1e293b; --border:#334155; --nav-bg:rgba(15,23,42,0.92); --header-bg:linear-gradient(135deg,#1e40af 0%,#6b21a8 100%); } }
+  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body { margin:0; padding:0; background:var(--bg); color:var(--fg); }
+  body { font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue",sans-serif; line-height:1.6; padding-bottom:calc(64px + env(safe-area-inset-bottom,0)); }
+  .app-header { background:var(--header-bg); color:white; padding:calc(env(safe-area-inset-top,16px)+12px) 16px 14px; position:sticky; top:0; z-index:20; display:flex; align-items:center; gap:12px; }
+  .back-btn { background:rgba(255,255,255,0.18); border:none; color:white; width:34px; height:34px; border-radius:10px; font-size:1.1rem; cursor:pointer; flex-shrink:0; text-decoration:none; display:flex; align-items:center; justify-content:center; }
+  .app-header .ttl { font-size:1rem; font-weight:700; }
+  .app-header .sub { font-size:0.72rem; opacity:0.85; margin-top:1px; letter-spacing:0.04em; text-transform:uppercase; }
+  .score-bar { background:var(--card); padding:12px 16px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; font-size:0.88rem; }
+  .score-badge { background:var(--accent); color:white; padding:2px 10px; border-radius:99px; font-weight:700; font-size:0.82rem; }
+  .passage-wrap { padding:16px; }
+  .passage-label { font-size:0.72rem; color:var(--muted); text-transform:uppercase; letter-spacing:0.06em; font-weight:700; margin-bottom:8px; }
+  .passage { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:16px; font-size:0.95rem; line-height:1.75; }
+  .passage p { margin:0 0 12px; }
+  .passage p:last-child { margin:0; }
+  .questions-wrap { padding:0 16px 24px; }
+  .q-block { margin-bottom:8px; }
+  .q-num { font-size:0.78rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.06em; padding:12px 0 6px; }
+  .q-inst { font-size:0.85rem; color:var(--muted); margin-bottom:16px; line-height:1.5; }
+  .q-item { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:14px; margin-bottom:10px; }
+  .q-text { font-size:0.92rem; margin-bottom:12px; line-height:1.55; }
+  .opt-group { display:flex; gap:8px; flex-wrap:wrap; }
+  .opt-btn { padding:8px 14px; background:var(--bg); border:1.5px solid var(--border); border-radius:8px; font-size:0.85rem; cursor:pointer; font-family:inherit; color:var(--fg); transition:border-color 0.15s; }
+  .opt-btn:active { transform:scale(0.97); }
+  .opt-btn.selected { border-color:var(--accent); background:rgba(37,99,235,0.08); color:var(--accent); font-weight:600; }
+  .opt-btn.correct { border-color:var(--ok); background:rgba(5,150,105,0.1); color:var(--ok); font-weight:700; }
+  .opt-btn.wrong { border-color:var(--err); background:rgba(220,38,38,0.1); color:var(--err); font-weight:700; }
+  .q-explain { margin-top:10px; padding:10px 12px; background:var(--bg); border-left:3px solid var(--ok); border-radius:6px; font-size:0.85rem; color:var(--muted); line-height:1.5; }
+  .correct-tag { color:var(--ok); font-weight:700; display:block; margin-bottom:4px; }
+  .submit-wrap { padding:0 16px 16px; }
+  .submit-btn { width:100%; padding:14px; background:var(--accent); color:white; border:none; border-radius:12px; font-size:1rem; font-weight:700; cursor:pointer; font-family:inherit; }
+  .submit-btn:disabled { background:var(--border); color:var(--muted); cursor:not-allowed; }
+  .result-card { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:20px; margin:0 16px 16px; text-align:center; display:none; }
+  .result-card.show { display:block; }
+  .result-card .score { font-size:2.5rem; font-weight:700; }
+  .result-card .grade { font-size:1rem; color:var(--muted); margin-top:4px; }
+  .tabbar { position:fixed; bottom:0; left:0; right:0; background:var(--nav-bg); backdrop-filter:saturate(180%) blur(20px); -webkit-backdrop-filter:saturate(180%) blur(20px); border-top:1px solid var(--border); display:flex; padding-bottom:env(safe-area-inset-bottom,0); z-index:30; }
+  .tab-btn { flex:1; background:transparent; border:none; padding:10px 4px 8px; color:var(--muted); font-size:0.68rem; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:3px; font-family:inherit; text-decoration:none; }
+  .tab-btn .icon { font-size:1.25rem; line-height:1; }
+  .tab-btn.active { color:var(--accent); }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <a class="back-btn" href="index.html#quizzes">&#8592;</a>
+  <div style="flex:1;">
+    <div class="ttl">阅读 · T/F/NG · 碳市场争议</div>
+    <div class="sub">2026-05-31 · Day 11 · Environment</div>
+  </div>
+</header>
+
+<div class="score-bar">
+  <span style="color:var(--muted);font-size:0.82rem;">10 题 · 约 12 分钟</span>
+  <span class="score-badge" id="liveScore">0 / 10</span>
+</div>
+
+<div class="passage-wrap">
+  <div class="passage-label">&#128214; 阅读文章 · Carbon Markets: The Promise and Perils of Pricing Pollution</div>
+  <div class="passage">
+<p>As governments search for cost-effective tools to reduce greenhouse gas emissions, carbon markets have emerged as a prominent policy instrument. At their core, these systems assign a monetary price to carbon dioxide and other greenhouse gases, creating a financial incentive for businesses to cut their output. The fundamental principle is simple: polluters must either reduce their emissions or purchase permits authorising them to release a set quantity of carbon, while those who emit less than their permitted allocation can sell their surplus credits to others. Proponents argue that harnessing market forces in this way delivers emissions reductions at the lowest possible economic cost.</p>
+
+<p>The world's largest and oldest mandatory carbon market is the European Union Emissions Trading System (EU ETS), which was launched in 2005. It covers approximately 40% of total EU greenhouse gas emissions, primarily from power stations, heavy industry, and aviation within the bloc. Under the system, the total number of permits — known as allowances — is capped and reduced each year, with the ceiling set to fall to 62% below 2005 levels by 2030. Companies unable to reduce their emissions cost-effectively may purchase allowances from more efficient rivals, ensuring that cuts happen wherever they are cheapest. Critics noted, however, that during the system's early years an oversupply of permits kept prices too low to drive meaningful investment in low-carbon technology.</p>
+
+<p>Alongside mandatory compliance markets such as the EU ETS, voluntary carbon markets allow businesses and individuals to offset their emissions by purchasing credits generated by projects that absorb or avoid greenhouse gas emissions. These projects span a wide range of activities: planting trees, building renewable energy facilities in developing countries, and distributing clean cooking stoves that reduce reliance on charcoal. Voluntary carbon credits are not subject to the same strict regulatory oversight as compliance allowances, leading to considerable variation in their quality and credibility. Several investigations have found that some forest offset projects failed to deliver the promised carbon savings.</p>
+
+<p>A persistent challenge for carbon markets is the question of permanence. Carbon stored in forests can be released if the trees are later harvested, burned in wildfires, or destroyed by disease. Unlike CO₂ locked in deep geological formations, forest carbon is inherently reversible. This vulnerability became painfully apparent in 2021, when large wildfires in Oregon burned forests that had been generating carbon credits sold to companies claiming carbon-neutral status. Critics argue that until markets develop robust mechanisms to account for such reversals, forest offsets cannot reliably substitute for genuine emissions reductions at source.</p>
+
+<p>A second fundamental concern is additionality — the requirement that a carbon credit only has value if the emissions reduction it represents would not have occurred anyway. If a company receives credits for preserving a forest that was never at serious risk of being cleared, the offset achieves nothing climatically. Research published in 2023 estimated that a substantial majority of forest credits certified by one leading standards body failed the additionality test. Such findings have intensified calls for much stricter certification requirements and robust independent verification of all carbon projects before credits are issued.</p>
+
+<p>Despite these weaknesses, many economists and policymakers maintain that well-designed carbon pricing remains among the most efficient tools available for driving decarbonisation. The key reforms widely identified include stronger regulatory oversight, more rigorous monitoring and reporting, and a carbon price that is sufficiently high and stable to shift investment decisions at the scale needed. Several nations are expanding domestic carbon pricing mechanisms, and Article 6 of the Paris Agreement provides a framework for linking national markets internationally. Whether carbon markets can evolve quickly enough to contribute decisively to limiting global warming to 1.5°C remains fiercely debated.</p>
+  </div>
+</div>
+
+<div class="questions-wrap">
+<div class="q-block">
+  <div class="q-num">Questions 1–7 · True / False / Not Given</div>
+  <div class="q-inst">根据文章内容，判断以下说法是 <strong>TRUE</strong>（符合原文）、<strong>FALSE</strong>（与原文相悖）或 <strong>NOT GIVEN</strong>（原文未提及）。</div>
+
+  <div class="q-item" data-ans="TRUE">
+    <div class="q-text">1. The EU Emissions Trading System was the first mandatory carbon market to be established in the world.</div>
+    <div class="opt-group">
+      <button class="opt-btn" data-val="TRUE">TRUE</button>
+      <button class="opt-btn" data-val="FALSE">FALSE</button>
+      <button class="opt-btn" data-val="NG">NOT GIVEN</button>
+    </div>
+    <div class="q-explain" style="display:none;">
+      <span class="correct-tag">&#10003; TRUE</span> 第二段明确说明："The world's largest and <em>oldest mandatory carbon market</em> is the European Union Emissions Trading System (EU ETS)"，即 EU ETS 是世界上最大也是最早的强制性碳市场，与题目"the first mandatory carbon market"一致。
+    </div>
+  </div>
+
+  <div class="q-item" data-ans="FALSE">
+    <div class="q-text">2. Under the EU ETS, all companies covered by the scheme are required to reduce their emissions, regardless of the cost of doing so.</div>
+    <div class="opt-group">
+      <button class="opt-btn" data-val="TRUE">TRUE</button>
+      <button class="opt-btn" data-val="FALSE">FALSE</button>
+      <button class="opt-btn" data-val="NG">NOT GIVEN</button>
+    </div>
+    <div class="q-explain" style="display:none;">
+      <span class="correct-tag">&#10003; FALSE</span> 第二段指出："Companies <em>unable to reduce their emissions cost-effectively may purchase allowances</em> from more efficient rivals"，即公司可以选择购买配额而非自行减排，与题目"required to reduce…regardless of the cost"相悖。
+    </div>
+  </div>
+
+  <div class="q-item" data-ans="TRUE">
+    <div class="q-text">3. Voluntary carbon credits face less regulatory oversight than allowances in mandatory compliance markets.</div>
+    <div class="opt-group">
+      <button class="opt-btn" data-val="TRUE">TRUE</button>
+      <button class="opt-btn" data-val="FALSE">FALSE</button>
+      <button class="opt-btn" data-val="NG">NOT GIVEN</button>
+    </div>
+    <div class="q-explain" style="display:none;">
+      <span class="correct-tag">&#10003; TRUE</span> 第三段："Voluntary carbon credits are <em>not subject to the same strict regulatory oversight</em> as compliance allowances"，与题目完全一致。
+    </div>
+  </div>
+
+  <div class="q-item" data-ans="FALSE">
+    <div class="q-text">4. The passage states that forest carbon offsets are as reliable as CO₂ stored in deep geological formations.</div>
+    <div class="opt-group">
+      <button class="opt-btn" data-val="TRUE">TRUE</button>
+      <button class="opt-btn" data-val="FALSE">FALSE</button>
+      <button class="opt-btn" data-val="NG">NOT GIVEN</button>
+    </div>
+    <div class="q-explain" style="display:none;">
+      <span class="correct-tag">&#10003; FALSE</span> 第四段直接对比："Unlike CO₂ <em>locked in deep geological formations</em>, forest carbon is <em>inherently reversible</em>"，明确说明两者可靠性不同，与题目"as reliable as"相悖。
+    </div>
+  </div>
+
+  <div class="q-item" data-ans="NG">
+    <div class="q-text">5. The 2023 research mentioned in paragraph 5 was funded by an environmental non-governmental organisation.</div>
+    <div class="opt-group">
+      <button class="opt-btn" data-val="TRUE">TRUE</button>
+      <button class="opt-btn" data-val="FALSE">FALSE</button>
+      <button class="opt-btn" data-val="NG">NOT GIVEN</button>
+    </div>
+    <div class="q-explain" style="display:none;">
+      <span class="correct-tag">&#10003; NOT GIVEN</span> 第五段仅提到"Research published in 2023"及其发现，但从未说明资金来源或资助机构，原文未提及。
+    </div>
+  </div>
+
+  <div class="q-item" data-ans="TRUE">
+    <div class="q-text">6. A key problem with some carbon offset projects is that they claim credit for reductions that would have happened even without the financial incentive provided by the credits.</div>
+    <div class="opt-group">
+      <button class="opt-btn" data-val="TRUE">TRUE</button>
+      <button class="opt-btn" data-val="FALSE">FALSE</button>
+      <button class="opt-btn" data-val="NG">NOT GIVEN</button>
+    </div>
+    <div class="q-explain" style="display:none;">
+      <span class="correct-tag">&#10003; TRUE</span> 第五段解释 additionality 问题："a carbon credit only has value if the emissions reduction it represents <em>would not have occurred anyway</em>"，如保护一片从未面临被清除风险的森林，此类偏移"achieves nothing climatically"，与题目一致。
+    </div>
+  </div>
+
+  <div class="q-item" data-ans="FALSE">
+    <div class="q-text">7. According to the final paragraph, the carbon price in existing markets is currently considered high enough to drive large-scale investment in low-carbon technology.</div>
+    <div class="opt-group">
+      <button class="opt-btn" data-val="TRUE">TRUE</button>
+      <button class="opt-btn" data-val="FALSE">FALSE</button>
+      <button class="opt-btn" data-val="NG">NOT GIVEN</button>
+    </div>
+    <div class="q-explain" style="display:none;">
+      <span class="correct-tag">&#10003; FALSE</span> 第六段将"a carbon price that is <em>sufficiently high and stable</em>"列为"key reforms widely identified"（尚待实现的关键改革），意味着当前价格尚不足以发挥所需作用，与题目"currently considered high enough"相悖。
+    </div>
+  </div>
+</div>
+
+<div class="q-block" style="margin-top:28px;">
+  <div class="q-num">Questions 8–10 · Vocabulary in Context</div>
+  <div class="q-inst">根据文章内容，从选项中选出最合适的答案。</div>
+
+  <div class="q-item" data-ans="B">
+    <div class="q-text">8. The word "additionality" in paragraph 5 refers to:</div>
+    <div class="opt-group" style="flex-wrap:wrap;">
+      <button class="opt-btn" data-val="A">A. the extra administrative cost of verifying carbon projects</button>
+      <button class="opt-btn" data-val="B">B. the requirement that offsets represent reductions beyond what would have happened anyway</button>
+      <button class="opt-btn" data-val="C">C. the total volume of credits available in voluntary markets</button>
+      <button class="opt-btn" data-val="D">D. the process of linking separate national carbon markets together</button>
+    </div>
+    <div class="q-explain" style="display:none;">
+      <span class="correct-tag">&#10003; B</span> 第五段直接定义："additionality — <em>the requirement that a carbon credit only has value if the emissions reduction it represents would not have occurred anyway</em>"，与选项B完全一致。
+    </div>
+  </div>
+
+  <div class="q-item" data-ans="C">
+    <div class="q-text">9. In paragraph 3, the word "compliance" (as in "compliance markets") is closest in meaning to:</div>
+    <div class="opt-group" style="flex-wrap:wrap;">
+      <button class="opt-btn" data-val="A">A. optional</button>
+      <button class="opt-btn" data-val="B">B. international</button>
+      <button class="opt-btn" data-val="C">C. legally required</button>
+      <button class="opt-btn" data-val="D">D. government-funded</button>
+    </div>
+    <div class="q-explain" style="display:none;">
+      <span class="correct-tag">&#10003; C. legally required</span> 第三段将 "mandatory compliance markets" 与 "voluntary carbon markets" 对比使用，"compliance" 指受法律强制约束的市场，closest meaning 是 C "legally required"。选项A "optional" 是 voluntary 的含义，恰恰相反。
+    </div>
+  </div>
+
+  <div class="q-item" data-ans="A">
+    <div class="q-text">10. According to the passage, critics of forest carbon offsets argue they are an insufficient substitute for genuine emissions reductions primarily because:</div>
+    <div class="opt-group" style="flex-wrap:wrap;">
+      <button class="opt-btn" data-val="A">A. the carbon they store can be released again if the forests are destroyed</button>
+      <button class="opt-btn" data-val="B">B. they require too much land and displace local farming communities</button>
+      <button class="opt-btn" data-val="C">C. they are only available to the largest multinational corporations</button>
+      <button class="opt-btn" data-val="D">D. the verification process takes too long to be useful</button>
+    </div>
+    <div class="q-explain" style="display:none;">
+      <span class="correct-tag">&#10003; A</span> 第四段："Carbon stored in forests can be released if the trees are later harvested, burned in wildfires, or destroyed by disease…forest carbon is <em>inherently reversible</em>"，这是批评者认为森林碳抵消无法替代真实减排的核心论据，与选项A一致。选项B、C、D均未在文章中提及。
+    </div>
+  </div>
+</div>
+</div>
+
+<div class="result-card" id="resultCard">
+  <div class="score" id="finalScore">-</div>
+  <div class="grade" id="finalGrade">-</div>
+  <button onclick="location.href='index.html'" style="margin-top:16px;padding:10px 24px;background:var(--accent);color:white;border:none;border-radius:10px;font-size:0.95rem;font-weight:600;cursor:pointer;font-family:inherit;">回主页</button>
+</div>
+
+<div class="submit-wrap">
+  <button class="submit-btn" id="submitBtn" onclick="submit()">提交答案</button>
+</div>
+
+<nav class="tabbar">
+  <a class="tab-btn" href="index.html#home"><span class="icon">&#127968;</span>概览</a>
+  <a class="tab-btn" href="index.html#materials"><span class="icon">&#128250;</span>材料</a>
+  <a class="tab-btn active" href="index.html#quizzes"><span class="icon">&#9999;&#65039;</span>测验</a>
+  <a class="tab-btn" href="index.html#plan"><span class="icon">&#128203;</span>计划</a>
+</nav>
+
+<script>
+let answered = {};
+let submitted = false;
+const total = 10;
+
+document.querySelectorAll(".opt-btn").forEach(btn => {
+  btn.addEventListener("click", function() {
+    if (submitted) return;
+    const item = this.closest(".q-item");
+    item.querySelectorAll(".opt-btn").forEach(b => b.classList.remove("selected"));
+    this.classList.add("selected");
+    const qIdx = [...document.querySelectorAll(".q-item")].indexOf(item);
+    answered[qIdx] = this.dataset.val;
+    updateScore();
+  });
+});
+
+function updateScore() {
+  const score = Object.keys(answered).length;
+  document.getElementById("liveScore").textContent = score + " / " + total;
+  document.getElementById("submitBtn").disabled = score < total;
+}
+
+function submit() {
+  if (submitted) return;
+  submitted = true;
+  let correct = 0;
+  document.querySelectorAll(".q-item").forEach((item, i) => {
+    const ans = item.dataset.ans;
+    const chosen = answered[i];
+    item.querySelectorAll(".opt-btn").forEach(btn => {
+      if (btn.dataset.val === ans) btn.classList.add("correct");
+      else if (btn.dataset.val === chosen && chosen !== ans) btn.classList.add("wrong");
+      btn.style.cursor = "default";
+    });
+    item.querySelector(".q-explain").style.display = "block";
+    if (chosen === ans) correct++;
+  });
+  document.getElementById("liveScore").textContent = correct + " / " + total;
+  const pct = Math.round(correct / total * 100);
+  const grade = correct >= 9 ? "&#x1F31F; 优秀 · Band 7.5+" : correct >= 7 ? "&#128077; 良好 · Band 7.0" : correct >= 6 ? "&#128076; 合格 · Band 6.5" : "&#128218; 需要加强 · Band 6.0-";
+  document.getElementById("finalScore").textContent = correct + " / " + total + " (" + pct + "%)";
+  document.getElementById("finalGrade").innerHTML = grade;
+  document.getElementById("resultCard").classList.add("show");
+  document.getElementById("submitBtn").textContent = "已提交";
+  document.getElementById("submitBtn").disabled = true;
+  window.scrollTo({top: document.body.scrollHeight, behavior: "smooth"});
+}
+updateScore();
+</script>
+</body>
+</html>
