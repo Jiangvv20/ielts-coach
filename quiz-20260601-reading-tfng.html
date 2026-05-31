@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#2563eb">
+<title>Reading T/F/NG · 全球水资源危机 · Day 12</title>
+<style>
+  :root { --bg:#fff; --fg:#1a1a1a; --muted:#6b7280; --accent:#2563eb; --ok:#059669; --err:#dc2626; --warn:#d97706; --card:#f9fafb; --border:#e5e7eb; --nav-bg:rgba(255,255,255,0.92); --header-bg:linear-gradient(135deg,#2563eb 0%,#7c3aed 100%); }
+  @media (prefers-color-scheme: dark) { :root { --bg:#0f172a; --fg:#f1f5f9; --muted:#94a3b8; --accent:#60a5fa; --ok:#34d399; --err:#f87171; --warn:#fbbf24; --card:#1e293b; --border:#334155; --nav-bg:rgba(15,23,42,0.92); --header-bg:linear-gradient(135deg,#1e40af 0%,#6b21a8 100%); } }
+  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body { margin:0; padding:0; background:var(--bg); color:var(--fg); }
+  body { font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue",sans-serif; line-height:1.6; padding-bottom:calc(64px + env(safe-area-inset-bottom,0)); }
+  .app-header { background:var(--header-bg); color:white; padding:calc(env(safe-area-inset-top,16px)+12px) 16px 14px; position:sticky; top:0; z-index:20; display:flex; align-items:center; gap:12px; }
+  .back-btn { background:rgba(255,255,255,0.18); border:none; color:white; width:34px; height:34px; border-radius:10px; font-size:1.1rem; cursor:pointer; flex-shrink:0; text-decoration:none; display:flex; align-items:center; justify-content:center; }
+  .app-header .ttl { font-size:1rem; font-weight:700; }
+  .app-header .sub { font-size:0.72rem; opacity:0.85; margin-top:1px; letter-spacing:0.04em; text-transform:uppercase; }
+  .score-bar { background:var(--card); padding:12px 16px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; font-size:0.88rem; }
+  .score-badge { background:var(--accent); color:white; padding:2px 10px; border-radius:99px; font-weight:700; font-size:0.82rem; }
+  .passage-wrap { padding:16px; }
+  .passage-label { font-size:0.72rem; color:var(--muted); text-transform:uppercase; letter-spacing:0.06em; font-weight:700; margin-bottom:8px; }
+  .passage { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:16px; font-size:0.95rem; line-height:1.75; }
+  .passage p { margin:0 0 12px; }
+  .passage p:last-child { margin:0; }
+  .questions-wrap { padding:0 16px 24px; }
+  .q-block { margin-bottom:8px; }
+  .q-num { font-size:0.78rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.06em; padding:12px 0 6px; }
+  .q-inst { font-size:0.85rem; color:var(--muted); margin-bottom:16px; line-height:1.5; }
+  .q-item { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:14px; margin-bottom:10px; }
+  .q-text { font-size:0.92rem; margin-bottom:12px; line-height:1.55; }
+  .opt-group { display:flex; gap:8px; flex-wrap:wrap; }
+  .opt-btn { padding:8px 14px; background:var(--bg); border:1.5px solid var(--border); border-radius:8px; font-size:0.85rem; cursor:pointer; font-family:inherit; color:var(--fg); transition:border-color 0.15s; }
+  .opt-btn:active { transform:scale(0.97); }
+  .opt-btn.selected { border-color:var(--accent); background:rgba(37,99,235,0.08); color:var(--accent); font-weight:600; }
+  .opt-btn.correct { border-color:var(--ok); background:rgba(5,150,105,0.1); color:var(--ok); font-weight:700; }
+  .opt-btn.wrong { border-color:var(--err); background:rgba(220,38,38,0.1); color:var(--err); font-weight:700; }
+  .q-explain { margin-top:10px; padding:10px 12px; background:var(--bg); border-left:3px solid var(--ok); border-radius:6px; font-size:0.85rem; color:var(--muted); line-height:1.5; }
+  .correct-tag { color:var(--ok); font-weight:700; display:block; margin-bottom:4px; }
+  .submit-wrap { padding:0 16px 16px; }
+  .submit-btn { width:100%; padding:14px; background:var(--accent); color:white; border:none; border-radius:12px; font-size:1rem; font-weight:700; cursor:pointer; font-family:inherit; }
+  .submit-btn:disabled { background:var(--border); color:var(--muted); cursor:not-allowed; }
+  .result-card { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:20px; margin:0 16px 16px; text-align:center; display:none; }
+  .result-card.show { display:block; }
+  .result-card .score { font-size:2.5rem; font-weight:700; }
+  .result-card .grade { font-size:1rem; color:var(--muted); margin-top:4px; }
+  .tabbar { position:fixed; bottom:0; left:0; right:0; background:var(--nav-bg); backdrop-filter:saturate(180%) blur(20px); -webkit-backdrop-filter:saturate(180%) blur(20px); border-top:1px solid var(--border); display:flex; padding-bottom:env(safe-area-inset-bottom,0); z-index:30; }
+  .tab-btn { flex:1; background:transparent; border:none; padding:10px 4px 8px; color:var(--muted); font-size:0.68rem; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:3px; font-family:inherit; text-decoration:none; }
+  .tab-btn .icon { font-size:1.25rem; line-height:1; }
+  .tab-btn.active { color:var(--accent); }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <a class="back-btn" href="index.html#quizzes">&#8592;</a>
+  <div style="flex:1;">
+    <div class="ttl">阅读 · T/F/NG · 全球水资源危机</div>
+    <div class="sub">2026-06-01 · Day 12 · Environment</div>
+  </div>
+</header>
+
+<div class="score-bar">
+  <span style="color:var(--muted);font-size:0.82rem;">10 题 · 约 12 分钟</span>
+  <span class="score-badge" id="liveScore">0 / 10</span>
+</div>
+
+<div class="passage-wrap">
+  <div class="passage-label">&#128214; 阅读文章 · Freshwater Under Pressure: The Global Water Scarcity Crisis</div>
+  <div class="passage">
+<p>Of all the water on Earth, only about 2.5 per cent is fresh, and the vast majority of even this small fraction is locked in glaciers, polar ice caps, and deep underground aquifers. As a result, the supply of freshwater that is practically accessible to human populations at any given time amounts to a tiny and unevenly distributed resource. Despite this inherent scarcity, global consumption of freshwater has more than tripled since the middle of the twentieth century, driven by population growth, agricultural expansion, and rising living standards. Water stress — a condition in which demand approaches or exceeds the available supply — now affects roughly two billion people worldwide.</p>
+
+<p>Agriculture accounts for approximately seventy per cent of all freshwater withdrawals globally, dwarfing industrial and domestic use combined. Irrigated farming has been instrumental in feeding a growing world population, but it has come at a significant environmental cost. In many regions, rivers have been diverted so heavily that they no longer reach the sea, and large lake systems have dramatically shrunk. The Aral Sea, once the world's fourth-largest lake, has been reduced to a fraction of its former size following large-scale Soviet irrigation projects in Central Asia. Reversing such damage is technologically possible in theory but requires levels of sustained international cooperation that have rarely been achieved in practice.</p>
+
+<p>Groundwater provides drinking water for roughly half the world's population and irrigates about forty per cent of its farmland. Yet many of the world's most important aquifer systems are being depleted at rates that far outpace their natural recharge. The Ogallala Aquifer beneath the Great Plains of the United States, which supplies water to one of the world's most productive agricultural regions, is being drawn down at a rate approximately ten times faster than it is replenished by rainfall. Once exhausted, such ancient groundwater reserves cannot be restored on any timescale relevant to human civilisation. Scientists warn that the depletion of aquifers represents a slow-moving crisis that will eventually undermine food security across multiple continents.</p>
+
+<p>Climate change is compounding the challenge significantly. Warmer temperatures accelerate evaporation from reservoirs and soils, while altered precipitation patterns are shifting where and when rain falls, often delivering more intense storms to some regions while extending droughts in others. Regions that have historically relied on glacier meltwater to sustain rivers through dry seasons — including parts of South Asia, the Andes, and Central Asia — face the prospect of severely reduced flows as glaciers retreat. The irony is that the countries most dependent on glacial freshwater tend to be among those least responsible for the greenhouse gas emissions that are accelerating glacial loss.</p>
+
+<p>Technological solutions such as seawater desalination and advanced wastewater recycling offer partial answers. Desalination plants now supply a substantial proportion of the drinking water in several Gulf states and in parts of southern Spain and Australia. However, the process is highly energy-intensive, typically requiring substantial quantities of fossil fuels unless powered by renewables, and it generates large volumes of concentrated brine that must be disposed of without harming coastal marine ecosystems. Wastewater recycling — already practised at scale in Singapore and Israel — is generally more energy-efficient than desalination, though it faces cultural resistance in many societies where the concept of drinking reclaimed water remains psychologically uncomfortable.</p>
+
+<p>Ultimately, addressing water scarcity requires a combination of demand reduction, technological innovation, and international governance reform. Pricing water more accurately to reflect its true scarcity value — rather than subsidising it heavily in agriculture — is consistently identified by economists as the single most effective lever available. Yet in practice, water pricing reforms face intense political resistance, particularly from powerful agricultural constituencies. Multilateral frameworks for managing shared river basins and transboundary aquifers remain underdeveloped, even as population growth and climate change make cooperation ever more urgent. Without a fundamental rethinking of how societies value and manage their most essential resource, water scarcity will intensify from a regional challenge into a global emergency.</p>
+  </div>
+</div>
+
+<div class="questions-wrap">
+<div class="q-block">
+  <div class="q-num">Questions 1–7 · True / False / Not Given</div>
+  <div class="q-inst">根据文章内容，判断以下说法是 <strong>TRUE</strong>（符合原文）、<strong>FALSE</strong>（与原文相悖）或 <strong>NOT GIVEN</strong>（原文未提及）。</div>
+
+  <div class="q-item" data-ans="FALSE">
+    <div class="q-text">1. The article states that freshwater makes up approximately ten per cent of all the water found on Earth.</div>
+    <div class="opt-group">
+      <button class="opt-btn" data-val="TRUE">TRUE</button>
+      <button class="opt-btn" data-val="FALSE">FALSE</button>
+      <button class="opt-btn" data-val="NG">NOT GIVEN</button>
+    </div>
+    <div class="q-explain" style="display:none;">
+      <span class="correct-tag">&#10003; FALSE</span> 第一段明确指出："only about <em>2.5 per cent</em> is fresh"，即淡水仅占约 2.5%，与题目"approximately ten per cent"相矛盾。
+    </div>
+  </div>
+
+  <div class="q-item" data-ans="TRUE">
+    <div class="q-text">2. Global consumption of freshwater has increased more than threefold since the mid-twentieth century.</div>
+    <div class="opt-group">
+      <button class="opt-btn" data-val="TRUE">TRUE</button>
+      <button class="opt-btn" data-val="FALSE">FALSE</button>
+      <button class="opt-btn" data-val="NG">NOT GIVEN</button>
+    </div>
+    <div class="q-explain" style="display:none;">
+      <span class="correct-tag">&#10003; TRUE</span> 第一段写道："global consumption of freshwater has <em>more than tripled</em> since the middle of the twentieth century"，与题目"increased more than threefold"完全一致（tripled = threefold）。
+    </div>
+  </div>
+
+  <div class="q-item" data-ans="TRUE">
+    <div class="q-text">3. The Aral Sea was once considered the fourth-largest lake in the world.</div>
+    <div class="opt-group">
+      <button class="opt-btn" data-val="TRUE">TRUE</button>
+      <button class="opt-btn" data-val="FALSE">FALSE</button>
+      <button class="opt-btn" data-val="NG">NOT GIVEN</button>
+    </div>
+    <div class="q-explain" style="display:none;">
+      <span class="correct-tag">&#10003; TRUE</span> 第二段明确提到："The Aral Sea, <em>once the world's fourth-largest lake</em>"，与题目直接一致。
+    </div>
+  </div>
+
+  <div class="q-item" data-ans="NG">
+    <div class="q-text">4. The Ogallala Aquifer is the largest underground freshwater reserve in the world.</div>
+    <div class="opt-group">
+      <button class="opt-btn" data-val="TRUE">TRUE</button>
+      <button class="opt-btn" data-val="FALSE">FALSE</button>
+      <button class="opt-btn" data-val="NG">NOT GIVEN</button>
+    </div>
+    <div class="q-explain" style="display:none;">
+      <span class="correct-tag">&#10003; NOT GIVEN</span> 第三段仅称其为"one of the world's most productive agricultural regions"下的含水层，从未声明它是全球最大的地下淡水储量，原文未提及这一比较。
+    </div>
+  </div>
+
+  <div class="q-item" data-ans="FALSE">
+    <div class="q-text">5. According to the passage, the Ogallala Aquifer is being replenished by rainfall at approximately the same rate as it is being extracted.</div>
+    <div class="opt-group">
+      <button class="opt-btn" data-val="TRUE">TRUE</button>
+      <button class="opt-btn" data-val="FALSE">FALSE</button>
+      <button class="opt-btn" data-val="NG">NOT GIVEN</button>
+    </div>
+    <div class="q-explain" style="display:none;">
+      <span class="correct-tag">&#10003; FALSE</span> 第三段明确指出其抽取速度"<em>approximately ten times faster</em> than it is replenished by rainfall"，与题目"at approximately the same rate"完全相悖。
+    </div>
+  </div>
+
+  <div class="q-item" data-ans="TRUE">
+    <div class="q-text">6. Countries that are most reliant on glacial meltwater for their freshwater supply tend to have low responsibility for the emissions driving glacial retreat.</div>
+    <div class="opt-group">
+      <button class="opt-btn" data-val="TRUE">TRUE</button>
+      <button class="opt-btn" data-val="FALSE">FALSE</button>
+      <button class="opt-btn" data-val="NG">NOT GIVEN</button>
+    </div>
+    <div class="q-explain" style="display:none;">
+      <span class="correct-tag">&#10003; TRUE</span> 第四段末句："The countries most dependent on glacial freshwater tend to be <em>among those least responsible for the greenhouse gas emissions</em> that are accelerating glacial loss."，与题目完全一致。
+    </div>
+  </div>
+
+  <div class="q-item" data-ans="NG">
+    <div class="q-text">7. The article states that Singapore and Israel have developed the most advanced desalination technology in the world.</div>
+    <div class="opt-group">
+      <button class="opt-btn" data-val="TRUE">TRUE</button>
+      <button class="opt-btn" data-val="FALSE">FALSE</button>
+      <button class="opt-btn" data-val="NG">NOT GIVEN</button>
+    </div>
+    <div class="q-explain" style="display:none;">
+      <span class="correct-tag">&#10003; NOT GIVEN</span> 第五段提到新加坡和以色列的例子是关于<em>废水回收利用</em>（wastewater recycling），而非海水淡化技术。文章没有比较哪国拥有最先进的淡化技术。
+    </div>
+  </div>
+</div>
+
+<div class="q-block" style="margin-top:28px;">
+  <div class="q-num">Questions 8–10 · Vocabulary in Context</div>
+  <div class="q-inst">根据文章内容，从选项中选出最合适的答案。</div>
+
+  <div class="q-item" data-ans="C">
+    <div class="q-text">8. In paragraph 1, "water stress" refers to a situation in which:</div>
+    <div class="opt-group" style="flex-wrap:wrap;">
+      <button class="opt-btn" data-val="A">A. water becomes chemically contaminated and unfit for drinking</button>
+      <button class="opt-btn" data-val="B">B. severe flooding damages water infrastructure</button>
+      <button class="opt-btn" data-val="C">C. demand for water approaches or exceeds the available supply</button>
+      <button class="opt-btn" data-val="D">D. governments fail to invest in adequate water treatment facilities</button>
+    </div>
+    <div class="q-explain" style="display:none;">
+      <span class="correct-tag">&#10003; C</span> 第一段直接定义："Water stress — <em>a condition in which demand approaches or exceeds the available supply</em>"，与选项C完全一致。
+    </div>
+  </div>
+
+  <div class="q-item" data-ans="B">
+    <div class="q-text">9. In paragraph 5, the word "brine" refers to:</div>
+    <div class="opt-group" style="flex-wrap:wrap;">
+      <button class="opt-btn" data-val="A">A. liquid waste produced during nuclear power generation</button>
+      <button class="opt-btn" data-val="B">B. highly concentrated salt water produced as a by-product of desalination</button>
+      <button class="opt-btn" data-val="C">C. the chemical compounds used to purify drinking water</button>
+      <button class="opt-btn" data-val="D">D. untreated sewage discharged into the ocean</button>
+    </div>
+    <div class="q-explain" style="display:none;">
+      <span class="correct-tag">&#10003; B</span> 第五段描述："it generates large volumes of <em>concentrated brine</em> that must be disposed of without harming coastal marine ecosystems"，可从上下文判断 brine 是海水淡化产生的浓缩盐水副产品，与选项B完全吻合。
+    </div>
+  </div>
+
+  <div class="q-item" data-ans="A">
+    <div class="q-text">10. According to the final paragraph, economists most consistently recommend which of the following as the most effective measure to address water scarcity?</div>
+    <div class="opt-group" style="flex-wrap:wrap;">
+      <button class="opt-btn" data-val="A">A. Pricing water more accurately to reflect its true scarcity value</button>
+      <button class="opt-btn" data-val="B">B. Building more desalination plants along coastlines</button>
+      <button class="opt-btn" data-val="C">C. Banning irrigation in drought-prone agricultural regions</button>
+      <button class="opt-btn" data-val="D">D. Transferring water management responsibility to international bodies</button>
+    </div>
+    <div class="q-explain" style="display:none;">
+      <span class="correct-tag">&#10003; A</span> 最后一段明确写道："<em>Pricing water more accurately to reflect its true scarcity value</em>... is consistently identified by economists as <em>the single most effective lever available</em>"，与选项A完全一致。选项B、C、D均为文中未支持的措施。
+    </div>
+  </div>
+</div>
+</div>
+
+<div class="result-card" id="resultCard">
+  <div class="score" id="finalScore">-</div>
+  <div class="grade" id="finalGrade">-</div>
+  <button onclick="location.href='index.html'" style="margin-top:16px;padding:10px 24px;background:var(--accent);color:white;border:none;border-radius:10px;font-size:0.95rem;font-weight:600;cursor:pointer;font-family:inherit;">回主页</button>
+</div>
+
+<div class="submit-wrap">
+  <button class="submit-btn" id="submitBtn" onclick="submit()">提交答案</button>
+</div>
+
+<nav class="tabbar">
+  <a class="tab-btn" href="index.html#home"><span class="icon">&#127968;</span>概览</a>
+  <a class="tab-btn" href="index.html#materials"><span class="icon">&#128250;</span>材料</a>
+  <a class="tab-btn active" href="index.html#quizzes"><span class="icon">&#9999;&#65039;</span>测验</a>
+  <a class="tab-btn" href="index.html#plan"><span class="icon">&#128203;</span>计划</a>
+</nav>
+
+<script>
+let answered = {};
+let submitted = false;
+const total = 10;
+
+document.querySelectorAll(".opt-btn").forEach(btn => {
+  btn.addEventListener("click", function() {
+    if (submitted) return;
+    const item = this.closest(".q-item");
+    item.querySelectorAll(".opt-btn").forEach(b => b.classList.remove("selected"));
+    this.classList.add("selected");
+    const qIdx = [...document.querySelectorAll(".q-item")].indexOf(item);
+    answered[qIdx] = this.dataset.val;
+    updateScore();
+  });
+});
+
+function updateScore() {
+  const score = Object.keys(answered).length;
+  document.getElementById("liveScore").textContent = score + " / " + total;
+  document.getElementById("submitBtn").disabled = score < total;
+}
+
+function submit() {
+  if (submitted) return;
+  submitted = true;
+  let correct = 0;
+  document.querySelectorAll(".q-item").forEach((item, i) => {
+    const ans = item.dataset.ans;
+    const chosen = answered[i];
+    item.querySelectorAll(".opt-btn").forEach(btn => {
+      if (btn.dataset.val === ans) btn.classList.add("correct");
+      else if (btn.dataset.val === chosen && chosen !== ans) btn.classList.add("wrong");
+      btn.style.cursor = "default";
+    });
+    item.querySelector(".q-explain").style.display = "block";
+    if (chosen === ans) correct++;
+  });
+  document.getElementById("liveScore").textContent = correct + " / " + total;
+  const pct = Math.round(correct / total * 100);
+  const grade = correct >= 9 ? "&#x1F31F; 优秀 · Band 7.5+" : correct >= 7 ? "&#128077; 良好 · Band 7.0" : correct >= 6 ? "&#128076; 合格 · Band 6.5" : "&#128218; 需要加强 · Band 6.0-";
+  document.getElementById("finalScore").textContent = correct + " / " + total + " (" + pct + "%)";
+  document.getElementById("finalGrade").innerHTML = grade;
+  document.getElementById("resultCard").classList.add("show");
+  document.getElementById("submitBtn").textContent = "已提交";
+  document.getElementById("submitBtn").disabled = true;
+  window.scrollTo({top: document.body.scrollHeight, behavior: "smooth"});
+}
+updateScore();
+</script>
+</body>
+</html>
