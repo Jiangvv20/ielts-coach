@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#2563eb">
+<title>测验 · Reading T/F/NG · AI 与工作的未来</title>
+<style>
+  :root {
+    --bg: #ffffff; --fg: #1a1a1a; --muted: #6b7280;
+    --accent: #2563eb; --ok: #059669; --err: #dc2626;
+    --card: #f9fafb; --border: #e5e7eb;
+    --nav-bg: rgba(255,255,255,0.92);
+    --header-bg: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f172a; --fg: #f1f5f9; --muted: #94a3b8;
+      --accent: #60a5fa; --ok: #34d399; --err: #f87171;
+      --card: #1e293b; --border: #334155;
+      --nav-bg: rgba(15,23,42,0.92);
+      --header-bg: linear-gradient(135deg, #1e40af 0%, #6b21a8 100%);
+    }
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg); }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif;
+    line-height: 1.6; min-height: 100vh;
+    padding-bottom: calc(64px + env(safe-area-inset-bottom, 0));
+  }
+  .app-header {
+    background: var(--header-bg); color: white;
+    padding: calc(env(safe-area-inset-top, 16px) + 12px) 16px 14px;
+    position: sticky; top: 0; z-index: 20;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .back-btn {
+    background: rgba(255,255,255,0.18); border: none; color: white;
+    width: 34px; height: 34px; border-radius: 10px;
+    font-size: 1.1rem; cursor: pointer; flex-shrink: 0;
+    text-decoration: none; display: flex; align-items: center; justify-content: center;
+  }
+  .app-header .ttl { font-size: 1rem; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .app-header .sub { font-size: 0.72rem; opacity: 0.85; margin-top: 1px; letter-spacing: 0.04em; text-transform: uppercase; }
+  main { max-width: 720px; margin: 0 auto; padding: 16px; }
+  .progress { height: 6px; background: var(--border); border-radius: 3px; margin-bottom: 16px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--accent); transition: width 0.3s ease; }
+  .passage {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 14px 16px; margin-bottom: 16px;
+    font-size: 0.95rem; line-height: 1.75;
+  }
+  .passage h3 { margin: 0 0 10px; font-size: 0.78rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+  .passage h4 { margin: 0 0 8px; font-size: 1rem; font-weight: 700; color: var(--fg); }
+  .question {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 16px; margin-bottom: 14px;
+  }
+  .q-num { color: var(--muted); font-size: 0.78rem; font-family: "SF Mono", Menlo, monospace; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.04em; }
+  .q-text { font-size: 1rem; margin-bottom: 12px; font-weight: 500; line-height: 1.5; }
+  .options { display: flex; flex-direction: column; gap: 8px; }
+  .option {
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 8px; padding: 12px 14px;
+    cursor: pointer; font-size: 0.95rem; text-align: left;
+    color: var(--fg); font-family: inherit;
+  }
+  .option.selected { border-color: var(--accent); background: rgba(37,99,235,0.08); }
+  .option.correct { border-color: var(--ok); background: rgba(5,150,105,0.1); }
+  .option.wrong { border-color: var(--err); background: rgba(220,38,38,0.1); }
+  .blank-input {
+    width: 100%; background: var(--bg);
+    border: 1px solid var(--border); border-radius: 8px;
+    padding: 10px 12px; font-size: 1rem;
+    color: var(--fg); font-family: inherit;
+  }
+  .blank-input.correct { border-color: var(--ok); }
+  .blank-input.wrong { border-color: var(--err); }
+  .explanation {
+    margin-top: 10px; padding: 10px 12px;
+    background: var(--bg); border-left: 3px solid var(--accent);
+    border-radius: 4px; font-size: 0.9rem; color: var(--muted);
+    display: none; line-height: 1.55;
+  }
+  .explanation.show { display: block; }
+  .explanation .answer { color: var(--ok); font-weight: 600; margin-bottom: 4px; }
+  .actions { display: flex; gap: 10px; margin-top: 20px; }
+  .btn { flex: 1; padding: 12px; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; font-family: inherit; }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-secondary { background: var(--card); color: var(--fg); border: 1px solid var(--border); }
+  .result { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; text-align: center; margin-top: 20px; display: none; }
+  .result.show { display: block; }
+  .score { font-size: 2.5rem; font-weight: 700; color: var(--accent); }
+  .score-label { color: var(--muted); font-size: 0.9rem; margin-top: 4px; }
+  .tabbar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--nav-bg); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px); border-top: 1px solid var(--border); display: flex; padding-bottom: env(safe-area-inset-bottom, 0); z-index: 30; }
+  .tab-btn { flex: 1; background: transparent; border: none; padding: 10px 4px 8px; color: var(--muted); font-size: 0.68rem; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 3px; font-family: inherit; text-decoration: none; }
+  .tab-btn .icon { font-size: 1.25rem; line-height: 1; }
+  .tab-btn.active { color: var(--accent); }
+  .tip-box { background: rgba(37,99,235,0.06); border: 1px solid rgba(37,99,235,0.2); border-radius: 10px; padding: 10px 14px; margin-bottom: 16px; font-size: 0.85rem; color: var(--fg); line-height: 1.5; }
+  .tip-box strong { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <a class="back-btn" href="index.html#quizzes">&#8592;</a>
+  <div style="flex:1;min-width:0;">
+    <div class="ttl">Reading T/F/NG · AI 与工作的未来</div>
+    <div class="sub">2026-06-04 · Day 15 · 10 题 · ~12 min</div>
+  </div>
+</header>
+
+<main>
+
+  <div class="progress"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+
+  <div class="tip-box">
+    <strong>T/F/NG 要点</strong>: True = 原文明确支持；False = 原文明确矛盾；Not Given = 文中未提及或无法判断。<strong>不要用常识</strong>，只看文章。
+  </div>
+
+  <div class="passage">
+    <h3>Passage · 节选 (~600 词)</h3>
+    <h4>The Automation Paradox: How AI Is Reshaping Employment</h4>
+    <p>For centuries, technological progress has consistently generated fears of mass unemployment. Yet each wave of mechanisation — from the Industrial Revolution to the digital age — ultimately created more jobs than it destroyed, though rarely without significant disruption along the way. The arrival of advanced artificial intelligence, however, has prompted economists and sociologists to question whether this historical pattern will continue.</p>
+    <p>Unlike earlier technologies that primarily replaced physical labour, modern AI systems are increasingly capable of performing cognitive tasks that were once considered uniquely human. Machine-learning algorithms can now draft legal documents, diagnose medical conditions from imaging scans, and detect financial fraud with greater accuracy than most trained professionals. A landmark 2023 study by economists at Oxford University estimated that approximately 47% of jobs in developed economies were at high risk of automation within two decades, though critics argued the figure was overstated because it failed to account for tasks within those occupations that require genuine human judgement.</p>
+    <p>The impact of AI is not uniform across sectors or skill levels. Low-wage, repetitive roles in manufacturing, retail, and data entry have already experienced significant disruption. By contrast, occupations demanding creativity, emotional intelligence, and complex interpersonal skills — such as counselling, artistic direction, and senior management — appear far more resilient. A report by the McKinsey Global Institute found that, while AI will eliminate an estimated 400 million jobs globally by 2030, it will simultaneously create approximately 500 million new ones, many of which do not yet exist.</p>
+    <p>Central to this debate is the question of transition. Even if the net number of jobs remains stable or grows, millions of workers displaced from declining roles will need to acquire entirely new skill sets — a process economists call "reskilling". Governments and corporations face immense pressure to fund and facilitate this transition. Some nations, notably Singapore and Denmark, have already implemented comprehensive national reskilling programmes with measurable success. Others, particularly those with weaker social safety nets, risk leaving displaced workers stranded in what some researchers have termed "technological unemployment limbo".</p>
+    <p>Technology companies themselves are divided on their responsibilities. While firms such as Microsoft and Google have pledged billions to workforce retraining initiatives, critics argue that these commitments are inadequate relative to the scale of disruption their products are causing. There is also growing concern that AI adoption will exacerbate existing inequalities: large corporations with the resources to invest in AI will gain enormous productivity advantages over smaller competitors, further concentrating wealth and market power.</p>
+    <p>Ultimately, the relationship between artificial intelligence and employment may depend less on the technology itself and more on the policy choices societies make in response. Proponents of a universal basic income argue that decoupling income from work could provide a safety net that allows individuals to retrain without financial desperation. Others contend that meaningful work provides psychological benefits beyond income, and that society should focus on creating human-centred roles that complement rather than compete with machine capabilities. What is beyond dispute is that the automation of cognitive labour represents a qualitatively different challenge — one that demands urgent, coordinated responses from governments, businesses, and educational institutions alike.</p>
+  </div>
+
+  <div id="questions">
+
+    <div class="question" data-type="mcq" data-answer="A">
+      <div class="q-num">Q01 · T/F/NG</div>
+      <div class="q-text">Previous waves of technological progress eventually created more jobs than they eliminated.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">正确答案: A (True)</div>
+        原文第一段: "each wave of mechanisation … ultimately created more jobs than it destroyed" — 直接支持。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="B">
+      <div class="q-num">Q02 · T/F/NG</div>
+      <div class="q-text">The Oxford University study concluded that over half of jobs in developed economies face automation risk.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">正确答案: B (False)</div>
+        原文说 "approximately 47%" — 不足一半 (50%+)，与"over half"矛盾。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="C">
+      <div class="q-num">Q03 · T/F/NG</div>
+      <div class="q-text">Artistic directors earn higher salaries than manufacturing workers in countries affected by automation.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">正确答案: C (Not Given)</div>
+        文章提到艺术指导工作更具抗自动化韧性，但从未比较薪资高低。信息未提。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="A">
+      <div class="q-num">Q04 · T/F/NG</div>
+      <div class="q-text">According to the McKinsey report, AI is expected to create more jobs than it destroys by 2030.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">正确答案: A (True)</div>
+        原文: "will eliminate an estimated 400 million jobs … simultaneously create approximately 500 million new ones" — 创造 > 消失，支持题目。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="B">
+      <div class="q-num">Q05 · T/F/NG</div>
+      <div class="q-text">The author states that technology companies universally accept responsibility for retraining displaced workers.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">正确答案: B (False)</div>
+        原文说科技公司 "are divided on their responsibilities"，并非一致接受。与 "universally accept" 矛盾。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="C">
+      <div class="q-num">Q06 · T/F/NG</div>
+      <div class="q-text">Universal basic income has been successfully trialled in Singapore and Denmark.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">正确答案: C (Not Given)</div>
+        文章提到新加坡和丹麦实施了全国性的"再技能培训"项目，而非 UBI 试验。UBI 只是作为一个政策提案被提及，没有提到试验。
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="reskilling">
+      <div class="q-num">Q07 · 词汇填空 (原文词)</div>
+      <div class="q-text">Economists use the term "<strong>________</strong>" to describe the process of displaced workers acquiring entirely new skill sets. (从原文中找词)</div>
+      <input class="blank-input" placeholder="键入答案">
+      <div class="explanation">
+        <div class="answer">正确答案: reskilling</div>
+        原文第四段: "a process economists call 'reskilling'" — 直接引用原词。
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="resilient">
+      <div class="q-num">Q08 · 词汇填空 (高分词)</div>
+      <div class="q-text">Jobs requiring creativity and emotional intelligence appear far more <strong>________</strong> to automation. (adj. 意: 有韧性的、可恢复的)</div>
+      <input class="blank-input" placeholder="键入答案">
+      <div class="explanation">
+        <div class="answer">正确答案: resilient</div>
+        Band 7+ 搭配: "appear far more resilient" — 文章第三段原词。也接受 "resistant"。
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="exacerbate">
+      <div class="q-num">Q09 · 词汇填空 (高分词)</div>
+      <div class="q-text">Critics warn that AI adoption will <strong>________</strong> existing inequalities between large and small companies. (v. 意: 加剧)</div>
+      <input class="blank-input" placeholder="键入答案">
+      <div class="explanation">
+        <div class="answer">正确答案: exacerbate</div>
+        原文第五段: "AI adoption will exacerbate existing inequalities"。Band 7+ 高频动词。
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="complement">
+      <div class="q-num">Q10 · 搭配填空</div>
+      <div class="q-text">Some argue society should create human roles that <strong>________</strong> rather than compete with machine capabilities. (v. 意: 补充/互补)</div>
+      <input class="blank-input" placeholder="键入答案">
+      <div class="explanation">
+        <div class="answer">正确答案: complement</div>
+        原文最后段: "roles that complement rather than compete with machine capabilities"。高频搭配: complement + noun。
+      </div>
+    </div>
+
+  </div>
+
+  <div class="actions">
+    <button class="btn btn-secondary" onclick="resetQuiz()">重做</button>
+    <button class="btn btn-primary" onclick="submitQuiz()">提交对答案</button>
+  </div>
+
+  <div class="result" id="result">
+    <div class="score" id="scoreNum">--</div>
+    <div class="score-label">正确率</div>
+    <div id="scoreDetail" style="margin-top:10px;color:var(--muted);font-size:0.9rem;"></div>
+    <div style="margin-top:14px;font-size:0.82rem;color:var(--muted);">7 分目标: 正确 ≥ 8 / 10</div>
+  </div>
+
+</main>
+
+<nav class="tabbar">
+  <a class="tab-btn" href="index.html#home"><span class="icon">&#127968;</span>概览</a>
+  <a class="tab-btn" href="index.html#materials"><span class="icon">&#128250;</span>材料</a>
+  <a class="tab-btn active" href="index.html#quizzes"><span class="icon">&#9999;&#65039;</span>测验</a>
+  <a class="tab-btn" href="index.html#plan"><span class="icon">&#128203;</span>计划</a>
+</nav>
+
+<script>
+  document.querySelectorAll(".option").forEach(opt => {
+    opt.addEventListener("click", () => {
+      const q = opt.closest(".question");
+      q.querySelectorAll(".option").forEach(o => o.classList.remove("selected"));
+      opt.classList.add("selected");
+      q.dataset.userAnswer = opt.dataset.key;
+      updateProgress();
+    });
+  });
+
+  document.querySelectorAll(".blank-input").forEach(inp => {
+    inp.addEventListener("input", () => {
+      inp.closest(".question").dataset.userAnswer = inp.value.trim();
+      updateProgress();
+    });
+  });
+
+  function updateProgress() {
+    const total = document.querySelectorAll(".question").length;
+    const done = document.querySelectorAll(".question[data-user-answer]").length;
+    document.getElementById("progressFill").style.width = (done/total*100) + "%";
+  }
+
+  function submitQuiz() {
+    let correct = 0, total = 0;
+    document.querySelectorAll(".question").forEach(q => {
+      total++;
+      const userAns = (q.dataset.userAnswer || "").toLowerCase().trim();
+      const correctAns = q.dataset.answer.toLowerCase();
+      const acceptable = ["reskilling","resilient","resistant","exacerbate","complement"];
+      let isCorrect = userAns === correctAns;
+      if (!isCorrect && q.dataset.type === "blank") {
+        if (correctAns === "resilient" && userAns === "resistant") isCorrect = true;
+      }
+      if (isCorrect) correct++;
+      if (q.dataset.type === "mcq") {
+        q.querySelectorAll(".option").forEach(o => {
+          if (o.dataset.key.toLowerCase() === correctAns) o.classList.add("correct");
+          else if (o.dataset.key.toLowerCase() === userAns && !isCorrect) o.classList.add("wrong");
+        });
+      } else if (q.dataset.type === "blank") {
+        const inp = q.querySelector(".blank-input");
+        inp.classList.add(isCorrect ? "correct" : "wrong");
+      }
+      q.querySelector(".explanation")?.classList.add("show");
+    });
+    const result = document.getElementById("result");
+    const pct = Math.round(correct/total*100);
+    document.getElementById("scoreNum").textContent = pct + "%";
+    document.getElementById("scoreDetail").textContent = `${correct} / ${total} 正确`;
+    result.classList.add("show");
+    result.scrollIntoView({behavior:"smooth"});
+  }
+
+  function resetQuiz() {
+    document.querySelectorAll(".question").forEach(q => {
+      delete q.dataset.userAnswer;
+      q.querySelectorAll(".option").forEach(o => o.classList.remove("selected","correct","wrong"));
+      const inp = q.querySelector(".blank-input");
+      if (inp) { inp.value = ""; inp.classList.remove("correct","wrong"); }
+      q.querySelector(".explanation")?.classList.remove("show");
+    });
+    document.getElementById("result").classList.remove("show");
+    document.getElementById("progressFill").style.width = "0%";
+  }
+</script>
+
+</body>
+</html>
