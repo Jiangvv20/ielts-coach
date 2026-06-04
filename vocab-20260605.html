@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#2563eb">
+<title>今日 150 词 · 2026-06-05 · Technology</title>
+<style>
+  :root {
+    --bg: #ffffff; --fg: #1a1a1a; --muted: #6b7280;
+    --accent: #2563eb; --ok: #059669; --warn: #d97706;
+    --card: #f9fafb; --border: #e5e7eb;
+    --nav-bg: rgba(255,255,255,0.92);
+    --header-bg: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f172a; --fg: #f1f5f9; --muted: #94a3b8;
+      --accent: #60a5fa; --ok: #34d399; --warn: #fbbf24;
+      --card: #1e293b; --border: #334155;
+      --nav-bg: rgba(15,23,42,0.92);
+      --header-bg: linear-gradient(135deg, #1e40af 0%, #6b21a8 100%);
+    }
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg); }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif;
+    line-height: 1.5;
+    min-height: 100vh;
+    padding-bottom: calc(64px + env(safe-area-inset-bottom, 0));
+  }
+  .app-header {
+    background: var(--header-bg); color: white;
+    padding: calc(env(safe-area-inset-top, 16px) + 12px) 16px 14px;
+    position: sticky; top: 0; z-index: 20;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .back-btn {
+    background: rgba(255,255,255,0.18); border: none; color: white;
+    width: 34px; height: 34px; border-radius: 10px;
+    font-size: 1.1rem; cursor: pointer; flex-shrink: 0;
+    text-decoration: none; display: flex; align-items: center; justify-content: center;
+  }
+  .app-header .ttl { font-size: 1rem; font-weight: 700; }
+  .app-header .sub {
+    font-size: 0.72rem; opacity: 0.85; margin-top: 1px;
+    letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  .stats {
+    background: var(--card); padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px; text-align: center;
+  }
+  .stat .num { font-size: 1.4rem; font-weight: 700; }
+  .stat .num.know { color: var(--ok); }
+  .stat .num.weak { color: var(--warn); }
+  .stat .num.left { color: var(--accent); }
+  .stat .lbl { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; margin-top: 2px; }
+  .progress-bar { height: 4px; background: var(--border); overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--accent); transition: width 0.3s; }
+  .card-stage { margin: 24px 16px; perspective: 1000px; }
+  .card-3d {
+    position: relative; width: 100%; min-height: 260px;
+    transform-style: preserve-3d; transition: transform 0.5s; cursor: pointer;
+  }
+  .card-3d.flipped { transform: rotateY(180deg); }
+  .face {
+    position: absolute; width: 100%; height: 100%;
+    backface-visibility: hidden; -webkit-backface-visibility: hidden;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 18px; padding: 24px 20px;
+    display: flex; flex-direction: column; justify-content: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .face.front { text-align: center; }
+  .face.front .word { font-size: 2rem; font-weight: 700; color: var(--accent); margin-bottom: 8px; word-break: break-word; }
+  .face.front .pos { color: var(--muted); font-size: 0.95rem; font-style: italic; }
+  .face.front .hint { margin-top: 28px; color: var(--muted); font-size: 0.82rem; }
+  .face.back { transform: rotateY(180deg); }
+  .face.back .zh { font-size: 1.3rem; font-weight: 600; color: var(--accent); margin-bottom: 12px; }
+  .face.back .collo { background: var(--bg); padding: 8px 12px; border-radius: 8px; font-size: 0.92rem; color: var(--fg); margin-bottom: 10px; border-left: 3px solid var(--accent); }
+  .face.back .ex { font-size: 0.95rem; font-style: italic; color: var(--fg); line-height: 1.6; }
+  .face.back .ex strong { color: var(--accent); font-style: normal; }
+  .speaker { position: absolute; top: 14px; right: 14px; width: 36px; height: 36px; border-radius: 50%; background: var(--bg); border: 1px solid var(--border); cursor: pointer; font-size: 1.1rem; padding: 0; color: var(--accent); }
+  .view-toggle { display: flex; padding: 12px 16px 0; gap: 8px; }
+  .view-toggle button { flex: 1; padding: 8px; background: var(--card); border: 1px solid var(--border); border-radius: 8px; color: var(--muted); font-size: 0.85rem; cursor: pointer; font-family: inherit; }
+  .view-toggle button.active { background: var(--accent); color: white; border-color: var(--accent); }
+  .list-view { display: none; padding: 12px 16px 24px; }
+  .list-view.active { display: block; }
+  .list-row { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-bottom: 1px solid var(--border); background: var(--card); border-radius: 8px; margin-bottom: 6px; }
+  .list-row .num { flex-shrink: 0; width: 28px; color: var(--muted); font-size: 0.72rem; font-family: "SF Mono", Menlo, monospace; }
+  .list-row .word { flex: 1; min-width: 0; }
+  .list-row .w { font-weight: 600; font-size: 0.95rem; color: var(--fg); }
+  .list-row .w.knew { color: var(--ok); }
+  .list-row .w.weak { color: var(--warn); }
+  .list-row .zh { font-size: 0.78rem; color: var(--muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .list-row .spk { flex-shrink: 0; width: 32px; height: 32px; border-radius: 50%; background: var(--bg); border: 1px solid var(--border); cursor: pointer; color: var(--accent); font-size: 0.9rem; padding: 0; }
+  .list-row .mk { flex-shrink: 0; width: 24px; text-align: center; color: var(--muted); }
+  .list-row .mk.know { color: var(--ok); }
+  .list-row .mk.weak { color: var(--warn); }
+  .curriculum-note { margin: 16px; padding: 12px 14px; background: var(--card); border-left: 3px solid var(--accent); border-radius: 8px; font-size: 0.82rem; color: var(--muted); line-height: 1.5; }
+  .curriculum-note strong { color: var(--fg); }
+  .actions { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; padding: 0 16px; }
+  .btn { padding: 14px 8px; border: 1px solid var(--border); border-radius: 12px; background: var(--card); color: var(--fg); font-size: 0.95rem; font-weight: 600; cursor: pointer; font-family: inherit; -webkit-tap-highlight-color: transparent; }
+  .btn .ico { display: block; font-size: 1.4rem; margin-bottom: 2px; }
+  .btn.weak { color: var(--warn); }
+  .btn.weak:active { background: rgba(217,119,6,0.1); }
+  .btn.flip { color: var(--accent); }
+  .btn.flip:active { background: rgba(37,99,235,0.1); }
+  .btn.know { color: var(--ok); }
+  .btn.know:active { background: rgba(5,150,105,0.1); }
+  .meta { text-align: center; color: var(--muted); font-size: 0.78rem; margin-top: 20px; }
+  .tabbar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--nav-bg); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px); border-top: 1px solid var(--border); display: flex; padding-bottom: env(safe-area-inset-bottom, 0); z-index: 30; }
+  .tab-btn { flex: 1; background: transparent; border: none; padding: 10px 4px 8px; color: var(--muted); font-size: 0.68rem; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 3px; font-family: inherit; text-decoration: none; }
+  .tab-btn .icon { font-size: 1.25rem; line-height: 1; }
+  .tab-btn.active { color: var(--accent); }
+  .done-screen { text-align: center; padding: 60px 24px; display: none; }
+  .done-screen.show { display: block; }
+  .done-screen .big { font-size: 4rem; }
+  .done-screen .ttl { font-size: 1.3rem; font-weight: 700; margin: 8px 0; }
+  .done-screen .sub { color: var(--muted); margin-bottom: 24px; }
+  .done-screen button { background: var(--accent); color: white; border: none; padding: 12px 24px; border-radius: 12px; font-size: 0.95rem; font-weight: 600; cursor: pointer; font-family: inherit; margin: 4px; }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <a class="back-btn" href="index.html#home">&#8592;</a>
+  <div style="flex:1;">
+    <div class="ttl">今日 150 词 · Technology</div>
+    <div class="sub">2026-06-05 · Day 16</div>
+  </div>
+</header>
+
+<div class="stats">
+  <div class="stat"><div class="num know" id="kn">0</div><div class="lbl">知道</div></div>
+  <div class="stat"><div class="num weak" id="wk">0</div><div class="lbl">不熟</div></div>
+  <div class="stat"><div class="num left" id="lf">150</div><div class="lbl">剩余</div></div>
+</div>
+<div class="progress-bar"><div class="progress-fill" id="pg" style="width:0%"></div></div>
+
+<div class="view-toggle">
+  <button id="vtFlash" class="active" onclick="setView('flash')">&#128199; 卡片</button>
+  <button id="vtList" onclick="setView('list')">&#128203; 列表</button>
+</div>
+
+<div id="deck">
+  <div class="card-stage">
+    <div class="card-3d" id="card" onclick="flip()">
+      <div class="face front">
+        <button class="speaker" onclick="event.stopPropagation();speak(document.getElementById('w').textContent)">&#128266;</button>
+        <div class="word" id="w">—</div>
+        <div class="pos" id="p">—</div>
+        <div class="hint">轻触卡片 · 翻看释义</div>
+      </div>
+      <div class="face back">
+        <button class="speaker" onclick="event.stopPropagation();speak(document.getElementById('w').textContent)">&#128266;</button>
+        <div class="zh" id="zh">—</div>
+        <div class="collo" id="cl">—</div>
+        <div class="ex" id="ex">—</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="btn weak" onclick="mark('weak')"><span class="ico">&#128543;</span>不熟</button>
+    <button class="btn flip" onclick="flip()"><span class="ico">&#128260;</span>翻转</button>
+    <button class="btn know" onclick="mark('know')"><span class="ico">&#9989;</span>知道</button>
+  </div>
+
+  <div class="meta" id="meta">1 / 150 · 今日主题 Technology</div>
+</div>
+
+<div class="list-view" id="listView">
+  <div id="listBody"></div>
+</div>
+
+<div class="curriculum-note">
+  <strong>词汇来源</strong>: 8 天主题轮换，涵盖雅思高频话题。<br>
+  Day 1-7 <strong>Education</strong> · Day 8-14 <strong>Environment</strong> · Day 15-21 <strong>Technology</strong> · Day 22-28 <strong>Health</strong> · Day 29-35 <strong>Government &amp; Society</strong> · Day 36-42 <strong>Work &amp; Economy</strong> · Day 43-49 <strong>Family</strong> · Day 50-56 <strong>Travel &amp; Culture</strong> · 之后循环。<br>
+  词汇为 Band 7+ 难度，每条含 词性 · 中文 · 搭配 · 例句，与 Day 15 (Technology Day 1) 零重叠。
+</div>
+
+<div class="done-screen" id="done">
+  <div class="big">&#127881;</div>
+  <div class="ttl" id="doneTtl">今日 150 词完成!</div>
+  <div class="sub" id="doneSub">知道 0 · 不熟 0</div>
+  <button onclick="resetAll()">重新开始</button>
+  <button onclick="reviewWeak()">只复习不熟</button>
+  <button onclick="location.href='index.html'">回主页</button>
+</div>
+
+<nav class="tabbar">
+  <a class="tab-btn active" href="index.html#home"><span class="icon">&#127968;</span>概览</a>
+  <a class="tab-btn" href="index.html#materials"><span class="icon">&#128250;</span>材料</a>
+  <a class="tab-btn" href="index.html#quizzes"><span class="icon">&#9999;&#65039;</span>测验</a>
+  <a class="tab-btn" href="index.html#plan"><span class="icon">&#128203;</span>计划</a>
+</nav>
+
+<script>
+const CARDS = [
+{"w":"accelerate","p":"v.","zh":"加速","cl":"accelerate technological change","ex":"Technology is <strong>accelerating</strong> societal change at an unprecedented rate."},
+{"w":"accessible","p":"adj.","zh":"易获取的","cl":"make technology accessible","ex":"The government aims to make broadband internet <strong>accessible</strong> to all rural households."},
+{"w":"adaptive","p":"adj.","zh":"自适应的","cl":"adaptive software","ex":"<strong>Adaptive</strong> software adjusts to user behaviour, improving performance over time."},
+{"w":"aggregate","p":"v./n.","zh":"聚合","cl":"aggregate data","ex":"Platforms <strong>aggregate</strong> vast amounts of user data to refine their recommendation systems."},
+{"w":"anonymise","p":"v.","zh":"匿名化","cl":"anonymise personal data","ex":"Researchers must <strong>anonymise</strong> personal data before using it in published studies."},
+{"w":"authenticate","p":"v.","zh":"鉴权/认证","cl":"authenticate a user","ex":"Two-factor verification is required to <strong>authenticate</strong> a user's identity securely."},
+{"w":"autonomy","p":"n.","zh":"自主性","cl":"greater autonomy","ex":"Self-driving cars require a high degree of <strong>autonomy</strong> to navigate unpredictable traffic."},
+{"w":"avatar","p":"n.","zh":"数字化身","cl":"a digital avatar","ex":"Users interact with each other through <strong>avatars</strong> in immersive virtual environments."},
+{"w":"biometric","p":"adj.","zh":"生物特征识别的","cl":"biometric authentication","ex":"<strong>Biometric</strong> authentication using fingerprints has replaced many traditional passwords."},
+{"w":"bot","p":"n.","zh":"自动程序","cl":"a malicious bot","ex":"A <strong>bot</strong> scraped thousands of profiles from the social media site within minutes."},
+{"w":"chatbot","p":"n.","zh":"聊天机器人","cl":"deploy a chatbot","ex":"Banks have deployed <strong>chatbots</strong> to handle routine customer enquiries around the clock."},
+{"w":"cognitive","p":"adj.","zh":"认知的","cl":"cognitive computing","ex":"<strong>Cognitive</strong> computing systems attempt to simulate aspects of human thought processes."},
+{"w":"compute","p":"v.","zh":"计算","cl":"compute results","ex":"Modern processors can <strong>compute</strong> trillions of operations every single second."},
+{"w":"converge","p":"v.","zh":"融合","cl":"converge technologies","ex":"As digital and physical worlds <strong>converge</strong>, entirely new ethical challenges emerge."},
+{"w":"curate","p":"v.","zh":"筛选/策划","cl":"curate content","ex":"Algorithms <strong>curate</strong> personalised content feeds, shaping what millions of people see daily."},
+{"w":"deepfake","p":"n.","zh":"深度伪造内容","cl":"create a deepfake","ex":"Malicious actors use <strong>deepfakes</strong> to spread disinformation and undermine public trust."},
+{"w":"dependency","p":"n.","zh":"依赖性","cl":"growing dependency","ex":"Society's growing <strong>dependency</strong> on digital systems makes it dangerously vulnerable to attacks."},
+{"w":"distributed","p":"adj.","zh":"分布式的","cl":"a distributed system","ex":"A <strong>distributed</strong> computing system processes tasks across thousands of interconnected nodes."},
+{"w":"ecosystem","p":"n.","zh":"技术生态","cl":"the tech ecosystem","ex":"Apple has built a tightly integrated tech <strong>ecosystem</strong> that locks in its loyal users."},
+{"w":"embedded","p":"adj.","zh":"嵌入式的","cl":"embedded systems","ex":"<strong>Embedded</strong> systems in modern cars control everything from braking to climate control."},
+{"w":"emulate","p":"v.","zh":"仿真","cl":"emulate human cognition","ex":"Scientists are working to <strong>emulate</strong> the human brain's neural architecture in silicon chips."},
+{"w":"encode","p":"v.","zh":"编码","cl":"encode information","ex":"Signals are <strong>encoded</strong> before transmission to prevent interception and tampering."},
+{"w":"enterprise","p":"n.","zh":"企业","cl":"enterprise software","ex":"<strong>Enterprise</strong> software must handle millions of concurrent users without performance degradation."},
+{"w":"extrapolate","p":"v.","zh":"推断","cl":"extrapolate trends","ex":"Analysts <strong>extrapolate</strong> current growth trends to predict the future trajectory of the tech sector."},
+{"w":"filter","p":"v.","zh":"过滤","cl":"filter harmful content","ex":"Social platforms struggle to effectively <strong>filter</strong> harmful content at massive scale."},
+{"w":"firewall","p":"n.","zh":"防火墙","cl":"a corporate firewall","ex":"A misconfigured corporate <strong>firewall</strong> left sensitive customer data exposed for months."},
+{"w":"generative","p":"adj.","zh":"生成式的","cl":"generative AI","ex":"<strong>Generative</strong> AI can produce highly realistic images, text, and audio from simple prompts."},
+{"w":"geolocation","p":"n.","zh":"地理位置定位","cl":"track geolocation","ex":"Apps that track <strong>geolocation</strong> without consent raise serious and legitimate privacy concerns."},
+{"w":"groundbreaking","p":"adj.","zh":"开创性的","cl":"groundbreaking research","ex":"The lab published <strong>groundbreaking</strong> research on protein folding that transformed medicine."},
+{"w":"heuristic","p":"adj./n.","zh":"启发式的","cl":"a heuristic approach","ex":"Engineers use a <strong>heuristic</strong> approach when an exact algorithmic solution is computationally prohibitive."},
+{"w":"holographic","p":"adj.","zh":"全息的","cl":"holographic displays","ex":"<strong>Holographic</strong> displays could transform how surgeons visualise complex internal procedures."},
+{"w":"hybrid","p":"adj.","zh":"混合的","cl":"a hybrid model","ex":"Many companies adopt a <strong>hybrid</strong> model combining cloud and on-premises data storage."},
+{"w":"inference","p":"n.","zh":"推理","cl":"AI inference","ex":"<strong>Inference</strong> refers to the process by which a trained AI model generates predictions on new data."},
+{"w":"intuitive","p":"adj.","zh":"直观易用的","cl":"an intuitive interface","ex":"An <strong>intuitive</strong> user interface significantly reduces the learning curve for non-technical users."},
+{"w":"kernel","p":"n.","zh":"内核","cl":"the operating system kernel","ex":"A security flaw in the operating system <strong>kernel</strong> can compromise an entire device immediately."},
+{"w":"latent","p":"adj.","zh":"潜在的","cl":"latent risks","ex":"<strong>Latent</strong> risks in AI systems often only emerge once they are deployed and scaled."},
+{"w":"mandate","p":"v.","zh":"强制规定","cl":"mandate data protection","ex":"The EU has <strong>mandated</strong> strict data protection standards for all technology companies operating within it."},
+{"w":"microchip","p":"n.","zh":"微芯片","cl":"a microchip shortage","ex":"The global <strong>microchip</strong> shortage in 2021 halted car and consumer electronics production worldwide."},
+{"w":"middleware","p":"n.","zh":"中间件","cl":"enterprise middleware","ex":"<strong>Middleware</strong> acts as a bridge between operating systems and higher-level software applications."},
+{"w":"modular","p":"adj.","zh":"模块化的","cl":"a modular design","ex":"A <strong>modular</strong> design allows components to be updated individually without rebuilding the whole system."},
+{"w":"node","p":"n.","zh":"节点","cl":"a network node","ex":"Each device in a peer-to-peer network acts as both a server and a <strong>node</strong>."},
+{"w":"parameter","p":"n.","zh":"参数","cl":"model parameters","ex":"Large language models contain billions of <strong>parameters</strong> that collectively define their behaviour."},
+{"w":"personalise","p":"v.","zh":"个性化","cl":"personalise recommendations","ex":"Streaming services <strong>personalise</strong> recommendations to keep users engaged for longer periods."},
+{"w":"pixel","p":"n.","zh":"像素","cl":"high-resolution pixels","ex":"Higher <strong>pixel</strong> density in modern screens produces sharper, more lifelike images."},
+{"w":"privacy","p":"n.","zh":"数字隐私","cl":"protect digital privacy","ex":"<strong>Privacy</strong> advocates argue that facial recognition technology is inherently invasive and must be regulated."},
+{"w":"programmable","p":"adj.","zh":"可编程的","cl":"programmable chips","ex":"<strong>Programmable</strong> chips allow engineers to update hardware functionality without physical replacements."},
+{"w":"proprietary","p":"adj.","zh":"专有的","cl":"proprietary technology","ex":"Companies that rely on <strong>proprietary</strong> technology risk being locked into a single expensive vendor."},
+{"w":"robust","p":"adj.","zh":"强健的","cl":"a robust system","ex":"A <strong>robust</strong> cybersecurity system must anticipate emerging threats before they can cause damage."},
+{"w":"safeguard","p":"v./n.","zh":"保护/防护措施","cl":"safeguard user data","ex":"Legislation is urgently needed to <strong>safeguard</strong> user data from unchecked commercial exploitation."},
+{"w":"satellite","p":"n.","zh":"卫星","cl":"a communications satellite","ex":"<strong>Satellite</strong> constellations now provide internet access to the most remote parts of the world."},
+{"w":"silicon","p":"n.","zh":"硅","cl":"silicon chip","ex":"The Silicon Valley name reflects the foundational role of <strong>silicon</strong> in computer hardware design."},
+{"w":"sophisticated","p":"adj.","zh":"复杂精密的","cl":"sophisticated algorithms","ex":"Increasingly <strong>sophisticated</strong> algorithms can detect anomalies in financial transactions instantly."},
+{"w":"standardise","p":"v.","zh":"标准化","cl":"standardise data formats","ex":"The industry must <strong>standardise</strong> data formats to enable seamless integration between competing systems."},
+{"w":"supersede","p":"v.","zh":"取代","cl":"supersede older technology","ex":"Solid-state drives have effectively <strong>superseded</strong> traditional hard disk drives in most consumer devices."},
+{"w":"tokenise","p":"v.","zh":"标记化","cl":"tokenise data","ex"><strong>Tokenising</strong> sensitive payment data means that even if hackers intercept it, they cannot exploit it."},
+{"w":"transmit","p":"v.","zh":"传输","cl":"transmit data","ex":"Fibre-optic cables can <strong>transmit</strong> data at nearly the speed of light across continents."},
+{"w":"usability","p":"n.","zh":"易用性","cl":"improve usability","ex":"Extensive user testing is conducted to improve the <strong>usability</strong> of the newly redesigned app."},
+{"w":"velocity","p":"n.","zh":"速率/速度","cl":"the velocity of change","ex":"The <strong>velocity</strong> of technological change makes long-term strategic planning extremely challenging."},
+{"w":"verification","p":"n.","zh":"验证","cl":"identity verification","ex":"Identity <strong>verification</strong> is a critical step in preventing fraud on online financial platforms."},
+{"w":"viable","p":"adj.","zh":"可行的","cl":"commercially viable","ex":"Battery technology is finally making long-range electric vehicles commercially <strong>viable</strong>."},
+{"w":"visualise","p":"v.","zh":"可视化","cl":"visualise data","ex":"Data analysts <strong>visualise</strong> complex datasets using interactive dashboards and real-time charts."},
+{"w":"volatile","p":"adj.","zh":"易失性的/不稳定的","cl":"volatile memory","ex":"<strong>Volatile</strong> memory loses all stored data the moment the device is powered off."},
+{"w":"workload","p":"n.","zh":"工作负载","cl":"distribute the workload","ex":"Cloud platforms distribute the <strong>workload</strong> across multiple servers to prevent bottlenecks."},
+{"w":"annotation","p":"n.","zh":"数据标注","cl":"data annotation","ex":"High-quality <strong>annotation</strong> of training data is absolutely essential for building accurate AI models."},
+{"w":"benchmark","p":"n./v.","zh":"基准/基准测试","cl":"set a benchmark","ex":"The new processor set a new industry <strong>benchmark</strong> for energy-efficient high-performance computation."},
+{"w":"binary","p":"adj.","zh":"二进制的","cl":"binary code","ex":"All digital information ultimately reduces to <strong>binary</strong> sequences of zeros and ones."},
+{"w":"circuit","p":"n.","zh":"电路","cl":"an integrated circuit","ex":"The invention of the integrated <strong>circuit</strong> in 1958 triggered the entire modern computing revolution."},
+{"w":"containerise","p":"v.","zh":"容器化","cl":"containerise applications","ex":"Developers <strong>containerise</strong> applications to ensure consistent performance across heterogeneous environments."},
+{"w":"data-driven","p":"adj.","zh":"数据驱动的","cl":"data-driven decisions","ex":"Successful organisations today base strategic <strong>data-driven</strong> decisions on rigorous quantitative analysis."},
+{"w":"decommission","p":"v.","zh":"退役/停用","cl":"decommission servers","ex":"Ageing <strong>decommissioned</strong> servers must be securely wiped before physical disposal."},
+{"w":"deterministic","p":"adj.","zh":"确定性的","cl":"deterministic outcomes","ex":"A <strong>deterministic</strong> algorithm always produces exactly the same output for a given input."},
+{"w":"diffuse","p":"v.","zh":"传播/扩散","cl":"diffuse through society","ex":"New technologies <strong>diffuse</strong> through society gradually, reaching early adopters before the mainstream."},
+{"w":"displace","p":"v.","zh":"取代/置换","cl":"displace workers","ex":"Concerns persist that widespread automation will <strong>displace</strong> large numbers of low-skilled workers."},
+{"w":"efficient","p":"adj.","zh":"高效的","cl":"energy-efficient","ex":"Manufacturers face growing pressure to make consumer devices more energy-<strong>efficient</strong>."},
+{"w":"empower","p":"v.","zh":"赋能","cl":"empower users","ex":"Open-source tools <strong>empower</strong> developers worldwide to build solutions without prohibitive licensing costs."},
+{"w":"facilitate","p":"v.","zh":"促进","cl":"facilitate communication","ex":"Video-conferencing technology has <strong>facilitated</strong> seamless cross-border collaboration for millions."},
+{"w":"granular","p":"adj.","zh":"细粒度的","cl":"granular data","ex":"<strong>Granular</strong> data on consumer behaviour allows advertisers to target users with remarkable precision."},
+{"w":"indispensable","p":"adj.","zh":"不可或缺的","cl":"indispensable tools","ex":"Smartphones have become <strong>indispensable</strong> tools for managing virtually every aspect of daily life."},
+{"w":"logging","p":"n.","zh":"日志记录","cl":"system logging","ex":"Thorough system <strong>logging</strong> is essential for diagnosing faults and detecting unauthorised intrusions."},
+{"w":"microprocessor","p":"n.","zh":"微处理器","cl":"a high-speed microprocessor","ex":"Advances in <strong>microprocessor</strong> technology have made powerful portable computing affordable globally."},
+{"w":"monitoring","p":"n.","zh":"监测/监控","cl":"real-time monitoring","ex":"<strong>Monitoring</strong> network traffic in real time allows security teams to respond to threats instantly."},
+{"w":"multimodal","p":"adj.","zh":"多模态的","cl":"multimodal AI","ex":"<strong>Multimodal</strong> AI systems can simultaneously process and reason across text, images, and audio."},
+{"w":"networked","p":"adj.","zh":"联网的","cl":"networked devices","ex":"The security of <strong>networked</strong> devices must improve as smart home adoption accelerates globally."},
+{"w":"neuroscience","p":"n.","zh":"神经科学","cl":"computational neuroscience","ex":"<strong>Neuroscience</strong> is increasingly informing the design of the next generation of AI architectures."},
+{"w":"output","p":"n.","zh":"输出","cl":"system output","ex":"The quality of an AI model's <strong>output</strong> depends heavily on the quality of its training data."},
+{"w":"overload","p":"v./n.","zh":"过载","cl":"system overload","ex":"A sudden spike in traffic can <strong>overload</strong> servers and bring down a website entirely."},
+{"w":"precision","p":"n.","zh":"精确性","cl":"surgical precision","ex":"Robotic systems execute tasks with <strong>precision</strong> far beyond the physical capabilities of human hands."},
+{"w":"programmers","p":"n.","zh":"程序员","cl":"skilled programmers","ex":"A shortage of skilled <strong>programmers</strong> is a growing structural constraint on the tech industry's growth."},
+{"w":"regression","p":"n.","zh":"回归分析","cl":"logistic regression","ex":"<strong>Regression</strong> analysis is a statistical method used to identify predictive relationships between variables."},
+{"w":"replicable","p":"adj.","zh":"可复制的","cl":"replicable results","ex":"Scientific credibility demands that AI research produce independently <strong>replicable</strong> results."},
+{"w":"specification","p":"n.","zh":"规格/规范","cl":"technical specifications","ex":"Engineers must adhere strictly to technical <strong>specifications</strong> when building safety-critical embedded systems."},
+{"w":"tablet","p":"n.","zh":"平板电脑","cl":"a digital tablet","ex":"<strong>Tablets</strong> have transformed how students consume educational content in classrooms worldwide."},
+{"w":"touchscreen","p":"n.","zh":"触摸屏","cl":"a touchscreen interface","ex":"The introduction of the capacitive <strong>touchscreen</strong> fundamentally transformed how people interact with devices."},
+{"w":"transistor","p":"n.","zh":"晶体管","cl":"miniaturise the transistor","ex":"The miniaturisation of the <strong>transistor</strong> drove the exponential growth in computing power for decades."},
+{"w":"troubleshoot","p":"v.","zh":"故障排查","cl":"troubleshoot a problem","ex":"IT engineers spent hours <strong>troubleshooting</strong> the precise root cause of the catastrophic system crash."},
+{"w":"unified","p":"adj.","zh":"统一的","cl":"a unified platform","ex":"A <strong>unified</strong> platform reduces the complexity of managing multiple disparate software and data tools."},
+{"w":"upload","p":"v.","zh":"上传","cl":"upload files","ex":"Users can <strong>upload</strong> files directly to the cloud without relying on physical storage devices."},
+{"w":"zero-day","p":"n./adj.","zh":"零日漏洞","cl":"a zero-day exploit","ex":"A <strong>zero-day</strong> exploit targets a vulnerability before developers have had time to produce a patch."},
+{"w":"interoperable","p":"adj.","zh":"可互操作的","cl":"interoperable systems","ex":"Standards bodies work to ensure that systems from different vendors are fully <strong>interoperable</strong>."},
+{"w":"foundational","p":"adj.","zh":"基础性的","cl":"foundational technology","ex":"Semiconductor manufacturing is the <strong>foundational</strong> technology underpinning the entire digital economy."},
+{"w":"algorithm bias","p":"n.","zh":"算法偏见","cl":"address algorithm bias","ex":"Researchers are developing rigorous methods to detect and address <strong>algorithm bias</strong> in AI hiring tools."},
+{"w":"autonomous vehicle","p":"n.","zh":"自动驾驶汽车","cl":"deploy autonomous vehicles","ex":"Regulators are grappling with how to safely deploy <strong>autonomous vehicles</strong> on public roads at scale."},
+{"w":"battery life","p":"n.","zh":"电池续航","cl":"extend battery life","ex":"Consumers continue to prioritise longer <strong>battery life</strong> when choosing their next mobile device."},
+{"w":"cognitive computing","p":"n.","zh":"认知计算","cl":"applications of cognitive computing","ex":"<strong>Cognitive computing</strong> systems simulate human reasoning to assist clinicians with complex diagnoses."},
+{"w":"computational power","p":"n.","zh":"计算能力","cl":"increase computational power","ex":"The race to increase <strong>computational power</strong> underpins intense competition across the entire AI industry."},
+{"w":"data governance","p":"n.","zh":"数据治理","cl":"establish data governance","ex":"Without clear <strong>data governance</strong> frameworks, organisations risk serious legal exposure and reputational damage."},
+{"w":"data sovereignty","p":"n.","zh":"数据主权","cl":"assert data sovereignty","ex":"Nations are increasingly asserting <strong>data sovereignty</strong>, requiring that data be stored within national borders."},
+{"w":"deep learning model","p":"n.","zh":"深度学习模型","cl":"train a deep learning model","ex":"Training a <strong>deep learning model</strong> on diverse datasets requires enormous computational resources."},
+{"w":"digital infrastructure","p":"n.","zh":"数字基础设施","cl":"invest in digital infrastructure","ex":"Governments are investing heavily in <strong>digital infrastructure</strong> to remain globally competitive in AI."},
+{"w":"digital rights","p":"n.","zh":"数字权利","cl":"protect digital rights","ex":"Civil society organisations campaign vigorously to protect citizens' <strong>digital rights</strong> from encroachment."},
+{"w":"distributed ledger","p":"n.","zh":"分布式账本","cl":"a distributed ledger","ex":"Blockchain is a type of <strong>distributed ledger</strong> that records transactions simultaneously across many nodes."},
+{"w":"dual-use technology","p":"n.","zh":"军民两用技术","cl":"regulate dual-use technology","ex":"Drones exemplify <strong>dual-use technology</strong>, serving both commercial delivery and military reconnaissance."},
+{"w":"edge device","p":"n.","zh":"边缘设备","cl":"process data on edge devices","ex":"Processing data on <strong>edge devices</strong> dramatically reduces reliance on centralised cloud infrastructure."},
+{"w":"ethical AI","p":"n.","zh":"伦理AI","cl":"develop ethical AI","ex":"Tech companies face growing pressure to develop <strong>ethical AI</strong> systems that do not discriminate unfairly."},
+{"w":"generative model","p":"n.","zh":"生成式模型","cl":"a generative model","ex":"A <strong>generative model</strong> learns the underlying distribution of data in order to produce convincing new examples."},
+{"w":"geospatial data","p":"n.","zh":"地理空间数据","cl":"analyse geospatial data","ex":"Urban planners use <strong>geospatial data</strong> to model traffic flows and optimise city infrastructure layouts."},
+{"w":"human-computer interaction","p":"n.","zh":"人机交互","cl":"design human-computer interaction","ex":"Research in <strong>human-computer interaction</strong> shapes how interfaces respond naturally to human behaviour."},
+{"w":"hyperconnected society","p":"n.","zh":"超连接社会","cl":"a hyperconnected society","ex":"In a <strong>hyperconnected society</strong>, the distinction between professional work and personal leisure continues to erode."},
+{"w":"iterative development","p":"n.","zh":"迭代开发","cl":"practise iterative development","ex":"Agile teams practise <strong>iterative development</strong>, releasing incremental improvements on a fortnightly cycle."},
+{"w":"low-latency connection","p":"n.","zh":"低延迟连接","cl":"a low-latency connection","ex":"Competitive online gaming demands a <strong>low-latency connection</strong> to prevent lag and maintain fairness."},
+{"w":"next-generation technology","p":"n.","zh":"下一代技术","cl":"invest in next-generation technology","ex":"Nations that fail to invest in <strong>next-generation technology</strong> risk significant long-term economic decline."},
+{"w":"predictive maintenance","p":"n.","zh":"预测性维护","cl":"implement predictive maintenance","ex":"Factories are implementing <strong>predictive maintenance</strong> systems that detect equipment faults before breakdown."},
+{"w":"smart manufacturing","p":"n.","zh":"智能制造","cl":"adopt smart manufacturing","ex":"<strong>Smart manufacturing</strong> uses IoT sensors and AI analytics to optimise every stage of production."},
+{"w":"open access data","p":"n.","zh":"开放数据","cl":"share open access data","ex":"Sharing <strong>open access data</strong> between institutions accelerates scientific progress through global collaboration."},
+{"w":"digital twin","p":"n.","zh":"数字孪生","cl":"create a digital twin","ex":"Engineers create a <strong>digital twin</strong> of a factory to simulate and refine processes before physical implementation."},
+{"w":"edge computing","p":"n.","zh":"边缘计算","cl":"leverage edge computing","ex":"<strong>Edge computing</strong> processes data closer to its source, reducing both latency and bandwidth consumption."},
+{"w":"feedback loop","p":"n.","zh":"反馈回路","cl":"create a feedback loop","ex":"Recommendation algorithms can create a <strong>feedback loop</strong> that reinforces and amplifies users' existing beliefs."},
+{"w":"language model","p":"n.","zh":"语言模型","cl":"a large language model","ex":"A <strong>language model</strong> trained on billions of sentences can generate contextually coherent and relevant text."},
+{"w":"load balancing","p":"n.","zh":"负载均衡","cl":"apply load balancing","ex":"<strong>Load balancing</strong> distributes incoming traffic evenly across servers to eliminate single points of failure."},
+{"w":"peer-to-peer network","p":"n.","zh":"点对点网络","cl":"a peer-to-peer network","ex":"A <strong>peer-to-peer network</strong> enables devices to share resources directly without a centralised intermediary."},
+{"w":"bridge the gap between humans and machines","p":"phrase","zh":"消弭人机差距","cl":"bridge the gap between humans and machines","ex":"True progress lies in <strong>bridging the gap between humans and machines</strong> rather than replacing one with the other."},
+{"w":"keep pace with","p":"phrasal v.","zh":"跟上","cl":"keep pace with innovation","ex":"Regulators have consistently struggled to <strong>keep pace with</strong> the breathtaking speed of innovation in technology."},
+{"w":"move the needle","p":"idiom","zh":"带来实质改变","cl":"move the needle on productivity","ex":"Only a truly disruptive invention can <strong>move the needle</strong> on productivity in a stagnant economy."},
+{"w":"reinvent the wheel","p":"idiom","zh":"重复造轮子","cl":"avoid reinventing the wheel","ex":"Open-source communities prevent developers from <strong>reinventing the wheel</strong> by sharing tested, reusable solutions."},
+{"w":"connect the dots","p":"idiom","zh":"串联点滴/整合信息","cl":"connect the dots","ex":"Cybersecurity analysts must <strong>connect the dots</strong> between seemingly unrelated incidents to detect sophisticated attacks."},
+{"w":"under the hood","p":"idiom","zh":"底层运作","cl":"what's happening under the hood","ex":"Most users have no idea what is happening <strong>under the hood</strong> when they interact with an AI assistant."},
+{"w":"zero in on","p":"phrasal v.","zh":"聚焦于","cl":"zero in on a solution","ex":"Researchers have <strong>zeroed in on</strong> a novel architecture that dramatically improves energy efficiency."},
+{"w":"level the playing field","p":"idiom","zh":"创造平等竞争环境","cl":"level the playing field","ex":"Open-source AI tools can <strong>level the playing field</strong> for smaller firms competing with dominant tech giants."},
+{"w":"tap into","p":"phrasal v.","zh":"挖掘/利用","cl":"tap into the potential of","ex":"Governments are beginning to <strong>tap into</strong> the transformative potential of AI to modernise public services."},
+{"w":"trial and error","p":"phrase","zh":"反复试验","cl":"through trial and error","ex":"Many of the most successful technology products were refined through years of costly <strong>trial and error</strong>."},
+{"w":"build from the ground up","p":"phrase","zh":"从零构建","cl":"build from the ground up","ex":"The team rebuilt the entire security platform <strong>from the ground up</strong> to eliminate all legacy vulnerabilities."},
+{"w":"set the benchmark","p":"phrase","zh":"设立标杆","cl":"set the benchmark for","ex":"The company's latest model has <strong>set the benchmark</strong> for natural language processing performance globally."},
+{"w":"future-proof","p":"v./adj.","zh":"使适应未来","cl":"future-proof a system","ex":"Architects designed the network to <strong>future-proof</strong> it against the growing demands of IoT connectivity."},
+{"w":"hard-wire","p":"v.","zh":"硬编码/固化","cl":"hard-wired into the system","ex":"Certain safety restrictions are <strong>hard-wired</strong> into the system and cannot be overridden by any user."},
+{"w":"run the numbers","p":"idiom","zh":"分析数据","cl":"run the numbers","ex":"Before committing, the finance team <strong>ran the numbers</strong> and confirmed significant long-term cloud savings."},
+{"w":"a game-changer","p":"n. phrase","zh":"颠覆性因素","cl":"prove to be a game-changer","ex":"The transformer architecture proved to be <strong>a game-changer</strong> for natural language processing performance."},
+{"w":"get up to speed","p":"phrasal v.","zh":"跟上进度","cl":"get up to speed on","ex":"New employees must <strong>get up to speed on</strong> the company's proprietary software system within their first week."},
+{"w":"hit the ground running","p":"idiom","zh":"立刻高效运作","cl":"hit the ground running","ex":"Cloud deployment allows start-ups to <strong>hit the ground running</strong> without heavy upfront infrastructure investment."},
+{"w":"throw into sharp relief","p":"phrase","zh":"使显得格外突出","cl":"throw into sharp relief","ex":"The pandemic <strong>threw into sharp relief</strong> how dependent societies had become on fragile digital supply chains."},
+{"w":"a moving target","p":"n. phrase","zh":"不断变化的目标","cl":"a moving target","ex":"Keeping pace with cybersecurity threats is <strong>a moving target</strong>, as attackers constantly evolve their tactics."}
+];
+
+let state = JSON.parse(localStorage.getItem("ielts_vocab_20260605") || "{}");
+let queue = CARDS.map((c, i) => ({...c, idx: i})).filter(c => !state[c.idx] || state[c.idx] === "review");
+let cur = 0;
+
+function speak(text) {
+  if (!text || !window.speechSynthesis) return;
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = "en-US"; u.rate = 0.85; u.pitch = 1;
+  const voices = speechSynthesis.getVoices();
+  const en = voices.find(v => /en-(US|GB)/.test(v.lang) && /Samantha|Daniel|Alex|Karen|Moira|Google US English|Google UK English/.test(v.name))
+          || voices.find(v => v.lang.startsWith("en"));
+  if (en) u.voice = en;
+  speechSynthesis.speak(u);
+}
+if (window.speechSynthesis) speechSynthesis.onvoiceschanged = () => {};
+
+function render() {
+  if (cur >= queue.length) return showDone();
+  const c = queue[cur];
+  document.getElementById("w").textContent = c.w;
+  document.getElementById("p").textContent = c.p;
+  document.getElementById("zh").textContent = c.zh;
+  document.getElementById("cl").textContent = c.cl;
+  document.getElementById("ex").innerHTML = c.ex;
+  document.getElementById("card").classList.remove("flipped");
+  const known = Object.values(state).filter(v=>v==="know").length;
+  const weak = Object.values(state).filter(v=>v==="weak").length;
+  const left = queue.length - cur;
+  document.getElementById("kn").textContent = known;
+  document.getElementById("wk").textContent = weak;
+  document.getElementById("lf").textContent = left;
+  document.getElementById("pg").style.width = ((CARDS.length - left) / CARDS.length * 100) + "%";
+  document.getElementById("meta").textContent = (cur+1) + " / " + queue.length + " · 今日主题 Technology";
+}
+
+function flip() {
+  document.getElementById("card").classList.toggle("flipped");
+}
+
+function mark(type) {
+  if (cur >= queue.length) return;
+  const c = queue[cur];
+  state[c.idx] = type;
+  localStorage.setItem("ielts_vocab_20260605", JSON.stringify(state));
+  cur++;
+  render();
+}
+
+function showDone() {
+  document.getElementById("deck").style.display = "none";
+  const done = document.getElementById("done");
+  const known = Object.values(state).filter(v=>v==="know").length;
+  const weak = Object.values(state).filter(v=>v==="weak").length;
+  document.getElementById("doneSub").textContent = "知道 " + known + " · 不熟 " + weak;
+  done.classList.add("show");
+  buildList();
+  document.getElementById("listView").classList.add("active");
+}
+
+function resetAll() {
+  state = {}; localStorage.removeItem("ielts_vocab_20260605");
+  queue = CARDS.map((c,i)=>({...c,idx:i}));
+  cur = 0;
+  document.getElementById("done").classList.remove("show");
+  document.getElementById("deck").style.display = "";
+  document.getElementById("listView").classList.remove("active");
+  render();
+}
+
+function reviewWeak() {
+  queue = CARDS.map((c,i)=>({...c,idx:i})).filter(c=>state[c.idx]==="weak");
+  if (!queue.length) { alert("没有不熟词！"); return; }
+  cur = 0;
+  document.getElementById("done").classList.remove("show");
+  document.getElementById("deck").style.display = "";
+  render();
+}
+
+function buildList() {
+  const lb = document.getElementById("listBody");
+  lb.innerHTML = CARDS.map((c,i) => {
+    const s = state[i] || "";
+    return '<div class="list-row">' +
+      '<div class="num">' + (i+1) + '</div>' +
+      '<div class="word"><div class="w ' + (s==="know"?"knew":s==="weak"?"weak":"") + '">' + c.w + '</div><div class="zh">' + c.zh + '</div></div>' +
+      '<button class="spk" onclick="speak(\'' + c.w.replace(/'/g,"\\'") + '\')">&#128266;</button>' +
+      '<div class="mk ' + (s==="know"?"know":s==="weak"?"weak":"") + '">' + (s==="know"?"&#9989;":s==="weak"?"&#128543;":"") + '</div>' +
+      '</div>';
+  }).join("");
+}
+
+function setView(v) {
+  if (v === "list") {
+    buildList();
+    document.getElementById("deck").style.display = "none";
+    document.getElementById("listView").classList.add("active");
+    document.getElementById("vtFlash").classList.remove("active");
+    document.getElementById("vtList").classList.add("active");
+  } else {
+    document.getElementById("listView").classList.remove("active");
+    document.getElementById("vtList").classList.remove("active");
+    document.getElementById("vtFlash").classList.add("active");
+    if (cur < queue.length) { document.getElementById("deck").style.display = ""; render(); }
+    else showDone();
+  }
+}
+
+render();
+</script>
+
+</body>
+</html>
