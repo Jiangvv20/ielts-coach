@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#2563eb">
+<title>今日 150 词 · 2026-06-06 · Technology</title>
+<style>
+  :root {
+    --bg: #ffffff; --fg: #1a1a1a; --muted: #6b7280;
+    --accent: #2563eb; --ok: #059669; --warn: #d97706;
+    --card: #f9fafb; --border: #e5e7eb;
+    --nav-bg: rgba(255,255,255,0.92);
+    --header-bg: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f172a; --fg: #f1f5f9; --muted: #94a3b8;
+      --accent: #60a5fa; --ok: #34d399; --warn: #fbbf24;
+      --card: #1e293b; --border: #334155;
+      --nav-bg: rgba(15,23,42,0.92);
+      --header-bg: linear-gradient(135deg, #1e40af 0%, #6b21a8 100%);
+    }
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg); }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif;
+    line-height: 1.5;
+    min-height: 100vh;
+    padding-bottom: calc(64px + env(safe-area-inset-bottom, 0));
+  }
+  .app-header {
+    background: var(--header-bg); color: white;
+    padding: calc(env(safe-area-inset-top, 16px) + 12px) 16px 14px;
+    position: sticky; top: 0; z-index: 20;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .back-btn {
+    background: rgba(255,255,255,0.18); border: none; color: white;
+    width: 34px; height: 34px; border-radius: 10px;
+    font-size: 1.1rem; cursor: pointer; flex-shrink: 0;
+    text-decoration: none; display: flex; align-items: center; justify-content: center;
+  }
+  .app-header .ttl { font-size: 1rem; font-weight: 700; }
+  .app-header .sub {
+    font-size: 0.72rem; opacity: 0.85; margin-top: 1px;
+    letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  .view-toggle { margin-left: auto; display: flex; gap: 6px; }
+  .vt-btn {
+    background: rgba(255,255,255,0.18); border: none; color: white;
+    padding: 5px 10px; border-radius: 8px; font-size: 0.8rem;
+    cursor: pointer; font-family: inherit;
+  }
+  .vt-btn.active { background: rgba(255,255,255,0.35); font-weight: 700; }
+  main { max-width: 680px; margin: 0 auto; padding: 16px; }
+  .progress { height: 5px; background: var(--border); border-radius: 3px; margin-bottom: 12px; }
+  .progress-fill { height: 100%; background: var(--accent); border-radius: 3px; transition: width 0.4s; }
+  .stats { display: flex; gap: 8px; margin-bottom: 14px; }
+  .stat { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 6px 12px; font-size: 0.8rem; text-align: center; flex: 1; }
+  .stat .n { font-size: 1.1rem; font-weight: 700; }
+  .stat .l { color: var(--muted); font-size: 0.68rem; }
+  .meta { text-align: center; color: var(--muted); font-size: 0.78rem; margin-bottom: 12px; }
+  .deck { perspective: 1000px; }
+  .card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 18px; padding: 28px 24px;
+    min-height: 220px; cursor: pointer;
+    transform-style: preserve-3d; transition: transform 0.45s;
+    position: relative; user-select: none;
+  }
+  .card.flipped { transform: rotateY(180deg); }
+  .card-face {
+    position: absolute; inset: 0; padding: 28px 24px;
+    backface-visibility: hidden; -webkit-backface-visibility: hidden;
+    display: flex; flex-direction: column; justify-content: center;
+  }
+  .card-front { align-items: center; text-align: center; }
+  .card-back { transform: rotateY(180deg); }
+  #w { font-size: 1.9rem; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 6px; }
+  #p { font-size: 0.82rem; color: var(--accent); font-weight: 600; background: rgba(37,99,235,0.08); padding: 2px 10px; border-radius: 99px; display: inline-block; }
+  .speak-btn { background: none; border: none; font-size: 1.4rem; cursor: pointer; margin-top: 10px; }
+  #zh { font-size: 1.2rem; font-weight: 600; margin-bottom: 8px; }
+  #cl { font-size: 0.88rem; color: var(--warn); margin-bottom: 10px; font-weight: 500; }
+  #ex { font-size: 0.93rem; line-height: 1.6; color: var(--muted); }
+  #ex strong { color: var(--accent); font-weight: 700; }
+  .hint { font-size: 0.72rem; color: var(--muted); text-align: center; margin-top: 12px; }
+  .btns { display: flex; gap: 12px; margin-top: 16px; }
+  .btn { flex: 1; padding: 14px; border: none; border-radius: 14px; font-size: 1rem; font-weight: 700; cursor: pointer; font-family: inherit; transition: transform 0.1s; }
+  .btn:active { transform: scale(0.97); }
+  .btn-weak { background: #fee2e2; color: #dc2626; }
+  .btn-know { background: #d1fae5; color: #059669; }
+  @media (prefers-color-scheme: dark) {
+    .btn-weak { background: rgba(220,38,38,0.2); }
+    .btn-know { background: rgba(5,150,105,0.2); }
+  }
+  .done { display: none; text-align: center; padding: 40px 20px; }
+  .done.show { display: block; }
+  .done .icon { font-size: 3rem; margin-bottom: 12px; }
+  .done h2 { font-size: 1.2rem; margin: 0 0 6px; }
+  .done p { color: var(--muted); margin: 0 0 20px; }
+  .done-btns { display: flex; flex-direction: column; gap: 10px; }
+  .done-btn { padding: 13px; border: none; border-radius: 12px; font-size: 0.95rem; font-weight: 600; cursor: pointer; font-family: inherit; }
+  .done-btn.primary { background: var(--accent); color: white; }
+  .done-btn.secondary { background: var(--card); color: var(--fg); border: 1px solid var(--border); }
+  .note {
+    background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+    padding: 10px 14px; font-size: 0.8rem; color: var(--muted); margin-top: 16px;
+    line-height: 1.6;
+  }
+  .note strong { color: var(--fg); }
+  /* List view */
+  .list-view { display: none; }
+  .list-view.active { display: block; }
+  .list-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 0.88rem;
+  }
+  .list-row .num { color: var(--muted); font-size: 0.72rem; font-family: "SF Mono", Menlo, monospace; width: 28px; flex-shrink: 0; }
+  .list-row .word { flex: 1; min-width: 0; }
+  .list-row .word .w { font-weight: 600; }
+  .list-row .word .w.knew { color: var(--ok); }
+  .list-row .word .w.weak { color: var(--warn); }
+  .list-row .word .zh { color: var(--muted); font-size: 0.78rem; margin-top: 1px; }
+  .list-row .spk { background: none; border: none; font-size: 1.05rem; cursor: pointer; padding: 4px; flex-shrink: 0; }
+  .list-row .mk { width: 20px; font-size: 0.9rem; text-align: center; flex-shrink: 0; color: var(--muted); }
+  .list-row .mk.know { color: var(--ok); }
+  .list-row .mk.weak { color: var(--warn); }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <a class="back-btn" href="index.html">&#8592;</a>
+  <div>
+    <div class="ttl">今日 150 词 · Technology</div>
+    <div class="sub">2026-06-06 · Day 17</div>
+  </div>
+  <div class="view-toggle">
+    <button class="vt-btn active" id="vtFlash" onclick="setView('flash')">卡片</button>
+    <button class="vt-btn" id="vtList" onclick="setView('list')">列表</button>
+  </div>
+</header>
+
+<main>
+
+<div id="deck">
+  <div class="progress"><div class="progress-fill" id="pg" style="width:0%"></div></div>
+  <div class="stats">
+    <div class="stat"><div class="n" id="kn">0</div><div class="l">已掌握</div></div>
+    <div class="stat"><div class="n" id="wk">0</div><div class="l">待复习</div></div>
+    <div class="stat"><div class="n" id="lf">150</div><div class="l">剩余</div></div>
+  </div>
+  <div class="meta" id="meta">1 / 150 · Technology Day 3</div>
+  <div class="card" id="card" onclick="flip()">
+    <div class="card-face card-front">
+      <div id="w">—</div>
+      <div id="p">—</div>
+      <button class="speak-btn" onclick="event.stopPropagation();speak(document.getElementById('w').textContent)">🔊</button>
+      <div class="hint">点击翻转查看释义</div>
+    </div>
+    <div class="card-face card-back">
+      <div id="zh">—</div>
+      <div id="cl">—</div>
+      <div id="ex">—</div>
+    </div>
+  </div>
+  <div class="btns">
+    <button class="btn btn-weak" onclick="mark('weak')">○ 不熟</button>
+    <button class="btn btn-know" onclick="mark('know')">✓ 认识</button>
+  </div>
+  <div class="note">
+    <strong>Day 17 · Technology Day 3</strong> — 今日主题: 平台经济 · 隐私监控 · 数字治理 · 绿色科技<br>
+    Day 1-7 <strong>Education</strong> · Day 8-14 <strong>Environment</strong> · Day 15-21 <strong>Technology</strong> · Day 22-28 <strong>Health</strong> · Day 29-35 <strong>Government &amp; Society</strong> · Day 36-42 <strong>Work &amp; Economy</strong> · Day 43-49 <strong>Family</strong> · Day 50-56 <strong>Travel &amp; Culture</strong> · 之后循环。<br>
+    每天 150 词 · 7 天 = 1050 词/主题 · 8 主题 = 约 8400 高频词汇。
+  </div>
+</div>
+
+<div class="done" id="done">
+  <div class="icon">🎉</div>
+  <h2 id="doneTtl">今日 150 词完成!</h2>
+  <p id="doneSub"></p>
+  <div class="done-btns">
+    <button class="done-btn primary" onclick="reviewWeak()">复习不熟的词</button>
+    <button class="done-btn secondary" onclick="resetAll()">重新开始</button>
+    <a class="done-btn secondary" href="index.html" style="text-decoration:none;display:block;text-align:center;">返回首页</a>
+  </div>
+</div>
+
+<div class="list-view" id="listView">
+  <div id="listBody"></div>
+</div>
+
+</main>
+
+<nav style="position:fixed;bottom:0;left:0;right:0;background:var(--nav-bg);backdrop-filter:blur(20px);border-top:1px solid var(--border);display:flex;padding-bottom:env(safe-area-inset-bottom,0);z-index:30;">
+  <a class="tab-btn" href="index.html" style="flex:1;background:transparent;border:none;padding:10px 4px 8px;color:var(--muted);font-size:0.68rem;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;font-family:inherit;text-decoration:none;"><span style="font-size:1.25rem;">🏠</span>首页</a>
+  <a class="tab-btn" href="index.html#materials" style="flex:1;background:transparent;border:none;padding:10px 4px 8px;color:var(--muted);font-size:0.68rem;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;font-family:inherit;text-decoration:none;"><span style="font-size:1.25rem;">📹</span>材料</a>
+  <a class="tab-btn" href="index.html#quizzes" style="flex:1;background:transparent;border:none;padding:10px 4px 8px;color:var(--muted);font-size:0.68rem;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;font-family:inherit;text-decoration:none;"><span style="font-size:1.25rem;">✏️</span>测验</a>
+  <a class="tab-btn" href="index.html#plan" style="flex:1;background:transparent;border:none;padding:10px 4px 8px;color:var(--muted);font-size:0.68rem;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;font-family:inherit;text-decoration:none;"><span style="font-size:1.25rem;">📋</span>计划</a>
+</nav>
+
+<script>
+const CARDS = [
+{"w":"wearable","p":"n.","zh":"可穿戴设备","cl":"wearable device","ex":"Fitness trackers are the most popular <strong>wearable</strong> devices on the consumer technology market today."},
+{"w":"prototype","p":"n.","zh":"原型/样机","cl":"working prototype","ex":"The engineering team demonstrated a working <strong>prototype</strong> at the annual technology conference."},
+{"w":"surveillance","p":"n.","zh":"监控/监视","cl":"mass surveillance","ex":"Civil liberties organisations argue that mass <strong>surveillance</strong> fundamentally undermines citizens' right to privacy."},
+{"w":"platform","p":"n.","zh":"平台","cl":"digital platform","ex":"Social media <strong>platforms</strong> have transformed the way news is produced, distributed and consumed globally."},
+{"w":"scalability","p":"n.","zh":"可扩展性","cl":"ensure scalability","ex":"<strong>Scalability</strong> is a critical engineering requirement for any cloud-based service expecting rapid user growth."},
+{"w":"proliferation","p":"n.","zh":"激增/扩散","cl":"rapid proliferation","ex":"The rapid <strong>proliferation</strong> of mobile devices over the past decade has reshaped consumer behaviour."},
+{"w":"obsolescence","p":"n.","zh":"淘汰/过时","cl":"planned obsolescence","ex":"Critics argue that <strong>planned obsolescence</strong> is an environmentally irresponsible business strategy."},
+{"w":"redundancy","p":"n.","zh":"冗余/备份","cl":"system redundancy","ex":"Engineers build in <strong>redundancy</strong> to ensure critical systems keep running during hardware failures."},
+{"w":"vulnerability","p":"n.","zh":"漏洞","cl":"security vulnerability","ex":"The software patch addressed a critical security <strong>vulnerability</strong> that had remained undetected for months."},
+{"w":"retrieval","p":"n.","zh":"检索","cl":"data retrieval","ex":"Faster <strong>data retrieval</strong> speeds are essential for applications requiring real-time decision-making."},
+{"w":"throughput","p":"n.","zh":"吞吐量","cl":"processing throughput","ex":"The new server architecture doubled <strong>throughput</strong> without any increase in energy consumption."},
+{"w":"telemetry","p":"n.","zh":"遥测","cl":"real-time telemetry","ex":"Satellites relay <strong>telemetry</strong> data to ground stations continuously, enabling remote monitoring of systems."},
+{"w":"orchestration","p":"n.","zh":"编排","cl":"container orchestration","ex":"<strong>Container orchestration</strong> tools automate the deployment, scaling and management of applications."},
+{"w":"repository","p":"n.","zh":"代码库/仓库","cl":"open-source repository","ex":"Developers worldwide share code through public <strong>repositories</strong> on collaborative platforms."},
+{"w":"provenance","p":"n.","zh":"数据来源/溯源","cl":"data provenance","ex":"Blockchain technology can verify <strong>data provenance</strong>, making digital records far more tamper-resistant."},
+{"w":"resilience","p":"n.","zh":"韧性/弹性","cl":"system resilience","ex":"Investing in network <strong>resilience</strong> significantly reduces the damage caused by sustained cyberattacks."},
+{"w":"telework","p":"n.","zh":"远程办公","cl":"shift to telework","ex":"The pandemic dramatically accelerated the global shift to <strong>telework</strong> across nearly every industry."},
+{"w":"phishing","p":"n.","zh":"网络钓鱼","cl":"phishing attack","ex":"A convincing <strong>phishing</strong> email tricked employees into revealing their login credentials to attackers."},
+{"w":"ransomware","p":"n.","zh":"勒索软件","cl":"ransomware attack","ex":"The hospital was forced offline by a devastating <strong>ransomware</strong> attack targeting its patient records system."},
+{"w":"credential","p":"n.","zh":"凭证/证书","cl":"stolen credentials","ex":"Attackers gained system access using <strong>stolen credentials</strong> purchased on underground dark web forums."},
+{"w":"audit","p":"n./v.","zh":"审计","cl":"security audit","ex":"An independent <strong>audit</strong> uncovered several undisclosed data-sharing practices hidden in the platform's code."},
+{"w":"stack","p":"n.","zh":"技术栈","cl":"technology stack","ex":"The startup chose a modern open-source <strong>technology stack</strong> to reduce licensing costs and vendor dependency."},
+{"w":"bottleneck","p":"n.","zh":"瓶颈","cl":"performance bottleneck","ex":"The database query was identified as the primary <strong>bottleneck</strong> slowing the entire application down."},
+{"w":"sandbox","p":"n.","zh":"沙盒/测试环境","cl":"regulatory sandbox","ex":"The government established a <strong>regulatory sandbox</strong> to allow fintech startups to test products under relaxed rules."},
+{"w":"rollout","p":"n.","zh":"推出/部署","cl":"phased rollout","ex":"The software update was delivered through a <strong>phased rollout</strong> to monitor for unexpected bugs."},
+{"w":"vendor","p":"n.","zh":"供应商","cl":"third-party vendor","ex":"Over-reliance on a single <strong>vendor</strong> creates dangerous supply-chain vulnerabilities for any organisation."},
+{"w":"uptime","p":"n.","zh":"正常运行时间","cl":"guaranteed uptime","ex":"Cloud providers typically guarantee 99.9% <strong>uptime</strong> under their service-level agreements."},
+{"w":"downtime","p":"n.","zh":"停机时间","cl":"minimise downtime","ex":"Automated failover mechanisms help organisations <strong>minimise downtime</strong> during planned or unplanned maintenance."},
+{"w":"patch","p":"n.","zh":"补丁","cl":"security patch","ex":"All users were urged to apply the emergency <strong>security patch</strong> immediately to prevent active exploitation."},
+{"w":"payload","p":"n.","zh":"有效载荷/恶意代码","cl":"malicious payload","ex":"The malware contained a hidden <strong>payload</strong> designed to encrypt files silently before demanding a ransom."},
+{"w":"iteration","p":"n.","zh":"迭代","cl":"rapid iteration","ex":"Agile software development relies on <strong>rapid iteration</strong> to continuously refine the product based on feedback."},
+{"w":"fabrication","p":"n.","zh":"晶圆制造","cl":"chip fabrication","ex":"Advanced semiconductor <strong>fabrication</strong> now requires machinery worth billions of dollars and extreme precision."},
+{"w":"compliance","p":"n.","zh":"合规","cl":"regulatory compliance","ex":"All companies operating in the EU must demonstrate full <strong>regulatory compliance</strong> with data protection laws."},
+{"w":"backlog","p":"n.","zh":"积压/待办事项","cl":"technical backlog","ex":"The development team spent two sprints clearing a large <strong>technical backlog</strong> before the product launch."},
+{"w":"interplay","p":"n.","zh":"相互作用","cl":"complex interplay","ex":"The <strong>interplay</strong> between government regulation and corporate innovation shapes the direction of the technology sector."},
+{"w":"workaround","p":"n.","zh":"变通方法","cl":"temporary workaround","ex":"Engineers implemented a <strong>workaround</strong> while the root cause of the system failure was being investigated."},
+{"w":"testbed","p":"n.","zh":"测试平台","cl":"ideal testbed","ex":"The city's infrastructure made it an ideal <strong>testbed</strong> for large-scale autonomous vehicle trials."},
+{"w":"API","p":"n.","zh":"应用程序接口","cl":"public API","ex":"Developers access the platform's core features through a well-documented and publicly available <strong>API</strong>."},
+{"w":"throttling","p":"n.","zh":"限速/限流","cl":"bandwidth throttling","ex":"Net neutrality legislation specifically prohibits <strong>bandwidth throttling</strong> based on the type of content accessed."},
+{"w":"subnet","p":"n.","zh":"子网","cl":"virtual subnet","ex":"Network traffic on each isolated <strong>subnet</strong> is carefully controlled to limit the spread of any intrusion."},
+{"w":"monetise","p":"v.","zh":"变现/商业化","cl":"monetise user data","ex":"Many platforms <strong>monetise</strong> user data by selling highly targeted advertising to third-party companies."},
+{"w":"proliferate","p":"v.","zh":"激增/扩散","cl":"proliferate rapidly","ex":"Deepfake videos continue to <strong>proliferate</strong> rapidly across social networks, posing new challenges for regulators."},
+{"w":"augment","p":"v.","zh":"增强","cl":"augment human capability","ex":"AI tools are designed to <strong>augment</strong> human capability rather than wholesale replace workers in the workforce."},
+{"w":"simulate","p":"v.","zh":"模拟","cl":"simulate real conditions","ex":"Scientists use digital twins to <strong>simulate</strong> real-world conditions before costly physical experiments are conducted."},
+{"w":"retrofit","p":"v.","zh":"改装/翻新升级","cl":"retrofit older devices","ex":"It is often cheaper and less disruptive to <strong>retrofit</strong> older devices with IoT sensors than to replace them."},
+{"w":"regulate","p":"v.","zh":"监管/规制","cl":"regulate AI systems","ex":"Governments around the world are actively debating how best to <strong>regulate</strong> increasingly powerful AI systems."},
+{"w":"fragment","p":"v.","zh":"碎片化","cl":"fragment attention","ex":"The relentless stream of push notifications tends to <strong>fragment</strong> users' attention into ever shorter bursts."},
+{"w":"streamline","p":"v.","zh":"简化/优化","cl":"streamline operations","ex":"Automation allows businesses to <strong>streamline</strong> repetitive administrative tasks and reallocate human capital."},
+{"w":"underpin","p":"v.","zh":"支撑/奠定基础","cl":"underpin the digital economy","ex":"Open standards <strong>underpin</strong> the interoperability that the modern digital economy depends upon every day."},
+{"w":"recalibrate","p":"v.","zh":"重新校准/调整策略","cl":"recalibrate strategies","ex":"Companies must <strong>recalibrate</strong> their data handling strategies to meet the demands of stricter privacy regulations."},
+{"w":"commodify","p":"v.","zh":"商品化","cl":"commodify personal data","ex":"Critics argue that surveillance-based platforms <strong>commodify</strong> personal data without providing fair compensation."},
+{"w":"democratise","p":"v.","zh":"民主化/普及","cl":"democratise access","ex":"Cloud computing has <strong>democratised</strong> access to powerful computing infrastructure for small businesses worldwide."},
+{"w":"overhaul","p":"v.","zh":"彻底改革/翻新","cl":"overhaul legacy systems","ex":"The ministry announced an urgent plan to <strong>overhaul</strong> its ageing IT infrastructure before the next fiscal year."},
+{"w":"validate","p":"v.","zh":"验证","cl":"validate the model","ex":"Engineers must thoroughly <strong>validate</strong> the AI model against real-world data before it is deployed in production."},
+{"w":"deprecate","p":"v.","zh":"弃用","cl":"deprecate an API","ex":"The company announced it would <strong>deprecate</strong> the legacy API by the end of the financial year."},
+{"w":"orchestrate","p":"v.","zh":"编排/协调","cl":"orchestrate microservices","ex":"DevOps teams use Kubernetes to <strong>orchestrate</strong> complex microservices in large-scale production environments."},
+{"w":"propagate","p":"v.","zh":"传播/扩散","cl":"propagate misinformation","ex":"Social media algorithms can <strong>propagate</strong> misinformation to millions of users before fact-checkers can respond."},
+{"w":"mitigate","p":"v.","zh":"减轻/缓解","cl":"mitigate risks","ex":"Regular automated backups help organisations <strong>mitigate</strong> the existential risks associated with ransomware attacks."},
+{"w":"remediate","p":"v.","zh":"修复/补救","cl":"remediate vulnerabilities","ex":"Security teams must act swiftly to <strong>remediate</strong> vulnerabilities once they are identified in production systems."},
+{"w":"decouple","p":"v.","zh":"解耦","cl":"decouple services","ex":"Modern microservices architecture aims to <strong>decouple</strong> components so that each can be updated independently."},
+{"w":"compile","p":"v.","zh":"编译","cl":"compile source code","ex":"Developers <strong>compile</strong> human-readable source code into machine-executable binary files during the build process."},
+{"w":"execute","p":"v.","zh":"执行/运行","cl":"execute commands","ex":"The malicious script was configured to <strong>execute</strong> automatically as soon as the email attachment was opened."},
+{"w":"scale","p":"v.","zh":"扩展规模","cl":"scale to millions","ex":"The platform can <strong>scale</strong> horizontally to handle millions of concurrent users within a matter of seconds."},
+{"w":"offload","p":"v.","zh":"转移/减轻负担","cl":"offload processing tasks","ex":"Edge devices can <strong>offload</strong> computationally intensive processing tasks to reduce the burden on central servers."},
+{"w":"whitelist","p":"v.","zh":"加入白名单","cl":"whitelist trusted sources","ex":"Network administrators <strong>whitelist</strong> trusted IP addresses to restrict access and reduce the attack surface."},
+{"w":"roll back","p":"v.","zh":"回滚","cl":"roll back an update","ex":"The engineering team had to <strong>roll back</strong> the update overnight after widespread errors were reported by users."},
+{"w":"stress-test","p":"v.","zh":"压力测试","cl":"stress-test the infrastructure","ex":"Engineers <strong>stress-tested</strong> the infrastructure to ensure it could handle a ten-fold spike in peak traffic."},
+{"w":"spin up","p":"v.","zh":"快速启动/部署","cl":"spin up new servers","ex":"Cloud platforms allow development teams to <strong>spin up</strong> new virtual servers in minutes rather than weeks."},
+{"w":"harden","p":"v.","zh":"加固/强化安全","cl":"harden the system","ex":"Administrators should <strong>harden</strong> production servers by disabling all unused services and applying the latest patches."},
+{"w":"normalise","p":"v.","zh":"规范化/标准化处理","cl":"normalise training data","ex":"Before training a machine learning model, it is essential to <strong>normalise</strong> all numerical input data."},
+{"w":"replicate","p":"v.","zh":"复制/备份","cl":"replicate data","ex":"Cloud storage systems <strong>replicate</strong> data across multiple geographic regions to ensure high availability."},
+{"w":"provision","p":"v.","zh":"配置/供应资源","cl":"provision cloud resources","ex":"DevOps engineers use infrastructure-as-code scripts to <strong>provision</strong> cloud resources automatically and consistently."},
+{"w":"intercept","p":"v.","zh":"拦截","cl":"intercept network traffic","ex":"Attackers use packet-sniffing tools to <strong>intercept</strong> unencrypted network traffic on public Wi-Fi networks."},
+{"w":"penetrate","p":"v.","zh":"渗透","cl":"penetrate defences","ex":"The red team hired to <strong>penetrate</strong> the company's defences identified over a dozen critical vulnerabilities."},
+{"w":"repurpose","p":"v.","zh":"改作他用","cl":"repurpose collected data","ex":"Companies may attempt to <strong>repurpose</strong> data collected for one declared purpose for entirely different commercial uses."},
+{"w":"synchronise","p":"v.","zh":"同步","cl":"synchronise across devices","ex":"The app automatically <strong>synchronises</strong> your data across all linked devices whenever a network connection is available."},
+{"w":"ubiquitous","p":"adj.","zh":"无处不在的","cl":"ubiquitous connectivity","ex":"Reliable Wi-Fi has become <strong>ubiquitous</strong> in urban environments, transforming how people work and socialise."},
+{"w":"obsolete","p":"adj.","zh":"过时的","cl":"render obsolete","ex":"Rapid technological innovation risks rendering many current professional skills completely <strong>obsolete</strong> within a decade."},
+{"w":"scalable","p":"adj.","zh":"可扩展的","cl":"scalable architecture","ex":"Investors consistently favour businesses built on a <strong>scalable</strong> cloud-native architecture with low marginal costs."},
+{"w":"immutable","p":"adj.","zh":"不可篡改的","cl":"immutable record","ex":"A blockchain creates an <strong>immutable</strong> and fully transparent record of every transaction on the network."},
+{"w":"tangible","p":"adj.","zh":"切实的/有形的","cl":"tangible benefits","ex":"Policymakers are demanding <strong>tangible</strong> social benefits before committing public funds to further AI development."},
+{"w":"cross-platform","p":"adj.","zh":"跨平台的","cl":"cross-platform compatibility","ex":"The application was designed for full <strong>cross-platform</strong> compatibility from the very start of the development process."},
+{"w":"resilient","p":"adj.","zh":"有韧性的","cl":"resilient infrastructure","ex":"Governments worldwide are investing heavily in building <strong>resilient</strong> digital infrastructure to withstand cyberattacks."},
+{"w":"real-time","p":"adj.","zh":"实时的","cl":"real-time analytics","ex":"<strong>Real-time</strong> analytics dashboards allow operations teams to respond instantly to changing system conditions."},
+{"w":"fault-tolerant","p":"adj.","zh":"容错的","cl":"fault-tolerant design","ex":"A <strong>fault-tolerant</strong> system is engineered to continue operating correctly even when individual components fail."},
+{"w":"open-source","p":"adj.","zh":"开源的","cl":"open-source software","ex":"<strong>Open-source</strong> software allows developers to inspect, modify and improve the code collaboratively and freely."},
+{"w":"plug-and-play","p":"adj.","zh":"即插即用的","cl":"plug-and-play solution","ex":"The device is marketed as a <strong>plug-and-play</strong> solution that requires absolutely no technical configuration."},
+{"w":"backward-compatible","p":"adj.","zh":"向后兼容的","cl":"backward-compatible update","ex":"The new software release was engineered to be fully <strong>backward-compatible</strong> with all previous versions."},
+{"w":"low-power","p":"adj.","zh":"低功耗的","cl":"low-power chip","ex":"Advances in <strong>low-power</strong> chip design have dramatically extended the battery life of modern wearable devices."},
+{"w":"mission-critical","p":"adj.","zh":"任务关键型的","cl":"mission-critical system","ex":"Any failure in a <strong>mission-critical</strong> system such as air traffic control can have catastrophic consequences."},
+{"w":"cloud-native","p":"adj.","zh":"云原生的","cl":"cloud-native application","ex":"<strong>Cloud-native</strong> applications are architected from the outset to exploit the full power of distributed computing."},
+{"w":"decentralised","p":"adj.","zh":"去中心化的","cl":"decentralised network","ex":"A <strong>decentralised</strong> network eliminates the single point of failure that plagues traditional server architectures."},
+{"w":"enterprise-grade","p":"adj.","zh":"企业级的","cl":"enterprise-grade security","ex":"The startup now offers <strong>enterprise-grade</strong> encryption and access control to compete with established vendors."},
+{"w":"bandwidth-intensive","p":"adj.","zh":"带宽密集型的","cl":"bandwidth-intensive task","ex":"Video streaming remains one of the most <strong>bandwidth-intensive</strong> activities on the modern internet by far."},
+{"w":"converged","p":"adj.","zh":"融合的","cl":"converged infrastructure","ex":"A <strong>converged</strong> infrastructure integrates compute, storage and networking into a single managed platform."},
+{"w":"pervasive","p":"adj.","zh":"普遍的/弥漫的","cl":"pervasive surveillance","ex":"The report warned of <strong>pervasive</strong> surveillance in public spaces across several major metropolitan areas."},
+{"w":"interlinked","p":"adj.","zh":"相互关联的","cl":"interlinked systems","ex":"Modern economies rely on deeply <strong>interlinked</strong> systems in which a failure in one sector cascades into others."},
+{"w":"tech stack","p":"n.","zh":"技术栈","cl":"modern tech stack","ex":"The company rebuilt its entire <strong>tech stack</strong> from scratch to enable much faster feature development and deployment."},
+{"w":"zero trust","p":"n.","zh":"零信任(安全模型)","cl":"zero trust architecture","ex":"A <strong>zero trust</strong> security model assumes that no user or device is inherently trustworthy, regardless of location."},
+{"w":"smart city","p":"n.","zh":"智慧城市","cl":"smart city initiative","ex":"Many governments are investing substantially in <strong>smart city</strong> initiatives to improve urban efficiency and sustainability."},
+{"w":"digital governance","p":"n.","zh":"数字治理","cl":"robust digital governance","ex":"Without robust <strong>digital governance</strong> frameworks, it is impossible to guarantee meaningful data privacy."},
+{"w":"platform economy","p":"n.","zh":"平台经济","cl":"the platform economy","ex":"Workers in the <strong>platform economy</strong> often lack the employment protections afforded to traditional employees."},
+{"w":"gig worker","p":"n.","zh":"零工工人","cl":"independent gig worker","ex":"An independent <strong>gig worker</strong> must typically manage their own taxes, insurance and retirement planning."},
+{"w":"data centre","p":"n.","zh":"数据中心","cl":"energy-hungry data centre","ex">Energy-hungry <strong>data centres</strong> now account for a significant and growing share of global electricity consumption."},
+{"w":"tech giant","p":"n.","zh":"科技巨头","cl":"dominant tech giant","ex":"Regulators on both sides of the Atlantic are scrutinising the market power of the dominant <strong>tech giants</strong>."},
+{"w":"surveillance capitalism","p":"n.","zh":"监控资本主义","cl":"the model of surveillance capitalism","ex":"The term <strong>surveillance capitalism</strong> describes a business model built on the extraction and commodification of personal data."},
+{"w":"right to be forgotten","p":"n.","zh":"被遗忘权","cl":"exercise the right to be forgotten","ex":"EU law grants citizens the <strong>right to be forgotten</strong>, allowing them to request the erasure of personal online records."},
+{"w":"digital sovereignty","p":"n.","zh":"数字主权","cl":"assert digital sovereignty","ex":"Nations are increasingly seeking to assert <strong>digital sovereignty</strong> by controlling their own data infrastructure."},
+{"w":"supply chain attack","p":"n.","zh":"供应链攻击","cl":"sophisticated supply chain attack","ex":"A <strong>supply chain attack</strong> compromises software or hardware before it reaches end users, making it very hard to detect."},
+{"w":"informed consent","p":"n.","zh":"知情同意","cl":"obtain informed consent","ex":"Applications must obtain explicit <strong>informed consent</strong> before collecting any sensitive biometric or health data."},
+{"w":"user experience","p":"n.","zh":"用户体验","cl":"prioritise user experience","ex":"Design teams are consistently asked to <strong>prioritise user experience</strong> over feature quantity in the product roadmap."},
+{"w":"virtual machine","p":"n.","zh":"虚拟机","cl":"isolated virtual machine","ex":"Each application is run inside an isolated <strong>virtual machine</strong> to contain the damage if it is compromised."},
+{"w":"minimum viable product","p":"n.","zh":"最小可行产品","cl":"launch a minimum viable product","ex":"Startups often deliberately launch a <strong>minimum viable product</strong> to gather real user feedback before scaling."},
+{"w":"technical debt","p":"n.","zh":"技术债务","cl":"accumulate technical debt","ex":"Rushing products to market without proper architecture inevitably causes organisations to <strong>accumulate technical debt</strong>."},
+{"w":"responsible innovation","p":"n.","zh":"负责任的创新","cl":"responsible innovation framework","ex":"Governments are calling for a <strong>responsible innovation</strong> framework that balances speed to market with public safety."},
+{"w":"digital nomad","p":"n.","zh":"数字游民","cl":"rise of the digital nomad","ex":"The rise of the <strong>digital nomad</strong> lifestyle has driven demand for co-working spaces and temporary accommodation."},
+{"w":"net neutrality","p":"n.","zh":"网络中立性","cl":"defend net neutrality","ex":"Advocates argue that abandoning <strong>net neutrality</strong> rules would create a fundamentally unequal, tiered internet."},
+{"w":"proof of concept","p":"n.","zh":"概念验证","cl":"a successful proof of concept","ex":"The team's impressive <strong>proof of concept</strong> attracted significant investment from a major venture capital firm."},
+{"w":"data pipeline","p":"n.","zh":"数据管道","cl":"robust data pipeline","ex":"A well-designed <strong>data pipeline</strong> ensures clean, timely and consistently formatted data flows to analytics teams."},
+{"w":"human-in-the-loop","p":"n.","zh":"人机协同/人工介入","cl":"human-in-the-loop AI","ex":"A <strong>human-in-the-loop</strong> approach ensures a qualified person reviews every consequential AI decision before it is acted on."},
+{"w":"kill switch","p":"n.","zh":"紧急终止开关","cl":"emergency kill switch","ex":"Some regulators are demanding that advanced AI systems include a reliable emergency <strong>kill switch</strong> mechanism."},
+{"w":"fail-safe mechanism","p":"n.","zh":"故障保险机制","cl":"built-in fail-safe mechanism","ex":"The automated system includes a built-in <strong>fail-safe mechanism</strong> that triggers an immediate controlled shutdown."},
+{"w":"penetration testing","p":"n.","zh":"渗透测试","cl":"conduct penetration testing","ex":"Companies hire ethical hackers to conduct <strong>penetration testing</strong> and expose weaknesses before malicious actors do."},
+{"w":"root cause analysis","p":"n.","zh":"根本原因分析","cl":"perform root cause analysis","ex":"After every major outage, engineers must perform a thorough <strong>root cause analysis</strong> to prevent recurrence."},
+{"w":"net-zero technology","p":"n.","zh":"净零技术","cl":"net-zero technology roadmap","ex":"Investments in <strong>net-zero technology</strong> are accelerating as governments tighten emissions regulations."},
+{"w":"go offline","p":"phrasal v.","zh":"断网/下线","cl":"go offline unexpectedly","ex":"The bank's entire payment processing system <strong>went offline</strong> unexpectedly, affecting hundreds of thousands of customers."},
+{"w":"scale up","p":"phrasal v.","zh":"扩大规模","cl":"scale up operations","ex":"The company is now ready to <strong>scale up</strong> its operations globally after a successful domestic launch."},
+{"w":"pull the plug on","p":"phrasal v.","zh":"终止/叫停","cl":"pull the plug on a project","ex":"Senior management made the difficult decision to <strong>pull the plug on</strong> the project after years of delays."},
+{"w":"go live","p":"phrasal v.","zh":"上线/正式启动","cl":"go live next quarter","ex":"The redesigned platform is scheduled to <strong>go live</strong> next quarter after final rounds of user acceptance testing."},
+{"w":"cut through the noise","p":"idiom","zh":"排除干扰/脱颖而出","cl":"cut through the noise","ex":"With thousands of new apps released daily, it is increasingly difficult for new products to <strong>cut through the noise</strong>."},
+{"w":"in beta","p":"phrase","zh":"处于测试阶段","cl":"still in beta testing","ex":"The feature is currently <strong>in beta</strong> and may behave unpredictably for a small proportion of users."},
+{"w":"a sea change","p":"idiom","zh":"根本性变革","cl":"a sea change in how we work","ex":"Artificial intelligence represents <strong>a sea change</strong> in the way organisations operate and make strategic decisions."},
+{"w":"on the cutting edge of","p":"phrase","zh":"处于…前沿","cl":"on the cutting edge of research","ex":"The university laboratory is squarely <strong>on the cutting edge of</strong> quantum computing research in Europe."},
+{"w":"push the boundaries of","p":"phrase","zh":"突破…的边界","cl":"push the boundaries of what is possible","ex":"Researchers continue to <strong>push the boundaries of</strong> what artificial intelligence can realistically achieve."},
+{"w":"at scale","p":"adv. phr.","zh":"大规模地","cl":"deliver services at scale","ex":"The real challenge is delivering high-quality, personalised services <strong>at scale</strong> without sacrificing privacy."},
+{"w":"keep the lights on","p":"idiom","zh":"维持基本运转","cl":"just keeping the lights on","ex":"A disproportionate share of the IT budget goes to <strong>keeping the lights on</strong> rather than funding genuine innovation."},
+{"w":"game the algorithm","p":"phrase","zh":"操纵算法","cl":"game the recommendation algorithm","ex":"Some content creators openly discuss strategies for <strong>gaming the algorithm</strong> to boost views and engagement."},
+{"w":"work in silos","p":"phrase","zh":"各自为政","cl":"departments working in silos","ex":"When teams <strong>work in silos</strong>, critical data is rarely shared, leading to duplication and strategic misalignment."},
+{"w":"move fast and break things","p":"phrase","zh":"快速行动不惧失败(硅谷文化)","cl":"the ethos of moving fast and breaking things","ex":"The ethos of <strong>moving fast and breaking things</strong> has come under sustained criticism from regulators and ethicists."},
+{"w":"a race to the bottom","p":"idiom","zh":"恶性竞争/底线竞争","cl":"a race to the bottom on data security","ex":"Without clear international standards, companies may engage in <strong>a race to the bottom</strong> on user data security."},
+{"w":"the elephant in the room","p":"idiom","zh":"众所周知却无人提及的问题","cl":"the elephant in the room","ex":"Data privacy is <strong>the elephant in the room</strong> in most boardroom discussions about AI-powered consumer products."},
+{"w":"tip of the iceberg","p":"idiom","zh":"冰山一角","cl":"just the tip of the iceberg","ex":"The leaked dataset is almost certainly just <strong>the tip of the iceberg</strong> of a far larger and ongoing data breach."},
+{"w":"think outside the box","p":"idiom","zh":"打破常规思考","cl":"think outside the box","ex":"Solving this fundamental interoperability problem will require engineers to truly <strong>think outside the box</strong>."},
+{"w":"a watershed moment","p":"phrase","zh":"历史转折点","cl":"a watershed moment in technology history","ex":"The release of the first commercially viable chatbot marked <strong>a watershed moment</strong> in human-computer interaction."},
+{"w":"bridge the digital gap","p":"phrase","zh":"弥合数字鸿沟","cl":"efforts to bridge the digital gap","ex":"Affordable internet access is a prerequisite for any serious effort to <strong>bridge the digital gap</strong> in rural areas."},
+{"w":"up and running","p":"phrase","zh":"正常运行","cl":"get the system up and running","ex":"The engineering team worked through the night to get the critical payment system <strong>up and running</strong> by dawn."},
+{"w":"blow the whistle on","p":"phrasal v.","zh":"举报/揭发","cl":"blow the whistle on misconduct","ex":"The software engineer made the courageous decision to <strong>blow the whistle on</strong> the company's illegal data collection."},
+{"w":"under the radar","p":"phrase","zh":"悄然/不引人注意地","cl":"operate under the radar","ex":"The startup managed to <strong>operate under the radar</strong> for two full years before making its public product launch."},
+{"w":"draw a hard line on","p":"phrase","zh":"对…划定明确界限","cl":"draw a hard line on data collection","ex":"The regulator drew <strong>a hard line on</strong> the collection of any biometric data from users under the age of eighteen."},
+{"w":"turn the tide on","p":"phrase","zh":"扭转…的局面","cl":"turn the tide on cybercrime","ex":"Meaningful international cooperation is essential if we are to <strong>turn the tide on</strong> the rising wave of cybercrime."}
+];
+
+let state = JSON.parse(localStorage.getItem("ielts_vocab_20260606") || "{}");
+let queue = CARDS.map((c, i) => ({...c, idx: i})).filter(c => !state[c.idx] || state[c.idx] === "review");
+let cur = 0;
+
+function speak(text) {
+  if (!text || !window.speechSynthesis) return;
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = "en-US"; u.rate = 0.85; u.pitch = 1;
+  const voices = speechSynthesis.getVoices();
+  const en = voices.find(v => /en-(US|GB)/.test(v.lang) && /Samantha|Daniel|Alex|Karen|Moira|Google US English|Google UK English/.test(v.name))
+          || voices.find(v => v.lang.startsWith("en"));
+  if (en) u.voice = en;
+  speechSynthesis.speak(u);
+}
+if (window.speechSynthesis) speechSynthesis.onvoiceschanged = () => {};
+
+function render() {
+  if (cur >= queue.length) return showDone();
+  const c = queue[cur];
+  document.getElementById("w").textContent = c.w;
+  document.getElementById("p").textContent = c.p;
+  document.getElementById("zh").textContent = c.zh;
+  document.getElementById("cl").textContent = c.cl;
+  document.getElementById("ex").innerHTML = c.ex;
+  document.getElementById("card").classList.remove("flipped");
+  document.getElementById("meta").textContent = `${cur+1} / ${queue.length} · Technology Day 3`;
+  updateStats();
+  setTimeout(() => speak(c.w), 150);
+}
+
+function setView(v) {
+  document.getElementById("vtFlash").classList.toggle("active", v === "flash");
+  document.getElementById("vtList").classList.toggle("active", v === "list");
+  document.getElementById("deck").style.display = v === "flash" ? "" : "none";
+  document.getElementById("listView").classList.toggle("active", v === "list");
+  if (v === "list") renderList();
+}
+
+function renderList() {
+  const body = document.getElementById("listBody");
+  body.innerHTML = CARDS.map((c, i) => {
+    const mark = state[i] || "";
+    const cls = mark === "know" ? "knew" : mark === "weak" ? "weak" : "";
+    const ico = mark === "know" ? "✓" : mark === "weak" ? "○" : "·";
+    const mcls = mark === "know" ? "know" : mark === "weak" ? "weak" : "";
+    return `<div class="list-row">
+      <div class="num">${String(i+1).padStart(3,'0')}</div>
+      <div class="word"><div class="w ${cls}">${c.w} <span style="color:var(--muted);font-weight:400;font-size:0.78rem;">${c.p}</span></div><div class="zh">${c.zh}</div></div>
+      <button class="spk" onclick="speak('${c.w.replace(/'/g,"\\'")}')">🔊</button>
+      <div class="mk ${mcls}">${ico}</div>
+    </div>`;
+  }).join("");
+}
+
+function flip() { document.getElementById("card").classList.toggle("flipped"); }
+
+function mark(t) {
+  const c = queue[cur];
+  state[c.idx] = (t === "know" ? "know" : "weak");
+  localStorage.setItem("ielts_vocab_20260606", JSON.stringify(state));
+  cur++;
+  render();
+}
+
+function updateStats() {
+  const kn = Object.values(state).filter(v=>v==="know").length;
+  const wk = Object.values(state).filter(v=>v==="weak").length;
+  const lf = 150 - kn - wk;
+  document.getElementById("kn").textContent = kn;
+  document.getElementById("wk").textContent = wk;
+  document.getElementById("lf").textContent = lf;
+  document.getElementById("pg").style.width = ((kn+wk)/150*100) + "%";
+}
+
+function showDone() {
+  document.getElementById("deck").style.display = "none";
+  document.getElementById("done").classList.add("show");
+  const kn = Object.values(state).filter(v=>v==="know").length;
+  const wk = Object.values(state).filter(v=>v==="weak").length;
+  document.getElementById("doneTtl").textContent = wk > 0 ? `今日 150 词完成! 还有 ${wk} 张不熟` : "今日 150 词全掌握 🎉";
+  document.getElementById("doneSub").textContent = `知道 ${kn} · 不熟 ${wk}`;
+}
+
+function reviewWeak() {
+  queue = CARDS.map((c,i)=>({...c,idx:i})).filter(c => state[c.idx] === "weak");
+  if (queue.length === 0) { alert("没有不熟的卡!"); return; }
+  cur = 0;
+  document.getElementById("done").classList.remove("show");
+  document.getElementById("deck").style.display = "";
+  render();
+}
+
+function resetAll() {
+  if (!confirm("清空今日进度,重新开始?")) return;
+  localStorage.removeItem("ielts_vocab_20260606");
+  state = {};
+  queue = CARDS.map((c,i)=>({...c,idx:i}));
+  cur = 0;
+  document.getElementById("done").classList.remove("show");
+  document.getElementById("deck").style.display = "";
+  render();
+}
+
+render();
+</script>
+
+</body>
+</html>
