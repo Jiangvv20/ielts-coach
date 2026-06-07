@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#2563eb">
+<title>测验 · Reading T/F/NG · AI伦理与职场 · Day 19</title>
+<style>
+  :root {
+    --bg: #ffffff; --fg: #1a1a1a; --muted: #6b7280;
+    --accent: #2563eb; --ok: #059669; --err: #dc2626;
+    --card: #f9fafb; --border: #e5e7eb;
+    --nav-bg: rgba(255,255,255,0.92);
+    --header-bg: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f172a; --fg: #f1f5f9; --muted: #94a3b8;
+      --accent: #60a5fa; --ok: #34d399; --err: #f87171;
+      --card: #1e293b; --border: #334155;
+      --nav-bg: rgba(15,23,42,0.92);
+      --header-bg: linear-gradient(135deg, #1e40af 0%, #6b21a8 100%);
+    }
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg); }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif;
+    line-height: 1.6;
+    min-height: 100vh;
+    padding-bottom: calc(64px + env(safe-area-inset-bottom, 0));
+  }
+  .app-header {
+    background: var(--header-bg); color: white;
+    padding: calc(env(safe-area-inset-top, 16px) + 12px) 16px 14px;
+    position: sticky; top: 0; z-index: 20;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .back-btn {
+    background: rgba(255,255,255,0.18); border: none; color: white;
+    width: 34px; height: 34px; border-radius: 10px;
+    font-size: 1.1rem; cursor: pointer; flex-shrink: 0;
+    text-decoration: none; display: flex; align-items: center; justify-content: center;
+  }
+  .app-header .ttl {
+    font-size: 1rem; font-weight: 700;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .app-header .sub {
+    font-size: 0.72rem; opacity: 0.85; margin-top: 1px;
+    letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  main { max-width: 720px; margin: 0 auto; padding: 16px; }
+  .progress {
+    height: 6px; background: var(--border); border-radius: 3px;
+    margin-bottom: 16px; overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%; background: var(--accent);
+    transition: width 0.3s ease;
+  }
+  .passage {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 14px 16px; margin-bottom: 16px;
+    font-size: 0.95rem; line-height: 1.7;
+  }
+  .passage h3 { margin: 0 0 8px; font-size: 0.78rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+  .question {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 16px; margin-bottom: 14px;
+  }
+  .q-num {
+    color: var(--muted); font-size: 0.78rem;
+    font-family: "SF Mono", Menlo, monospace; margin-bottom: 6px;
+    text-transform: uppercase; letter-spacing: 0.04em;
+  }
+  .q-text { font-size: 1rem; margin-bottom: 12px; font-weight: 500; }
+  .options { display: flex; flex-direction: column; gap: 8px; }
+  .option {
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 8px; padding: 12px 14px;
+    cursor: pointer; font-size: 0.95rem; text-align: left;
+    color: var(--fg); font-family: inherit;
+  }
+  .option.selected { border-color: var(--accent); background: rgba(37, 99, 235, 0.08); }
+  .option.correct { border-color: var(--ok); background: rgba(5, 150, 105, 0.1); }
+  .option.wrong { border-color: var(--err); background: rgba(220, 38, 38, 0.1); }
+  .blank-input {
+    width: 100%; background: var(--bg);
+    border: 1px solid var(--border); border-radius: 8px;
+    padding: 10px 12px; font-size: 1rem;
+    color: var(--fg); font-family: inherit;
+  }
+  .blank-input.correct { border-color: var(--ok); }
+  .blank-input.wrong { border-color: var(--err); }
+  .explanation {
+    margin-top: 10px; padding: 10px 12px;
+    background: var(--bg); border-left: 3px solid var(--accent);
+    border-radius: 4px; font-size: 0.9rem; color: var(--muted);
+    display: none;
+  }
+  .explanation.show { display: block; }
+  .explanation .answer { color: var(--ok); font-weight: 600; }
+  .actions { display: flex; gap: 10px; margin-top: 20px; }
+  .btn {
+    flex: 1; padding: 12px;
+    border: none; border-radius: 10px;
+    font-size: 1rem; font-weight: 600; cursor: pointer;
+    font-family: inherit;
+  }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-secondary { background: var(--card); color: var(--fg); border: 1px solid var(--border); }
+  .result {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 20px;
+    text-align: center; margin-top: 20px; display: none;
+  }
+  .result.show { display: block; }
+  .score { font-size: 2.5rem; font-weight: 700; color: var(--accent); }
+  .score-label { color: var(--muted); font-size: 0.9rem; margin-top: 4px; }
+  .tabbar {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: var(--nav-bg);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    border-top: 1px solid var(--border);
+    display: flex;
+    padding-bottom: env(safe-area-inset-bottom, 0);
+    z-index: 30;
+  }
+  .tab-btn {
+    flex: 1; background: transparent; border: none;
+    padding: 10px 4px 8px; color: var(--muted); font-size: 0.68rem;
+    cursor: pointer;
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    font-family: inherit; text-decoration: none;
+  }
+  .tab-btn .icon { font-size: 1.25rem; line-height: 1; }
+  .tab-btn.active { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <a class="back-btn" href="index.html#quizzes">←</a>
+  <div style="flex:1;min-width:0;">
+    <div class="ttl">Reading T/F/NG · AI 伦理与职场</div>
+    <div class="sub">12 题 · Day 19 · ~15 分钟</div>
+  </div>
+</header>
+
+<main>
+
+  <div class="progress"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+
+  <div class="passage">
+    <h3>Passage — The Ethics of AI in the Workplace (~600 words)</h3>
+    <p>Artificial intelligence is reshaping the modern workplace at an unprecedented pace. As organisations deploy machine learning systems to screen job applicants, monitor employee productivity and assist in performance reviews, questions about fairness, transparency and accountability have moved from philosophical debate into pressing legal and commercial reality.</p>
+    <p>One of the most contentious applications is AI-powered recruitment software. These systems analyse thousands of CVs in seconds, identifying patterns associated with high performance in a given role. However, critics argue that because the models are trained on historical hiring data, they risk perpetuating past discriminatory practices. A widely cited study found that one major technology company's recruitment algorithm consistently downgraded applications from women, having learned from decades of male-dominated hiring decisions. The company subsequently discontinued the tool, but its existence raised fundamental questions about the assumptions embedded in training datasets.</p>
+    <p>Proponents of AI recruitment tools maintain that human hiring managers are equally susceptible to unconscious bias and that algorithms, at least in principle, can be audited and corrected. Furthermore, they argue that AI systems can identify talent from non-traditional backgrounds that a human reviewer might overlook due to a preference for elite universities or prestigious former employers. Several independent evaluations have concluded that well-designed systems reduce certain forms of bias when compared with unaided human judgement.</p>
+    <p>Equally debated is the use of AI to monitor employees at work. Remote-working software now captures mouse movements, keystroke frequency and even facial expressions to generate productivity scores. Advocates claim these tools ensure fairness by providing objective performance data, reducing opportunities for managerial favouritism. Labour unions, however, have raised serious objections, arguing that constant surveillance undermines trust, increases stress and ultimately reduces the creativity and collaboration essential to knowledge work. Research published in 2024 found that workers subject to algorithmic monitoring reported significantly higher rates of burnout.</p>
+    <p>Regulation is beginning to catch up. The European Union's AI Act, which came into force in August 2025, classifies employment-related AI systems as high-risk, requiring transparency disclosures and human oversight before deployment. The legislation mandates that workers be informed when AI is used to make decisions that significantly affect them, and that they have the right to request an explanation of any automated outcome. Critics contend that while the Act is a welcome step, its enforcement mechanisms remain weak, relying largely on self-certification by technology vendors.</p>
+    <p>Looking ahead, the trajectory of AI in the workplace depends partly on public trust and partly on the governance frameworks that emerge. Achieving the right balance between technological efficiency and human dignity will be the defining challenge for organisations and regulators in the coming decade.</p>
+  </div>
+
+  <div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:14px;font-size:0.82rem;color:var(--muted);">
+    <strong style="color:var(--fg);">📌 答题说明</strong>　Q1–Q7 为 True / False / Not Given；Q8–Q12 为词汇/搭配填空（英文作答）。
+  </div>
+
+  <div id="questions">
+
+    <div class="question" data-type="mcq" data-answer="A">
+      <div class="q-num">Q01 · T/F/NG</div>
+      <div class="q-text">AI recruitment algorithms have been found to disadvantage female applicants in at least one documented case.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">正确答案: A (True)</div>
+        原文：「one major technology company's recruitment algorithm consistently downgraded applications from women」— 直接对应，为 True。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="B">
+      <div class="q-num">Q02 · T/F/NG</div>
+      <div class="q-text">The company mentioned in the passage was forced by government regulation to shut down its AI recruitment tool.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">正确答案: B (False)</div>
+        原文说 "The company subsequently discontinued the tool"（公司自行叫停），并非政府强制关闭。与题干矛盾，为 False。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="A">
+      <div class="q-num">Q03 · T/F/NG</div>
+      <div class="q-text">Supporters of AI hiring tools argue that human recruiters are also prone to bias.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">正确答案: A (True)</div>
+        原文：「human hiring managers are equally susceptible to unconscious bias」— 支持者的观点，直接吻合。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="C">
+      <div class="q-num">Q04 · T/F/NG</div>
+      <div class="q-text">AI monitoring software used in workplaces can analyse employees' voice tone during phone calls.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">正确答案: C (Not Given)</div>
+        原文仅提到「mouse movements, keystroke frequency and facial expressions」，没有涉及分析通话语气，信息未提。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="A">
+      <div class="q-num">Q05 · T/F/NG</div>
+      <div class="q-text">Research conducted in 2024 linked algorithmic monitoring to increased employee burnout.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">正确答案: A (True)</div>
+        原文：「Research published in 2024 found that workers subject to algorithmic monitoring reported significantly higher rates of burnout」— 直接吻合。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="B">
+      <div class="q-num">Q06 · T/F/NG</div>
+      <div class="q-text">The EU AI Act classifies all AI systems as high-risk and requires government approval before deployment.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">正确答案: B (False)</div>
+        原文仅说「classifies <em>employment-related</em> AI systems as high-risk」，非全部AI系统；且要求的是透明披露与人工监督，不是政府审批。双重矛盾，为 False。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="C">
+      <div class="q-num">Q07 · T/F/NG</div>
+      <div class="q-text">The author believes that the EU AI Act's enforcement penalties are sufficient to deter violations.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">正确答案: C (Not Given)</div>
+        原文提到批评者认为执法机制薄弱，但作者本人并未表明对处罚力度是否充足的看法，信息未提。
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="perpetuating">
+      <div class="q-num">Q08 · 词汇填空</div>
+      <div class="q-text">Critics warned that training on biased historical data risked ______ past discriminatory practices. (动词 -ing 形式，意为"延续/使持续")</div>
+      <input class="blank-input" placeholder="键入答案 (一个词)">
+      <div class="explanation">
+        <div class="answer">正确答案: perpetuating</div>
+        也接受 perpetuate（原形）。「perpetuate past practices」= 延续过去的做法，Band 7+ 高频动词。
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="burnout">
+      <div class="q-num">Q09 · 词汇填空</div>
+      <div class="q-text">Workers under constant algorithmic surveillance reported significantly higher rates of ______. (名词，意为"职业倦怠")</div>
+      <input class="blank-input" placeholder="键入答案 (一个词)">
+      <div class="explanation">
+        <div class="answer">正确答案: burnout</div>
+        「suffer from burnout」是雅思写作/听力高频词。注意一词写法，不是 burn-out。
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="transparency">
+      <div class="q-num">Q10 · 搭配填空</div>
+      <div class="q-text">The regulation requires ______ disclosures so workers know when AI influences decisions about them. (名词，意为"透明度")</div>
+      <input class="blank-input" placeholder="键入答案 (一个词)">
+      <div class="explanation">
+        <div class="answer">正确答案: transparency</div>
+        「transparency disclosures / enhance transparency」= 雅思写作 Government & Technology 话题高频词。
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="audited">
+      <div class="q-num">Q11 · 词汇填空</div>
+      <div class="q-text">Proponents argued that AI algorithms can be ______ and corrected, unlike unconscious human bias. (动词过去分词，意为"被审查/审计")</div>
+      <input class="blank-input" placeholder="键入答案 (一个词)">
+      <div class="explanation">
+        <div class="answer">正确答案: audited</div>
+        原文：「algorithms, at least in principle, can be audited and corrected」。「audit」在技术和商业语境均为高频词。
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="accountability">
+      <div class="q-num">Q12 · 词汇填空</div>
+      <div class="q-text">Questions about fairness, ______ and transparency have become pressing legal and commercial concerns. (名词，意为"问责制")</div>
+      <input class="blank-input" placeholder="键入答案 (一个词)">
+      <div class="explanation">
+        <div class="answer">正确答案: accountability</div>
+        原文首段直接出现。「accountability」= 问责制，雅思写作超高频词，尤其在 Government & Society / Technology 话题。
+      </div>
+    </div>
+
+  </div>
+
+  <div class="actions">
+    <button class="btn btn-secondary" onclick="resetQuiz()">重做</button>
+    <button class="btn btn-primary" onclick="submitQuiz()">提交对答</button>
+  </div>
+
+  <div class="result" id="result">
+    <div class="score" id="scoreNum">--</div>
+    <div class="score-label">正确率</div>
+    <div id="scoreDetail" style="margin-top:10px;color:var(--muted);"></div>
+  </div>
+
+</main>
+
+<nav class="tabbar">
+  <a class="tab-btn" href="index.html#home"><span class="icon">🏠</span>概览</a>
+  <a class="tab-btn" href="index.html#materials"><span class="icon">📺</span>材料</a>
+  <a class="tab-btn active" href="index.html#quizzes"><span class="icon">✏️</span>测验</a>
+  <a class="tab-btn" href="index.html#plan"><span class="icon">📋</span>计划</a>
+</nav>
+
+<script>
+  document.querySelectorAll(".option").forEach(opt => {
+    opt.addEventListener("click", () => {
+      const q = opt.closest(".question");
+      q.querySelectorAll(".option").forEach(o => o.classList.remove("selected"));
+      opt.classList.add("selected");
+      q.dataset.userAnswer = opt.dataset.key;
+      updateProgress();
+    });
+  });
+
+  document.querySelectorAll(".blank-input").forEach(inp => {
+    inp.addEventListener("input", () => {
+      inp.closest(".question").dataset.userAnswer = inp.value.trim();
+      updateProgress();
+    });
+  });
+
+  function updateProgress() {
+    const total = document.querySelectorAll(".question").length;
+    const done = document.querySelectorAll(".question[data-user-answer]").length;
+    document.getElementById("progressFill").style.width = (done/total*100) + "%";
+  }
+
+  function submitQuiz() {
+    let correct = 0, total = 0;
+    document.querySelectorAll(".question").forEach(q => {
+      total++;
+      const userAns = (q.dataset.userAnswer || "").toLowerCase();
+      const correctAns = q.dataset.answer.toLowerCase();
+      const isCorrect = userAns === correctAns;
+      if (isCorrect) correct++;
+
+      if (q.dataset.type === "mcq") {
+        q.querySelectorAll(".option").forEach(o => {
+          if (o.dataset.key.toLowerCase() === correctAns) o.classList.add("correct");
+          else if (o.dataset.key.toLowerCase() === userAns && !isCorrect) o.classList.add("wrong");
+        });
+      } else if (q.dataset.type === "blank") {
+        const inp = q.querySelector(".blank-input");
+        inp.classList.add(isCorrect ? "correct" : "wrong");
+      }
+      q.querySelector(".explanation")?.classList.add("show");
+    });
+
+    const result = document.getElementById("result");
+    const pct = Math.round(correct/total*100);
+    document.getElementById("scoreNum").textContent = pct + "%";
+    document.getElementById("scoreDetail").textContent = `${correct} / ${total} 正确`;
+    result.classList.add("show");
+    result.scrollIntoView({behavior:"smooth"});
+  }
+
+  function resetQuiz() {
+    document.querySelectorAll(".question").forEach(q => {
+      delete q.dataset.userAnswer;
+      q.querySelectorAll(".option").forEach(o => o.classList.remove("selected","correct","wrong"));
+      const inp = q.querySelector(".blank-input");
+      if (inp) { inp.value = ""; inp.classList.remove("correct","wrong"); }
+      q.querySelector(".explanation")?.classList.remove("show");
+    });
+    document.getElementById("result").classList.remove("show");
+    document.getElementById("progressFill").style.width = "0%";
+  }
+</script>
+
+</body>
+</html>
