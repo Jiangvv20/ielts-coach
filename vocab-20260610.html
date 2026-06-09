@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#2563eb">
+<title>今日 150 词 · 2026-06-10 · Technology</title>
+<style>
+  :root {
+    --bg: #ffffff; --fg: #1a1a1a; --muted: #6b7280;
+    --accent: #2563eb; --ok: #059669; --warn: #d97706;
+    --card: #f9fafb; --border: #e5e7eb;
+    --nav-bg: rgba(255,255,255,0.92);
+    --header-bg: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f172a; --fg: #f1f5f9; --muted: #94a3b8;
+      --accent: #60a5fa; --ok: #34d399; --warn: #fbbf24;
+      --card: #1e293b; --border: #334155;
+      --nav-bg: rgba(15,23,42,0.92);
+      --header-bg: linear-gradient(135deg, #1e40af 0%, #6b21a8 100%);
+    }
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg); }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif;
+    line-height: 1.5;
+    min-height: 100vh;
+    padding-bottom: calc(64px + env(safe-area-inset-bottom, 0));
+  }
+  .app-header {
+    background: var(--header-bg); color: white;
+    padding: calc(env(safe-area-inset-top, 16px) + 12px) 16px 14px;
+    position: sticky; top: 0; z-index: 20;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .back-btn {
+    background: rgba(255,255,255,0.18); border: none; color: white;
+    width: 34px; height: 34px; border-radius: 10px;
+    font-size: 1.1rem; cursor: pointer; flex-shrink: 0;
+    text-decoration: none; display: flex; align-items: center; justify-content: center;
+  }
+  .app-header .ttl { font-size: 1rem; font-weight: 700; }
+  .app-header .sub {
+    font-size: 0.72rem; opacity: 0.85; margin-top: 1px;
+    letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  .stats {
+    background: var(--card); padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px; text-align: center;
+  }
+  .stat .num { font-size: 1.4rem; font-weight: 700; }
+  .stat .num.know { color: var(--ok); }
+  .stat .num.weak { color: var(--warn); }
+  .stat .num.left { color: var(--accent); }
+  .stat .lbl { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; margin-top: 2px; }
+  .progress-bar {
+    height: 4px; background: var(--border);
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%; background: var(--accent);
+    transition: width 0.3s;
+  }
+  .card-stage {
+    margin: 24px 16px;
+    perspective: 1000px;
+  }
+  .card-3d {
+    position: relative;
+    width: 100%; min-height: 260px;
+    transform-style: preserve-3d;
+    transition: transform 0.5s;
+    cursor: pointer;
+  }
+  .card-3d.flipped { transform: rotateY(180deg); }
+  .face {
+    position: absolute; width: 100%; height: 100%;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 24px 20px;
+    display: flex; flex-direction: column;
+    justify-content: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .face.front { text-align: center; }
+  .face.front .word {
+    font-size: 2rem; font-weight: 700;
+    color: var(--accent); margin-bottom: 8px;
+    word-break: break-word;
+  }
+  .face.front .pos {
+    color: var(--muted); font-size: 0.95rem;
+    font-style: italic;
+  }
+  .face.front .hint {
+    margin-top: 28px; color: var(--muted);
+    font-size: 0.82rem;
+  }
+  .face.back { transform: rotateY(180deg); }
+  .face.back .zh {
+    font-size: 1.3rem; font-weight: 600;
+    color: var(--accent); margin-bottom: 12px;
+  }
+  .face.back .collo {
+    background: var(--bg); padding: 8px 12px;
+    border-radius: 8px; font-size: 0.92rem;
+    color: var(--fg); margin-bottom: 10px;
+    border-left: 3px solid var(--accent);
+  }
+  .face.back .ex {
+    font-size: 0.95rem; font-style: italic;
+    color: var(--fg); line-height: 1.6;
+  }
+  .face.back .ex strong { color: var(--accent); font-style: normal; }
+  .speaker {
+    position: absolute; top: 14px; right: 14px;
+    width: 36px; height: 36px; border-radius: 50%;
+    background: var(--bg); border: 1px solid var(--border);
+    cursor: pointer; font-size: 1.1rem; padding: 0;
+    color: var(--accent);
+  }
+  .view-toggle {
+    display: flex; padding: 12px 16px 0;
+    gap: 8px;
+  }
+  .view-toggle button {
+    flex: 1; padding: 8px;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 8px; color: var(--muted);
+    font-size: 0.85rem; cursor: pointer; font-family: inherit;
+  }
+  .view-toggle button.active { background: var(--accent); color: white; border-color: var(--accent); }
+  .list-view { display: none; padding: 12px 16px 24px; }
+  .list-view.active { display: block; }
+  .list-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px; border-bottom: 1px solid var(--border);
+    background: var(--card); border-radius: 8px;
+    margin-bottom: 6px;
+  }
+  .list-row .num {
+    flex-shrink: 0; width: 28px;
+    color: var(--muted); font-size: 0.72rem;
+    font-family: "SF Mono", Menlo, monospace;
+  }
+  .list-row .word {
+    flex: 1; min-width: 0;
+  }
+  .list-row .w { font-weight: 600; font-size: 0.95rem; color: var(--fg); }
+  .list-row .w.knew { color: var(--ok); }
+  .list-row .w.weak { color: var(--warn); }
+  .list-row .zh {
+    font-size: 0.78rem; color: var(--muted); margin-top: 2px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .list-row .spk {
+    flex-shrink: 0; width: 32px; height: 32px;
+    border-radius: 50%; background: var(--bg);
+    border: 1px solid var(--border); cursor: pointer;
+    color: var(--accent); font-size: 0.9rem; padding: 0;
+  }
+  .list-row .mk {
+    flex-shrink: 0; width: 24px; text-align: center;
+    color: var(--muted);
+  }
+  .list-row .mk.know { color: var(--ok); }
+  .list-row .mk.weak { color: var(--warn); }
+  .curriculum-note {
+    margin: 16px; padding: 12px 14px;
+    background: var(--card); border-left: 3px solid var(--accent);
+    border-radius: 8px; font-size: 0.82rem;
+    color: var(--muted); line-height: 1.5;
+  }
+  .curriculum-note strong { color: var(--fg); }
+  .actions {
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px; padding: 0 16px;
+  }
+  .btn {
+    padding: 14px 8px; border: 1px solid var(--border);
+    border-radius: 12px; background: var(--card);
+    color: var(--fg); font-size: 0.95rem;
+    font-weight: 600; cursor: pointer; font-family: inherit;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .btn .ico { display: block; font-size: 1.4rem; margin-bottom: 2px; }
+  .btn.weak { color: var(--warn); }
+  .btn.weak:active { background: rgba(217,119,6,0.1); }
+  .btn.flip { color: var(--accent); }
+  .btn.flip:active { background: rgba(37,99,235,0.1); }
+  .btn.know { color: var(--ok); }
+  .btn.know:active { background: rgba(5,150,105,0.1); }
+  .meta {
+    text-align: center; color: var(--muted);
+    font-size: 0.78rem; margin-top: 20px;
+  }
+  .tabbar {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: var(--nav-bg);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    border-top: 1px solid var(--border);
+    display: flex;
+    padding-bottom: env(safe-area-inset-bottom, 0);
+    z-index: 30;
+  }
+  .tab-btn {
+    flex: 1; background: transparent; border: none;
+    padding: 10px 4px 8px; color: var(--muted); font-size: 0.68rem;
+    cursor: pointer;
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    font-family: inherit; text-decoration: none;
+  }
+  .tab-btn .icon { font-size: 1.25rem; line-height: 1; }
+  .tab-btn.active { color: var(--accent); }
+  .done-screen {
+    text-align: center; padding: 60px 24px;
+    display: none;
+  }
+  .done-screen.show { display: block; }
+  .done-screen .big { font-size: 4rem; }
+  .done-screen .ttl { font-size: 1.3rem; font-weight: 700; margin: 8px 0; }
+  .done-screen .sub { color: var(--muted); margin-bottom: 24px; }
+  .done-screen button {
+    background: var(--accent); color: white; border: none;
+    padding: 12px 24px; border-radius: 12px;
+    font-size: 0.95rem; font-weight: 600; cursor: pointer;
+    font-family: inherit; margin: 4px;
+  }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <a class="back-btn" href="index.html#home">←</a>
+  <div style="flex:1;">
+    <div class="ttl">今日 150 词 · Technology</div>
+    <div class="sub">2026-06-10 · Day 21</div>
+  </div>
+</header>
+
+<div class="stats">
+  <div class="stat"><div class="num know" id="kn">0</div><div class="lbl">知道</div></div>
+  <div class="stat"><div class="num weak" id="wk">0</div><div class="lbl">不熟</div></div>
+  <div class="stat"><div class="num left" id="lf">150</div><div class="lbl">剩余</div></div>
+</div>
+<div class="progress-bar"><div class="progress-fill" id="pg" style="width:0%"></div></div>
+
+<div class="view-toggle">
+  <button id="vtFlash" class="active" onclick="setView('flash')">📇 卡片</button>
+  <button id="vtList" onclick="setView('list')">📋 列表</button>
+</div>
+
+<div id="deck">
+  <div class="card-stage">
+    <div class="card-3d" id="card" onclick="flip()">
+      <div class="face front">
+        <button class="speaker" onclick="event.stopPropagation();speak(document.getElementById('w').textContent)">🔊</button>
+        <div class="word" id="w">—</div>
+        <div class="pos" id="p">—</div>
+        <div class="hint">轻触卡片 · 翻看释义</div>
+      </div>
+      <div class="face back">
+        <button class="speaker" onclick="event.stopPropagation();speak(document.getElementById('w').textContent)">🔊</button>
+        <div class="zh" id="zh">—</div>
+        <div class="collo" id="cl">—</div>
+        <div class="ex" id="ex">—</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="btn weak" onclick="mark('weak')"><span class="ico">😣</span>不熟</button>
+    <button class="btn flip" onclick="flip()"><span class="ico">🔄</span>翻转</button>
+    <button class="btn know" onclick="mark('know')"><span class="ico">✅</span>知道</button>
+  </div>
+
+  <div class="meta" id="meta">1 / 150 · 今日主题 Technology Day 7</div>
+</div>
+
+<div class="list-view" id="listView">
+  <div id="listBody"></div>
+</div>
+
+<div class="curriculum-note">
+  <strong>词汇来源</strong>: 8 天主题轮换,涵盖雅思高频话题。<br>
+  Day 1-7 <strong>Education</strong> · Day 8-14 <strong>Environment</strong> · Day 15-21 <strong>Technology</strong> · Day 22-28 <strong>Health</strong> · Day 29-35 <strong>Government & Society</strong> · Day 36-42 <strong>Work & Economy</strong> · Day 43-49 <strong>Family</strong> · Day 50-56 <strong>Travel & Culture</strong> · 之后循环。<br>
+  今日 Day 7 专题: <strong>Biotech · Space · Green Tech · Digital Governance · Robotics</strong>。词汇为 Band 7+ 难度, 每条含 词性 · 中文 · 搭配 · 例句。
+</div>
+
+<div class="done-screen" id="done">
+  <div class="big">🎉</div>
+  <div class="ttl" id="doneTtl">今日 150 词完成!</div>
+  <div class="sub" id="doneSub">知道 0 · 不熟 0</div>
+  <button onclick="resetAll()">重新开始</button>
+  <button onclick="reviewWeak()">只复习不熟</button>
+  <button onclick="location.href='index.html'">回主页</button>
+</div>
+
+<nav class="tabbar">
+  <a class="tab-btn active" href="index.html#home"><span class="icon">🏠</span>概览</a>
+  <a class="tab-btn" href="index.html#materials"><span class="icon">📺</span>材料</a>
+  <a class="tab-btn" href="index.html#quizzes"><span class="icon">✏️</span>测验</a>
+  <a class="tab-btn" href="index.html#plan"><span class="icon">📋</span>计划</a>
+</nav>
+
+<script>
+const CARDS = [
+{"w":"biotechnology","p":"n.","zh":"生物技术","cl":"advances in biotechnology","ex":"<strong>Biotechnology</strong> is transforming both medicine and agriculture."},
+{"w":"genomics","p":"n.","zh":"基因组学","cl":"the field of genomics","ex":"<strong>Genomics</strong> has unlocked entirely new approaches to treating hereditary disease."},
+{"w":"CRISPR","p":"n.","zh":"基因编辑技术","cl":"CRISPR gene editing","ex":"<strong>CRISPR</strong> allows scientists to modify DNA sequences with unprecedented precision."},
+{"w":"genome","p":"n.","zh":"基因组","cl":"sequence the genome","ex":"Researchers have now sequenced the human <strong>genome</strong> at high resolution."},
+{"w":"gene therapy","p":"n.","zh":"基因治疗","cl":"breakthrough gene therapy","ex":"<strong>Gene therapy</strong> offers hope for patients with inherited blood disorders."},
+{"w":"bioinformatics","p":"n.","zh":"生物信息学","cl":"use bioinformatics tools","ex":"<strong>Bioinformatics</strong> combines biology and computing to analyse genetic data."},
+{"w":"stem cell","p":"n.","zh":"干细胞","cl":"stem cell research","ex":"<strong>Stem cell</strong> research holds enormous potential for regenerative medicine."},
+{"w":"biomarker","p":"n.","zh":"生物标志物","cl":"identify a biomarker","ex":"A blood <strong>biomarker</strong> can indicate cancer at its earliest stage."},
+{"w":"mutation","p":"n.","zh":"基因突变","cl":"a genetic mutation","ex":"A single <strong>mutation</strong> in the BRCA1 gene significantly raises cancer risk."},
+{"w":"sequencing","p":"n.","zh":"测序","cl":"DNA sequencing","ex":"Rapid DNA <strong>sequencing</strong> has become central to personalised medicine."},
+{"w":"synthetic biology","p":"n.","zh":"合成生物学","cl":"the field of synthetic biology","ex":"<strong>Synthetic biology</strong> engineers organisms to produce fuels and medicines."},
+{"w":"bioengineering","p":"n.","zh":"生物工程","cl":"bioengineering solutions","ex":"<strong>Bioengineering</strong> has produced lab-grown meat and skin substitutes."},
+{"w":"cloning","p":"n.","zh":"克隆","cl":"therapeutic cloning","ex":"<strong>Cloning</strong> technology remains ethically controversial worldwide."},
+{"w":"transgenic","p":"adj.","zh":"转基因的","cl":"transgenic crops","ex":"<strong>Transgenic</strong> crops can be made resistant to pests, boosting yields."},
+{"w":"biopharmaceutical","p":"n.","zh":"生物制药","cl":"biopharmaceutical industry","ex":"The <strong>biopharmaceutical</strong> sector invests heavily in monoclonal antibody treatments."},
+{"w":"personalised medicine","p":"n.","zh":"个性化医疗","cl":"the era of personalised medicine","ex":"<strong>Personalised medicine</strong> tailors treatment to an individual's genetic profile."},
+{"w":"diagnostic","p":"adj./n.","zh":"诊断的 / 诊断工具","cl":"a diagnostic tool","ex":"AI-powered <strong>diagnostic</strong> tools can detect tumours at an early stage."},
+{"w":"pathogen","p":"n.","zh":"病原体","cl":"identify a pathogen","ex":"Rapid tests can identify a <strong>pathogen</strong> in under one hour."},
+{"w":"antibody","p":"n.","zh":"抗体","cl":"monoclonal antibody","ex":"Monoclonal <strong>antibodies</strong> have transformed cancer treatment."},
+{"w":"vaccine","p":"n.","zh":"疫苗","cl":"develop a vaccine","ex":"mRNA technology accelerated <strong>vaccine</strong> development dramatically."},
+{"w":"orbit","p":"n./v.","zh":"轨道 / 环绕","cl":"enter orbit","ex":"The satellite will <strong>orbit</strong> Earth at an altitude of 500 kilometres."},
+{"w":"propulsion","p":"n.","zh":"推进力","cl":"rocket propulsion","ex":"Advances in <strong>propulsion</strong> could halve travel times to Mars."},
+{"w":"payload","p":"n.","zh":"有效载荷","cl":"a heavy payload","ex":"The rocket can carry a <strong>payload</strong> of 10 tonnes into low Earth orbit."},
+{"w":"extraterrestrial","p":"adj.","zh":"地球外的","cl":"extraterrestrial life","ex":"Scientists continue to search for <strong>extraterrestrial</strong> life on other planets."},
+{"w":"exoplanet","p":"n.","zh":"系外行星","cl":"discover an exoplanet","ex":"Thousands of <strong>exoplanets</strong> have been identified beyond our solar system."},
+{"w":"reusable","p":"adj.","zh":"可重复使用的","cl":"reusable rocket","ex":"A <strong>reusable</strong> rocket dramatically reduces the cost of space access."},
+{"w":"probe","p":"n.","zh":"探测器","cl":"a space probe","ex":"The <strong>probe</strong> sent back data from the edge of the solar system."},
+{"w":"telescope","p":"n.","zh":"望远镜","cl":"a space telescope","ex":"The space <strong>telescope</strong> captured images of the earliest galaxies."},
+{"w":"microgravity","p":"n.","zh":"微重力","cl":"microgravity environment","ex":"Experiments in <strong>microgravity</strong> help us understand human physiology."},
+{"w":"constellation","p":"n.","zh":"卫星星座","cl":"satellite constellation","ex":"A <strong>constellation</strong> of small satellites provides global broadband coverage."},
+{"w":"interplanetary","p":"adj.","zh":"行星间的","cl":"an interplanetary mission","ex":"An <strong>interplanetary</strong> mission to Mars requires years of preparation."},
+{"w":"deorbit","p":"v.","zh":"脱离轨道","cl":"deorbit a satellite","ex":"The operator plans to safely <strong>deorbit</strong> the defunct satellite."},
+{"w":"astronaut","p":"n.","zh":"宇航员","cl":"train as an astronaut","ex":"<strong>Astronauts</strong> must train for years before their first mission."},
+{"w":"cosmic","p":"adj.","zh":"宇宙的","cl":"cosmic radiation","ex":"Prolonged <strong>cosmic</strong> radiation poses a serious health risk to astronauts."},
+{"w":"photovoltaic","p":"adj.","zh":"光伏的","cl":"photovoltaic cell","ex":"<strong>Photovoltaic</strong> cells are now cheap enough to power entire households."},
+{"w":"geothermal","p":"adj.","zh":"地热的","cl":"geothermal energy","ex":"Iceland relies almost entirely on <strong>geothermal</strong> and hydropower."},
+{"w":"electrification","p":"n.","zh":"电气化","cl":"transport electrification","ex":"The <strong>electrification</strong> of transport is central to decarbonisation plans."},
+{"w":"carbon capture","p":"n.","zh":"碳捕获","cl":"carbon capture technology","ex":"<strong>Carbon capture</strong> technology removes CO₂ directly from the atmosphere."},
+{"w":"net zero","p":"n./adj.","zh":"净零排放","cl":"achieve net zero","ex":"Most developed nations have pledged to achieve <strong>net zero</strong> by 2050."},
+{"w":"green hydrogen","p":"n.","zh":"绿氢","cl":"produce green hydrogen","ex":"<strong>Green hydrogen</strong> produced by electrolysis could decarbonise heavy industry."},
+{"w":"battery storage","p":"n.","zh":"储能电池","cl":"grid-scale battery storage","ex":"Grid-scale <strong>battery storage</strong> stabilises intermittent renewable supply."},
+{"w":"smart grid","p":"n.","zh":"智能电网","cl":"deploy a smart grid","ex":"A <strong>smart grid</strong> dynamically balances electricity supply and demand."},
+{"w":"offshore wind","p":"n.","zh":"海上风电","cl":"offshore wind farm","ex":"The UK operates the world's largest <strong>offshore wind</strong> capacity."},
+{"w":"turbine","p":"n.","zh":"涡轮机","cl":"wind turbine","ex":"Modern <strong>turbines</strong> can generate electricity in very light winds."},
+{"w":"decarbonise","p":"v.","zh":"脱碳","cl":"decarbonise the economy","ex":"It is technically feasible to <strong>decarbonise</strong> the energy sector by 2050."},
+{"w":"circular economy","p":"n.","zh":"循环经济","cl":"shift to a circular economy","ex":"A <strong>circular economy</strong> eliminates waste by keeping materials in use."},
+{"w":"renewable","p":"adj.","zh":"可再生的","cl":"renewable energy capacity","ex":"Countries are rapidly expanding their <strong>renewable</strong> energy capacity."},
+{"w":"solar power","p":"n.","zh":"太阳能","cl":"invest in solar power","ex":"<strong>Solar power</strong> has become the cheapest source of electricity in most regions."},
+{"w":"autonomous","p":"adj.","zh":"自主的","cl":"autonomous vehicle","ex":"Fully <strong>autonomous</strong> vehicles could reduce traffic fatalities by 90%."},
+{"w":"drone","p":"n.","zh":"无人机","cl":"delivery drone","ex":"Logistics companies are piloting <strong>drone</strong> delivery in rural areas."},
+{"w":"exoskeleton","p":"n.","zh":"外骨骼","cl":"wearable exoskeleton","ex":"A wearable <strong>exoskeleton</strong> can help paralysed patients regain movement."},
+{"w":"prosthetic","p":"adj./n.","zh":"假肢的 / 假肢","cl":"a prosthetic limb","ex":"3D-printed <strong>prosthetic</strong> limbs are transforming lives in developing countries."},
+{"w":"telemedicine","p":"n.","zh":"远程医疗","cl":"deliver telemedicine","ex":"<strong>Telemedicine</strong> brings specialist care to patients in remote regions."},
+{"w":"wearable","p":"adj./n.","zh":"可穿戴的 / 可穿戴设备","cl":"a wearable sensor","ex":"A <strong>wearable</strong> device can monitor heart rate and blood oxygen continuously."},
+{"w":"haptic","p":"adj.","zh":"触觉的","cl":"haptic feedback","ex":"<strong>Haptic</strong> feedback lets surgeons feel resistance during robotic operations."},
+{"w":"swarm intelligence","p":"n.","zh":"群体智能","cl":"drone swarm intelligence","ex":"<strong>Swarm intelligence</strong> allows hundreds of drones to coordinate autonomously."},
+{"w":"dexterity","p":"n.","zh":"灵活性","cl":"robotic dexterity","ex":"Improving <strong>dexterity</strong> in robot hands remains a key engineering challenge."},
+{"w":"precision","p":"n.","zh":"精确性","cl":"surgical precision","ex":"Robotic surgery offers millimetre-level <strong>precision</strong> that exceeds human capability."},
+{"w":"prototype","p":"n.","zh":"原型","cl":"build a prototype","ex":"Engineers built a working <strong>prototype</strong> in just three months."},
+{"w":"scalable","p":"adj.","zh":"可扩展的","cl":"a scalable solution","ex":"The startup's model is <strong>scalable</strong> to millions of users worldwide."},
+{"w":"deploy","p":"v.","zh":"部署","cl":"deploy a system","ex":"The company plans to <strong>deploy</strong> its AI system across 50 hospitals."},
+{"w":"iterate","p":"v.","zh":"反复改进","cl":"rapidly iterate","ex":"Software teams <strong>iterate</strong> on prototypes weekly to improve performance."},
+{"w":"regulation","p":"n.","zh":"监管","cl":"tighten regulation","ex":"Governments are under pressure to tighten <strong>regulation</strong> of tech giants."},
+{"w":"accountability","p":"n.","zh":"问责制","cl":"enforce accountability","ex":"Algorithmic systems must be subject to public <strong>accountability</strong>."},
+{"w":"governance","p":"n.","zh":"治理","cl":"data governance","ex":"<strong>Governance</strong> frameworks for AI are still evolving globally."},
+{"w":"oversight","p":"n.","zh":"监督","cl":"independent oversight","ex":"Independent <strong>oversight</strong> is essential for high-stakes AI applications."},
+{"w":"digital rights","p":"n.","zh":"数字权利","cl":"protect digital rights","ex":"Activists campaign for stronger <strong>digital rights</strong> and online privacy."},
+{"w":"interoperability","p":"n.","zh":"互操作性","cl":"ensure interoperability","ex":"<strong>Interoperability</strong> between platforms prevents vendor lock-in."},
+{"w":"standardise","p":"v.","zh":"标准化","cl":"standardise protocols","ex":"The industry needs to <strong>standardise</strong> charging connectors for electric vehicles."},
+{"w":"compliance","p":"n.","zh":"合规","cl":"regulatory compliance","ex":"Firms must ensure <strong>compliance</strong> with data protection legislation."},
+{"w":"liability","p":"n.","zh":"法律责任","cl":"assign liability","ex":"Who bears <strong>liability</strong> when an autonomous vehicle causes an accident?"},
+{"w":"patent","p":"n.","zh":"专利","cl":"file a patent","ex":"The company holds 500 <strong>patents</strong> for its battery technology."},
+{"w":"intellectual property","p":"n.","zh":"知识产权","cl":"protect intellectual property","ex":"Protecting <strong>intellectual property</strong> is crucial for innovation."},
+{"w":"open source","p":"adj.","zh":"开源的","cl":"open-source software","ex":"<strong>Open-source</strong> software allows developers worldwide to collaborate freely."},
+{"w":"monopoly","p":"n.","zh":"垄断","cl":"a tech monopoly","ex":"Regulators are investigating whether the firm constitutes a <strong>monopoly</strong>."},
+{"w":"antitrust","p":"adj./n.","zh":"反垄断的","cl":"antitrust action","ex":"The EU launched <strong>antitrust</strong> proceedings against the tech giant."},
+{"w":"graphene","p":"n.","zh":"石墨烯","cl":"graphene composite","ex":"<strong>Graphene</strong> is stronger than steel yet thinner than a human hair."},
+{"w":"nanomaterial","p":"n.","zh":"纳米材料","cl":"novel nanomaterials","ex":"<strong>Nanomaterials</strong> are being incorporated into sunscreen and sports equipment."},
+{"w":"superconductor","p":"n.","zh":"超导体","cl":"a room-temperature superconductor","ex":"A room-temperature <strong>superconductor</strong> would revolutionise energy transmission."},
+{"w":"additive manufacturing","p":"n.","zh":"增材制造","cl":"additive manufacturing process","ex":"<strong>Additive manufacturing</strong> produces complex parts impossible to machine traditionally."},
+{"w":"composite","p":"n./adj.","zh":"复合材料","cl":"carbon-fibre composite","ex":"Carbon-fibre <strong>composites</strong> are lighter and stronger than aluminium."},
+{"w":"semiconductor","p":"n.","zh":"半导体","cl":"semiconductor chip","ex":"The global <strong>semiconductor</strong> shortage severely disrupted the automotive industry."},
+{"w":"microprocessor","p":"n.","zh":"微处理器","cl":"a high-performance microprocessor","ex":"Modern <strong>microprocessors</strong> contain billions of transistors on a single chip."},
+{"w":"transistor","p":"n.","zh":"晶体管","cl":"transistor density","ex":"Moore's Law predicted that <strong>transistor</strong> density would double every two years."},
+{"w":"polymer","p":"n.","zh":"聚合物","cl":"biodegradable polymer","ex":"Scientists have developed a biodegradable <strong>polymer</strong> to replace single-use plastics."},
+{"w":"lithium-ion","p":"adj.","zh":"锂离子的","cl":"lithium-ion battery","ex":"<strong>Lithium-ion</strong> batteries dominate the electric vehicle market today."},
+{"w":"bandwidth","p":"n.","zh":"带宽","cl":"high bandwidth","ex":"Ultra-high <strong>bandwidth</strong> is essential for real-time remote surgery."},
+{"w":"latency","p":"n.","zh":"延迟","cl":"low latency","ex":"5G's near-zero <strong>latency</strong> enables autonomous vehicle communication."},
+{"w":"fibre-optic","p":"adj.","zh":"光纤的","cl":"fibre-optic cable","ex":"<strong>Fibre-optic</strong> cables carry data as pulses of light at extraordinary speed."},
+{"w":"protocol","p":"n.","zh":"协议","cl":"communication protocol","ex":"All internet devices communicate using the TCP/IP <strong>protocol</strong>."},
+{"w":"node","p":"n.","zh":"节点","cl":"a network node","ex":"Each <strong>node</strong> in the blockchain stores a complete copy of the ledger."},
+{"w":"edge computing","p":"n.","zh":"边缘计算","cl":"edge computing infrastructure","ex":"<strong>Edge computing</strong> processes data near its source, reducing latency."},
+{"w":"cloud computing","p":"n.","zh":"云计算","cl":"cloud computing services","ex":"Companies migrate their data centres to <strong>cloud computing</strong> to cut costs."},
+{"w":"server","p":"n.","zh":"服务器","cl":"a dedicated server","ex":"The platform's <strong>servers</strong> handle millions of requests per second."},
+{"w":"firmware","p":"n.","zh":"固件","cl":"update the firmware","ex":"Users should regularly update their router's <strong>firmware</strong> for security patches."},
+{"w":"API","p":"n.","zh":"应用程序接口","cl":"an open API","ex":"The platform provides an open <strong>API</strong> so developers can build new services."},
+{"w":"disruptive technology","p":"n.","zh":"颠覆性技术","cl":"a disruptive technology","ex":"Ride-sharing was a <strong>disruptive technology</strong> that transformed urban transport."},
+{"w":"proof of concept","p":"n.","zh":"概念验证","cl":"a proof of concept","ex":"The team completed a successful <strong>proof of concept</strong> for the new drug delivery system."},
+{"w":"tech ecosystem","p":"n.","zh":"科技生态系统","cl":"a vibrant tech ecosystem","ex":"Silicon Valley remains home to the world's most vibrant <strong>tech ecosystem</strong>."},
+{"w":"precision agriculture","p":"n.","zh":"精准农业","cl":"adopt precision agriculture","ex":"Drones and sensors are driving the adoption of <strong>precision agriculture</strong>."},
+{"w":"energy transition","p":"n.","zh":"能源转型","cl":"the global energy transition","ex":"The <strong>energy transition</strong> from fossil fuels to renewables is accelerating."},
+{"w":"deep tech","p":"n.","zh":"深科技","cl":"a deep tech startup","ex":"<strong>Deep tech</strong> startups focus on breakthrough innovations rather than software apps."},
+{"w":"tech-savvy","p":"adj.","zh":"精通技术的","cl":"a tech-savvy generation","ex":"The younger generation is far more <strong>tech-savvy</strong> than its predecessors."},
+{"w":"real-time data","p":"n.","zh":"实时数据","cl":"analyse real-time data","ex":"Connected sensors stream <strong>real-time data</strong> to cloud platforms for analysis."},
+{"w":"machine learning","p":"n.","zh":"机器学习","cl":"apply machine learning","ex":"<strong>Machine learning</strong> models improve as they are fed more data."},
+{"w":"digital twin","p":"n.","zh":"数字孪生","cl":"create a digital twin","ex":"Engineers create a <strong>digital twin</strong> of a factory to simulate production changes."},
+{"w":"zero-carbon","p":"adj.","zh":"零碳的","cl":"a zero-carbon grid","ex":"The city aims to operate on a fully <strong>zero-carbon</strong> energy grid by 2035."},
+{"w":"space debris","p":"n.","zh":"太空垃圾","cl":"the space debris problem","ex":"<strong>Space debris</strong> poses a growing collision risk to operational satellites."},
+{"w":"commercial spaceflight","p":"n.","zh":"商业航天","cl":"the commercial spaceflight industry","ex":"<strong>Commercial spaceflight</strong> has lowered launch costs by an order of magnitude."},
+{"w":"bioprinting","p":"n.","zh":"生物打印","cl":"organ bioprinting","ex":"<strong>Bioprinting</strong> could one day eliminate waiting lists for organ transplants."},
+{"w":"lab-grown meat","p":"n.","zh":"人造肉","cl":"develop lab-grown meat","ex":"<strong>Lab-grown meat</strong> requires far less land and water than traditional livestock."},
+{"w":"digital health","p":"n.","zh":"数字健康","cl":"digital health platform","ex":"<strong>Digital health</strong> apps help patients manage chronic conditions remotely."},
+{"w":"remote sensing","p":"n.","zh":"遥感","cl":"satellite remote sensing","ex":"Satellite <strong>remote sensing</strong> tracks deforestation in real time."},
+{"w":"autonomous system","p":"n.","zh":"自主系统","cl":"an autonomous system","ex":"<strong>Autonomous systems</strong> can operate in environments too dangerous for humans."},
+{"w":"human enhancement","p":"n.","zh":"人类增强","cl":"cognitive human enhancement","ex":"The ethics of <strong>human enhancement</strong> through technology is fiercely debated."},
+{"w":"open innovation","p":"n.","zh":"开放式创新","cl":"embrace open innovation","ex":"<strong>Open innovation</strong> invites external partners to co-develop solutions."},
+{"w":"minimal viable product","p":"n.","zh":"最小可行产品","cl":"launch an MVP","ex":"The team shipped a <strong>minimal viable product</strong> to gather early user feedback."},
+{"w":"tech stack","p":"n.","zh":"技术栈","cl":"choose a tech stack","ex":"Startups carefully choose their <strong>tech stack</strong> to balance speed and scalability."},
+{"w":"solid-state battery","p":"n.","zh":"固态电池","cl":"solid-state battery technology","ex":"<strong>Solid-state batteries</strong> promise higher energy density and faster charging."},
+{"w":"cutting-edge","p":"adj.","zh":"前沿的","cl":"cutting-edge research","ex":"The lab conducts <strong>cutting-edge</strong> research in synthetic biology."},
+{"w":"on the horizon","p":"idiom","zh":"即将出现","cl":"a breakthrough on the horizon","ex":"Scientists believe a cure for Alzheimer's is <strong>on the horizon</strong>."},
+{"w":"at the forefront","p":"idiom","zh":"处于前沿","cl":"at the forefront of AI","ex":"South Korea is <strong>at the forefront</strong> of semiconductor manufacturing."},
+{"w":"push the boundaries","p":"idiom","zh":"突破边界","cl":"push the boundaries of science","ex":"New materials are helping engineers <strong>push the boundaries</strong> of battery performance."},
+{"w":"a game changer","p":"idiom","zh":"游戏规则改变者","cl":"prove to be a game changer","ex":"mRNA vaccine technology has proved to be a <strong>game changer</strong> for global health."},
+{"w":"scale up","p":"phrasal v.","zh":"扩大规模","cl":"scale up production","ex":"The company needs to <strong>scale up</strong> manufacturing to meet global demand."},
+{"w":"roll out","p":"phrasal v.","zh":"推出 / 铺开","cl":"roll out new technology","ex":"The government plans to <strong>roll out</strong> 5G coverage nationwide by 2028."},
+{"w":"break new ground","p":"idiom","zh":"开拓新领域","cl":"break new ground in medicine","ex":"The research team is <strong>breaking new ground</strong> in organ regeneration."},
+{"w":"keep pace with","p":"phrasal v.","zh":"跟上","cl":"keep pace with innovation","ex":"Regulation must <strong>keep pace with</strong> technological change."},
+{"w":"leapfrog","p":"v.","zh":"跨越式发展","cl":"leapfrog older technology","ex":"Developing nations can <strong>leapfrog</strong> fossil fuels and move directly to renewables."},
+{"w":"a double-edged sword","p":"idiom","zh":"双刃剑","cl":"technology is a double-edged sword","ex":"Artificial intelligence is <strong>a double-edged sword</strong>: powerful yet potentially dangerous."},
+{"w":"on the drawing board","p":"idiom","zh":"在规划阶段","cl":"still on the drawing board","ex":"The Mars colony remains <strong>on the drawing board</strong>, but momentum is building."},
+{"w":"take off","p":"phrasal v.","zh":"腾飞 / 起步","cl":"take off commercially","ex":"Drone delivery services are starting to <strong>take off</strong> commercially in some cities."},
+{"w":"ahead of the curve","p":"idiom","zh":"走在时代前沿","cl":"stay ahead of the curve","ex":"Nations that invest in green hydrogen will stay <strong>ahead of the curve</strong>."},
+{"w":"a paradigm shift","p":"n./idiom","zh":"范式转变","cl":"trigger a paradigm shift","ex":"Quantum computing could trigger a <strong>paradigm shift</strong> in cryptography."},
+{"w":"trial and error","p":"idiom","zh":"反复试验","cl":"a process of trial and error","ex":"Most breakthroughs emerge through a long process of <strong>trial and error</strong>."},
+{"w":"under the microscope","p":"idiom","zh":"受到密切审查","cl":"put X under the microscope","ex":"Big tech companies are increasingly <strong>under the microscope</strong> of regulators."},
+{"w":"set in motion","p":"phrasal v.","zh":"启动 / 推动","cl":"set in motion a chain of events","ex":"The Apollo missions <strong>set in motion</strong> decades of space exploration."},
+{"w":"the tip of the iceberg","p":"idiom","zh":"冰山一角","cl":"merely the tip of the iceberg","ex":"Current AI capabilities may be <strong>merely the tip of the iceberg</strong>."},
+{"w":"stand the test of time","p":"idiom","zh":"经得起时间考验","cl":"a technology that stands the test of time","ex":"The internet is perhaps the one technology to truly <strong>stand the test of time</strong>."}
+];
+
+let state = JSON.parse(localStorage.getItem("ielts_vocab_20260610") || "{}");
+let queue = CARDS.map((c, i) => ({...c, idx: i})).filter(c => !state[c.idx] || state[c.idx] === "review");
+let cur = 0;
+
+function speak(text) {
+  if (!text || !window.speechSynthesis) return;
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = "en-US"; u.rate = 0.85; u.pitch = 1;
+  const voices = speechSynthesis.getVoices();
+  const en = voices.find(v => /en-(US|GB)/.test(v.lang) && /Samantha|Daniel|Alex|Karen|Moira|Google US English|Google UK English/.test(v.name))
+          || voices.find(v => v.lang.startsWith("en"));
+  if (en) u.voice = en;
+  speechSynthesis.speak(u);
+}
+if (window.speechSynthesis) speechSynthesis.onvoiceschanged = () => {};
+
+function render() {
+  if (cur >= queue.length) return showDone();
+  const c = queue[cur];
+  document.getElementById("w").textContent = c.w;
+  document.getElementById("p").textContent = c.p;
+  document.getElementById("zh").textContent = c.zh;
+  document.getElementById("cl").textContent = c.cl;
+  document.getElementById("ex").innerHTML = c.ex;
+  document.getElementById("card").classList.remove("flipped");
+  document.getElementById("meta").textContent = `${cur+1} / ${queue.length} · Technology Day 7`;
+  updateStats();
+  setTimeout(() => speak(c.w), 150);
+}
+
+function setView(v) {
+  document.getElementById("vtFlash").classList.toggle("active", v === "flash");
+  document.getElementById("vtList").classList.toggle("active", v === "list");
+  document.getElementById("deck").style.display = v === "flash" ? "" : "none";
+  document.getElementById("listView").classList.toggle("active", v === "list");
+  if (v === "list") renderList();
+}
+
+function renderList() {
+  const body = document.getElementById("listBody");
+  body.innerHTML = CARDS.map((c, i) => {
+    const mark = state[i] || "";
+    const cls = mark === "know" ? "knew" : mark === "weak" ? "weak" : "";
+    const ico = mark === "know" ? "✓" : mark === "weak" ? "○" : "·";
+    const mcls = mark === "know" ? "know" : mark === "weak" ? "weak" : "";
+    return `<div class="list-row">
+      <div class="num">${String(i+1).padStart(3,'0')}</div>
+      <div class="word"><div class="w ${cls}">${c.w} <span style="color:var(--muted);font-weight:400;font-size:0.78rem;">${c.p}</span></div><div class="zh">${c.zh}</div></div>
+      <button class="spk" onclick="speak('${c.w.replace(/'/g,"\\'")}')">🔊</button>
+      <div class="mk ${mcls}">${ico}</div>
+    </div>`;
+  }).join("");
+}
+
+function flip() { document.getElementById("card").classList.toggle("flipped"); }
+
+function mark(t) {
+  const c = queue[cur];
+  state[c.idx] = (t === "know" ? "know" : "weak");
+  localStorage.setItem("ielts_vocab_20260610", JSON.stringify(state));
+  cur++;
+  render();
+}
+
+function updateStats() {
+  const kn = Object.values(state).filter(v=>v==="know").length;
+  const wk = Object.values(state).filter(v=>v==="weak").length;
+  const lf = 150 - kn - wk;
+  document.getElementById("kn").textContent = kn;
+  document.getElementById("wk").textContent = wk;
+  document.getElementById("lf").textContent = lf;
+  document.getElementById("pg").style.width = ((kn+wk)/150*100) + "%";
+}
+
+function showDone() {
+  document.getElementById("deck").style.display = "none";
+  document.getElementById("done").classList.add("show");
+  const kn = Object.values(state).filter(v=>v==="know").length;
+  const wk = Object.values(state).filter(v=>v==="weak").length;
+  document.getElementById("doneTtl").textContent = wk > 0 ? `今日 150 词完成! 还有 ${wk} 张不熟` : "今日 150 词全掌握 🎉";
+  document.getElementById("doneSub").textContent = `知道 ${kn} · 不熟 ${wk}`;
+}
+
+function reviewWeak() {
+  queue = CARDS.map((c,i)=>({...c,idx:i})).filter(c => state[c.idx] === "weak");
+  if (queue.length === 0) { alert("没有不熟的卡!"); return; }
+  cur = 0;
+  document.getElementById("done").classList.remove("show");
+  document.getElementById("deck").style.display = "";
+  render();
+}
+
+function resetAll() {
+  if (!confirm("清空今日进度,重新开始?")) return;
+  localStorage.removeItem("ielts_vocab_20260610");
+  state = {};
+  queue = CARDS.map((c,i)=>({...c,idx:i}));
+  cur = 0;
+  document.getElementById("done").classList.remove("show");
+  document.getElementById("deck").style.display = "";
+  render();
+}
+
+render();
+</script>
+
+</body>
+</html>
