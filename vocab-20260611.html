@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#2563eb">
+<title>今日 150 词 · 2026-06-11 · Health</title>
+<style>
+  :root {
+    --bg: #ffffff; --fg: #1a1a1a; --muted: #6b7280;
+    --accent: #2563eb; --ok: #059669; --warn: #d97706;
+    --card: #f9fafb; --border: #e5e7eb;
+    --nav-bg: rgba(255,255,255,0.92);
+    --header-bg: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f172a; --fg: #f1f5f9; --muted: #94a3b8;
+      --accent: #60a5fa; --ok: #34d399; --warn: #fbbf24;
+      --card: #1e293b; --border: #334155;
+      --nav-bg: rgba(15,23,42,0.92);
+      --header-bg: linear-gradient(135deg, #1e40af 0%, #6b21a8 100%);
+    }
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg); }
+  body { font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif; line-height: 1.5; min-height: 100vh; padding-bottom: calc(64px + env(safe-area-inset-bottom, 0)); }
+  .app-header { background: var(--header-bg); color: white; padding: calc(env(safe-area-inset-top, 16px) + 12px) 16px 14px; position: sticky; top: 0; z-index: 20; display: flex; align-items: center; gap: 12px; }
+  .back-btn { background: rgba(255,255,255,0.18); border: none; color: white; width: 34px; height: 34px; border-radius: 10px; font-size: 1.1rem; cursor: pointer; flex-shrink: 0; text-decoration: none; display: flex; align-items: center; justify-content: center; }
+  .app-header .ttl { font-size: 1rem; font-weight: 700; }
+  .app-header .sub { font-size: 0.72rem; opacity: 0.85; margin-top: 1px; letter-spacing: 0.04em; text-transform: uppercase; }
+  .stats { background: var(--card); padding: 12px 16px; border-bottom: 1px solid var(--border); display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; text-align: center; }
+  .stat .num { font-size: 1.4rem; font-weight: 700; }
+  .stat .num.know { color: var(--ok); }
+  .stat .num.weak { color: var(--warn); }
+  .stat .num.left { color: var(--accent); }
+  .stat .lbl { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; margin-top: 2px; }
+  .progress-bar { height: 4px; background: var(--border); overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--accent); transition: width 0.3s; }
+  .card-stage { margin: 24px 16px; perspective: 1000px; }
+  .card-3d { position: relative; width: 100%; min-height: 260px; transform-style: preserve-3d; transition: transform 0.5s; cursor: pointer; }
+  .card-3d.flipped { transform: rotateY(180deg); }
+  .face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; -webkit-backface-visibility: hidden; background: var(--card); border: 1px solid var(--border); border-radius: 18px; padding: 24px 20px; display: flex; flex-direction: column; justify-content: center; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+  .face.front { text-align: center; }
+  .face.front .word { font-size: 2rem; font-weight: 700; color: var(--accent); margin-bottom: 8px; word-break: break-word; }
+  .face.front .pos { color: var(--muted); font-size: 0.95rem; font-style: italic; }
+  .face.front .hint { margin-top: 28px; color: var(--muted); font-size: 0.82rem; }
+  .face.back { transform: rotateY(180deg); }
+  .face.back .zh { font-size: 1.3rem; font-weight: 600; color: var(--accent); margin-bottom: 12px; }
+  .face.back .collo { background: var(--bg); padding: 8px 12px; border-radius: 8px; font-size: 0.92rem; color: var(--fg); margin-bottom: 10px; border-left: 3px solid var(--accent); }
+  .face.back .ex { font-size: 0.95rem; font-style: italic; color: var(--fg); line-height: 1.6; }
+  .face.back .ex strong { color: var(--accent); font-style: normal; }
+  .speaker { position: absolute; top: 14px; right: 14px; width: 36px; height: 36px; border-radius: 50%; background: var(--bg); border: 1px solid var(--border); cursor: pointer; font-size: 1.1rem; padding: 0; color: var(--accent); }
+  .view-toggle { display: flex; padding: 12px 16px 0; gap: 8px; }
+  .view-toggle button { flex: 1; padding: 8px; background: var(--card); border: 1px solid var(--border); border-radius: 8px; color: var(--muted); font-size: 0.85rem; cursor: pointer; font-family: inherit; }
+  .view-toggle button.active { background: var(--accent); color: white; border-color: var(--accent); }
+  .list-view { display: none; padding: 12px 16px 24px; }
+  .list-view.active { display: block; }
+  .list-row { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-bottom: 1px solid var(--border); background: var(--card); border-radius: 8px; margin-bottom: 6px; }
+  .list-row .num { flex-shrink: 0; width: 28px; color: var(--muted); font-size: 0.72rem; font-family: "SF Mono", Menlo, monospace; }
+  .list-row .word { flex: 1; min-width: 0; }
+  .list-row .w { font-weight: 600; font-size: 0.95rem; color: var(--fg); }
+  .list-row .w.knew { color: var(--ok); }
+  .list-row .w.weak { color: var(--warn); }
+  .list-row .zh { font-size: 0.78rem; color: var(--muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .list-row .spk { flex-shrink: 0; width: 32px; height: 32px; border-radius: 50%; background: var(--bg); border: 1px solid var(--border); cursor: pointer; color: var(--accent); font-size: 0.9rem; padding: 0; }
+  .list-row .mk { flex-shrink: 0; width: 24px; text-align: center; color: var(--muted); }
+  .list-row .mk.know { color: var(--ok); }
+  .list-row .mk.weak { color: var(--warn); }
+  .curriculum-note { margin: 16px; padding: 12px 14px; background: var(--card); border-left: 3px solid var(--accent); border-radius: 8px; font-size: 0.82rem; color: var(--muted); line-height: 1.5; }
+  .curriculum-note strong { color: var(--fg); }
+  .actions { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; padding: 0 16px; }
+  .btn { padding: 14px 8px; border: 1px solid var(--border); border-radius: 12px; background: var(--card); color: var(--fg); font-size: 0.95rem; font-weight: 600; cursor: pointer; font-family: inherit; -webkit-tap-highlight-color: transparent; }
+  .btn .ico { display: block; font-size: 1.4rem; margin-bottom: 2px; }
+  .btn.weak { color: var(--warn); }
+  .btn.weak:active { background: rgba(217,119,6,0.1); }
+  .btn.flip { color: var(--accent); }
+  .btn.flip:active { background: rgba(37,99,235,0.1); }
+  .btn.know { color: var(--ok); }
+  .btn.know:active { background: rgba(5,150,105,0.1); }
+  .meta { text-align: center; color: var(--muted); font-size: 0.78rem; margin-top: 20px; }
+  .tabbar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--nav-bg); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px); border-top: 1px solid var(--border); display: flex; padding-bottom: env(safe-area-inset-bottom, 0); z-index: 30; }
+  .tab-btn { flex: 1; background: transparent; border: none; padding: 10px 4px 8px; color: var(--muted); font-size: 0.68rem; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 3px; font-family: inherit; text-decoration: none; }
+  .tab-btn .icon { font-size: 1.25rem; line-height: 1; }
+  .tab-btn.active { color: var(--accent); }
+  .done-screen { text-align: center; padding: 60px 24px; display: none; }
+  .done-screen.show { display: block; }
+  .done-screen .big { font-size: 4rem; }
+  .done-screen .ttl { font-size: 1.3rem; font-weight: 700; margin: 8px 0; }
+  .done-screen .sub { color: var(--muted); margin-bottom: 24px; }
+  .done-screen button { background: var(--accent); color: white; border: none; padding: 12px 24px; border-radius: 12px; font-size: 0.95rem; font-weight: 600; cursor: pointer; font-family: inherit; margin: 4px; }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <a class="back-btn" href="index.html#home">&#8592;</a>
+  <div style="flex:1;">
+    <div class="ttl">今日 150 词 &middot; Health</div>
+    <div class="sub">2026-06-11 &middot; Day 22</div>
+  </div>
+</header>
+
+<div class="stats">
+  <div class="stat"><div class="num know" id="kn">0</div><div class="lbl">知道</div></div>
+  <div class="stat"><div class="num weak" id="wk">0</div><div class="lbl">不熟</div></div>
+  <div class="stat"><div class="num left" id="lf">150</div><div class="lbl">剩余</div></div>
+</div>
+<div class="progress-bar"><div class="progress-fill" id="pg" style="width:0%"></div></div>
+
+<div class="view-toggle">
+  <button id="vtFlash" class="active" onclick="setView('flash')">&#128199; 卡片</button>
+  <button id="vtList" onclick="setView('list')">&#128203; 列表</button>
+</div>
+
+<div id="deck">
+  <div class="card-stage">
+    <div class="card-3d" id="card" onclick="flip()">
+      <div class="face front">
+        <button class="speaker" onclick="event.stopPropagation();speak(document.getElementById('w').textContent)">&#128266;</button>
+        <div class="word" id="w">&#8212;</div>
+        <div class="pos" id="p">&#8212;</div>
+        <div class="hint">轻触卡片 &middot; 翻看释义</div>
+      </div>
+      <div class="face back">
+        <button class="speaker" onclick="event.stopPropagation();speak(document.getElementById('w').textContent)">&#128266;</button>
+        <div class="zh" id="zh">&#8212;</div>
+        <div class="collo" id="cl">&#8212;</div>
+        <div class="ex" id="ex">&#8212;</div>
+      </div>
+    </div>
+  </div>
+  <div class="actions">
+    <button class="btn weak" onclick="mark('weak')"><span class="ico">&#128547;</span>不熟</button>
+    <button class="btn flip" onclick="flip()"><span class="ico">&#128260;</span>翻转</button>
+    <button class="btn know" onclick="mark('know')"><span class="ico">&#9989;</span>知道</button>
+  </div>
+  <div class="meta" id="meta">1 / 150 &middot; 今日主题 Health</div>
+</div>
+
+<div class="list-view" id="listView"><div id="listBody"></div></div>
+
+<div class="curriculum-note">
+  <strong>词汇来源</strong>: 8 周主题轮换，涵盖雅思高频话题。<br>
+  Day 1-7 <strong>Education</strong> &middot; Day 8-14 <strong>Environment</strong> &middot; Day 15-21 <strong>Technology</strong> &middot; Day 22-28 <strong>Health</strong> &middot; Day 29-35 <strong>Government &amp; Society</strong> &middot; Day 36-42 <strong>Work &amp; Economy</strong> &middot; Day 43-49 <strong>Family</strong> &middot; Day 50-56 <strong>Travel &amp; Culture</strong> &middot; 之后循环。<br>
+  词汇为 Band 7+ 难度，每条含 词性 &middot; 中文 &middot; 搭配 &middot; 例句，由 IELTS 高分话题词库扩展生成。
+</div>
+
+<div class="done-screen" id="done">
+  <div class="big">&#127881;</div>
+  <div class="ttl" id="doneTtl">今日 150 词完成!</div>
+  <div class="sub" id="doneSub">知道 0 &middot; 不熟 0</div>
+  <button onclick="resetAll()">重新开始</button>
+  <button onclick="reviewWeak()">只复习不熟</button>
+  <button onclick="location.href='index.html'">回主页</button>
+</div>
+
+<nav class="tabbar">
+  <a class="tab-btn active" href="index.html#home"><span class="icon">&#127968;</span>概览</a>
+  <a class="tab-btn" href="index.html#materials"><span class="icon">&#128250;</span>材料</a>
+  <a class="tab-btn" href="index.html#quizzes"><span class="icon">&#9999;&#65039;</span>测验</a>
+  <a class="tab-btn" href="index.html#plan"><span class="icon">&#128203;</span>计划</a>
+</nav>
+
+<script>
+const CARDS = [
+{"w":"sedentary","p":"adj.","zh":"久坐的；不活动的","cl":"lead a sedentary lifestyle","ex":"A <strong>sedentary</strong> lifestyle significantly raises the risk of cardiovascular disease."},
+{"w":"chronic","p":"adj.","zh":"慢性的；长期的","cl":"chronic disease / chronic pain","ex":"<strong>Chronic</strong> back pain affects millions of desk workers worldwide."},
+{"w":"preventive","p":"adj.","zh":"预防性的","cl":"preventive medicine / preventive measures","ex":"<strong>Preventive</strong> healthcare is more cost-effective than treating established illness."},
+{"w":"immunity","p":"n.","zh":"免疫力","cl":"boost immunity / build immunity","ex":"Regular exercise and a nutritious diet help <strong>boost immunity</strong>."},
+{"w":"obesity","p":"n.","zh":"肥胖症","cl":"tackle obesity / childhood obesity","ex":"Governments are introducing sugar taxes to combat <strong>obesity</strong>."},
+{"w":"vaccination","p":"n.","zh":"疫苗接种","cl":"mass vaccination / vaccination programme","ex":"Mass <strong>vaccination</strong> programmes have eradicated smallpox globally."},
+{"w":"alleviate","p":"v.","zh":"减轻；缓解","cl":"alleviate pain / alleviate stress","ex":"Mindfulness has been shown to <strong>alleviate</strong> chronic stress and anxiety."},
+{"w":"well-being","p":"n.","zh":"幸福；健康状态","cl":"physical and mental well-being","ex":"Regular physical activity enhances both physical and emotional <strong>well-being</strong>."},
+{"w":"diagnosis","p":"n.","zh":"诊断","cl":"early diagnosis / accurate diagnosis","ex":"Early <strong>diagnosis</strong> dramatically improves survival rates for most cancers."},
+{"w":"prognosis","p":"n.","zh":"预后；预测","cl":"a poor prognosis / a favourable prognosis","ex":"With prompt treatment, the patient's <strong>prognosis</strong> is very favourable."},
+{"w":"symptom","p":"n.","zh":"症状","cl":"display symptoms / relieve symptoms","ex":"Patients should never ignore warning <strong>symptoms</strong> such as sudden weight loss."},
+{"w":"inflammation","p":"n.","zh":"炎症","cl":"chronic inflammation / reduce inflammation","ex":"<strong>Chronic inflammation</strong> is implicated in heart disease and type-2 diabetes."},
+{"w":"metabolism","p":"n.","zh":"新陈代谢","cl":"boost metabolism / metabolic rate","ex":"Aerobic exercise significantly boosts <strong>metabolism</strong>."},
+{"w":"cardiovascular","p":"adj.","zh":"心血管的","cl":"cardiovascular disease / cardiovascular health","ex":"Smoking is the leading preventable cause of <strong>cardiovascular</strong> disease."},
+{"w":"respiratory","p":"adj.","zh":"呼吸系统的","cl":"respiratory illness / respiratory tract","ex":"Air pollution aggravates <strong>respiratory</strong> conditions such as asthma and bronchitis."},
+{"w":"neurological","p":"adj.","zh":"神经系统的","cl":"neurological disorder / neurological damage","ex":"Alzheimer's is a progressive <strong>neurological</strong> disorder that destroys memory."},
+{"w":"hereditary","p":"adj.","zh":"遗传性的","cl":"hereditary condition / hereditary disease","ex":"Huntington's disease is a <strong>hereditary</strong> condition with no current cure."},
+{"w":"contagious","p":"adj.","zh":"传染性的","cl":"highly contagious / contagious disease","ex":"Measles is one of the most <strong>contagious</strong> diseases known to medicine."},
+{"w":"pathogen","p":"n.","zh":"病原体","cl":"disease-causing pathogen / eliminate pathogens","ex":"Antibiotic overuse has created <strong>pathogens</strong> resistant to standard treatment."},
+{"w":"morbidity","p":"n.","zh":"患病率","cl":"reduce morbidity / morbidity rate","ex":"Preventive screening programmes significantly reduce cancer <strong>morbidity</strong>."},
+{"w":"mortality","p":"n.","zh":"死亡率","cl":"infant mortality / mortality rate","ex":"Improved sanitation dramatically reduced <strong>mortality</strong> from waterborne diseases."},
+{"w":"epidemic","p":"n.","zh":"流行病；大规模蔓延","cl":"obesity epidemic / control an epidemic","ex":"Governments are struggling to contain the <strong>epidemic</strong> of type-2 diabetes."},
+{"w":"pandemic","p":"n.","zh":"大流行病","cl":"global pandemic / declare a pandemic","ex":"The COVID-19 <strong>pandemic</strong> exposed deep vulnerabilities in global health systems."},
+{"w":"quarantine","p":"n.","zh":"隔离","cl":"impose quarantine / enter quarantine","ex":"Travellers from affected regions were required to enter <strong>quarantine</strong>."},
+{"w":"malnutrition","p":"n.","zh":"营养不良","cl":"severe malnutrition / combat malnutrition","ex":"<strong>Malnutrition</strong> stunts both physical and cognitive development in children."},
+{"w":"deficiency","p":"n.","zh":"缺乏；不足","cl":"vitamin deficiency / iron deficiency","ex":"Vitamin D <strong>deficiency</strong> is increasingly common among indoor workers."},
+{"w":"nutrient","p":"n.","zh":"营养素","cl":"essential nutrients / nutrient-rich diet","ex":"Dark leafy greens are packed with essential <strong>nutrients</strong>."},
+{"w":"rehabilitation","p":"n.","zh":"康复治疗","cl":"physical rehabilitation / rehabilitation centre","ex":"Stroke patients require intensive <strong>rehabilitation</strong> to regain lost functions."},
+{"w":"intervention","p":"n.","zh":"干预","cl":"medical intervention / early intervention","ex":"Early <strong>intervention</strong> can prevent mental health crises from escalating."},
+{"w":"palliative","p":"adj.","zh":"姑息的；减轻痛苦的","cl":"palliative care / palliative treatment","ex":"<strong>Palliative</strong> care focuses on quality of life rather than cure."},
+{"w":"debilitating","p":"adj.","zh":"使人虚弱的","cl":"debilitating condition / debilitating effects","ex":"Chronic fatigue syndrome can be profoundly <strong>debilitating</strong>."},
+{"w":"resilience","p":"n.","zh":"心理弹性；恢复力","cl":"build resilience / mental resilience","ex":"Schools are incorporating programmes to build emotional <strong>resilience</strong>."},
+{"w":"anxiety","p":"n.","zh":"焦虑","cl":"manage anxiety / anxiety disorder","ex":"Social media use has been linked to increased <strong>anxiety</strong> among teenagers."},
+{"w":"depression","p":"n.","zh":"抑郁症","cl":"clinical depression / treat depression","ex":"<strong>Clinical depression</strong> requires professional treatment, not willpower alone."},
+{"w":"insomnia","p":"n.","zh":"失眠","cl":"suffer from insomnia / treat insomnia","ex":"Millions suffer from chronic <strong>insomnia</strong>, reducing their productivity and mood."},
+{"w":"stigma","p":"n.","zh":"污名；耻辱","cl":"remove the stigma / reduce stigma","ex":"Reducing the <strong>stigma</strong> around mental illness encourages people to seek help."},
+{"w":"trauma","p":"n.","zh":"心理创伤","cl":"psychological trauma / trauma survivor","ex":"Conflict zones leave lasting psychological <strong>trauma</strong> on communities."},
+{"w":"therapeutic","p":"adj.","zh":"有治疗效果的","cl":"therapeutic benefits / therapeutic relationship","ex":"Art and music therapy offer genuine <strong>therapeutic</strong> benefits."},
+{"w":"antibiotic","p":"n.","zh":"抗生素","cl":"prescribe antibiotics / antibiotic resistance","ex":"Over-prescribing <strong>antibiotics</strong> has accelerated dangerous resistance."},
+{"w":"pharmaceutical","p":"adj.","zh":"制药的","cl":"pharmaceutical industry / pharmaceutical research","ex":"The <strong>pharmaceutical</strong> industry invests billions in developing new drugs annually."},
+{"w":"physiotherapy","p":"n.","zh":"物理治疗","cl":"undergo physiotherapy / physiotherapy session","ex":"Following the knee surgery, she underwent months of intensive <strong>physiotherapy</strong>."},
+{"w":"supplement","p":"n.","zh":"营养补充剂","cl":"dietary supplement / vitamin supplement","ex":"Many people take vitamin D <strong>supplements</strong> during the winter months."},
+{"w":"hormone","p":"n.","zh":"激素","cl":"stress hormone / regulate hormones","ex":"Cortisol is the primary <strong>stress hormone</strong> released during acute anxiety."},
+{"w":"deteriorate","p":"v.","zh":"恶化","cl":"health deteriorates / condition deteriorates","ex":"Without treatment, the patient's condition <strong>deteriorated</strong> rapidly."},
+{"w":"susceptible","p":"adj.","zh":"易感的；易受影响的","cl":"susceptible to disease / susceptible to infection","ex":"Elderly people are particularly <strong>susceptible</strong> to respiratory infections."},
+{"w":"lethargy","p":"n.","zh":"倦怠；无精打采","cl":"suffer from lethargy / profound lethargy","ex":"Iron deficiency often causes <strong>lethargy</strong> and difficulty concentrating."},
+{"w":"fatigue","p":"n.","zh":"疲劳","cl":"chronic fatigue / combat fatigue","ex":"<strong>Chronic fatigue</strong> syndrome significantly impairs daily functioning."},
+{"w":"sedative","p":"n.","zh":"镇静剂","cl":"prescribe a sedative / mild sedative","ex":"The doctor prescribed a mild <strong>sedative</strong> to manage the patient's acute distress."},
+{"w":"hypertension","p":"n.","zh":"高血压","cl":"treat hypertension / manage hypertension","ex":"Left untreated, <strong>hypertension</strong> significantly raises the risk of stroke."},
+{"w":"cholesterol","p":"n.","zh":"胆固醇","cl":"high cholesterol / lower cholesterol","ex":"Saturated fat raises <strong>cholesterol</strong> levels and harms arterial health."},
+{"w":"dementia","p":"n.","zh":"痴呆症","cl":"develop dementia / vascular dementia","ex":"Physical activity in midlife is associated with a reduced risk of <strong>dementia</strong>."},
+{"w":"dehydration","p":"n.","zh":"脱水","cl":"severe dehydration / prevent dehydration","ex":"Athletes must drink enough fluid to avoid <strong>dehydration</strong>."},
+{"w":"ailment","p":"n.","zh":"小病；疾患","cl":"minor ailment / common ailment","ex":"Herbal remedies have long been used to treat minor <strong>ailments</strong>."},
+{"w":"syndrome","p":"n.","zh":"综合征","cl":"metabolic syndrome / rare syndrome","ex":"Metabolic <strong>syndrome</strong> combines obesity, hypertension, and high blood sugar."},
+{"w":"disorder","p":"n.","zh":"紊乱；疾患","cl":"eating disorder / sleep disorder","ex":"Eating <strong>disorders</strong> are complex mental health conditions requiring specialist support."},
+{"w":"diagnose","p":"v.","zh":"诊断（动词）","cl":"diagnose a condition / diagnose early","ex":"Doctors can now <strong>diagnose</strong> certain cancers through a simple blood test."},
+{"w":"prescribe","p":"v.","zh":"开处方","cl":"prescribe medication / prescribe rest","ex":"Doctors should only <strong>prescribe</strong> antibiotics when strictly necessary."},
+{"w":"administer","p":"v.","zh":"给予（药物）；施行","cl":"administer a drug / administer a vaccine","ex":"Nurses <strong>administer</strong> thousands of vaccinations during flu season."},
+{"w":"inoculate","p":"v.","zh":"接种疫苗；预防","cl":"inoculate against disease","ex":"The entire population was <strong>inoculated</strong> against the new strain within months."},
+{"w":"recuperate","p":"v.","zh":"康复；恢复","cl":"recuperate from surgery / recuperate fully","ex":"She needed three months to fully <strong>recuperate</strong> from the operation."},
+{"w":"afflict","p":"v.","zh":"折磨；使痛苦","cl":"afflicted with a disease","ex":"Arthritis <strong>afflicts</strong> millions of older adults worldwide."},
+{"w":"onset","p":"n.","zh":"发作；开始","cl":"the onset of disease / early onset","ex":"Lifestyle factors can delay the <strong>onset</strong> of type-2 diabetes."},
+{"w":"relapse","p":"n.","zh":"复发","cl":"suffer a relapse / risk of relapse","ex":"Stress is a major trigger for <strong>relapse</strong> in recovered alcoholics."},
+{"w":"remission","p":"n.","zh":"缓解期；消退","cl":"go into remission / cancer remission","ex":"After treatment, the cancer went into <strong>remission</strong> for five years."},
+{"w":"complication","p":"n.","zh":"并发症","cl":"post-surgical complication / develop complications","ex":"Uncontrolled diabetes leads to serious <strong>complications</strong>, including blindness."},
+{"w":"allergy","p":"n.","zh":"过敏","cl":"food allergy / severe allergy","ex":"Peanut <strong>allergies</strong> can trigger life-threatening anaphylaxis."},
+{"w":"anaphylaxis","p":"n.","zh":"过敏性休克","cl":"risk of anaphylaxis / treat anaphylaxis","ex":"<strong>Anaphylaxis</strong> requires immediate treatment with an adrenaline injection."},
+{"w":"dosage","p":"n.","zh":"剂量","cl":"correct dosage / recommended dosage","ex":"Always follow the recommended <strong>dosage</strong> to avoid adverse effects."},
+{"w":"adverse","p":"adj.","zh":"不良的；有害的","cl":"adverse effects / adverse reaction","ex":"Some drugs carry significant <strong>adverse</strong> effects that must be disclosed."},
+{"w":"benign","p":"adj.","zh":"良性的；温和的","cl":"benign tumour / benign condition","ex":"The scan revealed a <strong>benign</strong> tumour that required no treatment."},
+{"w":"malignant","p":"adj.","zh":"恶性的","cl":"malignant tumour / malignant growth","ex":"A biopsy confirmed the growth was <strong>malignant</strong>, requiring urgent surgery."},
+{"w":"biopsy","p":"n.","zh":"活检","cl":"perform a biopsy / biopsy results","ex":"A <strong>biopsy</strong> is necessary to determine whether a tumour is cancerous."},
+{"w":"anaesthetic","p":"n.","zh":"麻醉剂","cl":"general anaesthetic / local anaesthetic","ex":"The operation was performed under general <strong>anaesthetic</strong>."},
+{"w":"triage","p":"n.","zh":"检伤分类","cl":"emergency triage / triage system","ex":"<strong>Triage</strong> nurses assess severity so the most critical patients are treated first."},
+{"w":"burnout","p":"n.","zh":"职业倦怠","cl":"experience burnout / prevent burnout","ex":"Healthcare workers are at heightened risk of <strong>burnout</strong>."},
+{"w":"mindfulness","p":"n.","zh":"正念","cl":"practise mindfulness / mindfulness meditation","ex":"<strong>Mindfulness</strong> meditation reduces cortisol levels and anxiety."},
+{"w":"holistic","p":"adj.","zh":"整体的；全面的","cl":"holistic approach / holistic medicine","ex":"A <strong>holistic</strong> approach to health addresses physical, mental, and social factors."},
+{"w":"biomarker","p":"n.","zh":"生物标志物","cl":"identify biomarkers / disease biomarkers","ex":"<strong>Biomarkers</strong> in blood tests can detect disease before symptoms appear."},
+{"w":"genomics","p":"n.","zh":"基因组学","cl":"advances in genomics / personalised genomics","ex":"<strong>Genomics</strong> is enabling personalised treatments tailored to individual DNA."},
+{"w":"telemedicine","p":"n.","zh":"远程医疗","cl":"adopt telemedicine / telemedicine consultation","ex":"<strong>Telemedicine</strong> has transformed access to healthcare in rural communities."},
+{"w":"epidemiology","p":"n.","zh":"流行病学","cl":"field of epidemiology / epidemiological study","ex":"<strong>Epidemiology</strong> tracks how diseases spread through populations."},
+{"w":"vaccine","p":"n.","zh":"疫苗","cl":"develop a vaccine / mRNA vaccine","ex":"The mRNA <strong>vaccine</strong> was developed in record-breaking time."},
+{"w":"antibody","p":"n.","zh":"抗体","cl":"produce antibodies / antibody test","ex":"The body produces <strong>antibodies</strong> to neutralise specific pathogens."},
+{"w":"efficacy","p":"n.","zh":"功效；有效性","cl":"vaccine efficacy / drug efficacy","ex":"The vaccine demonstrated 95% <strong>efficacy</strong> in preventing severe disease."},
+{"w":"comorbidity","p":"n.","zh":"共病；合并症","cl":"multiple comorbidities","ex":"Patients with multiple <strong>comorbidities</strong> require more complex care plans."},
+{"w":"aetiology","p":"n.","zh":"病因学；病因","cl":"complex aetiology / unknown aetiology","ex":"The <strong>aetiology</strong> of Parkinson's disease involves genetic and environmental factors."},
+{"w":"clinical trial","p":"n.","zh":"临床试验","cl":"conduct a clinical trial / phase-3 trial","ex":"New drugs must pass rigorous <strong>clinical trials</strong> before regulatory approval."},
+{"w":"placebo","p":"n.","zh":"安慰剂","cl":"placebo effect / placebo-controlled trial","ex":"The <strong>placebo</strong> group showed no improvement, confirming the drug's efficacy."},
+{"w":"life expectancy","p":"n.","zh":"预期寿命","cl":"increase life expectancy","ex":"<strong>Life expectancy</strong> in developed nations has risen sharply since 1950."},
+{"w":"preventable disease","p":"n.","zh":"可预防疾病","cl":"reduce preventable disease","ex":"Seventy percent of premature deaths are from <strong>preventable diseases</strong>."},
+{"w":"balanced diet","p":"n.","zh":"均衡饮食","cl":"maintain a balanced diet","ex":"A <strong>balanced diet</strong> rich in vegetables and lean protein supports good health."},
+{"w":"physical activity","p":"n.","zh":"体力活动","cl":"regular physical activity / moderate physical activity","ex":"<strong>Regular physical activity</strong> reduces the risk of over 20 chronic diseases."},
+{"w":"mental illness","p":"n.","zh":"精神疾病","cl":"treat mental illness / serious mental illness","ex":"<strong>Mental illness</strong> affects one in four people at some point in their lives."},
+{"w":"health literacy","p":"n.","zh":"健康素养","cl":"improve health literacy","ex":"<strong>Health literacy</strong> empowers people to make informed decisions about their care."},
+{"w":"drug resistance","p":"n.","zh":"耐药性","cl":"develop drug resistance / antimicrobial resistance","ex":"<strong>Drug resistance</strong> is one of the most serious threats to modern medicine."},
+{"w":"pain management","p":"n.","zh":"疼痛管理","cl":"effective pain management","ex":"Effective <strong>pain management</strong> is central to palliative and post-surgical care."},
+{"w":"health disparity","p":"n.","zh":"健康差距","cl":"address health disparities","ex":"<strong>Health disparities</strong> between rich and poor persist across the world."},
+{"w":"evidence-based","p":"adj.","zh":"循证的","cl":"evidence-based medicine / evidence-based treatment","ex":"<strong>Evidence-based</strong> medicine relies on clinical research rather than tradition."},
+{"w":"multidisciplinary","p":"adj.","zh":"多学科的","cl":"multidisciplinary team / multidisciplinary approach","ex":"Complex patients are managed by a <strong>multidisciplinary</strong> team of specialists."},
+{"w":"gut microbiome","p":"n.","zh":"肠道微生物组","cl":"diverse gut microbiome / support the gut microbiome","ex":"A diverse <strong>gut microbiome</strong> is linked to better overall health outcomes."},
+{"w":"herd immunity","p":"n.","zh":"群体免疫","cl":"achieve herd immunity","ex":"<strong>Herd immunity</strong> protects those too vulnerable to be vaccinated directly."},
+{"w":"universal healthcare","p":"n.","zh":"全民医疗","cl":"provide universal healthcare","ex":"Many argue that <strong>universal healthcare</strong> is a basic human right."},
+{"w":"public health","p":"n.","zh":"公共卫生","cl":"public health policy / public health campaign","ex":"<strong>Public health</strong> campaigns have dramatically reduced smoking rates worldwide."},
+{"w":"boost one's immunity","p":"collocation","zh":"增强免疫力","cl":"lifestyle choices that boost one's immunity","ex":"Adequate sleep and a healthy diet work together to <strong>boost one's immunity</strong>."},
+{"w":"be at risk of","p":"collocation","zh":"处于…风险中","cl":"be at risk of heart disease","ex":"Sedentary individuals <strong>are at risk of</strong> developing cardiovascular disease."},
+{"w":"lead a healthy lifestyle","p":"collocation","zh":"过健康的生活方式","cl":"encourage people to lead a healthy lifestyle","ex":"Schools should encourage students to <strong>lead a healthy lifestyle</strong>."},
+{"w":"place a burden on","p":"collocation","zh":"给…造成负担","cl":"place a burden on the healthcare system","ex":"Chronic diseases <strong>place a heavy burden on</strong> public healthcare systems."},
+{"w":"undergo surgery","p":"collocation","zh":"接受手术","cl":"undergo open-heart surgery","ex":"Thousands of patients <strong>undergo surgery</strong> every day in UK hospitals."},
+{"w":"seek medical attention","p":"collocation","zh":"就医","cl":"advised to seek medical attention","ex":"Any persistent symptom should prompt one to <strong>seek medical attention</strong>."},
+{"w":"be discharged from hospital","p":"collocation","zh":"出院","cl":"be discharged from hospital after recovery","ex":"She was <strong>discharged from hospital</strong> three days after the operation."},
+{"w":"take medication","p":"collocation","zh":"服药","cl":"take medication regularly","ex":"It is vital to <strong>take medication</strong> as prescribed and not to skip doses."},
+{"w":"adopt a healthy diet","p":"collocation","zh":"采取健康饮食","cl":"advised to adopt a healthy diet","ex":"Patients with hypertension are advised to <strong>adopt a healthy diet</strong> low in sodium."},
+{"w":"raise public awareness","p":"collocation","zh":"提高公众意识","cl":"raise public awareness of mental health","ex":"Campaigns aim to <strong>raise public awareness</strong> of mental health issues."},
+{"w":"invest in healthcare","p":"collocation","zh":"投资医疗","cl":"invest in healthcare infrastructure","ex":"Governments must <strong>invest in healthcare</strong> to meet the needs of ageing populations."},
+{"w":"preventive medicine","p":"collocation","zh":"预防医学","cl":"shift towards preventive medicine","ex":"The NHS is shifting focus towards <strong>preventive medicine</strong> to reduce costs."},
+{"w":"mental health services","p":"collocation","zh":"心理健康服务","cl":"access mental health services","ex":"Many patients struggle to <strong>access mental health services</strong> promptly."},
+{"w":"prolonged exposure to","p":"collocation","zh":"长期暴露于","cl":"prolonged exposure to stress","ex":"<strong>Prolonged exposure to</strong> stress is a major risk factor for heart disease."},
+{"w":"mitigate the risk of","p":"collocation","zh":"降低…风险","cl":"mitigate the risk of infection","ex":"Regular handwashing significantly helps to <strong>mitigate the risk of</strong> infection."},
+{"w":"in good health","p":"collocation","zh":"身体健康","cl":"remain in good health","ex":"Eating well and exercising are key to remaining <strong>in good health</strong>."},
+{"w":"a clean bill of health","p":"idiom","zh":"健康无虞的证明","cl":"given a clean bill of health","ex":"The doctor gave her <strong>a clean bill of health</strong> after the annual check-up."},
+{"w":"under the weather","p":"idiom","zh":"身体不适","cl":"feeling under the weather","ex":"She called in sick, saying she was <strong>under the weather</strong> all morning."},
+{"w":"on the mend","p":"idiom","zh":"康复中","cl":"be on the mend","ex":"After a week in hospital, he is now firmly <strong>on the mend</strong>."},
+{"w":"take a turn for the worse","p":"idiom","zh":"病情恶化","cl":"condition takes a turn for the worse","ex":"Overnight the patient's condition <strong>took a turn for the worse</strong>."},
+{"w":"fight off","p":"phrasal v.","zh":"击退（疾病）","cl":"fight off a cold / fight off infection","ex":"Adequate sleep helps the body <strong>fight off</strong> infections more effectively."},
+{"w":"come down with","p":"phrasal v.","zh":"染上（疾病）","cl":"come down with flu","ex":"Half the office <strong>came down with</strong> the flu in January."},
+{"w":"bounce back","p":"phrasal v.","zh":"恢复健康","cl":"bounce back quickly","ex":"Children tend to <strong>bounce back</strong> from illness faster than adults."},
+{"w":"break out in","p":"phrasal v.","zh":"突然出现（症状）","cl":"break out in a rash","ex":"She <strong>broke out in</strong> a rash shortly after taking the new medication."},
+{"w":"wear off","p":"phrasal v.","zh":"（药效）消退","cl":"painkiller wears off","ex":"The anaesthetic began to <strong>wear off</strong> about two hours after surgery."},
+{"w":"cut down on","p":"phrasal v.","zh":"减少（不健康行为）","cl":"cut down on sugar / cut down on alcohol","ex":"The doctor advised him to <strong>cut down on</strong> processed food and red meat."},
+{"w":"build up","p":"phrasal v.","zh":"增强；积累","cl":"build up stamina / build up immunity","ex":"Gradual training helps <strong>build up</strong> stamina without causing injury."},
+{"w":"rule out","p":"phrasal v.","zh":"排除（疾病可能性）","cl":"rule out serious illness","ex":"Doctors ran several tests to <strong>rule out</strong> a serious underlying condition."},
+{"w":"pass out","p":"phrasal v.","zh":"晕倒","cl":"suddenly pass out","ex":"He <strong>passed out</strong> due to severe dehydration during the afternoon heat."},
+{"w":"go under the knife","p":"idiom","zh":"接受手术","cl":"have to go under the knife","ex":"She was advised to <strong>go under the knife</strong> to repair the torn ligament."},
+{"w":"an ounce of prevention is worth a pound of cure","p":"idiom","zh":"预防胜于治疗","cl":"as the saying goes","ex":"As the saying goes, '<strong>an ounce of prevention is worth a pound of cure</strong>.'"},
+{"w":"at death's door","p":"idiom","zh":"病入膏肓；危在旦夕","cl":"be at death's door","ex":"When admitted, he was virtually <strong>at death's door</strong> — treatment was urgent."},
+{"w":"take a toll on one's health","p":"phrase","zh":"损害某人健康","cl":"the stress takes a toll on his health","ex":"Working 80-hour weeks inevitably <strong>takes a toll on one's health</strong>."},
+{"w":"in the pink of health","p":"idiom","zh":"身体极佳","cl":"be in the pink of health","ex":"At 80, the retired professor was still <strong>in the pink of health</strong>."},
+{"w":"nip in the bud","p":"idiom","zh":"防患于未然；尽早制止","cl":"nip health problems in the bud","ex":"Regular check-ups allow doctors to <strong>nip</strong> potential problems <strong>in the bud</strong>."},
+{"w":"make a full recovery","p":"phrase","zh":"完全康复","cl":"expected to make a full recovery","ex":"Surgeons are confident she will <strong>make a full recovery</strong> within six weeks."},
+{"w":"break the habit","p":"phrase","zh":"改掉习惯","cl":"break the habit of smoking","ex":"Support groups help smokers <strong>break the habit</strong> for good."},
+{"w":"tackle the root cause","p":"collocation","zh":"解决根本原因","cl":"tackle the root cause of illness","ex":"Effective medicine should <strong>tackle the root cause</strong> rather than just mask symptoms."},
+{"w":"put one's health at risk","p":"phrase","zh":"危害自身健康","cl":"bad habits put one's health at risk","ex":"Smoking and poor diet <strong>put one's health at risk</strong> in both the short and long term."},
+{"w":"carry out a check-up","p":"collocation","zh":"进行体检","cl":"carry out a regular check-up","ex":"Doctors recommend patients <strong>carry out a check-up</strong> at least once a year."},
+{"w":"take preventive action","p":"collocation","zh":"采取预防行动","cl":"take preventive action early","ex":"Healthcare providers urge people to <strong>take preventive action</strong> before symptoms worsen."},
+{"w":"there is compelling evidence","p":"sentence stem","zh":"有令人信服的证据","cl":"there is compelling evidence that exercise reduces...","ex":"<strong>There is compelling evidence</strong> that regular exercise reduces the risk of depression."},
+{"w":"of paramount importance","p":"phrase","zh":"至关重要的","cl":"of paramount importance to public health","ex":"Maintaining clean water supplies is <strong>of paramount importance</strong> to public health."},
+{"w":"the tip of the iceberg","p":"idiom","zh":"冰山一角","cl":"reported cases are just the tip of the iceberg","ex":"Experts warn that reported mental illness cases are just <strong>the tip of the iceberg</strong>."},
+{"w":"hard to come by","p":"idiom","zh":"难以获得","cl":"specialist care is hard to come by","ex":"In rural areas, specialist mental health care can be <strong>hard to come by</strong>."},
+{"w":"a matter of life and death","p":"idiom","zh":"生死攸关","cl":"early treatment is a matter of life and death","ex":"In a heart attack, calling an ambulance is literally <strong>a matter of life and death</strong>."}
+];
+
+let state = JSON.parse(localStorage.getItem("ielts_vocab_20260611") || "{}");
+let queue = CARDS.map((c, i) => ({...c, idx: i})).filter(c => !state[c.idx] || state[c.idx] === "review");
+let cur = 0;
+
+function speak(text) {
+  if (!text || !window.speechSynthesis) return;
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = "en-US"; u.rate = 0.85; u.pitch = 1;
+  const voices = speechSynthesis.getVoices();
+  const en = voices.find(v => /en-(US|GB)/.test(v.lang) && /Samantha|Daniel|Alex|Karen|Moira|Google US English|Google UK English/.test(v.name))
+          || voices.find(v => v.lang.startsWith("en"));
+  if (en) u.voice = en;
+  speechSynthesis.speak(u);
+}
+if (window.speechSynthesis) speechSynthesis.onvoiceschanged = () => {};
+
+function render() {
+  if (cur >= queue.length) return showDone();
+  const c = queue[cur];
+  document.getElementById("w").textContent = c.w;
+  document.getElementById("p").textContent = c.p;
+  document.getElementById("zh").textContent = c.zh;
+  document.getElementById("cl").textContent = c.cl;
+  document.getElementById("ex").innerHTML = c.ex;
+  document.getElementById("card").classList.remove("flipped");
+  document.getElementById("meta").textContent = (cur+1) + " / " + queue.length + " · Health Day 1";
+  updateStats();
+  setTimeout(() => speak(c.w), 150);
+}
+
+function setView(v) {
+  document.getElementById("vtFlash").classList.toggle("active", v === "flash");
+  document.getElementById("vtList").classList.toggle("active", v === "list");
+  document.getElementById("deck").style.display = v === "flash" ? "" : "none";
+  document.getElementById("listView").classList.toggle("active", v === "list");
+  if (v === "list") renderList();
+}
+
+function renderList() {
+  const body = document.getElementById("listBody");
+  body.innerHTML = CARDS.map((c, i) => {
+    const mark = state[i] || "";
+    const cls = mark === "know" ? "knew" : mark === "weak" ? "weak" : "";
+    const ico = mark === "know" ? "✓" : mark === "weak" ? "○" : "·";
+    const mcls = mark === "know" ? "know" : mark === "weak" ? "weak" : "";
+    return '<div class="list-row">' +
+      '<div class="num">' + String(i+1).padStart(3,'0') + '</div>' +
+      '<div class="word"><div class="w ' + cls + '">' + c.w + ' <span style="color:var(--muted);font-weight:400;font-size:0.78rem;">' + c.p + '</span></div><div class="zh">' + c.zh + '</div></div>' +
+      '<button class="spk" onclick="speak(\'' + c.w.replace(/'/g,"\\'") + '\')">&#128266;</button>' +
+      '<div class="mk ' + mcls + '">' + ico + '</div>' +
+      '</div>';
+  }).join("");
+}
+
+function flip() { document.getElementById("card").classList.toggle("flipped"); }
+
+function mark(t) {
+  const c = queue[cur];
+  state[c.idx] = (t === "know" ? "know" : "weak");
+  localStorage.setItem("ielts_vocab_20260611", JSON.stringify(state));
+  cur++;
+  render();
+}
+
+function updateStats() {
+  const kn = Object.values(state).filter(v=>v==="know").length;
+  const wk = Object.values(state).filter(v=>v==="weak").length;
+  const lf = 150 - kn - wk;
+  document.getElementById("kn").textContent = kn;
+  document.getElementById("wk").textContent = wk;
+  document.getElementById("lf").textContent = lf;
+  document.getElementById("pg").style.width = ((kn+wk)/150*100) + "%";
+}
+
+function showDone() {
+  document.getElementById("deck").style.display = "none";
+  document.getElementById("done").classList.add("show");
+  const kn = Object.values(state).filter(v=>v==="know").length;
+  const wk = Object.values(state).filter(v=>v==="weak").length;
+  document.getElementById("doneTtl").textContent = wk > 0 ? "今日 150 词完成! 还有 " + wk + " 张不熟" : "今日 150 词全掌握 🎉";
+  document.getElementById("doneSub").textContent = "知道 " + kn + " · 不熟 " + wk;
+}
+
+function reviewWeak() {
+  queue = CARDS.map((c,i)=>({...c,idx:i})).filter(c => state[c.idx] === "weak");
+  if (queue.length === 0) { alert("没有不熟的卡!"); return; }
+  cur = 0;
+  document.getElementById("done").classList.remove("show");
+  document.getElementById("deck").style.display = "";
+  render();
+}
+
+function resetAll() {
+  if (!confirm("清空今日进度,重新开始?")) return;
+  localStorage.removeItem("ielts_vocab_20260611");
+  state = {};
+  queue = CARDS.map((c,i)=>({...c,idx:i}));
+  cur = 0;
+  document.getElementById("done").classList.remove("show");
+  document.getElementById("deck").style.display = "";
+  render();
+}
+
+render();
+</script>
+
+</body>
+</html>
