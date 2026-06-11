@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#2563eb">
+<title>测验 · Reading T/F/NG · 全球心理健康危机</title>
+<style>
+  :root {
+    --bg: #ffffff; --fg: #1a1a1a; --muted: #6b7280;
+    --accent: #2563eb; --ok: #059669; --err: #dc2626;
+    --card: #f9fafb; --border: #e5e7eb;
+    --nav-bg: rgba(255,255,255,0.92);
+    --header-bg: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f172a; --fg: #f1f5f9; --muted: #94a3b8;
+      --accent: #60a5fa; --ok: #34d399; --err: #f87171;
+      --card: #1e293b; --border: #334155;
+      --nav-bg: rgba(15,23,42,0.92);
+      --header-bg: linear-gradient(135deg, #1e40af 0%, #6b21a8 100%);
+    }
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg); }
+  body { font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif; line-height: 1.6; min-height: 100vh; padding-bottom: calc(64px + env(safe-area-inset-bottom, 0)); }
+  .app-header { background: var(--header-bg); color: white; padding: calc(env(safe-area-inset-top, 16px) + 12px) 16px 14px; position: sticky; top: 0; z-index: 20; display: flex; align-items: center; gap: 12px; }
+  .back-btn { background: rgba(255,255,255,0.18); border: none; color: white; width: 34px; height: 34px; border-radius: 10px; font-size: 1.1rem; cursor: pointer; flex-shrink: 0; text-decoration: none; display: flex; align-items: center; justify-content: center; }
+  .app-header .ttl { font-size: 1rem; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .app-header .sub { font-size: 0.72rem; opacity: 0.85; margin-top: 1px; letter-spacing: 0.04em; text-transform: uppercase; }
+  main { max-width: 720px; margin: 0 auto; padding: 16px; }
+  .progress { height: 6px; background: var(--border); border-radius: 3px; margin-bottom: 16px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--accent); transition: width 0.3s ease; }
+  .passage { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; margin-bottom: 16px; font-size: 0.95rem; line-height: 1.75; }
+  .passage h3 { margin: 0 0 8px; font-size: 0.78rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+  .passage h4 { margin: 12px 0 6px; font-size: 1rem; font-weight: 700; }
+  .question { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 14px; }
+  .q-num { color: var(--muted); font-size: 0.78rem; font-family: "SF Mono", Menlo, monospace; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.04em; }
+  .q-text { font-size: 1rem; margin-bottom: 12px; font-weight: 500; }
+  .options { display: flex; flex-direction: column; gap: 8px; }
+  .option { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; cursor: pointer; font-size: 0.95rem; text-align: left; color: var(--fg); font-family: inherit; }
+  .option.selected { border-color: var(--accent); background: rgba(37,99,235,0.08); }
+  .option.correct { border-color: var(--ok); background: rgba(5,150,105,0.1); }
+  .option.wrong { border-color: var(--err); background: rgba(220,38,38,0.1); }
+  .blank-input { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; font-size: 1rem; color: var(--fg); font-family: inherit; }
+  .blank-input.correct { border-color: var(--ok); }
+  .blank-input.wrong { border-color: var(--err); }
+  .explanation { margin-top: 10px; padding: 10px 12px; background: var(--bg); border-left: 3px solid var(--accent); border-radius: 4px; font-size: 0.9rem; color: var(--muted); display: none; }
+  .explanation.show { display: block; }
+  .explanation .answer { color: var(--ok); font-weight: 600; }
+  .actions { display: flex; gap: 10px; margin-top: 20px; }
+  .btn { flex: 1; padding: 12px; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; font-family: inherit; }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-secondary { background: var(--card); color: var(--fg); border: 1px solid var(--border); }
+  .result { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; text-align: center; margin-top: 20px; display: none; }
+  .result.show { display: block; }
+  .score { font-size: 2.5rem; font-weight: 700; color: var(--accent); }
+  .score-label { color: var(--muted); font-size: 0.9rem; margin-top: 4px; }
+  .tabbar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--nav-bg); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px); border-top: 1px solid var(--border); display: flex; padding-bottom: env(safe-area-inset-bottom, 0); z-index: 30; }
+  .tab-btn { flex: 1; background: transparent; border: none; padding: 10px 4px 8px; color: var(--muted); font-size: 0.68rem; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 3px; font-family: inherit; text-decoration: none; }
+  .tab-btn .icon { font-size: 1.25rem; line-height: 1; }
+  .tab-btn.active { color: var(--accent); }
+  .vocab-tip { background: rgba(37,99,235,0.06); border: 1px solid rgba(37,99,235,0.2); border-radius: 10px; padding: 12px 14px; margin-bottom: 16px; font-size: 0.88rem; color: var(--fg); line-height: 1.6; }
+  .vocab-tip strong { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <a class="back-btn" href="index.html#quizzes">&#8592;</a>
+  <div style="flex:1;min-width:0;">
+    <div class="ttl">Reading T/F/NG &middot; 全球心理健康危机</div>
+    <div class="sub">10 题 &middot; Day 23 &middot; ~12 分钟</div>
+  </div>
+</header>
+
+<main>
+
+  <div class="progress"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+
+  <div class="vocab-tip">
+    <strong>今日关键词</strong>: cognitive-behavioural therapy &middot; psychosis &middot; withdrawal &middot; stigma &middot; burden of disease &middot; longitudinal &middot; peer support &middot; schizophrenia &middot; gut-brain axis &middot; randomised controlled trial
+  </div>
+
+  <div class="passage">
+    <h3>Passage &middot; 约 640 词</h3>
+    <h4>The Global Mental Health Crisis: Consequences, Causes and the Search for Solutions</h4>
+    <p>Over the past two decades, mental illness has emerged as one of the most pressing — and most neglected — challenges in global healthcare. The World Health Organisation estimates that approximately one billion people are currently living with a mental health condition, ranging from depression and anxiety disorders to schizophrenia and bipolar disorder. Yet despite this staggering scale, the average proportion of national health budgets allocated to mental health remains below five per cent in most countries, and below one per cent in many low-income nations.</p>
+    <p>The human and economic costs are considerable. Depression alone is now the leading cause of <em>disability</em> worldwide, overtaking conditions such as back pain and cardiovascular disease in terms of lost years of productive life. The World Economic Forum has projected that, if left unaddressed, the global economic <em>burden</em> of mental illness will reach six trillion US dollars by 2030 — surpassing the combined cost of cancer, diabetes and respiratory disease. These figures reflect not just the direct costs of treatment, but the profound secondary effects: lost productivity, strained families, and the societal consequences of untreated psychosis, addiction and self-harm.</p>
+    <p>Understanding the causes of mental illness remains a significant challenge. Research consistently points to a combination of genetic, neurological and environmental factors. Childhood adversity — including abuse, neglect and poverty — substantially raises the risk of developing anxiety disorders and depression in adulthood. Urbanisation, social isolation and economic inequality have also been implicated; rates of schizophrenia are notably higher in densely populated city environments. More recently, researchers have turned their attention to the relationship between the gut microbiome and mental health, with emerging evidence suggesting that disruptions to gut bacteria may influence mood and cognitive function via what scientists call the &ldquo;gut-brain <em>axis</em>.&rdquo;</p>
+    <p>Despite the complexity of these causes, effective treatments do exist. <em>Cognitive-behavioural therapy</em> (CBT) is considered the gold standard for treating anxiety and mild-to-moderate depression; meta-analyses consistently demonstrate remission rates of between fifty and sixty per cent for patients who complete a full course. Pharmacological treatments — primarily selective serotonin reuptake inhibitors (SSRIs) — are effective for more severe presentations, though their use remains <em>controversial in adolescents</em> due to concerns about side effects. For the most treatment-resistant cases, newer interventions such as transcranial magnetic stimulation and ketamine-based therapies have shown promising clinical results.</p>
+    <p>The challenge is not the absence of effective treatments, but their accessibility. In many countries, waiting times for mental health services extend to twelve months or more, by which point patients' conditions may have deteriorated significantly. Teletherapy — the provision of psychological support via video call or messaging platforms — has partially bridged this gap. <em>Peer support</em> networks, where individuals with lived experience of mental illness provide guidance to others, have also demonstrated measurable improvements in recovery outcomes at a fraction of the cost of formal clinical care.</p>
+    <p>Reducing the <em>stigma</em> that surrounds mental illness is widely regarded as the most fundamental precondition for progress. Many people delay seeking help for years — or never seek it at all — out of fear of discrimination or social exclusion. Public health campaigns in countries including Australia, Canada and the United Kingdom have made some headway; surveys indicate declining levels of social stigma in these countries over the past decade. However, in many parts of the world, mental illness remains deeply misunderstood, and those who suffer from it continue to face significant barriers to both diagnosis and treatment.</p>
+  </div>
+
+  <div id="questions">
+
+    <div class="question" data-type="mcq" data-answer="A">
+      <div class="q-num">Q01 &middot; T/F/NG</div>
+      <div class="q-text">According to the WHO, approximately one billion people are currently living with a mental health condition.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">正确答案: A (True)</div>
+        原文第一段: "The World Health Organisation estimates that approximately <strong>one billion people</strong> are currently living with a mental health condition." 与题目完全一致。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="B">
+      <div class="q-num">Q02 &middot; T/F/NG</div>
+      <div class="q-text">The proportion of national health budgets allocated to mental health exceeds five per cent in most countries.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">正确答案: B (False)</div>
+        原文第一段: "remains <strong>below five per cent</strong> in most countries." 题目说 "exceeds five per cent"，与原文直接矛盾。典型关键词替换陷阱 (below → exceeds)。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="B">
+      <div class="q-num">Q03 &middot; T/F/NG</div>
+      <div class="q-text">Depression is now the leading cause of premature death worldwide.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">正确答案: B (False)</div>
+        原文第二段说的是 "leading cause of <strong>disability</strong>"，题目改为 "premature death"，概念不同，与原文矛盾，故选 False。注意: disability ≠ death，不能混淆。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="A">
+      <div class="q-num">Q04 &middot; T/F/NG</div>
+      <div class="q-text">The World Economic Forum projects that the economic burden of mental illness will reach six trillion US dollars by 2030.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">正确答案: A (True)</div>
+        原文第二段: "the global economic burden of mental illness will reach <strong>six trillion US dollars by 2030</strong>." 数字与来源均一致。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="B">
+      <div class="q-num">Q05 &middot; T/F/NG</div>
+      <div class="q-text">Rates of schizophrenia are significantly higher in rural communities than in cities.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">正确答案: B (False)</div>
+        原文第三段: "rates of schizophrenia are notably higher in <strong>densely populated city environments</strong>." 题目说 rural (农村) 更高，与原文完全相反，故选 False。典型方向对调陷阱。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="A">
+      <div class="q-num">Q06 &middot; T/F/NG</div>
+      <div class="q-text">Cognitive-behavioural therapy achieves remission in more than half of patients who complete a full course.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">正确答案: A (True)</div>
+        原文第四段: "remission rates of between <strong>fifty and sixty per cent</strong> for patients who complete a full course." 50–60% 均超过 half (50%)，故题目成立。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="B">
+      <div class="q-num">Q07 &middot; T/F/NG</div>
+      <div class="q-text">The use of SSRIs in all age groups is considered entirely uncontroversial by medical practitioners.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">正确答案: B (False)</div>
+        原文第四段: "their use remains <strong>controversial in adolescents</strong> due to concerns about side effects." 题目说 "entirely uncontroversial" 明显与原文矛盾。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="C">
+      <div class="q-num">Q08 &middot; T/F/NG</div>
+      <div class="q-text">The number of teletherapy users globally has been officially recorded by the WHO since 2020.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">正确答案: C (Not Given)</div>
+        原文提及 teletherapy 增长迅速，但从未提到 WHO 是否官方记录这一数据。文章未涉及此信息，不能推断，故选 Not Given。
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="burden">
+      <div class="q-num">Q09 &middot; 词汇填空</div>
+      <div class="q-text">The World Economic Forum projected that the global economic ______ of mental illness will reach six trillion dollars by 2030. (原文词，n. 负担)</div>
+      <input class="blank-input" placeholder="键入答案 (英文小写)">
+      <div class="explanation">
+        <div class="answer">正确答案: burden</div>
+        原文第二段: "the global economic <em>burden</em> of mental illness will reach six trillion US dollars by 2030." <em>burden of disease</em> 是今日词卡重要搭配。
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="axis">
+      <div class="q-num">Q10 &middot; 词汇填空</div>
+      <div class="q-text">Scientists describe the link between gut bacteria and the brain as the "gut-brain ______." (原文词，n.)</div>
+      <input class="blank-input" placeholder="键入答案 (英文小写)">
+      <div class="explanation">
+        <div class="answer">正确答案: axis</div>
+        原文第三段: "what scientists call the 'gut-brain <em>axis</em>.'" axis 意为"轴"，gut-brain axis 是近年医学研究热词，指肠道与大脑间的双向信号通路。
+      </div>
+    </div>
+
+  </div>
+
+  <div class="actions">
+    <button class="btn btn-secondary" onclick="resetQuiz()">重做</button>
+    <button class="btn btn-primary" onclick="submitQuiz()">提交对答</button>
+  </div>
+
+  <div class="result" id="result">
+    <div class="score" id="scoreNum">--</div>
+    <div class="score-label">正确率</div>
+    <div id="scoreDetail" style="margin-top:10px;color:var(--muted);font-size:0.9rem;"></div>
+    <div style="margin-top:14px;font-size:0.85rem;color:var(--muted);">
+      T/F/NG 技巧: <strong>True</strong> = 原文明确支持 &middot; <strong>False</strong> = 原文明确矛盾 &middot; <strong>Not Given</strong> = 原文未提及，无法判断
+    </div>
+  </div>
+
+</main>
+
+<nav class="tabbar">
+  <a class="tab-btn" href="index.html#home"><span class="icon">&#127968;</span>概览</a>
+  <a class="tab-btn" href="index.html#materials"><span class="icon">&#128250;</span>材料</a>
+  <a class="tab-btn active" href="index.html#quizzes"><span class="icon">&#9999;&#65039;</span>测验</a>
+  <a class="tab-btn" href="index.html#plan"><span class="icon">&#128203;</span>计划</a>
+</nav>
+
+<script>
+  document.querySelectorAll(".option").forEach(opt => {
+    opt.addEventListener("click", () => {
+      const q = opt.closest(".question");
+      q.querySelectorAll(".option").forEach(o => o.classList.remove("selected"));
+      opt.classList.add("selected");
+      q.dataset.userAnswer = opt.dataset.key;
+      updateProgress();
+    });
+  });
+
+  document.querySelectorAll(".blank-input").forEach(inp => {
+    inp.addEventListener("input", () => {
+      inp.closest(".question").dataset.userAnswer = inp.value.trim().toLowerCase();
+      updateProgress();
+    });
+  });
+
+  function updateProgress() {
+    const total = document.querySelectorAll(".question").length;
+    const done = document.querySelectorAll(".question[data-user-answer]").length;
+    document.getElementById("progressFill").style.width = (done/total*100) + "%";
+  }
+
+  function submitQuiz() {
+    let correct = 0, total = 0;
+    document.querySelectorAll(".question").forEach(q => {
+      total++;
+      const userAns = (q.dataset.userAnswer || "").toLowerCase().trim();
+      const correctAns = q.dataset.answer.toLowerCase();
+      const isCorrect = userAns === correctAns;
+      if (isCorrect) correct++;
+      if (q.dataset.type === "mcq") {
+        q.querySelectorAll(".option").forEach(o => {
+          if (o.dataset.key.toLowerCase() === correctAns) o.classList.add("correct");
+          else if (o.dataset.key.toLowerCase() === userAns && !isCorrect) o.classList.add("wrong");
+        });
+      } else if (q.dataset.type === "blank") {
+        const inp = q.querySelector(".blank-input");
+        inp.classList.add(isCorrect ? "correct" : "wrong");
+      }
+      q.querySelector(".explanation")?.classList.add("show");
+    });
+    const result = document.getElementById("result");
+    const pct = Math.round(correct/total*100);
+    document.getElementById("scoreNum").textContent = pct + "%";
+    document.getElementById("scoreDetail").textContent = correct + " / " + total + " 正确";
+    result.classList.add("show");
+    result.scrollIntoView({behavior:"smooth"});
+  }
+
+  function resetQuiz() {
+    document.querySelectorAll(".question").forEach(q => {
+      delete q.dataset.userAnswer;
+      q.querySelectorAll(".option").forEach(o => o.classList.remove("selected","correct","wrong"));
+      const inp = q.querySelector(".blank-input");
+      if (inp) { inp.value = ""; inp.classList.remove("correct","wrong"); }
+      q.querySelector(".explanation")?.classList.remove("show");
+    });
+    document.getElementById("result").classList.remove("show");
+    document.getElementById("progressFill").style.width = "0%";
+  }
+</script>
+
+</body>
+</html>
