@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#2563eb">
+<title>测验 · Reading T/F/NG · 饮食与慢性病预防 · Day 25</title>
+<style>
+  :root {
+    --bg: #ffffff; --fg: #1a1a1a; --muted: #6b7280;
+    --accent: #2563eb; --ok: #059669; --err: #dc2626;
+    --card: #f9fafb; --border: #e5e7eb;
+    --nav-bg: rgba(255,255,255,0.92);
+    --header-bg: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f172a; --fg: #f1f5f9; --muted: #94a3b8;
+      --accent: #60a5fa; --ok: #34d399; --err: #f87171;
+      --card: #1e293b; --border: #334155;
+      --nav-bg: rgba(15,23,42,0.92);
+      --header-bg: linear-gradient(135deg, #1e40af 0%, #6b21a8 100%);
+    }
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg); }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif;
+    line-height: 1.6;
+    min-height: 100vh;
+    padding-bottom: calc(64px + env(safe-area-inset-bottom, 0));
+  }
+  .app-header {
+    background: var(--header-bg); color: white;
+    padding: calc(env(safe-area-inset-top, 16px) + 12px) 16px 14px;
+    position: sticky; top: 0; z-index: 20;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .back-btn {
+    background: rgba(255,255,255,0.18); border: none; color: white;
+    width: 34px; height: 34px; border-radius: 10px;
+    font-size: 1.1rem; cursor: pointer; flex-shrink: 0;
+    text-decoration: none; display: flex; align-items: center; justify-content: center;
+  }
+  .app-header .ttl {
+    font-size: 1rem; font-weight: 700;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .app-header .sub {
+    font-size: 0.72rem; opacity: 0.85; margin-top: 1px;
+    letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  main { max-width: 720px; margin: 0 auto; padding: 16px; }
+  .progress {
+    height: 6px; background: var(--border); border-radius: 3px;
+    margin-bottom: 16px; overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%; background: var(--accent);
+    transition: width 0.3s ease;
+  }
+  .passage {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 14px 16px; margin-bottom: 16px;
+    font-size: 0.95rem; line-height: 1.7;
+  }
+  .passage h3 { margin: 0 0 8px; font-size: 0.78rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+  .question {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 16px; margin-bottom: 14px;
+  }
+  .q-num {
+    color: var(--muted); font-size: 0.78rem;
+    font-family: "SF Mono", Menlo, monospace; margin-bottom: 6px;
+    text-transform: uppercase; letter-spacing: 0.04em;
+  }
+  .q-text { font-size: 1rem; margin-bottom: 12px; font-weight: 500; }
+  .options { display: flex; flex-direction: column; gap: 8px; }
+  .option {
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 8px; padding: 12px 14px;
+    cursor: pointer; font-size: 0.95rem; text-align: left;
+    color: var(--fg); font-family: inherit;
+  }
+  .option.selected { border-color: var(--accent); background: rgba(37, 99, 235, 0.08); }
+  .option.correct { border-color: var(--ok); background: rgba(5, 150, 105, 0.1); }
+  .option.wrong { border-color: var(--err); background: rgba(220, 38, 38, 0.1); }
+  .blank-input {
+    width: 100%; background: var(--bg);
+    border: 1px solid var(--border); border-radius: 8px;
+    padding: 10px 12px; font-size: 1rem;
+    color: var(--fg); font-family: inherit;
+  }
+  .blank-input.correct { border-color: var(--ok); }
+  .blank-input.wrong { border-color: var(--err); }
+  .explanation {
+    margin-top: 10px; padding: 10px 12px;
+    background: var(--bg); border-left: 3px solid var(--accent);
+    border-radius: 4px; font-size: 0.9rem; color: var(--muted);
+    display: none;
+  }
+  .explanation.show { display: block; }
+  .explanation .answer { color: var(--ok); font-weight: 600; }
+  .actions { display: flex; gap: 10px; margin-top: 20px; }
+  .btn {
+    flex: 1; padding: 12px;
+    border: none; border-radius: 10px;
+    font-size: 1rem; font-weight: 600; cursor: pointer;
+    font-family: inherit;
+  }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-secondary { background: var(--card); color: var(--fg); border: 1px solid var(--border); }
+  .result {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 20px;
+    text-align: center; margin-top: 20px; display: none;
+  }
+  .result.show { display: block; }
+  .score { font-size: 2.5rem; font-weight: 700; color: var(--accent); }
+  .score-label { color: var(--muted); font-size: 0.9rem; margin-top: 4px; }
+  .tabbar {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: var(--nav-bg);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    border-top: 1px solid var(--border);
+    display: flex;
+    padding-bottom: env(safe-area-inset-bottom, 0);
+    z-index: 30;
+  }
+  .tab-btn {
+    flex: 1; background: transparent; border: none;
+    padding: 10px 4px 8px; color: var(--muted); font-size: 0.68rem;
+    cursor: pointer;
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    font-family: inherit; text-decoration: none;
+  }
+  .tab-btn .icon { font-size: 1.25rem; line-height: 1; }
+  .tab-btn.active { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <a class="back-btn" href="index.html#quizzes">←</a>
+  <div style="flex:1;min-width:0;">
+    <div class="ttl">Reading T/F/NG + 词汇</div>
+    <div class="sub">Day 25 · 2026-06-14 · Health · 10 题</div>
+  </div>
+</header>
+
+<main>
+
+  <div class="progress"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+
+  <div class="passage">
+    <h3>Passage · The Role of Diet in Preventing Chronic Disease</h3>
+    <p>In recent decades, the relationship between dietary habits and the prevalence of chronic, non-communicable diseases has become one of the most extensively studied areas in public health. Conditions such as type 2 diabetes, cardiovascular disease, and certain forms of cancer are now strongly linked to patterns of food consumption, prompting health authorities worldwide to issue increasingly specific nutritional guidance.</p>
+    <p>The concept of a "healthy diet" has evolved considerably. For much of the twentieth century, nutritional advice focused primarily on macronutrients — proteins, fats, and carbohydrates — and their caloric contribution. Today, the emphasis has shifted towards the quality and source of food. Research published in major medical journals consistently demonstrates that diets rich in whole grains, legumes, fruits, and vegetables are associated with lower rates of obesity, hypertension, and metabolic syndrome. By contrast, high consumption of ultra-processed foods — those manufactured through industrial processes and containing numerous additives — has been independently linked to elevated risks of depression, type 2 diabetes, and colorectal cancer.</p>
+    <p>One particularly compelling area of research concerns the gut microbiome: the diverse community of microorganisms inhabiting the human digestive tract. Scientists now understand that this microbial community has profound implications for immune function, mental health, and metabolic efficiency. Fermented foods such as yoghurt, kefir, and kimchi have been shown to enrich microbiome diversity, while diets dominated by processed foods appear to reduce it. Proponents of gut health argue that supporting the microbiome through diet may prove to be among the most powerful preventive health interventions available.</p>
+    <p>The implications extend beyond individual behaviour. Governments and public health bodies are grappling with how to translate nutritional science into policy. Some countries have introduced sugar taxes, levied on sweetened beverages, with evidence suggesting these measures can reduce consumption among lower-income populations most susceptible to diet-related disease. Others have mandated clearer food labelling. Critics argue that structural approaches — including addressing food deserts and subsidising fresh produce — are more equitable than placing the burden of change solely on individuals.</p>
+    <p>Personalised nutrition is an emerging frontier. Advances in genomics and biomarker analysis mean it may soon be possible to tailor dietary recommendations to an individual's genetic profile and metabolic response to specific foods. Early trials suggest that personalised dietary plans can outperform generic guidelines in managing blood glucose levels, particularly in people with prediabetes. Researchers caution, however, that the field remains in its infancy, and that broad improvements — particularly increased fibre intake and reduced saturated fat — remain the most evidence-based strategy for the majority.</p>
+    <p>In sum, the evidence linking diet to chronic disease prevention is robust and growing. Population-level interventions that make healthy eating accessible, affordable, and culturally appropriate are likely to yield the greatest public health gains.</p>
+  </div>
+
+  <div id="questions">
+    <div class="question" data-type="mcq" data-answer="A">
+      <div class="q-num">Q01 · T/F/NG</div>
+      <div class="q-text">High consumption of ultra-processed foods has been linked to an increased risk of type 2 diabetes.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">正确答案: A (True)</div>
+        原文第二段明确说 ultra-processed foods 与 type 2 diabetes 等风险升高 independently linked。答案为 TRUE。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="B">
+      <div class="q-num">Q02 · T/F/NG</div>
+      <div class="q-text">Twentieth-century nutritional advice focused primarily on the quality and source of food rather than caloric intake.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">正确答案: B (False)</div>
+        原文第二段说 twentieth-century advice focused on macronutrients and caloric contribution，与题目表述相反。答案为 FALSE。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="B">
+      <div class="q-num">Q03 · T/F/NG</div>
+      <div class="q-text">Fermented foods such as kefir have been shown to reduce microbiome diversity.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">正确答案: B (False)</div>
+        原文第三段说 fermented foods have been shown to ENRICH microbiome diversity，与题目相反。答案为 FALSE。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="B">
+      <div class="q-num">Q04 · T/F/NG</div>
+      <div class="q-text">All countries around the world have introduced sugar taxes to combat diet-related diseases.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">正确答案: B (False)</div>
+        原文说 "Some countries have introduced sugar taxes"，不是全部国家。答案为 FALSE。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="A">
+      <div class="q-num">Q05 · T/F/NG</div>
+      <div class="q-text">Early trials of personalised nutrition show it can outperform generic guidelines in managing blood glucose.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">正确答案: A (True)</div>
+        原文第五段直接说 personalised dietary plans can outperform generic guidelines in managing blood glucose levels。答案为 TRUE。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="B">
+      <div class="q-num">Q06 · T/F/NG</div>
+      <div class="q-text">Researchers believe personalised nutrition is sufficiently advanced to replace standard dietary guidelines for the general population.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">正确答案: B (False)</div>
+        原文说 researchers caution that the field remains in its infancy，表明尚不成熟，不能替代。答案为 FALSE。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="A">
+      <div class="q-num">Q07 · T/F/NG</div>
+      <div class="q-text">The passage mentions food deserts as a structural factor affecting access to healthy nutrition.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">正确答案: A (True)</div>
+        原文第四段提到 "addressing food deserts" 作为结构性方法之一。答案为 TRUE。
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="fermented">
+      <div class="q-num">Q08 · 词汇填空</div>
+      <div class="q-text">Yoghurt, miso, and kimchi are examples of ___ foods that support a healthy gut microbiome. (发酵的)</div>
+      <input class="blank-input" placeholder="键入答案">
+      <div class="explanation">
+        <div class="answer">正确答案: fermented</div>
+        答案: fermented。今日新词 — 与有益菌发酵有关的食品。
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="metabolic">
+      <div class="q-num">Q09 · 词汇填空</div>
+      <div class="q-text">Diets rich in whole grains are linked to lower rates of ___ syndrome, a cluster of risk factors for cardiovascular disease. (代谢性的)</div>
+      <input class="blank-input" placeholder="键入答案">
+      <div class="explanation">
+        <div class="answer">正确答案: metabolic</div>
+        答案: metabolic。Metabolic syndrome 代谢综合征 — 雅思高频医疗词。
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="biomarker">
+      <div class="q-num">Q10 · 词汇填空</div>
+      <div class="q-text">Advances in genomics and ___ analysis may allow dietary advice to be tailored to the individual. (生物标志物)</div>
+      <input class="blank-input" placeholder="键入答案">
+      <div class="explanation">
+        <div class="answer">正确答案: biomarker</div>
+        答案: biomarker。今日新词 — 可在血液中检测的生物指标，用于个性化医疗。
+      </div>
+    </div>
+
+  </div>
+
+  <div class="actions">
+    <button class="btn btn-secondary" onclick="resetQuiz()">重做</button>
+    <button class="btn btn-primary" onclick="submitQuiz()">提交对答</button>
+  </div>
+
+  <div class="result" id="result">
+    <div class="score" id="scoreNum">--</div>
+    <div class="score-label">正确率</div>
+    <div id="scoreDetail" style="margin-top:10px;color:var(--muted);"></div>
+  </div>
+
+</main>
+
+<nav class="tabbar">
+  <a class="tab-btn" href="index.html#home"><span class="icon">🏠</span>概览</a>
+  <a class="tab-btn" href="index.html#materials"><span class="icon">📺</span>材料</a>
+  <a class="tab-btn active" href="index.html#quizzes"><span class="icon">✏️</span>测验</a>
+  <a class="tab-btn" href="index.html#plan"><span class="icon">📋</span>计划</a>
+</nav>
+
+<script>
+  document.querySelectorAll(".option").forEach(opt => {
+    opt.addEventListener("click", () => {
+      const q = opt.closest(".question");
+      q.querySelectorAll(".option").forEach(o => o.classList.remove("selected"));
+      opt.classList.add("selected");
+      q.dataset.userAnswer = opt.dataset.key;
+      updateProgress();
+    });
+  });
+
+  document.querySelectorAll(".blank-input").forEach(inp => {
+    inp.addEventListener("input", () => {
+      inp.closest(".question").dataset.userAnswer = inp.value.trim();
+      updateProgress();
+    });
+  });
+
+  function updateProgress() {
+    const total = document.querySelectorAll(".question").length;
+    const done = document.querySelectorAll(".question[data-user-answer]").length;
+    document.getElementById("progressFill").style.width = (done/total*100) + "%";
+  }
+
+  function submitQuiz() {
+    let correct = 0, total = 0;
+    document.querySelectorAll(".question").forEach(q => {
+      total++;
+      const userAns = (q.dataset.userAnswer || "").toLowerCase();
+      const correctAns = q.dataset.answer.toLowerCase();
+      const isCorrect = userAns === correctAns;
+      if (isCorrect) correct++;
+
+      if (q.dataset.type === "mcq") {
+        q.querySelectorAll(".option").forEach(o => {
+          if (o.dataset.key.toLowerCase() === correctAns) o.classList.add("correct");
+          else if (o.dataset.key.toLowerCase() === userAns && !isCorrect) o.classList.add("wrong");
+        });
+      } else if (q.dataset.type === "blank") {
+        const inp = q.querySelector(".blank-input");
+        inp.classList.add(isCorrect ? "correct" : "wrong");
+      }
+      q.querySelector(".explanation")?.classList.add("show");
+    });
+
+    const result = document.getElementById("result");
+    const pct = Math.round(correct/total*100);
+    document.getElementById("scoreNum").textContent = pct + "%";
+    document.getElementById("scoreDetail").textContent = `${correct} / ${total} 正确`;
+    result.classList.add("show");
+    result.scrollIntoView({behavior:"smooth"});
+  }
+
+  function resetQuiz() {
+    document.querySelectorAll(".question").forEach(q => {
+      delete q.dataset.userAnswer;
+      q.querySelectorAll(".option").forEach(o => o.classList.remove("selected","correct","wrong"));
+      const inp = q.querySelector(".blank-input");
+      if (inp) { inp.value = ""; inp.classList.remove("correct","wrong"); }
+      q.querySelector(".explanation")?.classList.remove("show");
+    });
+    document.getElementById("result").classList.remove("show");
+    document.getElementById("progressFill").style.width = "0%";
+  }
+</script>
+
+</body>
+</html>
