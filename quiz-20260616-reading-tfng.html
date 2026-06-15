@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#2563eb">
+<title>测验 · Reading T/F/NG · 健康的社会决定因素</title>
+<style>
+  :root {
+    --bg: #ffffff; --fg: #1a1a1a; --muted: #6b7280;
+    --accent: #2563eb; --ok: #059669; --err: #dc2626;
+    --card: #f9fafb; --border: #e5e7eb;
+    --nav-bg: rgba(255,255,255,0.92);
+    --header-bg: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f172a; --fg: #f1f5f9; --muted: #94a3b8;
+      --accent: #60a5fa; --ok: #34d399; --err: #f87171;
+      --card: #1e293b; --border: #334155;
+      --nav-bg: rgba(15,23,42,0.92);
+      --header-bg: linear-gradient(135deg, #1e40af 0%, #6b21a8 100%);
+    }
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg); }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif;
+    line-height: 1.6;
+    min-height: 100vh;
+    padding-bottom: calc(64px + env(safe-area-inset-bottom, 0));
+  }
+  .app-header {
+    background: var(--header-bg); color: white;
+    padding: calc(env(safe-area-inset-top, 16px) + 12px) 16px 14px;
+    position: sticky; top: 0; z-index: 20;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .back-btn {
+    background: rgba(255,255,255,0.18); border: none; color: white;
+    width: 34px; height: 34px; border-radius: 10px;
+    font-size: 1.1rem; cursor: pointer; flex-shrink: 0;
+    text-decoration: none; display: flex; align-items: center; justify-content: center;
+  }
+  .app-header .ttl {
+    font-size: 1rem; font-weight: 700;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .app-header .sub {
+    font-size: 0.72rem; opacity: 0.85; margin-top: 1px;
+    letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  main { max-width: 720px; margin: 0 auto; padding: 16px; }
+  .progress {
+    height: 6px; background: var(--border); border-radius: 3px;
+    margin-bottom: 16px; overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%; background: var(--accent);
+    transition: width 0.3s ease;
+  }
+  .strategy-tip {
+    background: rgba(37,99,235,0.07); border: 1px solid rgba(37,99,235,0.2);
+    border-radius: 10px; padding: 10px 14px; margin-bottom: 14px;
+    font-size: 0.83rem; color: var(--fg); line-height: 1.5;
+  }
+  .strategy-tip strong { color: var(--accent); }
+  .passage {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 14px 16px; margin-bottom: 16px;
+    font-size: 0.95rem; line-height: 1.75;
+  }
+  .passage h3 { margin: 0 0 10px; font-size: 0.78rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+  .passage .ptitle { font-size: 1.05rem; font-weight: 700; margin-bottom: 12px; }
+  .question {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 16px; margin-bottom: 14px;
+  }
+  .q-num {
+    color: var(--muted); font-size: 0.78rem;
+    font-family: "SF Mono", Menlo, monospace; margin-bottom: 6px;
+    text-transform: uppercase; letter-spacing: 0.04em;
+  }
+  .q-text { font-size: 1rem; margin-bottom: 12px; font-weight: 500; }
+  .options { display: flex; flex-direction: column; gap: 8px; }
+  .option {
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 8px; padding: 12px 14px;
+    cursor: pointer; font-size: 0.95rem; text-align: left;
+    color: var(--fg); font-family: inherit;
+  }
+  .option.selected { border-color: var(--accent); background: rgba(37, 99, 235, 0.08); }
+  .option.correct { border-color: var(--ok); background: rgba(5, 150, 105, 0.1); }
+  .option.wrong { border-color: var(--err); background: rgba(220, 38, 38, 0.1); }
+  .blank-input {
+    width: 100%; background: var(--bg);
+    border: 1px solid var(--border); border-radius: 8px;
+    padding: 10px 12px; font-size: 1rem;
+    color: var(--fg); font-family: inherit;
+  }
+  .blank-input.correct { border-color: var(--ok); }
+  .blank-input.wrong { border-color: var(--err); }
+  .explanation {
+    margin-top: 10px; padding: 10px 12px;
+    background: var(--bg); border-left: 3px solid var(--accent);
+    border-radius: 4px; font-size: 0.88rem; color: var(--muted);
+    display: none; line-height: 1.6;
+  }
+  .explanation.show { display: block; }
+  .explanation .answer { color: var(--ok); font-weight: 600; margin-bottom: 4px; }
+  .actions { display: flex; gap: 10px; margin-top: 20px; }
+  .btn {
+    flex: 1; padding: 12px;
+    border: none; border-radius: 10px;
+    font-size: 1rem; font-weight: 600; cursor: pointer;
+    font-family: inherit;
+  }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-secondary { background: var(--card); color: var(--fg); border: 1px solid var(--border); }
+  .result {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 20px;
+    text-align: center; margin-top: 20px; display: none;
+  }
+  .result.show { display: block; }
+  .score { font-size: 2.5rem; font-weight: 700; color: var(--accent); }
+  .score-label { color: var(--muted); font-size: 0.9rem; margin-top: 4px; }
+  .section-label {
+    font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em;
+    color: var(--muted); font-weight: 700; padding: 16px 4px 8px;
+    border-bottom: 1px solid var(--border); margin-bottom: 14px;
+  }
+  .tabbar {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: var(--nav-bg);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    border-top: 1px solid var(--border);
+    display: flex;
+    padding-bottom: env(safe-area-inset-bottom, 0);
+    z-index: 30;
+  }
+  .tab-btn {
+    flex: 1; background: transparent; border: none;
+    padding: 10px 4px 8px; color: var(--muted); font-size: 0.68rem;
+    cursor: pointer;
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    font-family: inherit; text-decoration: none;
+  }
+  .tab-btn .icon { font-size: 1.25rem; line-height: 1; }
+  .tab-btn.active { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <a class="back-btn" href="index.html#quizzes">←</a>
+  <div style="flex:1;min-width:0;">
+    <div class="ttl">Reading T/F/NG · 健康的社会决定因素</div>
+    <div class="sub">Day 27 · Health · 10 题 · ~12 分钟</div>
+  </div>
+</header>
+
+<main>
+
+  <div class="progress"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+
+  <div class="strategy-tip">
+    <strong>T/F/NG 解题要领：</strong>True = 原文直接支持或同义改写；False = 与原文直接矛盾；Not Given = 原文未提及或无法从原文推断。<strong>只看原文，不用常识判断。</strong>
+  </div>
+
+  <div class="passage">
+    <h3>Passage · 约 620 词</h3>
+    <div class="ptitle">The Social Determinants of Health: Beyond the Clinical Lens</div>
+    <p>For much of the twentieth century, improvements in population health were attributed primarily to advances in medicine — the discovery of antibiotics, the development of vaccines, and the expansion of surgical techniques. Yet a growing body of epidemiological evidence has fundamentally challenged this narrative. Research now suggests that the conditions in which people are born, grow, live, work, and age — collectively known as the social determinants of health — exert a more powerful influence on health outcomes than access to clinical care alone.</p>
+
+    <p>Income and socioeconomic status are consistently identified as the most significant determinants. Individuals in the lowest income quintile experience substantially higher rates of chronic disease, mental illness, and premature mortality compared to those in the highest quintile. This relationship holds across a wide range of conditions, from cardiovascular disease to respiratory infections, and persists even after controlling for individual lifestyle behaviours such as smoking and physical inactivity.</p>
+
+    <p>Education is another powerful predictor of health. Higher levels of educational attainment are associated with greater health literacy — the ability to obtain, process, and understand health information — as well as improved access to occupational opportunities that offer safer working environments and employer-provided healthcare benefits. Critically, the health benefits of education appear to operate independently of income, suggesting that literacy and cognitive skills confer direct protective effects.</p>
+
+    <p>The neighbourhood environment also plays a decisive role. Communities with high levels of deprivation tend to have limited access to nutritious food, safe recreational spaces, and quality healthcare facilities. These structural barriers, often described as "food deserts" and "health deserts", are not the result of individual choices but rather of systemic underinvestment in lower-income areas. A landmark study published in the <em>New England Journal of Medicine</em> found that moving low-income families to less deprived neighbourhoods produced measurable improvements in physical and mental health outcomes within five years.</p>
+
+    <p>Social connection and community cohesion represent a further set of determinants that are frequently overlooked in clinical settings. Chronic social isolation has been shown to increase the risk of premature death by approximately 26%, an effect comparable in magnitude to smoking fifteen cigarettes daily. Conversely, individuals embedded in strong social networks demonstrate greater resilience to stressors and report higher levels of subjective well-being. The mechanisms appear to involve both behavioural pathways — socially integrated individuals are more likely to seek medical care and adhere to treatment — and biological pathways, including reduced activation of stress hormones such as cortisol.</p>
+
+    <p>Despite this evidence, health systems in many high-income countries continue to invest a disproportionately large share of resources in acute clinical care rather than upstream social interventions. Critics argue that treating the symptoms of social inequity — hospital admissions, emergency attendances — without addressing the root causes represents a profoundly inefficient use of public funds. Health impact assessments, which evaluate the potential health consequences of non-health policies such as housing, transport, and employment, are one tool that some governments have begun to adopt.</p>
+
+    <p>The concept of health equity — the principle that all individuals should have a fair opportunity to attain their full health potential — requires governments to look beyond the hospital ward and into the conditions of everyday life. Ultimately, a society that tolerates wide disparities in social determinants will inevitably produce wide disparities in health outcomes, regardless of how sophisticated its medical technology becomes.</p>
+  </div>
+
+  <div class="section-label">Part A · T/F/NG (第 1–6 题)</div>
+  <div id="questions">
+
+    <div class="question" data-type="mcq" data-answer="A">
+      <div class="q-num">Q01 · T / F / NG</div>
+      <div class="q-text">Epidemiological research has challenged the view that advances in medicine are the primary driver of improved population health.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">✅ 正确答案: A — True</div>
+        原文第 1 段: "a growing body of epidemiological evidence has fundamentally challenged this narrative" — 挑战了医学进步是主要驱动力的说法。同义改写。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="B">
+      <div class="q-num">Q02 · T / F / NG</div>
+      <div class="q-text">The link between low income and higher rates of chronic disease disappears once lifestyle factors such as smoking are taken into account.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">✅ 正确答案: B — False</div>
+        原文: "persists even after controlling for individual lifestyle behaviours such as smoking" — 关系即使控制了生活方式因素后依然存在，与题目说法直接矛盾。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="A">
+      <div class="q-num">Q03 · T / F / NG</div>
+      <div class="q-text">The health benefits associated with education appear to be partially independent of a person's income level.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">✅ 正确答案: A — True</div>
+        原文: "the health benefits of education appear to operate independently of income" — 教育的健康效益独立于收入之外，与题目"partially independent"一致（True）。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="C">
+      <div class="q-num">Q04 · T / F / NG</div>
+      <div class="q-text">The study published in the New England Journal of Medicine tracked participants for more than ten years.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">✅ 正确答案: C — Not Given</div>
+        原文仅说 "within five years" 产生了可测量的改善，但没有说研究持续了多长时间；无法判断是否超过10年。信息未提及。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="A">
+      <div class="q-num">Q05 · T / F / NG</div>
+      <div class="q-text">Chronic social isolation carries a health risk that the author compares to a specific smoking habit.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">✅ 正确答案: A — True</div>
+        原文: "an effect comparable in magnitude to smoking fifteen cigarettes daily" — 明确将社会孤立的风险与每天吸 15 支烟相提并论。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="B">
+      <div class="q-num">Q06 · T / F / NG</div>
+      <div class="q-text">High-income countries generally allocate the majority of health resources to upstream social interventions rather than acute clinical care.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">✅ 正确答案: B — False</div>
+        原文: "continue to invest a disproportionately large share of resources in acute clinical care rather than upstream social interventions" — 正好相反，大部分资源用于急性医疗，而非上游社会干预。
+      </div>
+    </div>
+
+    <div class="section-label" style="margin-top:24px;">Part B · 词汇填空 (第 7–10 题)</div>
+
+    <div class="question" data-type="blank" data-answer="prevalence">
+      <div class="q-num">Q07 · 词汇填空</div>
+      <div class="q-text">The ________ of preventable disease is far higher in deprived communities than in affluent ones. (患病率 / 流行程度)</div>
+      <input class="blank-input" placeholder="键入答案 (英文)">
+      <div class="explanation">
+        <div class="answer">✅ 正确答案: prevalence</div>
+        <em>prevalence</em> (n.) = 患病率；the prevalence of + 疾病名 是雅思高频搭配。区别：<em>incidence</em> 指新发病率，<em>prevalence</em> 指现存病例率。
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="equity">
+      <div class="q-num">Q08 · 词汇填空</div>
+      <div class="q-text">Health ________ means ensuring every person has a fair opportunity to reach their highest possible level of health. (公平)</div>
+      <input class="blank-input" placeholder="键入答案 (英文)">
+      <div class="explanation">
+        <div class="answer">✅ 正确答案: equity</div>
+        <em>health equity</em> (n.) = 健康公平。区别：<em>equality</em> = 平等（同等对待），<em>equity</em> = 公平（给予每人所需，结果公平）。两者在雅思写作中的区分是高分点。
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="determinants">
+      <div class="q-num">Q09 · 搭配填空</div>
+      <div class="q-text">The social ________ of health include factors such as income, education, and neighbourhood environment. (决定因素，复数)</div>
+      <input class="blank-input" placeholder="键入答案 (英文)">
+      <div class="explanation">
+        <div class="answer">✅ 正确答案: determinants</div>
+        <em>social determinants of health</em> 是公共卫生领域核心术语，来自原文第 1 段。<em>determinant</em> (n.) = 决定因素。
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="adherence">
+      <div class="q-num">Q10 · 词汇填空</div>
+      <div class="q-text">Socially connected individuals are more likely to seek care and show greater ________ to medical treatment. (依从性)</div>
+      <input class="blank-input" placeholder="键入答案 (英文)">
+      <div class="explanation">
+        <div class="answer">✅ 正确答案: adherence</div>
+        <em>adherence</em> (n.) = 依从性；<em>adhere to treatment</em> 来自原文第 5 段。区别：<em>compliance</em> 也接受（更多指遵从规则），但医学语境下 <em>adherence</em> 更地道。
+      </div>
+    </div>
+
+  </div>
+
+  <div class="actions">
+    <button class="btn btn-secondary" onclick="resetQuiz()">重做</button>
+    <button class="btn btn-primary" onclick="submitQuiz()">提交对答</button>
+  </div>
+
+  <div class="result" id="result">
+    <div class="score" id="scoreNum">--</div>
+    <div class="score-label">正确率</div>
+    <div id="scoreDetail" style="margin-top:10px;color:var(--muted);font-size:0.9rem;"></div>
+    <div style="margin-top:12px;font-size:0.82rem;color:var(--muted);">Band 对照: 10/10=9.0 · 8-9/10≈7.5 · 6-7/10≈6.5 · 5以下需强化练习</div>
+  </div>
+
+</main>
+
+<nav class="tabbar">
+  <a class="tab-btn" href="index.html#home"><span class="icon">🏠</span>概览</a>
+  <a class="tab-btn" href="index.html#materials"><span class="icon">📺</span>材料</a>
+  <a class="tab-btn active" href="index.html#quizzes"><span class="icon">✏️</span>测验</a>
+  <a class="tab-btn" href="index.html#plan"><span class="icon">📋</span>计划</a>
+</nav>
+
+<script>
+  document.querySelectorAll(".option").forEach(opt => {
+    opt.addEventListener("click", () => {
+      const q = opt.closest(".question");
+      q.querySelectorAll(".option").forEach(o => o.classList.remove("selected"));
+      opt.classList.add("selected");
+      q.dataset.userAnswer = opt.dataset.key;
+      updateProgress();
+    });
+  });
+
+  document.querySelectorAll(".blank-input").forEach(inp => {
+    inp.addEventListener("input", () => {
+      inp.closest(".question").dataset.userAnswer = inp.value.trim().toLowerCase();
+      updateProgress();
+    });
+  });
+
+  function updateProgress() {
+    const total = document.querySelectorAll(".question").length;
+    const done = document.querySelectorAll(".question[data-user-answer]").length;
+    document.getElementById("progressFill").style.width = (done/total*100) + "%";
+  }
+
+  function submitQuiz() {
+    let correct = 0, total = 0;
+    document.querySelectorAll(".question").forEach(q => {
+      total++;
+      const userAns = (q.dataset.userAnswer || "").toLowerCase().trim();
+      const correctAns = q.dataset.answer.toLowerCase();
+      const isCorrect = userAns === correctAns;
+      if (isCorrect) correct++;
+
+      if (q.dataset.type === "mcq") {
+        q.querySelectorAll(".option").forEach(o => {
+          if (o.dataset.key.toLowerCase() === correctAns) o.classList.add("correct");
+          else if (o.dataset.key.toLowerCase() === userAns && !isCorrect) o.classList.add("wrong");
+        });
+      } else if (q.dataset.type === "blank") {
+        const inp = q.querySelector(".blank-input");
+        inp.classList.add(isCorrect ? "correct" : "wrong");
+      }
+      q.querySelector(".explanation")?.classList.add("show");
+    });
+
+    const result = document.getElementById("result");
+    const pct = Math.round(correct/total*100);
+    document.getElementById("scoreNum").textContent = pct + "%";
+    document.getElementById("scoreDetail").textContent = `${correct} / ${total} 正确`;
+    result.classList.add("show");
+    result.scrollIntoView({behavior:"smooth"});
+  }
+
+  function resetQuiz() {
+    document.querySelectorAll(".question").forEach(q => {
+      delete q.dataset.userAnswer;
+      q.querySelectorAll(".option").forEach(o => o.classList.remove("selected","correct","wrong"));
+      const inp = q.querySelector(".blank-input");
+      if (inp) { inp.value = ""; inp.classList.remove("correct","wrong"); }
+      q.querySelector(".explanation")?.classList.remove("show");
+    });
+    document.getElementById("result").classList.remove("show");
+    document.getElementById("progressFill").style.width = "0%";
+  }
+</script>
+
+</body>
+</html>
