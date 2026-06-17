@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#2563eb">
+<title>测验 · Reading T/F/NG · 民主问责与法治</title>
+<style>
+  :root {
+    --bg: #ffffff; --fg: #1a1a1a; --muted: #6b7280;
+    --accent: #2563eb; --ok: #059669; --err: #dc2626;
+    --card: #f9fafb; --border: #e5e7eb;
+    --nav-bg: rgba(255,255,255,0.92);
+    --header-bg: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f172a; --fg: #f1f5f9; --muted: #94a3b8;
+      --accent: #60a5fa; --ok: #34d399; --err: #f87171;
+      --card: #1e293b; --border: #334155;
+      --nav-bg: rgba(15,23,42,0.92);
+      --header-bg: linear-gradient(135deg, #1e40af 0%, #6b21a8 100%);
+    }
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg); }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif;
+    line-height: 1.6;
+    min-height: 100vh;
+    padding-bottom: calc(64px + env(safe-area-inset-bottom, 0));
+  }
+  .app-header {
+    background: var(--header-bg); color: white;
+    padding: calc(env(safe-area-inset-top, 16px) + 12px) 16px 14px;
+    position: sticky; top: 0; z-index: 20;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .back-btn {
+    background: rgba(255,255,255,0.18); border: none; color: white;
+    width: 34px; height: 34px; border-radius: 10px;
+    font-size: 1.1rem; cursor: pointer; flex-shrink: 0;
+    text-decoration: none; display: flex; align-items: center; justify-content: center;
+  }
+  .app-header .ttl {
+    font-size: 1rem; font-weight: 700;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .app-header .sub {
+    font-size: 0.72rem; opacity: 0.85; margin-top: 1px;
+    letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  main { max-width: 720px; margin: 0 auto; padding: 16px; }
+  .progress {
+    height: 6px; background: var(--border); border-radius: 3px;
+    margin-bottom: 16px; overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%; background: var(--accent);
+    transition: width 0.3s ease;
+  }
+  .strategy-tip {
+    background: rgba(37,99,235,0.07); border: 1px solid rgba(37,99,235,0.2);
+    border-radius: 10px; padding: 10px 14px; margin-bottom: 14px;
+    font-size: 0.83rem; color: var(--fg); line-height: 1.5;
+  }
+  .strategy-tip strong { color: var(--accent); }
+  .passage {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 14px 16px; margin-bottom: 16px;
+    font-size: 0.95rem; line-height: 1.75;
+  }
+  .passage h3 { margin: 0 0 10px; font-size: 0.78rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+  .passage .ptitle { font-size: 1.05rem; font-weight: 700; margin-bottom: 12px; }
+  .question {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 16px; margin-bottom: 14px;
+  }
+  .q-num {
+    color: var(--muted); font-size: 0.78rem;
+    font-family: "SF Mono", Menlo, monospace; margin-bottom: 6px;
+    text-transform: uppercase; letter-spacing: 0.04em;
+  }
+  .q-text { font-size: 1rem; margin-bottom: 12px; font-weight: 500; }
+  .options { display: flex; flex-direction: column; gap: 8px; }
+  .option {
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 8px; padding: 12px 14px;
+    cursor: pointer; font-size: 0.95rem; text-align: left;
+    color: var(--fg); font-family: inherit;
+  }
+  .option.selected { border-color: var(--accent); background: rgba(37, 99, 235, 0.08); }
+  .option.correct { border-color: var(--ok); background: rgba(5, 150, 105, 0.1); }
+  .option.wrong { border-color: var(--err); background: rgba(220, 38, 38, 0.1); }
+  .blank-input {
+    width: 100%; background: var(--bg);
+    border: 1px solid var(--border); border-radius: 8px;
+    padding: 10px 12px; font-size: 1rem;
+    color: var(--fg); font-family: inherit;
+  }
+  .blank-input.correct { border-color: var(--ok); }
+  .blank-input.wrong { border-color: var(--err); }
+  .explanation {
+    margin-top: 10px; padding: 10px 12px;
+    background: var(--bg); border-left: 3px solid var(--accent);
+    border-radius: 4px; font-size: 0.88rem; color: var(--muted);
+    display: none; line-height: 1.6;
+  }
+  .explanation.show { display: block; }
+  .explanation .answer { color: var(--ok); font-weight: 600; margin-bottom: 4px; }
+  .actions { display: flex; gap: 10px; margin-top: 20px; }
+  .btn {
+    flex: 1; padding: 12px;
+    border: none; border-radius: 10px;
+    font-size: 1rem; font-weight: 600; cursor: pointer;
+    font-family: inherit;
+  }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-secondary { background: var(--card); color: var(--fg); border: 1px solid var(--border); }
+  .result {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 20px;
+    text-align: center; margin-top: 20px; display: none;
+  }
+  .result.show { display: block; }
+  .score { font-size: 2.5rem; font-weight: 700; color: var(--accent); }
+  .score-label { color: var(--muted); font-size: 0.9rem; margin-top: 4px; }
+  .section-label {
+    font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em;
+    color: var(--muted); font-weight: 700; padding: 16px 4px 8px;
+    border-bottom: 1px solid var(--border); margin-bottom: 14px;
+  }
+  .tabbar {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: var(--nav-bg);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    border-top: 1px solid var(--border);
+    display: flex;
+    padding-bottom: env(safe-area-inset-bottom, 0);
+    z-index: 30;
+  }
+  .tab-btn {
+    flex: 1; background: transparent; border: none;
+    padding: 10px 4px 8px; color: var(--muted); font-size: 0.68rem;
+    cursor: pointer;
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    font-family: inherit; text-decoration: none;
+  }
+  .tab-btn .icon { font-size: 1.25rem; line-height: 1; }
+  .tab-btn.active { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <a class="back-btn" href="index.html#quizzes">←</a>
+  <div style="flex:1;min-width:0;">
+    <div class="ttl">Reading T/F/NG · 民主问责与法治</div>
+    <div class="sub">Day 29 · Government &amp; Society · 10 题 · ~12 分钟</div>
+  </div>
+</header>
+
+<main>
+
+  <div class="progress"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+
+  <div class="strategy-tip">
+    <strong>T/F/NG 解题要领：</strong>True = 原文直接支持或同义改写；False = 与原文直接矛盾；Not Given = 原文未提及或无法从原文推断。<strong>只看原文，不用常识判断。注意 Not Given 与 False 的区别。</strong>
+  </div>
+
+  <div class="passage">
+    <h3>Passage · 约 630 词</h3>
+    <div class="ptitle">Democratic Accountability and the Rule of Law</div>
+    <p>In the decades following the Second World War, scholars and policymakers widely assumed that the global spread of democratic institutions would be accompanied by a natural consolidation of the rule of law. History has not entirely confirmed this optimism. A growing body of comparative political research now distinguishes between the <em>formal</em> adoption of democratic procedures — elections, constitutions, and legislative chambers — and the substantive practice of accountable, law-bound governance. The two, it turns out, can diverge considerably.</p>
+
+    <p>The rule of law, in its most demanding sense, requires that governmental authority be exercised according to established and publicly known rules, that those rules apply equally to all citizens regardless of status, and that an independent judiciary be empowered to adjudicate disputes and hold even the most powerful actors to account. Where these conditions are met, citizens can predict with reasonable confidence how the state will behave toward them. Where they are absent, even formally democratic governments may act in ways that are arbitrary, discriminatory, or self-serving.</p>
+
+    <p>Corruption represents the most visible symptom of a weakened rule of law. Cross-national surveys consistently find that public trust in government institutions declines sharply in societies where bribery and cronyism are perceived to be widespread. Notably, the damage to institutional legitimacy is not confined to the agencies directly implicated in corrupt behaviour; research from the University of Gothenburg's Quality of Government Institute indicates that the entire governmental apparatus suffers a generalised loss of public confidence when any single branch is seen as compromised.</p>
+
+    <p>The mechanisms of democratic accountability — free elections, a free press, and active civil society organisations — are often cited as the primary safeguards against executive overreach. Elections, however, are a blunt instrument of accountability. They occur infrequently, bundle many policy issues together, and may be influenced by information asymmetries that favour incumbents. A free press capable of investigative journalism is consequently regarded by many constitutional scholars as indispensable. Yet press freedom has declined globally for the fifteenth consecutive year, according to the most recent World Press Freedom Index, raising serious questions about whether this safeguard remains effective.</p>
+
+    <p>Some scholars have argued that the most durable guarantor of accountable governance is not any single institution but the broader culture of legality that permeates a society. When citizens habitually obey the law not merely because they fear punishment but because they perceive legal norms as legitimate and fair, and when public officials internalise norms of probity independently of external enforcement, the rule of law becomes self-sustaining. This perspective, associated with the sociological tradition of legal scholarship, suggests that institutional reform alone — the adoption of anticorruption legislation or the creation of oversight bodies — is insufficient unless accompanied by shifts in underlying civic values.</p>
+
+    <p>The international community has developed a range of instruments to promote accountable governance in developing nations, including conditional aid agreements, peer review mechanisms, and governance indices. Critics argue that such external pressures are of limited effectiveness because they treat governance as a technical problem capable of being solved by the right organisational design, rather than as a deeply political contest over who controls resources and who bears the costs of reform. Sustainable improvements in democratic accountability, on this view, ultimately depend on the capacity and willingness of domestic political actors — opposition parties, civil society organisations, and engaged citizens — to demand and defend them.</p>
+
+    <p>Despite these challenges, there are grounds for measured optimism. Longitudinal data compiled by the Varieties of Democracy project reveal that countries which sustain democratic institutions for more than twenty years show significantly stronger rule-of-law scores than those that have experienced frequent interruptions. Institutional persistence, even in the face of short-term setbacks, appears to be a powerful predictor of long-term governance quality.</p>
+  </div>
+
+  <div class="section-label">Part A · T/F/NG (第 1–6 题)</div>
+  <div id="questions">
+
+    <div class="question" data-type="mcq" data-answer="B">
+      <div class="q-num">Q01 · T / F / NG</div>
+      <div class="q-text">Post-war scholarship unanimously predicted that the spread of democratic elections would automatically produce strong rule-of-law governance.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">✅ 正确答案: B — False</div>
+        原文第 1 段: "History has not entirely confirmed this optimism" + "The two... can diverge considerably" — 历史并未证实这一乐观预期，民主程序与法治可以存在较大差距，与"自动产生"矛盾。注意"unanimously"(一致地)在原文未找到支撑，实际上原文说"widely assumed"并给出了反驳。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="A">
+      <div class="q-num">Q02 · T / F / NG</div>
+      <div class="q-text">The rule of law, as described in the passage, requires that the same legal rules apply to all members of society, including those in positions of power.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">✅ 正确答案: A — True</div>
+        原文第 2 段: "those rules apply equally to all citizens regardless of status" and "hold even the most powerful actors to account" — 明确指出规则对所有人平等适用，包括最有权力的人。直接同义改写。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="A">
+      <div class="q-num">Q03 · T / F / NG</div>
+      <div class="q-text">According to research cited in the passage, corruption in one branch of government can reduce public trust in other government institutions as well.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">✅ 正确答案: A — True</div>
+        原文第 3 段: "the entire governmental apparatus suffers a generalised loss of public confidence when any single branch is seen as compromised" — 一个部门腐败，整个政府机构的公信力都会受损。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="C">
+      <div class="q-num">Q04 · T / F / NG</div>
+      <div class="q-text">The World Press Freedom Index referred to in the passage is published annually by an organisation based in Europe.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">✅ 正确答案: C — Not Given</div>
+        原文仅提到 "the most recent World Press Freedom Index"，未说明其发布频率或发布机构的所在地。这是典型的 NG 陷阱：题目添加了原文没有的细节。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="B">
+      <div class="q-num">Q05 · T / F / NG</div>
+      <div class="q-text">The sociological tradition mentioned in the passage holds that establishing new anticorruption laws is a sufficient condition for improving the rule of law.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">✅ 正确答案: B — False</div>
+        原文第 5 段: "institutional reform alone... is insufficient unless accompanied by shifts in underlying civic values" — 明确指出制度改革不足够，还需要公民价值观的转变。"sufficient"与原文直接矛盾。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="A">
+      <div class="q-num">Q06 · T / F / NG</div>
+      <div class="q-text">Data from the Varieties of Democracy project suggest that countries with longer uninterrupted democratic histories tend to achieve better rule-of-law outcomes.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">✅ 正确答案: A — True</div>
+        原文第 7 段: "countries which sustain democratic institutions for more than twenty years show significantly stronger rule-of-law scores than those that have experienced frequent interruptions" — 与题目"longer uninterrupted democratic histories → better rule-of-law"完全吻合。
+      </div>
+    </div>
+
+    <div class="section-label" style="margin-top:24px;">Part B · 词汇填空 (第 7–10 题)</div>
+
+    <div class="question" data-type="blank" data-answer="accountability">
+      <div class="q-num">Q07 · 词汇填空</div>
+      <div class="q-text">Democratic ________ requires that elected officials can be held responsible for their decisions by citizens and oversight bodies. (问责制)</div>
+      <input class="blank-input" placeholder="键入答案 (英文)">
+      <div class="explanation">
+        <div class="answer">✅ 正确答案: accountability</div>
+        <em>accountability</em> (n.) = 问责制；<em>democratic accountability</em> 是贯穿全文的核心概念。搭配：<em>hold sb. accountable / to account</em>。区别：<em>responsibility</em> 侧重义务，<em>accountability</em> 强调对结果负责并接受审查。
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="legitimacy">
+      <div class="q-num">Q08 · 词汇填空</div>
+      <div class="q-text">Widespread corruption erodes the ________ of government institutions in the eyes of the public. (合法性 / 正当性)</div>
+      <input class="blank-input" placeholder="键入答案 (英文)">
+      <div class="explanation">
+        <div class="answer">✅ 正确答案: legitimacy</div>
+        <em>legitimacy</em> (n.) = 合法性；来自原文第 3 段 "institutional legitimacy"。搭配：<em>confer / undermine / restore legitimacy</em>。区别：<em>legality</em> 指合乎法律，<em>legitimacy</em> 指被认可为正当合理（可能合法但不合理，反之亦然）。
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="judiciary">
+      <div class="q-num">Q09 · 搭配填空</div>
+      <div class="q-text">An independent ________ is essential to uphold the rule of law by adjudicating disputes without political interference. (司法机构)</div>
+      <input class="blank-input" placeholder="键入答案 (英文)">
+      <div class="explanation">
+        <div class="answer">✅ 正确答案: judiciary</div>
+        <em>judiciary</em> (n.) = 司法机构（整体）；来自原文第 2 段。区分：<em>judge</em> = 法官（个体），<em>judicial</em> = adj. 司法的，<em>justice</em> = 正义 / 大法官。雅思阅读高频词，注意拼写。
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="incumbents">
+      <div class="q-num">Q10 · 词汇填空</div>
+      <div class="q-text">Elections may be distorted by information asymmetries that give unfair advantages to ________ — those already holding office. (现任官员，复数)</div>
+      <input class="blank-input" placeholder="键入答案 (英文)">
+      <div class="explanation">
+        <div class="answer">✅ 正确答案: incumbents</div>
+        <em>incumbent</em> (n.) = 现任官员；(adj.) = 现任的，义务上应当…的（<em>it is incumbent upon sb. to do</em>）。来自原文第 4 段 "information asymmetries that favour incumbents"。
+      </div>
+    </div>
+
+  </div>
+
+  <div class="actions">
+    <button class="btn btn-secondary" onclick="resetQuiz()">重做</button>
+    <button class="btn btn-primary" onclick="submitQuiz()">提交对答</button>
+  </div>
+
+  <div class="result" id="result">
+    <div class="score" id="scoreNum">--</div>
+    <div class="score-label">正确率</div>
+    <div id="scoreDetail" style="margin-top:10px;color:var(--muted);font-size:0.9rem;"></div>
+    <div style="margin-top:12px;font-size:0.82rem;color:var(--muted);">Band 对照: 10/10=9.0 · 8-9/10≈7.5 · 6-7/10≈6.5 · 5以下需强化练习</div>
+  </div>
+
+</main>
+
+<nav class="tabbar">
+  <a class="tab-btn" href="index.html#home"><span class="icon">🏠</span>概览</a>
+  <a class="tab-btn" href="index.html#materials"><span class="icon">📺</span>材料</a>
+  <a class="tab-btn active" href="index.html#quizzes"><span class="icon">✏️</span>测验</a>
+  <a class="tab-btn" href="index.html#plan"><span class="icon">📋</span>计划</a>
+</nav>
+
+<script>
+  document.querySelectorAll(".option").forEach(opt => {
+    opt.addEventListener("click", () => {
+      const q = opt.closest(".question");
+      q.querySelectorAll(".option").forEach(o => o.classList.remove("selected"));
+      opt.classList.add("selected");
+      q.dataset.userAnswer = opt.dataset.key;
+      updateProgress();
+    });
+  });
+
+  document.querySelectorAll(".blank-input").forEach(inp => {
+    inp.addEventListener("input", () => {
+      inp.closest(".question").dataset.userAnswer = inp.value.trim().toLowerCase();
+      updateProgress();
+    });
+  });
+
+  function updateProgress() {
+    const total = document.querySelectorAll(".question").length;
+    const done = document.querySelectorAll(".question[data-user-answer]").length;
+    document.getElementById("progressFill").style.width = (done/total*100) + "%";
+  }
+
+  function submitQuiz() {
+    let correct = 0, total = 0;
+    document.querySelectorAll(".question").forEach(q => {
+      total++;
+      const userAns = (q.dataset.userAnswer || "").toLowerCase().trim();
+      const correctAns = q.dataset.answer.toLowerCase();
+      const isCorrect = userAns === correctAns;
+      if (isCorrect) correct++;
+
+      if (q.dataset.type === "mcq") {
+        q.querySelectorAll(".option").forEach(o => {
+          if (o.dataset.key.toLowerCase() === correctAns) o.classList.add("correct");
+          else if (o.dataset.key.toLowerCase() === userAns && !isCorrect) o.classList.add("wrong");
+        });
+      } else if (q.dataset.type === "blank") {
+        const inp = q.querySelector(".blank-input");
+        inp.classList.add(isCorrect ? "correct" : "wrong");
+      }
+      q.querySelector(".explanation")?.classList.add("show");
+    });
+
+    const result = document.getElementById("result");
+    const pct = Math.round(correct/total*100);
+    document.getElementById("scoreNum").textContent = pct + "%";
+    document.getElementById("scoreDetail").textContent = `${correct} / ${total} 正确`;
+    result.classList.add("show");
+    result.scrollIntoView({behavior:"smooth"});
+  }
+
+  function resetQuiz() {
+    document.querySelectorAll(".question").forEach(q => {
+      delete q.dataset.userAnswer;
+      q.querySelectorAll(".option").forEach(o => o.classList.remove("selected","correct","wrong"));
+      const inp = q.querySelector(".blank-input");
+      if (inp) { inp.value = ""; inp.classList.remove("correct","wrong"); }
+      q.querySelector(".explanation")?.classList.remove("show");
+    });
+    document.getElementById("result").classList.remove("show");
+    document.getElementById("progressFill").style.width = "0%";
+  }
+</script>
+
+</body>
+</html>
