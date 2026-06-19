@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#2563eb">
+<title>今日 150 词 · 2026-06-20 · Government &amp; Society</title>
+<style>
+  :root {
+    --bg: #ffffff; --fg: #1a1a1a; --muted: #6b7280;
+    --accent: #2563eb; --ok: #059669; --warn: #d97706;
+    --card: #f9fafb; --border: #e5e7eb;
+    --nav-bg: rgba(255,255,255,0.92);
+    --header-bg: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f172a; --fg: #f1f5f9; --muted: #94a3b8;
+      --accent: #60a5fa; --ok: #34d399; --warn: #fbbf24;
+      --card: #1e293b; --border: #334155;
+      --nav-bg: rgba(15,23,42,0.92);
+      --header-bg: linear-gradient(135deg, #1e40af 0%, #6b21a8 100%);
+    }
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg); }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif;
+    line-height: 1.5;
+    min-height: 100vh;
+    padding-bottom: calc(64px + env(safe-area-inset-bottom, 0));
+  }
+  .app-header {
+    background: var(--header-bg); color: white;
+    padding: calc(env(safe-area-inset-top, 16px) + 12px) 16px 14px;
+    position: sticky; top: 0; z-index: 20;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .back-btn {
+    background: rgba(255,255,255,0.18); border: none; color: white;
+    width: 34px; height: 34px; border-radius: 10px;
+    font-size: 1.1rem; cursor: pointer; flex-shrink: 0;
+    text-decoration: none; display: flex; align-items: center; justify-content: center;
+  }
+  .app-header .ttl { font-size: 1rem; font-weight: 700; }
+  .app-header .sub {
+    font-size: 0.72rem; opacity: 0.85; margin-top: 1px;
+    letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  .stats {
+    background: var(--card); padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px; text-align: center;
+  }
+  .stat .num { font-size: 1.4rem; font-weight: 700; }
+  .stat .num.know { color: var(--ok); }
+  .stat .num.weak { color: var(--warn); }
+  .stat .num.left { color: var(--accent); }
+  .stat .lbl { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; margin-top: 2px; }
+  .progress-bar { height: 4px; background: var(--border); overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--accent); transition: width 0.3s; }
+  .card-stage { margin: 24px 16px; perspective: 1000px; }
+  .card-3d {
+    position: relative; width: 100%; min-height: 260px;
+    transform-style: preserve-3d; transition: transform 0.5s; cursor: pointer;
+  }
+  .card-3d.flipped { transform: rotateY(180deg); }
+  .face {
+    position: absolute; width: 100%; height: 100%;
+    backface-visibility: hidden; -webkit-backface-visibility: hidden;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 18px; padding: 24px 20px;
+    display: flex; flex-direction: column; justify-content: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .face.front { text-align: center; }
+  .face.front .word { font-size: 2rem; font-weight: 700; color: var(--accent); margin-bottom: 8px; word-break: break-word; }
+  .face.front .pos { color: var(--muted); font-size: 0.95rem; font-style: italic; }
+  .face.front .hint { margin-top: 28px; color: var(--muted); font-size: 0.82rem; }
+  .face.back { transform: rotateY(180deg); }
+  .face.back .zh { font-size: 1.3rem; font-weight: 600; color: var(--accent); margin-bottom: 12px; }
+  .face.back .collo { background: var(--bg); padding: 8px 12px; border-radius: 8px; font-size: 0.92rem; color: var(--fg); margin-bottom: 10px; border-left: 3px solid var(--accent); }
+  .face.back .ex { font-size: 0.95rem; font-style: italic; color: var(--fg); line-height: 1.6; }
+  .face.back .ex strong { color: var(--accent); font-style: normal; }
+  .speaker {
+    position: absolute; top: 14px; right: 14px;
+    width: 36px; height: 36px; border-radius: 50%;
+    background: var(--bg); border: 1px solid var(--border);
+    cursor: pointer; font-size: 1.1rem; padding: 0; color: var(--accent);
+  }
+  .view-toggle { display: flex; padding: 12px 16px 0; gap: 8px; }
+  .view-toggle button {
+    flex: 1; padding: 8px; background: var(--card); border: 1px solid var(--border);
+    border-radius: 8px; color: var(--muted); font-size: 0.85rem; cursor: pointer; font-family: inherit;
+  }
+  .view-toggle button.active { background: var(--accent); color: white; border-color: var(--accent); }
+  .list-view { display: none; padding: 12px 16px 24px; }
+  .list-view.active { display: block; }
+  .list-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px; border-bottom: 1px solid var(--border);
+    background: var(--card); border-radius: 8px; margin-bottom: 6px;
+  }
+  .list-row .num { flex-shrink: 0; width: 28px; color: var(--muted); font-size: 0.72rem; font-family: "SF Mono", Menlo, monospace; }
+  .list-row .word { flex: 1; min-width: 0; }
+  .list-row .w { font-weight: 600; font-size: 0.95rem; color: var(--fg); }
+  .list-row .w.knew { color: var(--ok); }
+  .list-row .w.weak { color: var(--warn); }
+  .list-row .zh { font-size: 0.78rem; color: var(--muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .list-row .spk { flex-shrink: 0; width: 32px; height: 32px; border-radius: 50%; background: var(--bg); border: 1px solid var(--border); cursor: pointer; color: var(--accent); font-size: 0.9rem; padding: 0; }
+  .list-row .mk { flex-shrink: 0; width: 24px; text-align: center; color: var(--muted); }
+  .list-row .mk.know { color: var(--ok); }
+  .list-row .mk.weak { color: var(--warn); }
+  .curriculum-note { margin: 16px; padding: 12px 14px; background: var(--card); border-left: 3px solid var(--accent); border-radius: 8px; font-size: 0.82rem; color: var(--muted); line-height: 1.5; }
+  .curriculum-note strong { color: var(--fg); }
+  .actions { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; padding: 0 16px; }
+  .btn { padding: 14px 8px; border: 1px solid var(--border); border-radius: 12px; background: var(--card); color: var(--fg); font-size: 0.95rem; font-weight: 600; cursor: pointer; font-family: inherit; -webkit-tap-highlight-color: transparent; }
+  .btn .ico { display: block; font-size: 1.4rem; margin-bottom: 2px; }
+  .btn.weak { color: var(--warn); }
+  .btn.weak:active { background: rgba(217,119,6,0.1); }
+  .btn.flip { color: var(--accent); }
+  .btn.flip:active { background: rgba(37,99,235,0.1); }
+  .btn.know { color: var(--ok); }
+  .btn.know:active { background: rgba(5,150,105,0.1); }
+  .meta { text-align: center; color: var(--muted); font-size: 0.78rem; margin-top: 20px; }
+  .tabbar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--nav-bg); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px); border-top: 1px solid var(--border); display: flex; padding-bottom: env(safe-area-inset-bottom, 0); z-index: 30; }
+  .tab-btn { flex: 1; background: transparent; border: none; padding: 10px 4px 8px; color: var(--muted); font-size: 0.68rem; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 3px; font-family: inherit; text-decoration: none; }
+  .tab-btn .icon { font-size: 1.25rem; line-height: 1; }
+  .tab-btn.active { color: var(--accent); }
+  .done-screen { text-align: center; padding: 60px 24px; display: none; }
+  .done-screen.show { display: block; }
+  .done-screen .big { font-size: 4rem; }
+  .done-screen .ttl { font-size: 1.3rem; font-weight: 700; margin: 8px 0; }
+  .done-screen .sub { color: var(--muted); margin-bottom: 24px; }
+  .done-screen button { background: var(--accent); color: white; border: none; padding: 12px 24px; border-radius: 12px; font-size: 0.95rem; font-weight: 600; cursor: pointer; font-family: inherit; margin: 4px; }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <a class="back-btn" href="index.html#home">&#8592;</a>
+  <div style="flex:1;">
+    <div class="ttl">今日 150 词 · Government &amp; Society</div>
+    <div class="sub">2026-06-20 · Day 31</div>
+  </div>
+</header>
+
+<div class="stats">
+  <div class="stat"><div class="num know" id="kn">0</div><div class="lbl">知道</div></div>
+  <div class="stat"><div class="num weak" id="wk">0</div><div class="lbl">不熟</div></div>
+  <div class="stat"><div class="num left" id="lf">150</div><div class="lbl">剩余</div></div>
+</div>
+<div class="progress-bar"><div class="progress-fill" id="pg" style="width:0%"></div></div>
+
+<div class="view-toggle">
+  <button id="vtFlash" class="active" onclick="setView('flash')">&#128197; 卡片</button>
+  <button id="vtList" onclick="setView('list')">&#128203; 列表</button>
+</div>
+
+<div id="deck">
+  <div class="card-stage">
+    <div class="card-3d" id="card" onclick="flip()">
+      <div class="face front">
+        <button class="speaker" onclick="event.stopPropagation();speak(document.getElementById('w').textContent)">&#128264;</button>
+        <div class="word" id="w">—</div>
+        <div class="pos" id="p">—</div>
+        <div class="hint">轻触卡片 · 翻看释义</div>
+      </div>
+      <div class="face back">
+        <button class="speaker" onclick="event.stopPropagation();speak(document.getElementById('w').textContent)">&#128264;</button>
+        <div class="zh" id="zh">—</div>
+        <div class="collo" id="cl">—</div>
+        <div class="ex" id="ex">—</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="btn weak" onclick="mark('weak')"><span class="ico">&#128543;</span>不熟</button>
+    <button class="btn flip" onclick="flip()"><span class="ico">&#128260;</span>翻转</button>
+    <button class="btn know" onclick="mark('know')"><span class="ico">&#9989;</span>知道</button>
+  </div>
+
+  <div class="meta" id="meta">1 / 150 · 今日主题 Government &amp; Society Day 3</div>
+</div>
+
+<div class="list-view" id="listView">
+  <div id="listBody"></div>
+</div>
+
+<div class="curriculum-note">
+  <strong>词汇来源</strong>: 8 天主题轮换，涵盖雅思高频话题。<br>
+  Day 29-35 <strong>Government &amp; Society</strong> · 今日 Day 3 子主题: 公共政策 · 社会福利 · 城市治理<br>
+  词汇为 Band 7+ 难度，每条含词性 · 中文 · 搭配 · 例句，已去重前两日词汇。
+</div>
+
+<div class="done-screen" id="done">
+  <div class="big">&#127881;</div>
+  <div class="ttl" id="doneTtl">今日 150 词完成!</div>
+  <div class="sub" id="doneSub">知道 0 · 不熟 0</div>
+  <button onclick="resetAll()">重新开始</button>
+  <button onclick="reviewWeak()">只复习不熟</button>
+  <button onclick="location.href='index.html'">回主页</button>
+</div>
+
+<nav class="tabbar">
+  <a class="tab-btn active" href="index.html#home"><span class="icon">&#127968;</span>概览</a>
+  <a class="tab-btn" href="index.html#materials"><span class="icon">&#128250;</span>材料</a>
+  <a class="tab-btn" href="index.html#quizzes"><span class="icon">&#9999;&#65039;</span>测验</a>
+  <a class="tab-btn" href="index.html#plan"><span class="icon">&#128203;</span>计划</a>
+</nav>
+
+<script>
+const CARDS = [
+{"w":"allocate","p":"v.","zh":"拨款/分配","cl":"allocate resources","ex":"The government <strong>allocated</strong> extra funds to deprived communities."},
+{"w":"appropriation","p":"n.","zh":"财政拨款","cl":"a budget appropriation","ex":"Each year's <strong>appropriation</strong> determines social spending levels."},
+{"w":"asset","p":"n.","zh":"资产","cl":"seize assets","ex":"The regulator seized the company's <strong>assets</strong> pending investigation."},
+{"w":"baseline","p":"n.","zh":"基准线","cl":"establish a baseline","ex":"A clear <strong>baseline</strong> is essential for measuring policy effectiveness."},
+{"w":"benefit","p":"n.","zh":"(社会)福利","cl":"claim a benefit","ex":"Millions are entitled to <strong>benefits</strong> they never claim."},
+{"w":"borough","p":"n.","zh":"自治市镇","cl":"a deprived borough","ex":"Each London <strong>borough</strong> has its own elected council."},
+{"w":"breadline","p":"n.","zh":"贫困边缘","cl":"on the breadline","ex":"Millions of working families are living on the <strong>breadline</strong>."},
+{"w":"cap","p":"n./v.","zh":"上限/限制","cl":"a benefit cap","ex":"A household <strong>cap</strong> on welfare payments was introduced to curb expenditure."},
+{"w":"caseload","p":"n.","zh":"工作案例量","cl":"a heavy caseload","ex":"Social workers carry an unsustainable <strong>caseload</strong>."},
+{"w":"claimant","p":"n.","zh":"申请者/领取者","cl":"a benefit claimant","ex":"<strong>Claimants</strong> must undergo a rigorous eligibility assessment."},
+{"w":"commission","p":"n.","zh":"委员会","cl":"an independent commission","ex":"An independent <strong>commission</strong> reviewed welfare expenditure."},
+{"w":"communal","p":"adj.","zh":"公共的/社区共享的","cl":"communal facilities","ex":"<strong>Communal</strong> spaces strengthen social bonds in urban areas."},
+{"w":"compliance","p":"n.","zh":"合规/遵从","cl":"regulatory compliance","ex":"Strict <strong>compliance</strong> monitoring helps prevent benefit fraud."},
+{"w":"compulsory","p":"adj.","zh":"强制性的","cl":"compulsory voting","ex":"<strong>Compulsory</strong> voting is designed to broaden democratic participation."},
+{"w":"concession","p":"n.","zh":"让步/特许权","cl":"make concessions","ex":"After prolonged negotiations, the government made significant <strong>concessions</strong>."},
+{"w":"condone","p":"v.","zh":"纵容/默许","cl":"condone abuse","ex":"No responsible government can <strong>condone</strong> systematic discrimination."},
+{"w":"confiscate","p":"v.","zh":"没收","cl":"confiscate assets","ex":"Courts can <strong>confiscate</strong> assets acquired through corruption."},
+{"w":"consultative","p":"adj.","zh":"咨询性的","cl":"a consultative process","ex":"A <strong>consultative</strong> process increases democratic legitimacy."},
+{"w":"convene","p":"v.","zh":"召集/召开","cl":"convene a committee","ex":"The minister <strong>convened</strong> an emergency policy committee."},
+{"w":"counterproductive","p":"adj.","zh":"适得其反的","cl":"counterproductive measures","ex":"Harsh benefit sanctions can prove <strong>counterproductive</strong>."},
+{"w":"delegate","p":"v.","zh":"授权/委派","cl":"delegate responsibility","ex":"Some powers have been <strong>delegated</strong> to regional authorities."},
+{"w":"demographics","p":"n.","zh":"人口统计数据","cl":"shifting demographics","ex":"Shifting <strong>demographics</strong> are placing unprecedented pressure on public services."},
+{"w":"deprivation","p":"n.","zh":"剥夺/贫困","cl":"child deprivation","ex":"Child <strong>deprivation</strong> has lasting consequences for cognitive development."},
+{"w":"destitute","p":"adj.","zh":"赤贫的","cl":"rendered destitute","ex":"Thousands were left <strong>destitute</strong> following the factory closure."},
+{"w":"developmental","p":"adj.","zh":"发展的/援助的","cl":"developmental aid","ex":"<strong>Developmental</strong> aid aims to break cycles of intergenerational poverty."},
+{"w":"diaspora","p":"n.","zh":"海外移民群体","cl":"the diaspora community","ex":"The <strong>diaspora</strong> sends billions in remittances to support families at home."},
+{"w":"disbursement","p":"n.","zh":"资金拨付","cl":"the disbursement of funds","ex":"Delays in aid <strong>disbursement</strong> undermine public trust."},
+{"w":"discretionary","p":"adj.","zh":"可自由裁量的","cl":"discretionary spending","ex":"<strong>Discretionary</strong> spending is typically the first target in budget cuts."},
+{"w":"divert","p":"v.","zh":"转移/挪用","cl":"divert public funds","ex":"Officials were convicted of <strong>diverting</strong> public funds for personal gain."},
+{"w":"domestic","p":"adj.","zh":"国内的","cl":"domestic policy","ex":"Strong <strong>domestic</strong> policy must address inequality before it destabilises society."},
+{"w":"earmark","p":"v.","zh":"专款专用","cl":"earmark funds","ex":"The government <strong>earmarked</strong> billions for affordable housing construction."},
+{"w":"eligible","p":"adj.","zh":"有资格的","cl":"eligible for support","ex":"All households below the poverty line are <strong>eligible</strong> for state assistance."},
+{"w":"eradicate","p":"v.","zh":"根除","cl":"eradicate poverty","ex":"Ambitious targets to <strong>eradicate</strong> extreme poverty have seen limited progress."},
+{"w":"ethics","p":"n.","zh":"伦理/道德","cl":"professional ethics","ex":"Strong <strong>ethics</strong> in public service underpin citizens' trust in government."},
+{"w":"exacerbate","p":"v.","zh":"加剧/恶化","cl":"exacerbate inequality","ex":"Regressive tax policies have <strong>exacerbated</strong> the wealth gap."},
+{"w":"exclude","p":"v.","zh":"排斥/排除","cl":"socially exclude","ex":"Disabled citizens must not be <strong>excluded</strong> from civic and economic life."},
+{"w":"exclusion","p":"n.","zh":"社会排斥","cl":"tackle social exclusion","ex":"Addressing <strong>social exclusion</strong> requires coordinated cross-departmental effort."},
+{"w":"expedite","p":"v.","zh":"加快/促进","cl":"expedite reforms","ex":"Crisis conditions can <strong>expedite</strong> otherwise slow-moving legislation."},
+{"w":"exploit","p":"v.","zh":"剥削/利用","cl":"exploit loopholes","ex":"Corporations that <strong>exploit</strong> tax loopholes undermine the social contract."},
+{"w":"hardship","p":"n.","zh":"艰难困苦","cl":"financial hardship","ex":"Prolonged <strong>hardship</strong> erodes both mental health and community cohesion."},
+{"w":"incentivise","p":"v.","zh":"激励","cl":"incentivise employers","ex":"Tax credits <strong>incentivise</strong> businesses to hire long-term unemployed workers."},
+{"w":"indigent","p":"adj.","zh":"赤贫的","cl":"the indigent population","ex":"Legal aid must remain accessible to the <strong>indigent</strong>."},
+{"w":"inequity","p":"n.","zh":"不公平/不均等","cl":"systemic inequity","ex":"<strong>Inequity</strong> in healthcare access perpetuates cycles of deprivation."},
+{"w":"initiative","p":"n.","zh":"倡议/举措","cl":"launch an initiative","ex":"A flagship <strong>initiative</strong> was launched to tackle child poverty."},
+{"w":"intervention","p":"n.","zh":"干预","cl":"state intervention","ex":"Proponents argue that <strong>state intervention</strong> is necessary to correct market failures."},
+{"w":"levy","p":"v./n.","zh":"征税/税款","cl":"levy a tax","ex":"The government plans to <strong>levy</strong> a windfall tax on energy company profits."},
+{"w":"liability","p":"n.","zh":"负债/法律责任","cl":"a long-term liability","ex":"Unfunded pension promises represent a significant long-term <strong>liability</strong>."},
+{"w":"liveable","p":"adj.","zh":"宜居的","cl":"a liveable city","ex":"Affordable transport and clean air make a city genuinely <strong>liveable</strong>."},
+{"w":"meritocratic","p":"adj.","zh":"精英制的","cl":"a meritocratic system","ex":"A truly <strong>meritocratic</strong> system rewards talent, not inherited privilege."},
+{"w":"ministerial","p":"adj.","zh":"部长级的","cl":"ministerial accountability","ex":"Robust <strong>ministerial</strong> accountability prevents institutional abuse."},
+{"w":"monopoly","p":"n.","zh":"垄断","cl":"break a monopoly","ex":"Regulators moved to break the utility firm's <strong>monopoly</strong> on distribution."},
+{"w":"naturalise","p":"v.","zh":"入籍/归化","cl":"naturalise citizens","ex":"The pathway to <strong>naturalise</strong> has become significantly more arduous."},
+{"w":"neutral","p":"adj.","zh":"中立的","cl":"politically neutral","ex":"Civil servants are expected to remain politically <strong>neutral</strong>."},
+{"w":"outreach","p":"n.","zh":"外展服务","cl":"community outreach","ex":"<strong>Outreach</strong> programmes identify vulnerable groups before crises develop."},
+{"w":"overhaul","p":"v./n.","zh":"彻底改革","cl":"overhaul the system","ex":"The outdated benefits system is long overdue for a thorough <strong>overhaul</strong>."},
+{"w":"pension","p":"n.","zh":"养老金","cl":"the state pension","ex":"The state <strong>pension</strong> age has been gradually increased to reflect longer lifespans."},
+{"w":"philanthropy","p":"n.","zh":"慈善事业","cl":"corporate philanthropy","ex":"<strong>Philanthropy</strong> can supplement but should never substitute for public services."},
+{"w":"precarious","p":"adj.","zh":"不稳定的","cl":"precarious employment","ex":"<strong>Precarious</strong> employment denies workers access to essential social protections."},
+{"w":"probe","p":"v./n.","zh":"调查","cl":"launch a probe","ex":"An independent <strong>probe</strong> was launched into procurement irregularities."},
+{"w":"proactive","p":"adj.","zh":"主动积极的","cl":"a proactive approach","ex":"A <strong>proactive</strong> government anticipates social needs rather than reacting to crises."},
+{"w":"provision","p":"n.","zh":"提供/条款","cl":"social provision","ex":"Adequate <strong>provision</strong> of mental health services remains an urgent priority."},
+{"w":"rebate","p":"n.","zh":"退款/折扣","cl":"a tax rebate","ex":"Low-income families may qualify for a council tax <strong>rebate</strong>."},
+{"w":"recipient","p":"n.","zh":"受益者/领取者","cl":"welfare recipients","ex":"<strong>Recipients</strong> of state support are too often unfairly stigmatised."},
+{"w":"redress","p":"v./n.","zh":"纠正/补救","cl":"seek redress","ex":"Citizens have the right to <strong>seek redress</strong> for administrative injustice."},
+{"w":"resilience","p":"n.","zh":"韧性/恢复力","cl":"build resilience","ex":"Strong community networks build <strong>resilience</strong> against economic shocks."},
+{"w":"revamp","p":"v.","zh":"改革/革新","cl":"revamp social services","ex":"Ministers pledged to <strong>revamp</strong> the social care system entirely."},
+{"w":"seminal","p":"adj.","zh":"开创性的/奠基性的","cl":"a seminal study","ex":"A <strong>seminal</strong> report exposed structural inequalities in the housing market."},
+{"w":"shortfall","p":"n.","zh":"缺口/不足额","cl":"a funding shortfall","ex":"A severe <strong>shortfall</strong> in social care funding has left thousands without support."},
+{"w":"silo","p":"n.","zh":"部门壁垒","cl":"work in silos","ex":"Effective governance requires breaking down departmental <strong>silos</strong>."},
+{"w":"stakeholder","p":"n.","zh":"利益相关方","cl":"consult stakeholders","ex":"All key <strong>stakeholders</strong> were consulted before the legislation was drafted."},
+{"w":"stimulus","p":"n.","zh":"经济刺激","cl":"an economic stimulus","ex":"A fiscal <strong>stimulus</strong> package was deployed to combat the recession."},
+{"w":"stratification","p":"n.","zh":"社会分层","cl":"social stratification","ex":"Entrenched <strong>stratification</strong> is the greatest structural barrier to social mobility."},
+{"w":"subsistence","p":"n.","zh":"维生/基本生活","cl":"subsistence wages","ex":"Workers on <strong>subsistence</strong> wages cannot afford adequate nutrition for their families."},
+{"w":"supplement","p":"v./n.","zh":"补充/补贴","cl":"supplement income","ex":"Many part-time workers must <strong>supplement</strong> their wages with state benefits."},
+{"w":"tenancy","p":"n.","zh":"租赁","cl":"secure tenancy","ex":"Secure <strong>tenancy</strong> protects renters from arbitrary eviction."},
+{"w":"threshold","p":"n.","zh":"门槛/临界值","cl":"the income threshold","ex":"Households below the earnings <strong>threshold</strong> qualify for state assistance."},
+{"w":"undermine","p":"v.","zh":"削弱","cl":"undermine confidence","ex":"Corruption <strong>undermines</strong> public confidence in government institutions."},
+{"w":"universal","p":"adj.","zh":"普惠的","cl":"universal coverage","ex":"Advocates have long championed <strong>universal</strong> basic income as a solution to poverty."},
+{"w":"uplift","p":"n./v.","zh":"提振/改善","cl":"an economic uplift","ex":"The regeneration project delivered a significant economic <strong>uplift</strong> to the region."},
+{"w":"urban","p":"adj.","zh":"城市的","cl":"urban deprivation","ex":"<strong>Urban</strong> deprivation is most concentrated in former industrial areas."},
+{"w":"urbanisation","p":"n.","zh":"城市化","cl":"rapid urbanisation","ex":"Rapid <strong>urbanisation</strong> places enormous pressure on housing and transport."},
+{"w":"utilise","p":"v.","zh":"利用/使用","cl":"utilise resources","ex":"Governments must <strong>utilise</strong> public resources both efficiently and accountably."},
+{"w":"voucher","p":"n.","zh":"代金券/凭证","cl":"a childcare voucher","ex":"Childcare <strong>vouchers</strong> help low-income parents re-enter the workforce."},
+{"w":"widen","p":"v.","zh":"扩大/加剧","cl":"widen the gap","ex":"Technological change risks <strong>widening</strong> economic inequalities without targeted policy."},
+{"w":"yield","p":"v./n.","zh":"产生/收益","cl":"yield long-term returns","ex":"Investment in early childhood education <strong>yields</strong> substantial societal returns."},
+{"w":"paternalistic","p":"adj.","zh":"家长制的","cl":"paternalistic policy","ex":"Critics argued the new welfare scheme was excessively <strong>paternalistic</strong>."},
+{"w":"stratify","p":"v.","zh":"(使)分层","cl":"stratify society","ex":"Tax breaks for the wealthy further <strong>stratify</strong> an already unequal society."},
+{"w":"remittance","p":"n.","zh":"汇款","cl":"send remittances","ex":"Migrant workers send <strong>remittances</strong> home, bolstering developing economies."},
+{"w":"entitlement","p":"n.","zh":"权利/福利资格","cl":"benefit entitlements","ex":"Cuts to pensioner <strong>entitlements</strong> have provoked widespread political anger."},
+{"w":"stipend","p":"n.","zh":"生活津贴","cl":"a monthly stipend","ex":"Volunteers receive a modest <strong>stipend</strong> to cover living expenses."},
+{"w":"solvency","p":"n.","zh":"偿债能力","cl":"maintain solvency","ex":"The local council struggled to maintain financial <strong>solvency</strong> amid deep budget cuts."},
+{"w":"chronic","p":"adj.","zh":"长期积重难返的","cl":"chronic poverty","ex":"<strong>Chronic</strong> poverty requires systemic intervention, not merely symptomatic relief."},
+{"w":"dispossess","p":"v.","zh":"剥夺所有权","cl":"dispossess communities","ex":"Large-scale development projects can <strong>dispossess</strong> long-established communities."},
+{"w":"protectionism","p":"n.","zh":"贸易保护主义","cl":"economic protectionism","ex":"Rising <strong>protectionism</strong> threatens global growth and multilateral cooperation."},
+{"w":"quantitative","p":"adj.","zh":"量化的","cl":"quantitative targets","ex":"Setting <strong>quantitative</strong> targets makes social policy goals measurable and accountable."},
+{"w":"conditionality","p":"n.","zh":"附条件性","cl":"the conditionality of welfare","ex":"The <strong>conditionality</strong> of benefits requires recipients to demonstrate job-seeking activity."},
+{"w":"egalitarian","p":"adj.","zh":"平等主义的","cl":"an egalitarian society","ex":"Nordic countries are widely regarded as models of <strong>egalitarian</strong> governance."},
+{"w":"emancipation","p":"n.","zh":"解放/获得自由","cl":"social emancipation","ex":"Social <strong>emancipation</strong> requires access to quality education, housing, and healthcare."},
+{"w":"coexist","p":"v.","zh":"共存","cl":"coexist peacefully","ex":"Diverse communities must <strong>coexist</strong> through mutual respect and shared institutions."},
+{"w":"safety net","p":"colloc.","zh":"社会保障网","cl":"a robust safety net","ex":"A robust <strong>safety net</strong> prevents households from falling into destitution."},
+{"w":"means-tested","p":"colloc.","zh":"经济状况调查的","cl":"means-tested benefits","ex":"<strong>Means-tested</strong> benefits are concentrated on those with the lowest incomes."},
+{"w":"living wage","p":"colloc.","zh":"生活工资","cl":"a statutory living wage","ex":"Campaigners have long called for a statutory <strong>living wage</strong>."},
+{"w":"social inclusion","p":"colloc.","zh":"社会融合","cl":"promote social inclusion","ex":"Cultural programmes can promote <strong>social inclusion</strong> in divided communities."},
+{"w":"poverty line","p":"colloc.","zh":"贫困线","cl":"fall below the poverty line","ex":"Around 15% of the population lives below the national <strong>poverty line</strong>."},
+{"w":"policy framework","p":"colloc.","zh":"政策框架","cl":"a coherent policy framework","ex":"A coherent <strong>policy framework</strong> aligns public spending with strategic priorities."},
+{"w":"grant funding","p":"colloc.","zh":"拨款资助","cl":"secure grant funding","ex":"Community initiatives often depend on <strong>grant funding</strong> from central government."},
+{"w":"cash transfer","p":"colloc.","zh":"现金转移支付","cl":"direct cash transfers","ex":"Direct <strong>cash transfers</strong> are among the most effective anti-poverty instruments."},
+{"w":"tax bracket","p":"colloc.","zh":"税级/税档","cl":"a higher tax bracket","ex":"Moving into a higher <strong>tax bracket</strong> can reduce the effective gain from a pay rise."},
+{"w":"social protection","p":"colloc.","zh":"社会保障/保护","cl":"strengthen social protection","ex":"Expanding <strong>social protection</strong> reduces vulnerability during economic downturns."},
+{"w":"ring-fence","p":"colloc.","zh":"专项资金保护","cl":"ring-fence health funding","ex":"The government committed to <strong>ring-fencing</strong> health spending from cuts."},
+{"w":"welfare provision","p":"colloc.","zh":"福利供给","cl":"adequate welfare provision","ex":"<strong>Welfare provision</strong> must be timely, adequate, and non-stigmatising."},
+{"w":"housing benefit","p":"colloc.","zh":"住房补贴","cl":"housing benefit reform","ex":"<strong>Housing benefit</strong> reforms have left many struggling to afford rent."},
+{"w":"child poverty","p":"colloc.","zh":"儿童贫困","cl":"tackle child poverty","ex":"Tackling <strong>child poverty</strong> requires early intervention and sustained parental support."},
+{"w":"fiscal prudence","p":"colloc.","zh":"财政审慎","cl":"exercise fiscal prudence","ex":"<strong>Fiscal prudence</strong> prevents governments from accumulating unsustainable debt."},
+{"w":"urban regeneration","p":"colloc.","zh":"城市再生/更新","cl":"an urban regeneration project","ex":"An ambitious <strong>urban regeneration</strong> scheme transformed the derelict industrial zone."},
+{"w":"welfare reform","p":"colloc.","zh":"福利改革","cl":"push through welfare reform","ex":"<strong>Welfare reform</strong> is one of the most politically contentious policy areas."},
+{"w":"resource allocation","p":"colloc.","zh":"资源分配","cl":"efficient resource allocation","ex":"Efficient <strong>resource allocation</strong> is a fundamental challenge of public administration."},
+{"w":"policy vacuum","p":"colloc.","zh":"政策真空","cl":"fill a policy vacuum","ex":"Rapid technological change has created a <strong>policy vacuum</strong> in digital regulation."},
+{"w":"social dividend","p":"colloc.","zh":"社会红利","cl":"yield a social dividend","ex":"Investment in public health yields a long-term <strong>social dividend</strong>."},
+{"w":"tax relief","p":"colloc.","zh":"税收减免","cl":"offer tax relief","ex":"Registered charities receive <strong>tax relief</strong> in recognition of their social contribution."},
+{"w":"economic mobility","p":"colloc.","zh":"经济流动性","cl":"improve economic mobility","ex":"Quality public education is the most powerful driver of <strong>economic mobility</strong>."},
+{"w":"income gap","p":"colloc.","zh":"收入差距","cl":"narrow the income gap","ex":"Progressive taxation is one tool for narrowing the <strong>income gap</strong>."},
+{"w":"benefit dependency","p":"colloc.","zh":"福利依赖","cl":"reduce benefit dependency","ex":"Critics argue that overly generous payments can foster <strong>benefit dependency</strong>."},
+{"w":"public service delivery","p":"colloc.","zh":"公共服务提供","cl":"improve service delivery","ex":"Digitalisation has transformed <strong>public service delivery</strong> in forward-thinking governments."},
+{"w":"pension reform","p":"colloc.","zh":"养老金改革","cl":"push through pension reform","ex":"<strong>Pension reform</strong> is one of the most politically sensitive areas of social policy."},
+{"w":"community development","p":"colloc.","zh":"社区发展","cl":"promote community development","ex":"<strong>Community development</strong> programmes empower residents to shape their own futures."},
+{"w":"spending review","p":"colloc.","zh":"支出审查","cl":"a comprehensive spending review","ex":"A comprehensive <strong>spending review</strong> was launched to eliminate inefficiency."},
+{"w":"social entrepreneur","p":"colloc.","zh":"社会企业家","cl":"a social entrepreneur","ex":"A <strong>social entrepreneur</strong> harnesses business methods to tackle societal challenges."},
+{"w":"income redistribution","p":"colloc.","zh":"收入再分配","cl":"favour income redistribution","ex":"Progressives favour <strong>income redistribution</strong> through higher marginal tax rates."},
+{"w":"the poverty trap","p":"idiom","zh":"贫困陷阱","cl":"fall into the poverty trap","ex":"High benefit withdrawal rates force claimants into <strong>the poverty trap</strong>."},
+{"w":"the glass ceiling","p":"idiom","zh":"玻璃天花板","cl":"shatter the glass ceiling","ex":"Women and minorities continue to face an invisible <strong>glass ceiling</strong> in the public sector."},
+{"w":"the squeezed middle","p":"idiom","zh":"被挤压的中产","cl":"the squeezed middle bear the strain","ex":"Middle-income earners, <strong>the squeezed middle</strong>, bear the heaviest tax burden."},
+{"w":"bread-and-butter issues","p":"idiom","zh":"民生问题","cl":"focus on bread-and-butter issues","ex":"Voters prioritise <strong>bread-and-butter issues</strong> such as housing costs and healthcare."},
+{"w":"tighten one's belt","p":"idiom","zh":"节衣缩食","cl":"tighten their belts","ex":"Households have been forced to <strong>tighten their belts</strong> during the cost-of-living crisis."},
+{"w":"foot the bill","p":"idiom","zh":"买单/承担费用","cl":"foot the bill for","ex":"Taxpayers ultimately <strong>foot the bill</strong> for corporate bailouts."},
+{"w":"in the red","p":"idiom","zh":"赤字/亏损","cl":"be in the red","ex":"The local authority remained stubbornly <strong>in the red</strong> despite successive spending cuts."},
+{"w":"balance the books","p":"idiom","zh":"收支平衡","cl":"promise to balance the books","ex":"Every chancellor promises to <strong>balance the books</strong>, yet few succeed."},
+{"w":"make ends meet","p":"idiom","zh":"维持生计","cl":"struggle to make ends meet","ex":"Millions of families struggle to <strong>make ends meet</strong> despite holding multiple jobs."},
+{"w":"a race to the bottom","p":"idiom","zh":"竞相压低标准","cl":"a race to the bottom on wages","ex":"Corporate tax competition can become <strong>a race to the bottom</strong>, starving public services."},
+{"w":"pay lip service to","p":"phrasal v.","zh":"口惠而实不至","cl":"pay lip service to equality","ex":"Too many governments <strong>pay lip service to</strong> equality without implementing meaningful action."},
+{"w":"pull strings","p":"phrasal v.","zh":"走后门/施加影响","cl":"pull strings to gain access","ex":"Wealthy families can <strong>pull strings</strong> to access services unavailable to ordinary citizens."},
+{"w":"call the shots","p":"idiom","zh":"做主/发号施令","cl":"call the shots on policy","ex":"Powerful lobbying groups effectively <strong>call the shots</strong> on certain policy decisions."},
+{"w":"get off the ground","p":"phrasal v.","zh":"启动/起步","cl":"get the initiative off the ground","ex":"The affordable housing programme failed to <strong>get off the ground</strong> due to funding delays."},
+{"w":"the elephant in the room","p":"idiom","zh":"被回避的显著问题","cl":"address the elephant in the room","ex":"Pension funding is <strong>the elephant in the room</strong> that every government avoids."},
+{"w":"a tall order","p":"idiom","zh":"难以完成的任务","cl":"a tall order to accomplish","ex":"Ending child poverty within a decade is <strong>a tall order</strong>, but not impossible."},
+{"w":"above board","p":"idiom","zh":"光明正大的/合规的","cl":"entirely above board","ex":"Officials insisted all procurement decisions were entirely <strong>above board</strong>."},
+{"w":"pick up the tab","p":"idiom","zh":"买单/承担费用","cl":"pick up the tab for","ex":"Future generations will inevitably <strong>pick up the tab</strong> for today's borrowing."},
+{"w":"a trickle-up effect","p":"phrase","zh":"向上渗透效应","cl":"create a trickle-up effect","ex":"Raising the minimum wage creates <strong>a trickle-up effect</strong>, boosting consumer spending broadly."},
+{"w":"level up","p":"phrasal v.","zh":"拉平差距/提升落后地区","cl":"level up deprived areas","ex":"The government's flagship policy pledged to <strong>level up</strong> left-behind communities."}
+];
+
+let state = JSON.parse(localStorage.getItem("ielts_vocab_20260620") || "{}");
+let queue = CARDS.map((c, i) => ({...c, idx: i})).filter(c => !state[c.idx] || state[c.idx] === "review");
+let cur = 0;
+
+function speak(text) {
+  if (!text || !window.speechSynthesis) return;
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = "en-US"; u.rate = 0.85; u.pitch = 1;
+  const voices = speechSynthesis.getVoices();
+  const en = voices.find(v => /en-(US|GB)/.test(v.lang) && /Samantha|Daniel|Alex|Karen|Google US English|Google UK English/.test(v.name))
+          || voices.find(v => v.lang.startsWith("en"));
+  if (en) u.voice = en;
+  speechSynthesis.speak(u);
+}
+if (window.speechSynthesis) speechSynthesis.onvoiceschanged = () => {};
+
+function render() {
+  if (cur >= queue.length) return showDone();
+  const c = queue[cur];
+  document.getElementById("w").textContent = c.w;
+  document.getElementById("p").textContent = c.p;
+  document.getElementById("zh").textContent = c.zh;
+  document.getElementById("cl").textContent = c.cl;
+  document.getElementById("ex").innerHTML = c.ex;
+  document.getElementById("card").classList.remove("flipped");
+  document.getElementById("meta").textContent = `${cur+1} / ${queue.length} · Government & Society Day 3`;
+  updateStats();
+  setTimeout(() => speak(c.w), 150);
+}
+
+function setView(v) {
+  document.getElementById("vtFlash").classList.toggle("active", v === "flash");
+  document.getElementById("vtList").classList.toggle("active", v === "list");
+  document.getElementById("deck").style.display = v === "flash" ? "" : "none";
+  document.getElementById("listView").classList.toggle("active", v === "list");
+  if (v === "list") renderList();
+}
+
+function renderList() {
+  const body = document.getElementById("listBody");
+  body.innerHTML = CARDS.map((c, i) => {
+    const mark = state[i] || "";
+    const cls = mark === "know" ? "knew" : mark === "weak" ? "weak" : "";
+    const ico = mark === "know" ? "✓" : mark === "weak" ? "○" : "·";
+    const mcls = mark === "know" ? "know" : mark === "weak" ? "weak" : "";
+    return `<div class="list-row">
+      <div class="num">${String(i+1).padStart(3,'0')}</div>
+      <div class="word"><div class="w ${cls}">${c.w} <span style="color:var(--muted);font-weight:400;font-size:0.78rem;">${c.p}</span></div><div class="zh">${c.zh}</div></div>
+      <button class="spk" onclick="speak('${c.w.replace(/'/g,"\\'")}')">&#128264;</button>
+      <div class="mk ${mcls}">${ico}</div>
+    </div>`;
+  }).join("");
+}
+
+function flip() { document.getElementById("card").classList.toggle("flipped"); }
+
+function mark(t) {
+  const c = queue[cur];
+  state[c.idx] = (t === "know" ? "know" : "weak");
+  localStorage.setItem("ielts_vocab_20260620", JSON.stringify(state));
+  cur++;
+  render();
+}
+
+function updateStats() {
+  const kn = Object.values(state).filter(v=>v==="know").length;
+  const wk = Object.values(state).filter(v=>v==="weak").length;
+  const lf = 150 - kn - wk;
+  document.getElementById("kn").textContent = kn;
+  document.getElementById("wk").textContent = wk;
+  document.getElementById("lf").textContent = lf;
+  document.getElementById("pg").style.width = ((kn+wk)/150*100) + "%";
+}
+
+function showDone() {
+  document.getElementById("deck").style.display = "none";
+  document.getElementById("done").classList.add("show");
+  const kn = Object.values(state).filter(v=>v==="know").length;
+  const wk = Object.values(state).filter(v=>v==="weak").length;
+  document.getElementById("doneTtl").textContent = wk > 0 ? `今日 150 词完成! 还有 ${wk} 张不熟` : "今日 150 词全掌握 🎉";
+  document.getElementById("doneSub").textContent = `知道 ${kn} · 不熟 ${wk}`;
+}
+
+function reviewWeak() {
+  queue = CARDS.map((c,i)=>({...c,idx:i})).filter(c => state[c.idx] === "weak");
+  if (queue.length === 0) { alert("没有不熟的卡!"); return; }
+  cur = 0;
+  document.getElementById("done").classList.remove("show");
+  document.getElementById("deck").style.display = "";
+  render();
+}
+
+function resetAll() {
+  if (!confirm("清空今日进度，重新开始?")) return;
+  localStorage.removeItem("ielts_vocab_20260620");
+  state = {};
+  queue = CARDS.map((c,i)=>({...c,idx:i}));
+  cur = 0;
+  document.getElementById("done").classList.remove("show");
+  document.getElementById("deck").style.display = "";
+  render();
+}
+
+render();
+</script>
+
+</body>
+</html>
