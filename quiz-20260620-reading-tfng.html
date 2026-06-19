@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#2563eb">
+<title>测验 · Reading T/F/NG · 福利国家的压力</title>
+<style>
+  :root {
+    --bg: #ffffff; --fg: #1a1a1a; --muted: #6b7280;
+    --accent: #2563eb; --ok: #059669; --err: #dc2626;
+    --card: #f9fafb; --border: #e5e7eb;
+    --nav-bg: rgba(255,255,255,0.92);
+    --header-bg: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f172a; --fg: #f1f5f9; --muted: #94a3b8;
+      --accent: #60a5fa; --ok: #34d399; --err: #f87171;
+      --card: #1e293b; --border: #334155;
+      --nav-bg: rgba(15,23,42,0.92);
+      --header-bg: linear-gradient(135deg, #1e40af 0%, #6b21a8 100%);
+    }
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg); }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif;
+    line-height: 1.6;
+    min-height: 100vh;
+    padding-bottom: calc(64px + env(safe-area-inset-bottom, 0));
+  }
+  .app-header {
+    background: var(--header-bg); color: white;
+    padding: calc(env(safe-area-inset-top, 16px) + 12px) 16px 14px;
+    position: sticky; top: 0; z-index: 20;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .back-btn {
+    background: rgba(255,255,255,0.18); border: none; color: white;
+    width: 34px; height: 34px; border-radius: 10px;
+    font-size: 1.1rem; cursor: pointer; flex-shrink: 0;
+    text-decoration: none; display: flex; align-items: center; justify-content: center;
+  }
+  .app-header .ttl {
+    font-size: 1rem; font-weight: 700;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .app-header .sub {
+    font-size: 0.72rem; opacity: 0.85; margin-top: 1px;
+    letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  main { max-width: 720px; margin: 0 auto; padding: 16px; }
+  .progress {
+    height: 6px; background: var(--border); border-radius: 3px;
+    margin-bottom: 16px; overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%; background: var(--accent);
+    transition: width 0.3s ease;
+  }
+  .passage {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 14px 16px; margin-bottom: 16px;
+    font-size: 0.95rem; line-height: 1.7;
+  }
+  .passage h3 { margin: 0 0 8px; font-size: 0.78rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+  .passage p { margin: 0 0 10px; }
+  .passage p:last-child { margin-bottom: 0; }
+  .read-more { display: none; }
+  .passage.expanded .read-more { display: block; }
+  .toggle-btn {
+    background: none; border: none; color: var(--accent);
+    font-size: 0.88rem; cursor: pointer; padding: 6px 0 2px;
+    font-family: inherit;
+  }
+  .question {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 16px; margin-bottom: 14px;
+  }
+  .q-num {
+    color: var(--muted); font-size: 0.78rem;
+    font-family: "SF Mono", Menlo, monospace; margin-bottom: 6px;
+    text-transform: uppercase; letter-spacing: 0.04em;
+  }
+  .q-text { font-size: 1rem; margin-bottom: 12px; font-weight: 500; }
+  .options { display: flex; flex-direction: column; gap: 8px; }
+  .option {
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 8px; padding: 12px 14px;
+    cursor: pointer; font-size: 0.95rem; text-align: left;
+    color: var(--fg); font-family: inherit;
+  }
+  .option.selected { border-color: var(--accent); background: rgba(37, 99, 235, 0.08); }
+  .option.correct { border-color: var(--ok); background: rgba(5, 150, 105, 0.1); }
+  .option.wrong { border-color: var(--err); background: rgba(220, 38, 38, 0.1); }
+  .blank-input {
+    width: 100%; background: var(--bg);
+    border: 1px solid var(--border); border-radius: 8px;
+    padding: 10px 12px; font-size: 1rem;
+    color: var(--fg); font-family: inherit;
+  }
+  .blank-input.correct { border-color: var(--ok); }
+  .blank-input.wrong { border-color: var(--err); }
+  .explanation {
+    margin-top: 10px; padding: 10px 12px;
+    background: var(--bg); border-left: 3px solid var(--accent);
+    border-radius: 4px; font-size: 0.9rem; color: var(--muted);
+    display: none;
+  }
+  .explanation.show { display: block; }
+  .explanation .answer { color: var(--ok); font-weight: 600; }
+  .actions { display: flex; gap: 10px; margin-top: 20px; }
+  .btn {
+    flex: 1; padding: 12px;
+    border: none; border-radius: 10px;
+    font-size: 1rem; font-weight: 600; cursor: pointer;
+    font-family: inherit;
+  }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-secondary { background: var(--card); color: var(--fg); border: 1px solid var(--border); }
+  .result {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 20px;
+    text-align: center; margin-top: 20px; display: none;
+  }
+  .result.show { display: block; }
+  .score { font-size: 2.5rem; font-weight: 700; color: var(--accent); }
+  .score-label { color: var(--muted); font-size: 0.9rem; margin-top: 4px; }
+  .tabbar {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: var(--nav-bg);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    border-top: 1px solid var(--border);
+    display: flex;
+    padding-bottom: env(safe-area-inset-bottom, 0);
+    z-index: 30;
+  }
+  .tab-btn {
+    flex: 1; background: transparent; border: none;
+    padding: 10px 4px 8px; color: var(--muted); font-size: 0.68rem;
+    cursor: pointer;
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    font-family: inherit; text-decoration: none;
+  }
+  .tab-btn .icon { font-size: 1.25rem; line-height: 1; }
+  .tab-btn.active { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <a class="back-btn" href="index.html#quizzes">←</a>
+  <div style="flex:1;min-width:0;">
+    <div class="ttl">Reading T/F/NG · 福利国家的压力</div>
+    <div class="sub">7 T/F/NG + 3 词汇 · ~12 分钟</div>
+  </div>
+</header>
+
+<main>
+
+  <div class="progress"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+
+  <div class="passage" id="passage">
+    <h3>Passage 节选 · The Welfare State in the Twenty-First Century</h3>
+    <p>The welfare state, once celebrated as one of the twentieth century's defining achievements, faces mounting pressures in an era of economic transformation. The proliferation of precarious employment — short-term contracts, zero-hours arrangements, and gig-economy work — has eroded the contributory basis on which most social insurance systems were built. Workers who lack stable, long-term employment records often fall outside eligibility criteria, leaving them without meaningful protection precisely when they are most vulnerable.</p>
+    <p>Demographic change compounds the fiscal challenge. As populations age across the developed world, the ratio of working-age contributors to retired beneficiaries continues to shift. The OECD has projected that public pension spending could double in some member states by 2060 without structural reform, placing enormous pressure on government budgets already strained by sluggish productivity growth and rising healthcare costs.</p>
+    <div class="read-more">
+    <p>Perhaps the most contested debate concerns the design of income support itself. Traditional means-tested benefits have long been criticised for creating a poverty trap: as recipients increase their earnings, benefit withdrawal rates can make additional work financially unrewarding. A growing body of researchers argues that a universal basic income — a flat, unconditional payment to every citizen regardless of employment status — could eliminate this disincentive. Pilot programmes in Finland, Kenya, and Stockton, California have reported promising results, including improved mental health outcomes and no significant reduction in labour market participation.</p>
+    <p>Housing presents a parallel set of difficulties. In many cities, a shortage of affordable homes has placed enormous strain on low-income households, with rents consuming an ever-larger share of take-home pay. Some commentators attribute this crisis partly to the deregulation of financial markets during the 1980s, which encouraged speculative investment in residential property. Others point to inadequate planning frameworks that restrict new construction and keep housing supply artificially constrained.</p>
+    <p>Urban regeneration programmes have attempted to address concentrated deprivation in neglected neighbourhoods by attracting private investment and improving public infrastructure. Critics warn, however, that rising property values in the wake of such initiatives can trigger gentrification, displacing the lower-income communities the programmes were intended to help. Robust tenancy protections and social housing commitments are increasingly seen as essential safeguards against this risk.</p>
+    <p>Ultimately, the future shape of the welfare state reflects political choices about solidarity and collective responsibility. The evidence increasingly suggests that well-designed safety nets — far from creating dependency — are associated with lower crime rates, better public health outcomes, and higher long-run productivity. The challenge for policymakers is to modernise delivery mechanisms, close eligibility gaps left by labour-market change, and sustain public legitimacy for redistribution at a time when trust in institutions is fragile.</p>
+    </div>
+    <button class="toggle-btn" id="toggleBtn" onclick="togglePassage()">展开全文 ▼</button>
+  </div>
+
+  <div id="questions">
+
+    <div class="question" data-type="mcq" data-answer="A">
+      <div class="q-num">Q01 · T/F/NG</div>
+      <div class="q-text">Precarious employment often leaves workers ineligible for traditional welfare benefits.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">正确答案: A (True)</div>
+        原文: "Workers who lack stable, long-term employment records often fall outside eligibility criteria" — 与题意一致
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="B">
+      <div class="q-num">Q02 · T/F/NG</div>
+      <div class="q-text">The OECD has projected that public pension spending will triple in some member states by 2060.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">正确答案: B (False)</div>
+        原文说 "could double"（翻倍），而非 "triple"（三倍）——数字不同，与题意矛盾
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="A">
+      <div class="q-num">Q03 · T/F/NG</div>
+      <div class="q-text">The poverty trap can discourage welfare recipients from entering employment.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">正确答案: A (True)</div>
+        原文: "benefit withdrawal rates can make additional work financially unrewarding" — 即工作无利可图，与题意一致
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="B">
+      <div class="q-num">Q04 · T/F/NG</div>
+      <div class="q-text">UBI pilot programmes showed that recipients were less likely to seek employment.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">正确答案: B (False)</div>
+        原文: "no significant reduction in labour market participation" — 没有显著减少就业意愿，题目反说"更不可能求职"，与之矛盾
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="C">
+      <div class="q-num">Q05 · T/F/NG</div>
+      <div class="q-text">The UBI trial in Finland was more successful than the one in Stockton, California.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">正确答案: C (Not Given)</div>
+        原文只整体描述各地试点"结果良好"，未对芬兰与斯托克顿进行比较 — 信息未提
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="B">
+      <div class="q-num">Q06 · T/F/NG</div>
+      <div class="q-text">The passage concludes that 1980s deregulation directly caused the current housing crisis.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">正确答案: B (False)</div>
+        原文用 "Some commentators attribute…"（部分评论者认为），并非作者或文章的定论，且另一方将问题归因于规划框架不足 — 题目说法过于绝对
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="A">
+      <div class="q-num">Q07 · T/F/NG</div>
+      <div class="q-text">Urban regeneration projects risk displacing the communities they are designed to help.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">正确答案: A (True)</div>
+        原文: "gentrification, displacing the lower-income communities the programmes were intended to help" — 与题意完全一致
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="threshold">
+      <div class="q-num">Q08 · 词汇填空</div>
+      <div class="q-text">Households whose income falls below the _____ qualify for state assistance. (中文: 门槛 / 临界点)</div>
+      <input class="blank-input" placeholder="键入答案">
+      <div class="explanation">
+        <div class="answer">正确答案: threshold</div>
+        threshold = 门槛；"below the threshold" 是福利政策高频搭配。Band 7+ 词汇
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="supplement">
+      <div class="q-num">Q09 · 词汇填空</div>
+      <div class="q-text">Many part-time workers must _____ their wages with state benefits in order to cover basic living costs. (动词: 补充)</div>
+      <input class="blank-input" placeholder="键入答案">
+      <div class="explanation">
+        <div class="answer">正确答案: supplement</div>
+        supplement (v.) = 补充、增补；"supplement income / wages" 是雅思写作常用搭配
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="universal">
+      <div class="q-num">Q10 · 词汇填空</div>
+      <div class="q-text">A _____ approach to welfare means providing support to all citizens regardless of income or employment status. (形容词: 普惠的)</div>
+      <input class="blank-input" placeholder="键入答案">
+      <div class="explanation">
+        <div class="answer">正确答案: universal</div>
+        universal = 普遍的/普惠的；"universal basic income / universal healthcare" 是雅思高频话题词
+      </div>
+    </div>
+
+  </div>
+
+  <div class="actions">
+    <button class="btn btn-secondary" onclick="resetQuiz()">重做</button>
+    <button class="btn btn-primary" onclick="submitQuiz()">提交对答</button>
+  </div>
+
+  <div class="result" id="result">
+    <div class="score" id="scoreNum">--</div>
+    <div class="score-label">正确率</div>
+    <div id="scoreDetail" style="margin-top:10px;color:var(--muted);"></div>
+  </div>
+
+</main>
+
+<nav class="tabbar">
+  <a class="tab-btn" href="index.html#home"><span class="icon">🏠</span>概览</a>
+  <a class="tab-btn" href="index.html#materials"><span class="icon">📺</span>材料</a>
+  <a class="tab-btn active" href="index.html#quizzes"><span class="icon">✏️</span>测验</a>
+  <a class="tab-btn" href="index.html#plan"><span class="icon">📋</span>计划</a>
+</nav>
+
+<script>
+  function togglePassage() {
+    const p = document.getElementById("passage");
+    const btn = document.getElementById("toggleBtn");
+    if (p.classList.contains("expanded")) {
+      p.classList.remove("expanded");
+      btn.textContent = "展开全文 ▼";
+    } else {
+      p.classList.add("expanded");
+      btn.textContent = "收起 ▲";
+    }
+  }
+
+  document.querySelectorAll(".option").forEach(opt => {
+    opt.addEventListener("click", () => {
+      const q = opt.closest(".question");
+      q.querySelectorAll(".option").forEach(o => o.classList.remove("selected"));
+      opt.classList.add("selected");
+      q.dataset.userAnswer = opt.dataset.key;
+      updateProgress();
+    });
+  });
+
+  document.querySelectorAll(".blank-input").forEach(inp => {
+    inp.addEventListener("input", () => {
+      inp.closest(".question").dataset.userAnswer = inp.value.trim();
+      updateProgress();
+    });
+  });
+
+  function updateProgress() {
+    const total = document.querySelectorAll(".question").length;
+    const done = document.querySelectorAll(".question[data-user-answer]").length;
+    document.getElementById("progressFill").style.width = (done/total*100) + "%";
+  }
+
+  function submitQuiz() {
+    let correct = 0, total = 0;
+    document.querySelectorAll(".question").forEach(q => {
+      total++;
+      const userAns = (q.dataset.userAnswer || "").toLowerCase().trim();
+      const correctAns = q.dataset.answer.toLowerCase();
+      const isCorrect = userAns === correctAns;
+      if (isCorrect) correct++;
+
+      if (q.dataset.type === "mcq") {
+        q.querySelectorAll(".option").forEach(o => {
+          if (o.dataset.key.toLowerCase() === correctAns) o.classList.add("correct");
+          else if (o.dataset.key.toLowerCase() === userAns && !isCorrect) o.classList.add("wrong");
+        });
+      } else if (q.dataset.type === "blank") {
+        const inp = q.querySelector(".blank-input");
+        inp.classList.add(isCorrect ? "correct" : "wrong");
+      }
+      q.querySelector(".explanation")?.classList.add("show");
+    });
+
+    const result = document.getElementById("result");
+    const pct = Math.round(correct/total*100);
+    document.getElementById("scoreNum").textContent = pct + "%";
+    document.getElementById("scoreDetail").textContent = `${correct} / ${total} 正确`;
+    result.classList.add("show");
+    result.scrollIntoView({behavior:"smooth"});
+  }
+
+  function resetQuiz() {
+    document.querySelectorAll(".question").forEach(q => {
+      delete q.dataset.userAnswer;
+      q.querySelectorAll(".option").forEach(o => o.classList.remove("selected","correct","wrong"));
+      const inp = q.querySelector(".blank-input");
+      if (inp) { inp.value = ""; inp.classList.remove("correct","wrong"); }
+      q.querySelector(".explanation")?.classList.remove("show");
+    });
+    document.getElementById("result").classList.remove("show");
+    document.getElementById("progressFill").style.width = "0%";
+  }
+</script>
+
+</body>
+</html>
