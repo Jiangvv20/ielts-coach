@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#2563eb">
+<title>今日 150 词 · 2026-06-21 · Government & Society</title>
+<style>
+  :root {
+    --bg: #ffffff; --fg: #1a1a1a; --muted: #6b7280;
+    --accent: #2563eb; --ok: #059669; --warn: #d97706;
+    --card: #f9fafb; --border: #e5e7eb;
+    --nav-bg: rgba(255,255,255,0.92);
+    --header-bg: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f172a; --fg: #f1f5f9; --muted: #94a3b8;
+      --accent: #60a5fa; --ok: #34d399; --warn: #fbbf24;
+      --card: #1e293b; --border: #334155;
+      --nav-bg: rgba(15,23,42,0.92);
+      --header-bg: linear-gradient(135deg, #1e40af 0%, #6b21a8 100%);
+    }
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg); }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif;
+    line-height: 1.5;
+    min-height: 100vh;
+    padding-bottom: calc(64px + env(safe-area-inset-bottom, 0));
+  }
+  .app-header {
+    background: var(--header-bg); color: white;
+    padding: calc(env(safe-area-inset-top, 16px) + 12px) 16px 14px;
+    position: sticky; top: 0; z-index: 20;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .back-btn {
+    background: rgba(255,255,255,0.18); border: none; color: white;
+    width: 34px; height: 34px; border-radius: 10px;
+    font-size: 1.1rem; cursor: pointer; flex-shrink: 0;
+    text-decoration: none; display: flex; align-items: center; justify-content: center;
+  }
+  .app-header .ttl { font-size: 1rem; font-weight: 700; }
+  .app-header .sub {
+    font-size: 0.72rem; opacity: 0.85; margin-top: 1px;
+    letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  .stats {
+    background: var(--card); padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px; text-align: center;
+  }
+  .stat .num { font-size: 1.4rem; font-weight: 700; }
+  .stat .num.know { color: var(--ok); }
+  .stat .num.weak { color: var(--warn); }
+  .stat .num.left { color: var(--accent); }
+  .stat .lbl { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; margin-top: 2px; }
+  .progress-bar {
+    height: 4px; background: var(--border);
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%; background: var(--accent);
+    transition: width 0.3s;
+  }
+  .card-stage {
+    margin: 24px 16px;
+    perspective: 1000px;
+  }
+  .card-3d {
+    position: relative;
+    width: 100%; min-height: 260px;
+    transform-style: preserve-3d;
+    transition: transform 0.5s;
+    cursor: pointer;
+  }
+  .card-3d.flipped { transform: rotateY(180deg); }
+  .face {
+    position: absolute; width: 100%; height: 100%;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 24px 20px;
+    display: flex; flex-direction: column;
+    justify-content: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .face.front { text-align: center; }
+  .face.front .word {
+    font-size: 2rem; font-weight: 700;
+    color: var(--accent); margin-bottom: 8px;
+    word-break: break-word;
+  }
+  .face.front .pos {
+    color: var(--muted); font-size: 0.95rem;
+    font-style: italic;
+  }
+  .face.front .hint {
+    margin-top: 28px; color: var(--muted);
+    font-size: 0.82rem;
+  }
+  .face.back { transform: rotateY(180deg); }
+  .face.back .zh {
+    font-size: 1.3rem; font-weight: 600;
+    color: var(--accent); margin-bottom: 12px;
+  }
+  .face.back .collo {
+    background: var(--bg); padding: 8px 12px;
+    border-radius: 8px; font-size: 0.92rem;
+    color: var(--fg); margin-bottom: 10px;
+    border-left: 3px solid var(--accent);
+  }
+  .face.back .ex {
+    font-size: 0.95rem; font-style: italic;
+    color: var(--fg); line-height: 1.6;
+  }
+  .face.back .ex strong { color: var(--accent); font-style: normal; }
+  .speaker {
+    position: absolute; top: 14px; right: 14px;
+    width: 36px; height: 36px; border-radius: 50%;
+    background: var(--bg); border: 1px solid var(--border);
+    cursor: pointer; font-size: 1.1rem; padding: 0;
+    color: var(--accent);
+  }
+  .view-toggle {
+    display: flex; padding: 12px 16px 0;
+    gap: 8px;
+  }
+  .view-toggle button {
+    flex: 1; padding: 8px;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 8px; color: var(--muted);
+    font-size: 0.85rem; cursor: pointer; font-family: inherit;
+  }
+  .view-toggle button.active { background: var(--accent); color: white; border-color: var(--accent); }
+  .list-view { display: none; padding: 12px 16px 24px; }
+  .list-view.active { display: block; }
+  .list-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px; border-bottom: 1px solid var(--border);
+    background: var(--card); border-radius: 8px;
+    margin-bottom: 6px;
+  }
+  .list-row .num {
+    flex-shrink: 0; width: 28px;
+    color: var(--muted); font-size: 0.72rem;
+    font-family: "SF Mono", Menlo, monospace;
+  }
+  .list-row .word {
+    flex: 1; min-width: 0;
+  }
+  .list-row .w { font-weight: 600; font-size: 0.95rem; color: var(--fg); }
+  .list-row .w.knew { color: var(--ok); }
+  .list-row .w.weak { color: var(--warn); }
+  .list-row .zh {
+    font-size: 0.78rem; color: var(--muted); margin-top: 2px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .list-row .spk {
+    flex-shrink: 0; width: 32px; height: 32px;
+    border-radius: 50%; background: var(--bg);
+    border: 1px solid var(--border); cursor: pointer;
+    color: var(--accent); font-size: 0.9rem; padding: 0;
+  }
+  .list-row .mk {
+    flex-shrink: 0; width: 24px; text-align: center;
+    color: var(--muted);
+  }
+  .list-row .mk.know { color: var(--ok); }
+  .list-row .mk.weak { color: var(--warn); }
+  .curriculum-note {
+    margin: 16px; padding: 12px 14px;
+    background: var(--card); border-left: 3px solid var(--accent);
+    border-radius: 8px; font-size: 0.82rem;
+    color: var(--muted); line-height: 1.5;
+  }
+  .curriculum-note strong { color: var(--fg); }
+  .actions {
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px; padding: 0 16px;
+  }
+  .btn {
+    padding: 14px 8px; border: 1px solid var(--border);
+    border-radius: 12px; background: var(--card);
+    color: var(--fg); font-size: 0.95rem;
+    font-weight: 600; cursor: pointer; font-family: inherit;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .btn .ico { display: block; font-size: 1.4rem; margin-bottom: 2px; }
+  .btn.weak { color: var(--warn); }
+  .btn.weak:active { background: rgba(217,119,6,0.1); }
+  .btn.flip { color: var(--accent); }
+  .btn.flip:active { background: rgba(37,99,235,0.1); }
+  .btn.know { color: var(--ok); }
+  .btn.know:active { background: rgba(5,150,105,0.1); }
+  .meta {
+    text-align: center; color: var(--muted);
+    font-size: 0.78rem; margin-top: 20px;
+  }
+  .tabbar {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: var(--nav-bg);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    border-top: 1px solid var(--border);
+    display: flex;
+    padding-bottom: env(safe-area-inset-bottom, 0);
+    z-index: 30;
+  }
+  .tab-btn {
+    flex: 1; background: transparent; border: none;
+    padding: 10px 4px 8px; color: var(--muted); font-size: 0.68rem;
+    cursor: pointer;
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    font-family: inherit; text-decoration: none;
+  }
+  .tab-btn .icon { font-size: 1.25rem; line-height: 1; }
+  .tab-btn.active { color: var(--accent); }
+  .done-screen {
+    text-align: center; padding: 60px 24px;
+    display: none;
+  }
+  .done-screen.show { display: block; }
+  .done-screen .big { font-size: 4rem; }
+  .done-screen .ttl { font-size: 1.3rem; font-weight: 700; margin: 8px 0; }
+  .done-screen .sub { color: var(--muted); margin-bottom: 24px; }
+  .done-screen button {
+    background: var(--accent); color: white; border: none;
+    padding: 12px 24px; border-radius: 12px;
+    font-size: 0.95rem; font-weight: 600; cursor: pointer;
+    font-family: inherit; margin: 4px;
+  }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <a class="back-btn" href="index.html#home">←</a>
+  <div style="flex:1;">
+    <div class="ttl">今日 150 词 · Government &amp; Society</div>
+    <div class="sub">2026-06-21 · Day 32</div>
+  </div>
+</header>
+
+<div class="stats">
+  <div class="stat"><div class="num know" id="kn">0</div><div class="lbl">知道</div></div>
+  <div class="stat"><div class="num weak" id="wk">0</div><div class="lbl">不熟</div></div>
+  <div class="stat"><div class="num left" id="lf">150</div><div class="lbl">剩余</div></div>
+</div>
+<div class="progress-bar"><div class="progress-fill" id="pg" style="width:0%"></div></div>
+
+<div class="view-toggle">
+  <button id="vtFlash" class="active" onclick="setView('flash')">📇 卡片</button>
+  <button id="vtList" onclick="setView('list')">📋 列表</button>
+</div>
+
+<div id="deck">
+  <div class="card-stage">
+    <div class="card-3d" id="card" onclick="flip()">
+      <div class="face front">
+        <button class="speaker" onclick="event.stopPropagation();speak(document.getElementById('w').textContent)">🔊</button>
+        <div class="word" id="w">—</div>
+        <div class="pos" id="p">—</div>
+        <div class="hint">轻触卡片 · 翻看释义</div>
+      </div>
+      <div class="face back">
+        <button class="speaker" onclick="event.stopPropagation();speak(document.getElementById('w').textContent)">🔊</button>
+        <div class="zh" id="zh">—</div>
+        <div class="collo" id="cl">—</div>
+        <div class="ex" id="ex">—</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="btn weak" onclick="mark('weak')"><span class="ico">😣</span>不熟</button>
+    <button class="btn flip" onclick="flip()"><span class="ico">🔄</span>翻转</button>
+    <button class="btn know" onclick="mark('know')"><span class="ico">✅</span>知道</button>
+  </div>
+
+  <div class="meta" id="meta">1 / 150 · 今日主题 Government &amp; Society</div>
+</div>
+
+<div class="list-view" id="listView">
+  <div id="listBody"></div>
+</div>
+
+<div class="curriculum-note">
+  <strong>词汇来源</strong>: 8 天主题轮换,涵盖雅思高频话题。<br>
+  Day 1-7 <strong>Education</strong> · Day 8-14 <strong>Environment</strong> · Day 15-21 <strong>Technology</strong> · Day 22-28 <strong>Health</strong> · Day 29-35 <strong>Government & Society</strong> · Day 36-42 <strong>Work & Economy</strong> · Day 43-49 <strong>Family</strong> · Day 50-56 <strong>Travel & Culture</strong> · 之后循环。<br>
+  词汇为 Band 7+ 难度, 每条含 词性 · 中文 · 搭配 · 例句, 由 IELTS 高分话题词库扩展生成。
+</div>
+
+<div class="done-screen" id="done">
+  <div class="big">🎉</div>
+  <div class="ttl" id="doneTtl">今日 150 词完成!</div>
+  <div class="sub" id="doneSub">知道 0 · 不熟 0</div>
+  <button onclick="resetAll()">重新开始</button>
+  <button onclick="reviewWeak()">只复习不熟</button>
+  <button onclick="location.href='index.html'">回主页</button>
+</div>
+
+<nav class="tabbar">
+  <a class="tab-btn active" href="index.html#home"><span class="icon">🏠</span>概览</a>
+  <a class="tab-btn" href="index.html#materials"><span class="icon">📺</span>材料</a>
+  <a class="tab-btn" href="index.html#quizzes"><span class="icon">✏️</span>测验</a>
+  <a class="tab-btn" href="index.html#plan"><span class="icon">📋</span>计划</a>
+</nav>
+
+<script>
+const CARDS = [{"w":"annexation","p":"n.","zh":"吞并/兼并","cl":"forcible annexation of territory","ex":"The forcible <strong>annexation</strong> of territory is a grave violation of international law."},{"w":"appeasement","p":"n.","zh":"绥靖/息事宁人","cl":"a policy of appeasement","ex":"Historians continue to debate whether <strong>appeasement</strong> could ever have prevented the war."},{"w":"belligerence","p":"n.","zh":"好战性/挑衅态度","cl":"display belligerence toward allies","ex":"The government's <strong>belligerence</strong> on border issues alarmed neighbouring states."},{"w":"bloc","p":"n.","zh":"政治/经济集团","cl":"a regional trading bloc","ex":"The regional <strong>bloc</strong> coordinates both economic policy and collective security."},{"w":"brinkmanship","p":"n.","zh":"边缘政策","cl":"nuclear brinkmanship","ex":"Both sides engaged in dangerous <strong>brinkmanship</strong> that brought them to the edge of conflict."},{"w":"conciliation","p":"n.","zh":"调解/和解","cl":"seek international conciliation","ex":"International <strong>conciliation</strong> efforts have so far failed to end the protracted dispute."},{"w":"détente","p":"n.","zh":"(国家间)紧张局势缓和","cl":"a period of détente","ex":"The 1970s saw a brief but significant <strong>détente</strong> between the Cold War superpowers."},{"w":"envoy","p":"n.","zh":"外交使节/特使","cl":"dispatch a special envoy","ex":"The president dispatched a special <strong>envoy</strong> to broker an emergency ceasefire."},{"w":"hegemony","p":"n.","zh":"霸权/支配地位","cl":"assert regional hegemony","ex":"Rising powers are increasingly challenging the <strong>hegemony</strong> of the established international order."},{"w":"impasse","p":"n.","zh":"僵局","cl":"reach an impasse in negotiations","ex":"Peace talks broke down after negotiators reached an <strong>impasse</strong> over territorial boundaries."},{"w":"multilateralism","p":"n.","zh":"多边主义","cl":"commit to multilateralism","ex":"Support for <strong>multilateralism</strong> has weakened as nationalist sentiment has grown worldwide."},{"w":"non-proliferation","p":"n.","zh":"(核武器)不扩散","cl":"nuclear non-proliferation","ex":"The treaty remains the cornerstone of global nuclear <strong>non-proliferation</strong> efforts."},{"w":"rapprochement","p":"n.","zh":"邦交修复/和解","cl":"diplomatic rapprochement","ex":"A diplomatic <strong>rapprochement</strong> ended three decades of hostility between the two nations."},{"w":"reciprocity","p":"n.","zh":"互惠原则","cl":"trade reciprocity","ex":"The trade agreement rests on the principle of <strong>reciprocity</strong>: equal access for equal access."},{"w":"cession","p":"n.","zh":"割让(领土)","cl":"territorial cession","ex":"The peace treaty imposed a humiliating territorial <strong>cession</strong> on the defeated state."},{"w":"clout","p":"n.","zh":"影响力/实力","cl":"wield considerable clout","ex":"As an emerging economy, the nation now wields considerable <strong>clout</strong> in global forums."},{"w":"belligerent","p":"adj.","zh":"好战的/交战的","cl":"a belligerent state","ex":"A <strong>belligerent</strong> posture risks escalating what could otherwise be a manageable dispute."},{"w":"extraterritorial","p":"adj.","zh":"治外法权的/境外适用的","cl":"extraterritorial jurisdiction","ex":"The legislation has <strong>extraterritorial</strong> reach, holding companies liable for overseas misconduct."},{"w":"intergovernmental","p":"adj.","zh":"政府间的","cl":"intergovernmental cooperation","ex":"<strong>Intergovernmental</strong> cooperation is indispensable for addressing transboundary pollution."},{"w":"transnational","p":"adj.","zh":"跨国的","cl":"transnational crime networks","ex":"<strong>Transnational</strong> criminal networks exploit weak border controls to traffic people and drugs."},{"w":"advocacy","p":"n.","zh":"倡导/积极支持","cl":"human rights advocacy","ex":"<strong>Advocacy</strong> groups successfully lobbied parliament for stronger environmental legislation."},{"w":"altruism","p":"n.","zh":"利他主义","cl":"an act of pure altruism","ex":"Volunteers are driven by <strong>altruism</strong>, not financial reward or public recognition."},{"w":"faction","p":"n.","zh":"派系/小集团","cl":"a breakaway faction","ex":"A breakaway <strong>faction</strong> within the party demanded a leadership vote."},{"w":"galvanise","p":"v.","zh":"激励/激发行动","cl":"galvanise public opinion","ex":"The corruption scandal served to <strong>galvanise</strong> public opinion against the government."},{"w":"groundswell","p":"n.","zh":"民意涌起/积聚","cl":"a groundswell of opposition","ex":"A <strong>groundswell</strong> of grass-roots opposition forced the prime minister to reverse course."},{"w":"instigate","p":"v.","zh":"煽动/挑起","cl":"instigate a revolt","ex":"Military officers were accused of attempting to <strong>instigate</strong> a coup against the elected government."},{"w":"conscript","p":"v.","zh":"强制征兵","cl":"conscript young men","ex":"Thousands of young men were <strong>conscripted</strong> into the army with little notice."},{"w":"incite","p":"v.","zh":"煽动/激起","cl":"incite racial violence","ex":"The speaker was prosecuted for attempting to <strong>incite</strong> hatred against a minority group."},{"w":"picket","p":"n./v.","zh":"纠察/设纠察线","cl":"picket lines outside a factory","ex":"Striking workers formed <strong>picket</strong> lines outside the plant, blocking deliveries."},{"w":"boycott","p":"n./v.","zh":"抵制","cl":"a consumer boycott","ex":"A mass consumer <strong>boycott</strong> forced the corporation to reverse its unpopular decision."},{"w":"agitator","p":"n.","zh":"煽动者/激进分子","cl":"branded as agitators","ex":"Authorities branded the protest leaders as dangerous <strong>agitators</strong> threatening public order."},{"w":"vanguard","p":"n.","zh":"先锋/先驱","cl":"in the vanguard of reform","ex":"Young activists were at the <strong>vanguard</strong> of the democracy movement."},{"w":"encroach","p":"v.","zh":"侵占/蚕食","cl":"encroach on civil liberties","ex":"New surveillance legislation is seen as <strong>encroaching</strong> on citizens' right to privacy."},{"w":"enshrine","p":"v.","zh":"载入(法律)/神圣化","cl":"enshrine a right in law","ex":"The right to free speech is <strong>enshrined</strong> in the constitution and cannot be curtailed."},{"w":"foment","p":"v.","zh":"煽动/激起","cl":"foment civil unrest","ex":"Outside powers were accused of <strong>fomenting</strong> unrest to destabilise the elected government."},{"w":"garner","p":"v.","zh":"赢得/获得","cl":"garner cross-party support","ex":"The reform proposal failed to <strong>garner</strong> sufficient support from coalition partners."},{"w":"mobilise","p":"v.","zh":"动员/调动","cl":"mobilise voters","ex":"Social media platforms were used to <strong>mobilise</strong> thousands of protesters within hours."},{"w":"radicalise","p":"v.","zh":"使激进化","cl":"radicalise young people","ex":"Extremist online content can <strong>radicalise</strong> isolated and disillusioned young people."},{"w":"pacifist","p":"n./adj.","zh":"和平主义者","cl":"a committed pacifist","ex":"As a committed <strong>pacifist</strong>, she opposed military intervention under any circumstances."},{"w":"zealot","p":"n.","zh":"狂热者/极端分子","cl":"a political zealot","ex":"Ideological <strong>zealots</strong> on both sides made any form of compromise politically impossible."},{"w":"draconian","p":"adj.","zh":"严酷的/苛刻的","cl":"draconian measures","ex":"Critics condemned the new security legislation as <strong>draconian</strong> and unconstitutional."},{"w":"erode","p":"v.","zh":"侵蚀/削弱","cl":"erode public trust","ex":"Repeated financial scandals have <strong>eroded</strong> public trust in democratic institutions."},{"w":"exile","p":"n./v.","zh":"流亡/放逐","cl":"forced into exile","ex":"The dissident journalist was forced into <strong>exile</strong> after her newspaper was shut down."},{"w":"falter","p":"v.","zh":"动摇/步履蹒跚","cl":"falter in resolve","ex":"International support for the peace process began to <strong>falter</strong> after the third ceasefire collapsed."},{"w":"flout","p":"v.","zh":"公然违反/藐视","cl":"flout treaty obligations","ex":"Several countries continue to <strong>flout</strong> international trade rules with apparent impunity."},{"w":"fringe","p":"adj./n.","zh":"边缘的/极端的","cl":"fringe political views","ex":"What were once <strong>fringe</strong> nationalist views have entered the political mainstream."},{"w":"hardline","p":"adj.","zh":"强硬的/不妥协的","cl":"a hardline stance on immigration","ex":"The <strong>hardline</strong> wing of the party refused all compromise on border policy."},{"w":"hierarchical","p":"adj.","zh":"等级制的","cl":"a hierarchical bureaucracy","ex":"Power in the state is concentrated in a highly <strong>hierarchical</strong> and opaque bureaucracy."},{"w":"ideological","p":"adj.","zh":"意识形态的","cl":"ideological differences","ex":"Deep <strong>ideological</strong> differences prevented the parties from forming a workable coalition."},{"w":"impede","p":"v.","zh":"阻碍/妨碍","cl":"impede meaningful reform","ex":"Vested interests consistently <strong>impede</strong> the progress of meaningful political reform."},{"w":"incriminate","p":"v.","zh":"使负罪/牵连","cl":"incriminate a senior official","ex":"The leaked documents <strong>incriminated</strong> three cabinet ministers in the bribery scheme."},{"w":"instil","p":"v.","zh":"逐渐灌输/植入","cl":"instil loyalty through propaganda","ex":"Authoritarian regimes seek to <strong>instil</strong> unquestioning loyalty from an early age."},{"w":"invoke","p":"v.","zh":"援引/激起/动用","cl":"invoke emergency powers","ex":"The president <strong>invoked</strong> emergency powers to bypass the legislature during the crisis."},{"w":"jeopardise","p":"v.","zh":"危及/使处于危险","cl":"jeopardise the peace process","ex":"The ceasefire violation threatened to <strong>jeopardise</strong> the entire diplomatic settlement."},{"w":"lax","p":"adj.","zh":"松懈的/宽松的","cl":"lax border enforcement","ex":"<strong>Lax</strong> enforcement of anti-corruption laws allowed graft to become entrenched."},{"w":"nefarious","p":"adj.","zh":"邪恶的/不法的","cl":"nefarious financial activities","ex":"The inquiry uncovered a web of <strong>nefarious</strong> dealings linking officials to organised crime."},{"w":"nullify","p":"v.","zh":"使无效/废除","cl":"nullify an unconstitutional decree","ex":"The supreme court voted to <strong>nullify</strong> the executive order as unconstitutional."},{"w":"perpetuate","p":"v.","zh":"使延续/使永久化","cl":"perpetuate cycles of disadvantage","ex":"Without reform, the current system will continue to <strong>perpetuate</strong> structural inequality."},{"w":"persecute","p":"v.","zh":"迫害","cl":"persecute political opponents","ex":"International observers documented systematic persecution of ethnic and religious minorities."},{"w":"prerogative","p":"n.","zh":"特权/专有权利","cl":"a presidential prerogative","ex":"Granting pardons has traditionally been regarded as a presidential <strong>prerogative</strong>."},{"w":"purge","p":"n./v.","zh":"清洗/清除","cl":"a political purge","ex":"The new leader launched a sweeping <strong>purge</strong> of dissidents and rivals within the party."},{"w":"realpolitik","p":"n.","zh":"现实政治","cl":"driven by realpolitik","ex":"Alliances in diplomacy are driven by <strong>realpolitik</strong>, not ideological affinity."},{"w":"reconcile","p":"v.","zh":"调和/使和解","cl":"reconcile competing interests","ex":"Leaders must <strong>reconcile</strong> competing national interests to forge a lasting peace agreement."},{"w":"repudiate","p":"v.","zh":"否认/拒绝承认","cl":"repudiate a treaty","ex":"The incoming administration threatened to <strong>repudiate</strong> several international trade commitments."},{"w":"restitution","p":"n.","zh":"归还/赔偿","cl":"demand full restitution","ex":"Victims demanded <strong>restitution</strong> for property and livelihoods destroyed during the conflict."},{"w":"revoke","p":"v.","zh":"撤销/废除","cl":"revoke diplomatic credentials","ex":"The host government threatened to <strong>revoke</strong> the ambassador's diplomatic credentials."},{"w":"scapegoat","p":"n./v.","zh":"替罪羊/归咎于","cl":"used as a scapegoat","ex":"Minority groups were unjustly <strong>scapegoated</strong> for the country's economic difficulties."},{"w":"schism","p":"n.","zh":"分裂/严重不和","cl":"a political schism","ex":"The corruption scandal opened a deep <strong>schism</strong> within the previously united ruling coalition."},{"w":"secede","p":"v.","zh":"脱离/退出","cl":"vote to secede","ex":"The region held a referendum on whether to <strong>secede</strong> from the federation."},{"w":"subversive","p":"adj./n.","zh":"颠覆性的/颠覆分子","cl":"labelled as subversive","ex":"The government branded independent journalists as <strong>subversive</strong> elements threatening state security."},{"w":"transgress","p":"v.","zh":"越界/违反","cl":"transgress ethical norms","ex":"Leaders who <strong>transgress</strong> the norms of democratic governance lose their popular legitimacy."},{"w":"tripartite","p":"adj.","zh":"三方的","cl":"a tripartite agreement","ex":"A <strong>tripartite</strong> agreement was signed by the government, the unions, and the employers' federation."},{"w":"uphold","p":"v.","zh":"维护/支持","cl":"uphold the rule of law","ex":"The judiciary must <strong>uphold</strong> the rule of law regardless of political pressure."},{"w":"vindicate","p":"v.","zh":"证明清白/平反","cl":"vindicate a whistleblower","ex":"The independent inquiry fully <strong>vindicated</strong> the whistleblower's original allegations."},{"w":"xenophobia","p":"n.","zh":"排外/仇外心理","cl":"fuel xenophobia","ex":"Populist politicians deliberately fuel <strong>xenophobia</strong> to generate electoral support."},{"w":"apathy","p":"n.","zh":"冷漠/漠然","cl":"voter apathy","ex":"Widespread voter <strong>apathy</strong> is eroding the foundations of democratic participation."},{"w":"allegiance","p":"n.","zh":"效忠/忠诚","cl":"pledge allegiance","ex":"Citizens are expected to pledge <strong>allegiance</strong> to the state and its constitutional values."},{"w":"bicameral","p":"adj.","zh":"两院制的","cl":"a bicameral legislature","ex":"Most established democracies operate a <strong>bicameral</strong> legislature with an upper and lower chamber."},{"w":"bastion","p":"n.","zh":"堡垒/坚强支柱","cl":"a bastion of democracy","ex":"The country has long regarded itself as a <strong>bastion</strong> of liberal democratic values."},{"w":"cabal","p":"n.","zh":"阴谋小集团","cl":"a ruling cabal","ex":"Effective power was held by a small <strong>cabal</strong> of unelected advisers surrounding the president."},{"w":"capitulate","p":"v.","zh":"妥协/屈服","cl":"capitulate to public pressure","ex":"The government was eventually forced to <strong>capitulate</strong> and withdraw the controversial bill."},{"w":"catalyst","p":"n.","zh":"催化剂/导火索","cl":"act as a catalyst for reform","ex":"The economic crisis acted as a <strong>catalyst</strong> for sweeping constitutional reform."},{"w":"censure","p":"n./v.","zh":"谴责/责难","cl":"a vote of censure","ex":"Parliament passed a formal motion of <strong>censure</strong> against the minister for misconduct."},{"w":"coercive","p":"adj.","zh":"强制的/高压的","cl":"coercive state tactics","ex":"The use of <strong>coercive</strong> tactics against peaceful protesters drew international condemnation."},{"w":"complicit","p":"adj.","zh":"同谋的/共谋的","cl":"complicit in a cover-up","ex":"Senior officials were found to have been <strong>complicit</strong> in concealing the abuse."},{"w":"confound","p":"v.","zh":"使困惑/推翻预期","cl":"confound expectations","ex":"The election outcome <strong>confounded</strong> pollsters and commentators who predicted a landslide."},{"w":"constrain","p":"v.","zh":"约束/限制","cl":"constrain civil liberties","ex":"New legislation has severely <strong>constrained</strong> the activities of independent civil society groups."},{"w":"contravene","p":"v.","zh":"违背/抵触","cl":"contravene international law","ex":"The arms transfer was found to <strong>contravene</strong> a binding UN Security Council resolution."},{"w":"deadlock","p":"n.","zh":"僵局/停顿","cl":"break a parliamentary deadlock","ex":"A mediator was appointed to break the political <strong>deadlock</strong> after six months of inaction."},{"w":"defunct","p":"adj.","zh":"已不运作的/废弃的","cl":"a largely defunct mechanism","ex":"Critics argue that the arbitration body has become largely <strong>defunct</strong> without proper funding."},{"w":"denounce","p":"v.","zh":"谴责/公开批评","cl":"denounce a human rights abuse","ex":"Human rights groups <strong>denounced</strong> the practice as a systematic violation of international norms."},{"w":"dismantle","p":"v.","zh":"拆除/废除","cl":"dismantle an authoritarian system","ex":"Reformers called for the entrenched patronage networks within the state to be <strong>dismantled</strong>."},{"w":"dissident","p":"n./adj.","zh":"异见人士","cl":"a political dissident","ex":"The imprisoned <strong>dissident</strong> was awarded an international human rights prize in absentia."},{"w":"exert","p":"v.","zh":"施加/运用","cl":"exert diplomatic pressure","ex":"Western governments <strong>exerted</strong> considerable diplomatic pressure to secure the release of hostages."},{"w":"implicate","p":"v.","zh":"牵连/暗示涉及","cl":"implicate a minister in corruption","ex":"Leaked correspondence <strong>implicated</strong> two cabinet ministers in the procurement scandal."},{"w":"quell","p":"v.","zh":"镇压/平息","cl":"quell civil unrest","ex":"Security forces were deployed to <strong>quell</strong> the protests before they spread to the capital."},{"w":"rationale","p":"n.","zh":"根本理由/依据","cl":"the rationale for a policy","ex":"The government has never adequately explained the <strong>rationale</strong> for such rapid policy reversal."},{"w":"ultimatum","p":"n.","zh":"最后通牒","cl":"issue an ultimatum","ex":"The president issued an <strong>ultimatum</strong>: comply with the demands or face immediate sanctions."},{"w":"repercussion","p":"n.","zh":"后果/影响","cl":"far-reaching repercussions","ex":"The assassination had far-reaching <strong>repercussions</strong> for stability across the entire region."},{"w":"expedient","p":"adj./n.","zh":"权宜的/权宜之计","cl":"politically expedient","ex":"The alliance was formed out of political <strong>expedience</strong>, not genuine shared conviction."},{"w":"advance an agenda","p":"phrase","zh":"推动议程","cl":"advance a political agenda","ex":"The party used its majority to <strong>advance an agenda</strong> of sweeping deregulation."},{"w":"broker a deal","p":"phrase","zh":"斡旋/促成协议","cl":"broker a peace deal","ex":"The foreign minister worked for months to <strong>broker a deal</strong> between the warring factions."},{"w":"champion a cause","p":"phrase","zh":"倡导一项事业","cl":"champion the cause of press freedom","ex":"She has consistently <strong>championed the cause</strong> of political prisoners around the world."},{"w":"drive foreign policy","p":"phrase","zh":"主导外交政策","cl":"national interest drives foreign policy","ex":"National interest, not ideology, has always <strong>driven foreign policy</strong> in practice."},{"w":"exert pressure on","p":"phrase","zh":"向……施压","cl":"exert diplomatic pressure on a rogue state","ex":"Allied nations must <strong>exert pressure on</strong> the regime to halt human rights violations."},{"w":"forge consensus","p":"phrase","zh":"凝聚共识","cl":"forge an international consensus","ex":"Building the coalition required weeks of patient diplomacy to <strong>forge consensus</strong>."},{"w":"hold the line","p":"phrase","zh":"坚守立场","cl":"hold the line on key demands","ex":"Negotiators were instructed to <strong>hold the line</strong> and concede nothing on tariff rates."},{"w":"lay the groundwork","p":"phrase","zh":"奠定基础","cl":"lay the groundwork for a summit","ex":"Weeks of back-channel talks <strong>laid the groundwork</strong> for the historic bilateral summit."},{"w":"lead the charge","p":"phrase","zh":"带头/引领","cl":"lead the charge for reform","ex":"Civil society organisations have <strong>led the charge</strong> for constitutional change."},{"w":"mount a challenge","p":"phrase","zh":"提起挑战","cl":"mount a legal challenge","ex":"Opposition parties <strong>mounted a challenge</strong> to the legality of the emergency decree."},{"w":"shape the narrative","p":"phrase","zh":"掌控舆论叙事","cl":"shape the public narrative","ex":"Governments invest heavily in media strategy to <strong>shape the narrative</strong> on sensitive issues."},{"w":"stem the tide","p":"phrase","zh":"遏制/阻止潮流","cl":"stem the tide of populism","ex":"Mainstream parties have struggled to <strong>stem the tide</strong> of anti-establishment populism."},{"w":"strike a balance","p":"phrase","zh":"取得平衡","cl":"strike a balance between security and liberty","ex":"The court must <strong>strike a balance</strong> between national security and individual rights."},{"w":"take a firm stance","p":"phrase","zh":"采取坚定立场","cl":"take a firm stance on corruption","ex":"International observers urged the government to <strong>take a firm stance</strong> on impunity."},{"w":"tilt the odds","p":"phrase","zh":"改变胜算","cl":"tilt the odds in one's favour","ex":"Economic sanctions can <strong>tilt the odds</strong> in favour of a political negotiated solution."},{"w":"cede ground","p":"phrase","zh":"让步/退让","cl":"refuse to cede ground","ex":"Neither side was willing to <strong>cede ground</strong> on the most sensitive territorial disputes."},{"w":"secure a mandate","p":"phrase","zh":"获得民主授权","cl":"secure a democratic mandate","ex":"Without a fresh election, the government lacks the <strong>mandate</strong> to implement such radical reform."},{"w":"set the agenda","p":"phrase","zh":"设定议题","cl":"set the global agenda","ex":"The host nation used the summit to <strong>set the agenda</strong> for the coming year."},{"w":"cross the floor","p":"phrase","zh":"(议员)倒戈换党","cl":"cross the floor to join the opposition","ex":"Three senior MPs <strong>crossed the floor</strong> to vote against their own government's budget."},{"w":"hold sway","p":"phrase","zh":"有影响力/占主导","cl":"hold sway over political discourse","ex":"Populist rhetoric has <strong>held sway</strong> over political discourse in several major democracies."},{"w":"bridge the divide","p":"phrase","zh":"弥合分歧","cl":"bridge the partisan divide","ex":"A skilled negotiator can sometimes <strong>bridge the divide</strong> between seemingly irreconcilable positions."},{"w":"come to a head","p":"phrase","zh":"达到顶点/激化","cl":"tensions came to a head","ex":"Months of simmering tensions finally <strong>came to a head</strong> when protests erupted in the capital."},{"w":"take the moral high ground","p":"phrase","zh":"占据道德制高点","cl":"take the moral high ground","ex":"The opposition sought to <strong>take the moral high ground</strong> by refusing negative campaigning."},{"w":"shore up support","p":"phrase","zh":"巩固/挽救支持","cl":"shore up support among swing voters","ex":"The prime minister embarked on a nationwide tour to <strong>shore up support</strong> ahead of the vote."},{"w":"close the accountability gap","p":"phrase","zh":"弥合问责漏洞","cl":"close the accountability gap","ex":"Civil society groups are campaigning to <strong>close the accountability gap</strong> in corporate governance."},{"w":"in the national interest","p":"phrase","zh":"以国家利益为名","cl":"justify in the national interest","ex":"The decision was justified on the grounds that it was <strong>in the national interest</strong>."},{"w":"add fuel to the fire","p":"idiom","zh":"火上浇油","cl":"add fuel to political unrest","ex":"Inflammatory speeches only <strong>add fuel to the fire</strong> of political unrest."},{"w":"bite the bullet","p":"idiom","zh":"咬紧牙关/硬撑","cl":"bite the bullet and accept the terms","ex":"The government had to <strong>bite the bullet</strong> and implement painful fiscal austerity."},{"w":"build bridges","p":"idiom","zh":"搭桥/促进理解","cl":"build bridges between rival factions","ex":"A skilled diplomat knows how to <strong>build bridges</strong> even with longtime adversaries."},{"w":"caught in the crossfire","p":"idiom","zh":"夹在中间受损","cl":"caught in the crossfire of great-power rivalry","ex":"Smaller economies are often <strong>caught in the crossfire</strong> of great-power competition."},{"w":"fan the flames","p":"idiom","zh":"煽风点火","cl":"fan the flames of nationalism","ex":"Sensationalist coverage can <strong>fan the flames</strong> of social division and resentment."},{"w":"find common ground","p":"idiom","zh":"找到共同点","cl":"find common ground on contentious issues","ex":"The two leaders struggled to <strong>find common ground</strong> despite months of diplomatic effort."},{"w":"hand over the reins","p":"idiom","zh":"移交权力","cl":"hand over the reins of government","ex":"The outgoing president refused to peacefully <strong>hand over the reins</strong> of power."},{"w":"keep a lid on","p":"idiom","zh":"压制/控制局势","cl":"keep a lid on civil unrest","ex":"Security forces struggled to <strong>keep a lid on</strong> the rapidly growing protest movement."},{"w":"leave no stone unturned","p":"idiom","zh":"不遗余力","cl":"leave no stone unturned in diplomatic efforts","ex":"Mediators vowed to <strong>leave no stone unturned</strong> in the search for a negotiated settlement."},{"w":"muddy the waters","p":"idiom","zh":"混淆视听","cl":"muddy the waters of public debate","ex":"Competing disinformation campaigns only serve to <strong>muddy the waters</strong> of democratic debate."},{"w":"set the record straight","p":"idiom","zh":"澄清事实","cl":"set the record straight about intentions","ex":"The ambassador called a press conference to <strong>set the record straight</strong> about the accusations."},{"w":"sit on the fence","p":"idiom","zh":"骑墙/态度不明","cl":"cannot afford to sit on the fence","ex":"In a polarised world, few nations can afford to <strong>sit on the fence</strong> indefinitely."},{"w":"work across the aisle","p":"idiom","zh":"跨党合作","cl":"work across the aisle to pass legislation","ex":"Meaningful reform requires leaders willing to <strong>work across the aisle</strong>."},{"w":"throw one's hat in the ring","p":"idiom","zh":"宣布参选/加入竞争","cl":"throw one's hat in the ring for the presidency","ex":"Several veteran senators have already <strong>thrown their hats in the ring</strong>."},{"w":"a double-edged sword","p":"idiom","zh":"双刃剑","cl":"globalisation as a double-edged sword","ex":"Economic interdependence is a <strong>double-edged sword</strong>: it fosters cooperation but also vulnerability."},{"w":"the writing is on the wall","p":"idiom","zh":"预兆清晰/大势已去","cl":"the writing is on the wall for a regime","ex":"When mass protests erupted, <strong>the writing was on the wall</strong> for the authoritarian government."},{"w":"at a crossroads","p":"idiom","zh":"处于十字路口","cl":"democracy at a crossroads","ex":"International institutions stand <strong>at a crossroads</strong>: reform now or face irrelevance."},{"w":"cut to the chase","p":"idiom","zh":"开门见山","cl":"cut to the chase in negotiations","ex":"The chief mediator urged both delegations to <strong>cut to the chase</strong> and name their minimum terms."},{"w":"It is no exaggeration to say that...","p":"sentence stem","zh":"毫不夸张地说……","cl":"it is no exaggeration to say the stakes are high","ex":"<strong>It is no exaggeration to say that</strong> the outcome of these negotiations will shape the next generation."},{"w":"All things considered, X requires both political will and institutional reform.","p":"sentence stem","zh":"综上所述，X 需要政治意愿与制度改革","cl":"closing argument","ex":"<strong>All things considered</strong>, restoring faith in global governance requires both political will and meaningful institutional reform."}];
+
+let state = JSON.parse(localStorage.getItem("ielts_vocab_20260621") || "{}");
+let queue = CARDS.map((c, i) => ({...c, idx: i})).filter(c => !state[c.idx] || state[c.idx] === "review");
+let cur = 0;
+
+// ---- Web Speech API (free TTS, native browser) ----
+function speak(text) {
+  if (!text || !window.speechSynthesis) return;
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = "en-US"; u.rate = 0.85; u.pitch = 1;
+  // Try to pick a US/UK English voice if available
+  const voices = speechSynthesis.getVoices();
+  const en = voices.find(v => /en-(US|GB)/.test(v.lang) && /Samantha|Daniel|Alex|Karen|Moira|Google US English|Google UK English/.test(v.name))
+          || voices.find(v => v.lang.startsWith("en"));
+  if (en) u.voice = en;
+  speechSynthesis.speak(u);
+}
+// Some browsers load voices async
+if (window.speechSynthesis) speechSynthesis.onvoiceschanged = () => {};
+
+function render() {
+  if (cur >= queue.length) return showDone();
+  const c = queue[cur];
+  document.getElementById("w").textContent = c.w;
+  document.getElementById("p").textContent = c.p;
+  document.getElementById("zh").textContent = c.zh;
+  document.getElementById("cl").textContent = c.cl;
+  document.getElementById("ex").innerHTML = c.ex;
+  document.getElementById("card").classList.remove("flipped");
+  document.getElementById("meta").textContent = `${cur+1} / ${queue.length} · Government & Society Day 4`;
+  updateStats();
+  // Auto-pronounce
+  setTimeout(() => speak(c.w), 150);
+}
+
+// ---- View toggle (flashcard vs list) ----
+function setView(v) {
+  document.getElementById("vtFlash").classList.toggle("active", v === "flash");
+  document.getElementById("vtList").classList.toggle("active", v === "list");
+  document.getElementById("deck").style.display = v === "flash" ? "" : "none";
+  document.getElementById("listView").classList.toggle("active", v === "list");
+  if (v === "list") renderList();
+}
+
+function renderList() {
+  const body = document.getElementById("listBody");
+  body.innerHTML = CARDS.map((c, i) => {
+    const mark = state[i] || "";
+    const cls = mark === "know" ? "knew" : mark === "weak" ? "weak" : "";
+    const ico = mark === "know" ? "✓" : mark === "weak" ? "○" : "·";
+    const mcls = mark === "know" ? "know" : mark === "weak" ? "weak" : "";
+    return `<div class="list-row">
+      <div class="num">${String(i+1).padStart(3,'0')}</div>
+      <div class="word"><div class="w ${cls}">${c.w} <span style="color:var(--muted);font-weight:400;font-size:0.78rem;">${c.p}</span></div><div class="zh">${c.zh}</div></div>
+      <button class="spk" onclick="speak('${c.w.replace(/'/g,"\\'")}')">🔊</button>
+      <div class="mk ${mcls}">${ico}</div>
+    </div>`;
+  }).join("");
+}
+
+function flip() { document.getElementById("card").classList.toggle("flipped"); }
+
+function mark(t) {
+  const c = queue[cur];
+  state[c.idx] = (t === "know" ? "know" : "weak");
+  localStorage.setItem("ielts_vocab_20260621", JSON.stringify(state));
+  cur++;
+  render();
+}
+
+function updateStats() {
+  const kn = Object.values(state).filter(v=>v==="know").length;
+  const wk = Object.values(state).filter(v=>v==="weak").length;
+  const lf = 150 - kn - wk;
+  document.getElementById("kn").textContent = kn;
+  document.getElementById("wk").textContent = wk;
+  document.getElementById("lf").textContent = lf;
+  document.getElementById("pg").style.width = ((kn+wk)/150*100) + "%";
+}
+
+function showDone() {
+  document.getElementById("deck").style.display = "none";
+  document.getElementById("done").classList.add("show");
+  const kn = Object.values(state).filter(v=>v==="know").length;
+  const wk = Object.values(state).filter(v=>v==="weak").length;
+  document.getElementById("doneTtl").textContent = wk > 0 ? `今日 150 词完成! 还有 ${wk} 张不熟` : "今日 150 词全掌握 🎉";
+  document.getElementById("doneSub").textContent = `知道 ${kn} · 不熟 ${wk}`;
+}
+
+function reviewWeak() {
+  queue = CARDS.map((c,i)=>({...c,idx:i})).filter(c => state[c.idx] === "weak");
+  if (queue.length === 0) { alert("没有不熟的卡!"); return; }
+  cur = 0;
+  document.getElementById("done").classList.remove("show");
+  document.getElementById("deck").style.display = "";
+  render();
+}
+
+function resetAll() {
+  if (!confirm("清空今日进度,重新开始?")) return;
+  localStorage.removeItem("ielts_vocab_20260621");
+  state = {};
+  queue = CARDS.map((c,i)=>({...c,idx:i}));
+  cur = 0;
+  document.getElementById("done").classList.remove("show");
+  document.getElementById("deck").style.display = "";
+  render();
+}
+
+render();
+</script>
+
+</body>
+</html>
