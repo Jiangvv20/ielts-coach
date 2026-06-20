@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#2563eb">
+<title>测验 · Reading T/F/NG · 多边主义的危机</title>
+<style>
+  :root {
+    --bg: #ffffff; --fg: #1a1a1a; --muted: #6b7280;
+    --accent: #2563eb; --ok: #059669; --err: #dc2626;
+    --card: #f9fafb; --border: #e5e7eb;
+    --nav-bg: rgba(255,255,255,0.92);
+    --header-bg: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f172a; --fg: #f1f5f9; --muted: #94a3b8;
+      --accent: #60a5fa; --ok: #34d399; --err: #f87171;
+      --card: #1e293b; --border: #334155;
+      --nav-bg: rgba(15,23,42,0.92);
+      --header-bg: linear-gradient(135deg, #1e40af 0%, #6b21a8 100%);
+    }
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg); }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif;
+    line-height: 1.6;
+    min-height: 100vh;
+    padding-bottom: calc(64px + env(safe-area-inset-bottom, 0));
+  }
+  .app-header {
+    background: var(--header-bg); color: white;
+    padding: calc(env(safe-area-inset-top, 16px) + 12px) 16px 14px;
+    position: sticky; top: 0; z-index: 20;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .back-btn {
+    background: rgba(255,255,255,0.18); border: none; color: white;
+    width: 34px; height: 34px; border-radius: 10px;
+    font-size: 1.1rem; cursor: pointer; flex-shrink: 0;
+    text-decoration: none; display: flex; align-items: center; justify-content: center;
+  }
+  .app-header .ttl {
+    font-size: 1rem; font-weight: 700;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .app-header .sub {
+    font-size: 0.72rem; opacity: 0.85; margin-top: 1px;
+    letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  main { max-width: 720px; margin: 0 auto; padding: 16px; }
+  .progress {
+    height: 6px; background: var(--border); border-radius: 3px;
+    margin-bottom: 16px; overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%; background: var(--accent);
+    transition: width 0.3s ease;
+  }
+  .passage {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 14px 16px; margin-bottom: 16px;
+    font-size: 0.95rem; line-height: 1.75;
+  }
+  .passage h3 { margin: 0 0 8px; font-size: 0.78rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+  .passage p { margin: 0 0 10px; }
+  .passage p:last-child { margin-bottom: 0; }
+  .question {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 16px; margin-bottom: 14px;
+  }
+  .q-num {
+    color: var(--muted); font-size: 0.78rem;
+    font-family: "SF Mono", Menlo, monospace; margin-bottom: 6px;
+    text-transform: uppercase; letter-spacing: 0.04em;
+  }
+  .q-text { font-size: 1rem; margin-bottom: 12px; font-weight: 500; }
+  .options { display: flex; flex-direction: column; gap: 8px; }
+  .option {
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 8px; padding: 12px 14px;
+    cursor: pointer; font-size: 0.95rem; text-align: left;
+    color: var(--fg); font-family: inherit;
+  }
+  .option.selected { border-color: var(--accent); background: rgba(37, 99, 235, 0.08); }
+  .option.correct { border-color: var(--ok); background: rgba(5, 150, 105, 0.1); }
+  .option.wrong { border-color: var(--err); background: rgba(220, 38, 38, 0.1); }
+  .blank-input {
+    width: 100%; background: var(--bg);
+    border: 1px solid var(--border); border-radius: 8px;
+    padding: 10px 12px; font-size: 1rem;
+    color: var(--fg); font-family: inherit;
+  }
+  .blank-input.correct { border-color: var(--ok); }
+  .blank-input.wrong { border-color: var(--err); }
+  .explanation {
+    margin-top: 10px; padding: 10px 12px;
+    background: var(--bg); border-left: 3px solid var(--accent);
+    border-radius: 4px; font-size: 0.9rem; color: var(--muted);
+    display: none;
+  }
+  .explanation.show { display: block; }
+  .explanation .answer { color: var(--ok); font-weight: 600; }
+  .actions { display: flex; gap: 10px; margin-top: 20px; }
+  .btn {
+    flex: 1; padding: 12px;
+    border: none; border-radius: 10px;
+    font-size: 1rem; font-weight: 600; cursor: pointer;
+    font-family: inherit;
+  }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-secondary { background: var(--card); color: var(--fg); border: 1px solid var(--border); }
+  .result {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 20px;
+    text-align: center; margin-top: 20px; display: none;
+  }
+  .result.show { display: block; }
+  .score { font-size: 2.5rem; font-weight: 700; color: var(--accent); }
+  .score-label { color: var(--muted); font-size: 0.9rem; margin-top: 4px; }
+  .tabbar {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: var(--nav-bg);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    border-top: 1px solid var(--border);
+    display: flex;
+    padding-bottom: env(safe-area-inset-bottom, 0);
+    z-index: 30;
+  }
+  .tab-btn {
+    flex: 1; background: transparent; border: none;
+    padding: 10px 4px 8px; color: var(--muted); font-size: 0.68rem;
+    cursor: pointer;
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    font-family: inherit; text-decoration: none;
+  }
+  .tab-btn .icon { font-size: 1.25rem; line-height: 1; }
+  .tab-btn.active { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <a class="back-btn" href="index.html#quizzes">&#8592;</a>
+  <div style="flex:1;min-width:0;">
+    <div class="ttl">Reading T/F/NG &middot; 多边主义的危机</div>
+    <div class="sub">Day 32 &middot; Gov &amp; Society Day 4 &middot; 10 题 &middot; ~12 分钟</div>
+  </div>
+</header>
+
+<main>
+
+  <div class="progress"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+
+  <div class="passage">
+    <h3>&#128218; Passage &mdash; The Architecture of Global Diplomacy: Multilateralism Under Pressure</h3>
+    <p>The post-1945 international order, built on a network of multilateral institutions &mdash; the United Nations, the World Trade Organization, the International Monetary Fund &mdash; was designed to prevent the catastrophic conflicts that had devastated the world twice in thirty years. These institutions were premised on a simple idea: that sovereign nations, acting collectively, could manage disputes, set common rules, and coordinate responses to shared challenges. For several decades, this architecture functioned imperfectly but tolerably well.</p>
+    <p>Yet the second quarter of the twenty-first century has brought mounting evidence that this consensus is fracturing. Several structural shifts have accelerated the drift toward what analysts call &ldquo;geopolitical fragmentation.&rdquo; The rise of multipolarity &mdash; in which multiple major powers, including China, India, and a reasserted Russia, contest American hegemony &mdash; has eroded the shared normative framework that once gave multilateral institutions their authority. When permanent members of the UN Security Council hold incompatible strategic interests, the council is prone to deadlock, rendering it incapable of decisive action.</p>
+    <p>Beyond the structural, there is the ideological. Populist and nationalist movements, ascendant across every continent, are openly hostile to the premise of pooled sovereignty. These movements argue that multilateralism is an elite project that subordinates national interest to the preferences of unaccountable technocrats and foreign powers. The language of &ldquo;taking back control&rdquo; resonates precisely because it frames international institutions as a threat rather than a safeguard. Governments susceptible to this pressure have been known to flout treaty obligations, repudiate long-standing agreements, and withdraw from multilateral bodies altogether, treating international commitments as disposable rather than binding.</p>
+    <p>The consequences of this fragmentation are practical as well as symbolic. Climate change negotiations have stalled repeatedly over the gap between ambitious collective targets and the domestic political constraints facing individual governments. Pandemic preparedness &mdash; globally recognised as a shared vulnerability after COVID-19 &mdash; remains woefully underfunded through international mechanisms. Trade disputes are increasingly resolved through unilateral measures rather than the dispute-resolution mechanisms of the WTO, weakening the organisation&rsquo;s authority and inviting retaliatory escalation.</p>
+    <p>Those who defend multilateralism counter that its critics confuse the imperfection of institutions with their obsolescence. They argue that however flawed, the UN framework has contributed to a dramatic reduction in interstate wars since 1945. Imperfect institutions, they contend, are preferable to none at all. Incremental reform &mdash; expanding Security Council representation, improving enforcement mechanisms, increasing financial transparency &mdash; offers a more responsible path than abandonment.</p>
+    <p>Amid this uncertainty, some scholars have turned to the concept of soft power &mdash; the ability to attract rather than coerce &mdash; as a potential counterweight to the current instability. Nations that project credibility and act as honest brokers are better positioned to preserve the benefits of multilateral cooperation even as formal institutions weaken. The challenge is that soft power is inherently difficult to deploy in crisis conditions, when hard interests predominate and short-term political calculations override strategic patience.</p>
+    <p>Ultimately, the question is not whether multilateralism is imperfect &mdash; it manifestly is &mdash; but whether the alternatives are preferable. The nineteenth-century model of unrestrained great-power competition produced two world wars and a global depression. The answer to institutional failure should not be institutional abandonment, but rather the difficult, patient work of reform.</p>
+  </div>
+
+  <div id="questions">
+
+    <div class="question" data-type="mcq" data-answer="A">
+      <div class="q-num">Q01 &middot; T/F/NG</div>
+      <div class="q-text">The UN, WTO, and IMF were all established as part of the post-1945 international order.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#10003; 正确答案: A (True)</div>
+        原文明确说 "The post-1945 international order, built on a network of multilateral institutions — the United Nations, the World Trade Organization, the International Monetary Fund"，直接确认三者均属于二战后秩序的组成部分。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="B">
+      <div class="q-num">Q02 &middot; T/F/NG</div>
+      <div class="q-text">The post-1945 multilateral institutions functioned perfectly during their early decades.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#10003; 正确答案: B (False)</div>
+        原文说 "this architecture functioned <em>imperfectly</em> but tolerably well" — 与"完美运作"直接矛盾。注意 imperfectly 是关键词。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="B">
+      <div class="q-num">Q03 &middot; T/F/NG</div>
+      <div class="q-text">The rise of China, India, and Russia has strengthened American hegemony in the international order.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#10003; 正确答案: B (False)</div>
+        原文说这些国家 "contest American hegemony" 并已 "eroded the shared normative framework"，即削弱而非强化美国霸权。因果方向相反，选 False。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="B">
+      <div class="q-num">Q04 &middot; T/F/NG</div>
+      <div class="q-text">Populist and nationalist movements generally support the principle of pooled sovereignty.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#10003; 正确答案: B (False)</div>
+        原文说这些运动 "are openly hostile to the premise of pooled sovereignty" — 与"支持"直接矛盾。陷阱在于"openly hostile to"= 公然反对。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="C">
+      <div class="q-num">Q05 &middot; T/F/NG</div>
+      <div class="q-text">The WTO dispute-resolution mechanism has been rendered completely defunct by unilateral trade measures.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#10003; 正确答案: C (Not Given)</div>
+        原文说 "weakening the organisation's authority" — 是削弱，但并未说"完全废止"(completely defunct)。绝对化词语 "completely" 是典型 NG 陷阱：文章提到的程度与题目不符，无法验证。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="A">
+      <div class="q-num">Q06 &middot; T/F/NG</div>
+      <div class="q-text">Defenders of multilateralism argue that interstate wars have decreased significantly since 1945.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#10003; 正确答案: A (True)</div>
+        原文明确说 "the UN framework has contributed to a dramatic reduction in interstate wars since 1945"，与"显著减少"(decreased significantly) 是同义替换。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="C">
+      <div class="q-num">Q07 &middot; T/F/NG</div>
+      <div class="q-text">The author concludes that soft power is ultimately more effective than hard power in resolving geopolitical crises.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#10003; 正确答案: C (Not Given)</div>
+        原文提到 soft power 在危机中"难以部署" ("difficult to deploy in crisis conditions")，但从未直接比较软硬实力的相对有效性。注意：作者观点 ≠ 文章事实，且文章未做此类对比，选 NG。
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="deadlock">
+      <div class="q-num">Q08 &middot; 词汇填空</div>
+      <div class="q-text">When permanent UN Security Council members have incompatible interests, the body is prone to _____, making decisive action impossible. (中文提示: 僵局)</div>
+      <input class="blank-input" placeholder="键入答案 (小写)">
+      <div class="explanation">
+        <div class="answer">&#10003; 正确答案: deadlock</div>
+        原文原词 "prone to deadlock" — 直接定位。搭配记忆: reach a deadlock / break a deadlock。今日词卡词。
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="flout">
+      <div class="q-num">Q09 &middot; 词汇填空</div>
+      <div class="q-text">Governments under populist pressure have been known to _____ treaty obligations and repudiate long-standing agreements. (中文提示: 公然违反)</div>
+      <input class="blank-input" placeholder="键入答案 (小写)">
+      <div class="explanation">
+        <div class="answer">&#10003; 正确答案: flout</div>
+        原文原词 "flout treaty obligations"。高分搭配: flout the rules / flout international law。今日词卡词。
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="catalyst">
+      <div class="q-num">Q10 &middot; 搭配填空</div>
+      <div class="q-text">The COVID-19 pandemic acted as a _____ for renewed debate about global health governance and multilateral preparedness. (中文提示: 催化剂)</div>
+      <input class="blank-input" placeholder="键入答案 (小写)">
+      <div class="explanation">
+        <div class="answer">&#10003; 正确答案: catalyst</div>
+        今日词卡词。高分搭配: act as a catalyst for + 名词 (reform / change / debate)。Band 7+ 替换: trigger / impetus / spur。
+      </div>
+    </div>
+
+  </div>
+
+  <div class="actions">
+    <button class="btn btn-secondary" onclick="resetQuiz()">重做</button>
+    <button class="btn btn-primary" onclick="submitQuiz()">提交对答</button>
+  </div>
+
+  <div class="result" id="result">
+    <div class="score" id="scoreNum">--</div>
+    <div class="score-label">正确率</div>
+    <div id="scoreDetail" style="margin-top:10px;color:var(--muted);"></div>
+    <div style="margin-top:12px;font-size:0.85rem;color:var(--muted);">
+      8/10+ → Band 7 水平 &#128293; &nbsp; 6-7/10 → 再读一遍文章 &nbsp; &lt;6 → 精读策略提示后重做
+    </div>
+  </div>
+
+</main>
+
+<nav class="tabbar">
+  <a class="tab-btn" href="index.html#home"><span class="icon">&#127968;</span>概览</a>
+  <a class="tab-btn" href="index.html#materials"><span class="icon">&#128250;</span>材料</a>
+  <a class="tab-btn active" href="index.html#quizzes"><span class="icon">&#9999;&#65039;</span>测验</a>
+  <a class="tab-btn" href="index.html#plan"><span class="icon">&#128203;</span>计划</a>
+</nav>
+
+<script>
+  document.querySelectorAll(".option").forEach(opt => {
+    opt.addEventListener("click", () => {
+      const q = opt.closest(".question");
+      q.querySelectorAll(".option").forEach(o => o.classList.remove("selected"));
+      opt.classList.add("selected");
+      q.dataset.userAnswer = opt.dataset.key;
+      updateProgress();
+    });
+  });
+
+  document.querySelectorAll(".blank-input").forEach(inp => {
+    inp.addEventListener("input", () => {
+      inp.closest(".question").dataset.userAnswer = inp.value.trim().toLowerCase();
+      updateProgress();
+    });
+  });
+
+  function updateProgress() {
+    const total = document.querySelectorAll(".question").length;
+    const done = document.querySelectorAll(".question[data-user-answer]").length;
+    document.getElementById("progressFill").style.width = (done/total*100) + "%";
+  }
+
+  function submitQuiz() {
+    let correct = 0, total = 0;
+    document.querySelectorAll(".question").forEach(q => {
+      total++;
+      const userAns = (q.dataset.userAnswer || "").toLowerCase().trim();
+      const correctAns = q.dataset.answer.toLowerCase();
+      const isCorrect = userAns === correctAns;
+      if (isCorrect) correct++;
+
+      if (q.dataset.type === "mcq") {
+        q.querySelectorAll(".option").forEach(o => {
+          if (o.dataset.key.toLowerCase() === correctAns) o.classList.add("correct");
+          else if (o.dataset.key.toLowerCase() === userAns && !isCorrect) o.classList.add("wrong");
+        });
+      } else if (q.dataset.type === "blank") {
+        const inp = q.querySelector(".blank-input");
+        inp.classList.add(isCorrect ? "correct" : "wrong");
+      }
+      q.querySelector(".explanation")?.classList.add("show");
+    });
+
+    const result = document.getElementById("result");
+    const pct = Math.round(correct/total*100);
+    document.getElementById("scoreNum").textContent = pct + "%";
+    document.getElementById("scoreDetail").textContent = `${correct} / ${total} 正确`;
+    result.classList.add("show");
+    result.scrollIntoView({behavior:"smooth"});
+  }
+
+  function resetQuiz() {
+    document.querySelectorAll(".question").forEach(q => {
+      delete q.dataset.userAnswer;
+      q.querySelectorAll(".option").forEach(o => o.classList.remove("selected","correct","wrong"));
+      const inp = q.querySelector(".blank-input");
+      if (inp) { inp.value = ""; inp.classList.remove("correct","wrong"); }
+      q.querySelector(".explanation")?.classList.remove("show");
+    });
+    document.getElementById("result").classList.remove("show");
+    document.getElementById("progressFill").style.width = "0%";
+  }
+</script>
+
+</body>
+</html>
