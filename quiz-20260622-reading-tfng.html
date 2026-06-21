@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#2563eb">
+<title>测验 · 2026-06-22 · Reading T/F/NG · 数字税与全球税制改革</title>
+<style>
+  :root{--bg:#fff;--fg:#1a1a1a;--muted:#6b7280;--accent:#2563eb;--ok:#059669;--err:#dc2626;--card:#f9fafb;--border:#e5e7eb;--nav-bg:rgba(255,255,255,0.92);--header-bg:linear-gradient(135deg,#2563eb 0%,#7c3aed 100%);}
+  @media(prefers-color-scheme:dark){:root{--bg:#0f172a;--fg:#f1f5f9;--muted:#94a3b8;--accent:#60a5fa;--ok:#34d399;--err:#f87171;--card:#1e293b;--border:#334155;--nav-bg:rgba(15,23,42,0.92);--header-bg:linear-gradient(135deg,#1e40af 0%,#6b21a8 100%);}}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--fg);}
+  body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue",sans-serif;line-height:1.6;min-height:100vh;padding-bottom:calc(64px + env(safe-area-inset-bottom,0));}
+  .app-header{background:var(--header-bg);color:white;padding:calc(env(safe-area-inset-top,16px) + 12px) 16px 14px;position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:12px;}
+  .back-btn{background:rgba(255,255,255,0.18);border:none;color:white;width:34px;height:34px;border-radius:10px;font-size:1.1rem;cursor:pointer;flex-shrink:0;text-decoration:none;display:flex;align-items:center;justify-content:center;}
+  .app-header .ttl{font-size:1rem;font-weight:700;}
+  .app-header .sub{font-size:0.72rem;opacity:0.85;margin-top:1px;letter-spacing:0.04em;text-transform:uppercase;}
+  main{max-width:720px;margin:0 auto;padding:16px;}
+  .progress{height:6px;background:var(--border);border-radius:3px;margin-bottom:16px;overflow:hidden;}
+  .progress-fill{height:100%;background:var(--accent);transition:width 0.3s ease;}
+  .passage{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:16px;font-size:0.95rem;line-height:1.75;}
+  .passage h3{margin:0 0 8px;font-size:0.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;}
+  .question{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:14px;}
+  .q-num{color:var(--muted);font-size:0.78rem;font-family:"SF Mono",Menlo,monospace;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.04em;}
+  .q-text{font-size:1rem;margin-bottom:12px;font-weight:500;line-height:1.5;}
+  .options{display:flex;flex-direction:column;gap:8px;}
+  .option{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px 14px;cursor:pointer;font-size:0.95rem;text-align:left;color:var(--fg);font-family:inherit;}
+  .option.selected{border-color:var(--accent);background:rgba(37,99,235,0.08);}
+  .option.correct{border-color:var(--ok);background:rgba(5,150,105,0.1);}
+  .option.wrong{border-color:var(--err);background:rgba(220,38,38,0.1);}
+  .blank-input{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:1rem;color:var(--fg);font-family:inherit;}
+  .blank-input.correct{border-color:var(--ok);}
+  .blank-input.wrong{border-color:var(--err);}
+  .explanation{margin-top:10px;padding:10px 12px;background:var(--bg);border-left:3px solid var(--accent);border-radius:4px;font-size:0.9rem;color:var(--muted);display:none;line-height:1.5;}
+  .explanation.show{display:block;}
+  .explanation .answer{color:var(--ok);font-weight:600;}
+  .actions{display:flex;gap:10px;margin-top:20px;}
+  .btn{flex:1;padding:12px;border:none;border-radius:10px;font-size:1rem;font-weight:600;cursor:pointer;font-family:inherit;}
+  .btn-primary{background:var(--accent);color:white;}
+  .btn-secondary{background:var(--card);color:var(--fg);border:1px solid var(--border);}
+  .result{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center;margin-top:20px;display:none;}
+  .result.show{display:block;}
+  .score{font-size:2.5rem;font-weight:700;color:var(--accent);}
+  .score-label{color:var(--muted);font-size:0.9rem;margin-top:4px;}
+  .tabbar{position:fixed;bottom:0;left:0;right:0;background:var(--nav-bg);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-top:1px solid var(--border);display:flex;padding-bottom:env(safe-area-inset-bottom,0);z-index:30;}
+  .tab-btn{flex:1;background:transparent;border:none;padding:10px 4px 8px;color:var(--muted);font-size:0.68rem;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;font-family:inherit;text-decoration:none;}
+  .tab-btn .icon{font-size:1.25rem;line-height:1;}
+  .tab-btn.active{color:var(--accent);}
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <a class="back-btn" href="index.html#quizzes">&#8592;</a>
+  <div style="flex:1;min-width:0;">
+    <div class="ttl">Reading T/F/NG &middot; 数字税与全球税制改革</div>
+    <div class="sub">Day 33 &middot; 10 题 &middot; ~12 分钟</div>
+  </div>
+</header>
+
+<main>
+
+<div class="progress"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+
+<div class="passage">
+  <h3>Passage &middot; The Digital Services Tax Debate: Fairness, Revenue, and Global Governance</h3>
+  <p>The proliferation of digital platforms has exposed a fundamental flaw in the international tax architecture: the system was designed for companies that operate within defined borders, yet technology giants generate billions in revenue from markets where they maintain little or no physical presence. The Organisation for Economic Co-operation and Development (OECD) estimates that profit-shifting by multinational corporations costs governments between USD 100 billion and USD 240 billion annually — a figure that has prompted urgent calls for coordinated reform.</p>
+  <p>In response, a coalition of countries has advanced the concept of a Digital Services Tax (DST), a levy targeting the revenues that technology companies derive from users in a given jurisdiction. France became one of the first nations to implement such a tax in 2019, imposing a three-percent charge on revenues generated within its borders by companies with global digital revenues exceeding EUR 750 million. The rationale is straightforward: if a platform profits substantially from French users, it ought to contribute meaningfully to the French public finances.</p>
+  <p>Proponents argue that DSTs address a genuine inequity. Under conventional tax rules, companies pay corporate tax where they are headquartered, not where they sell. This arrangement disproportionately benefits countries hosting large technology hubs, while leaving others — particularly developing economies — unable to tax the value created within their own borders. For these governments, a DST represents not merely a revenue measure but a statement of fiscal sovereignty.</p>
+  <p>Critics, however, contend that unilateral DSTs risk fragmenting the global tax system. The United States, home to most of the targeted technology firms, has characterised several European DSTs as discriminatory and threatened retaliatory tariffs in response. Others warn that the administrative complexity of calculating jurisdiction-specific digital revenues invites aggressive tax planning by sophisticated corporations. There is also the question of incidence: economists warn that companies may pass costs on to consumers or local advertisers rather than absorbing them internally.</p>
+  <p>The OECD's Pillar One and Pillar Two reforms represent an attempt to resolve these tensions at a multilateral level. Pillar One redistributes a portion of the largest multinationals' taxing rights to market jurisdictions; Pillar Two establishes a global minimum corporate tax rate of fifteen percent. Yet implementation has proved contentious. Several countries, reluctant to cede national discretion over tax policy, have delayed ratification. The reform faces its sternest test in whether political will can overcome entrenched vested interests — both corporate and national.</p>
+  <p>The broader debate reveals a tension at the heart of modern governance: between the demands of a globalised economy and the prerogatives of national sovereignty. In the digital age, reclaiming fiscal power requires unprecedented levels of international cooperation. Whether governments can forge the consensus needed to create a system that is both effective and equitable remains to be seen.</p>
+</div>
+
+<div id="questions">
+
+  <div class="question" data-type="mcq" data-answer="C">
+    <div class="q-num">Q01 · T/F/NG</div>
+    <div class="q-text">France was the first country in the world to implement a Digital Services Tax.</div>
+    <div class="options">
+      <button class="option" data-key="A">A. True</button>
+      <button class="option" data-key="B">B. False</button>
+      <button class="option" data-key="C">C. Not Given</button>
+    </div>
+    <div class="explanation">
+      <div class="answer">C &middot; Not Given</div>
+      原文说 France "became <em>one of the first</em> nations to implement such a tax"，并未声称它是全球第一个，无法判断是否绝对第一。→ NG。
+    </div>
+  </div>
+
+  <div class="question" data-type="mcq" data-answer="B">
+    <div class="q-num">Q02 · T/F/NG</div>
+    <div class="q-text">Under current international tax rules, corporations pay corporate tax in the countries where they sell their products.</div>
+    <div class="options">
+      <button class="option" data-key="A">A. True</button>
+      <button class="option" data-key="B">B. False</button>
+      <button class="option" data-key="C">C. Not Given</button>
+    </div>
+    <div class="explanation">
+      <div class="answer">B &middot; False</div>
+      原文明确：under conventional rules, companies pay corporate tax <em>where they are headquartered</em>, not where they sell. 与题目相反 → False。
+    </div>
+  </div>
+
+  <div class="question" data-type="mcq" data-answer="A">
+    <div class="q-num">Q03 · T/F/NG</div>
+    <div class="q-text">The OECD estimates profit-shifting costs governments at least USD 100 billion per year.</div>
+    <div class="options">
+      <button class="option" data-key="A">A. True</button>
+      <button class="option" data-key="B">B. False</button>
+      <button class="option" data-key="C">C. Not Given</button>
+    </div>
+    <div class="explanation">
+      <div class="answer">A &middot; True</div>
+      原文："between USD 100 billion and USD 240 billion annually"，因此 "at least 100 billion" 成立 → True。
+    </div>
+  </div>
+
+  <div class="question" data-type="mcq" data-answer="B">
+    <div class="q-num">Q04 · T/F/NG</div>
+    <div class="q-text">The United States has welcomed European Digital Services Taxes as a fair and necessary reform.</div>
+    <div class="options">
+      <button class="option" data-key="A">A. True</button>
+      <button class="option" data-key="B">B. False</button>
+      <button class="option" data-key="C">C. Not Given</button>
+    </div>
+    <div class="explanation">
+      <div class="answer">B &middot; False</div>
+      原文：The US "characterised several European DSTs as <em>discriminatory</em> and threatened retaliatory tariffs." 态度截然相反 → False。
+    </div>
+  </div>
+
+  <div class="question" data-type="mcq" data-answer="C">
+    <div class="q-num">Q05 · T/F/NG</div>
+    <div class="q-text">Developing economies would receive no financial benefit from a multilateral digital tax framework.</div>
+    <div class="options">
+      <button class="option" data-key="A">A. True</button>
+      <button class="option" data-key="B">B. False</button>
+      <button class="option" data-key="C">C. Not Given</button>
+    </div>
+    <div class="explanation">
+      <div class="answer">C &middot; Not Given</div>
+      文章提到发展中国家无法从现有规则中获益，也提到 Pillar One 重新分配征税权，但没有明确说明发展中经济体"不会获得财务利益" → NG。
+    </div>
+  </div>
+
+  <div class="question" data-type="mcq" data-answer="B">
+    <div class="q-num">Q06 · T/F/NG</div>
+    <div class="q-text">Pillar Two of the OECD reforms sets a global minimum corporate tax rate of twenty percent.</div>
+    <div class="options">
+      <button class="option" data-key="A">A. True</button>
+      <button class="option" data-key="B">B. False</button>
+      <button class="option" data-key="C">C. Not Given</button>
+    </div>
+    <div class="explanation">
+      <div class="answer">B &middot; False</div>
+      原文：Pillar Two establishes a rate of <em>fifteen</em> percent, not twenty percent → False。
+    </div>
+  </div>
+
+  <div class="question" data-type="mcq" data-answer="B">
+    <div class="q-num">Q07 · T/F/NG</div>
+    <div class="q-text">All countries have successfully ratified the OECD Pillar One and Pillar Two reforms.</div>
+    <div class="options">
+      <button class="option" data-key="A">A. True</button>
+      <button class="option" data-key="B">B. False</button>
+      <button class="option" data-key="C">C. Not Given</button>
+    </div>
+    <div class="explanation">
+      <div class="answer">B &middot; False</div>
+      原文："Several countries…have <em>delayed ratification</em>." 并非全部批准 → False。
+    </div>
+  </div>
+
+  <div class="question" data-type="blank" data-answer="fiscal sovereignty">
+    <div class="q-num">Q08 · 词汇填空</div>
+    <div class="q-text">For developing nations unable to tax digital profits under existing rules, a DST represents an act of _______ _______ — the right to set their own tax policy. (今日词卡 · 2 个词)</div>
+    <input class="blank-input" placeholder="键入答案 (两个单词，中间加空格)">
+    <div class="explanation">
+      <div class="answer">fiscal sovereignty</div>
+      "fiscal sovereignty" = 财政主权，文中 "a statement of fiscal sovereignty"。
+    </div>
+  </div>
+
+  <div class="question" data-type="blank" data-answer="profit-shifting">
+    <div class="q-num">Q09 · 词汇填空</div>
+    <div class="q-text">The practice of moving corporate earnings from high-tax jurisdictions to low-tax ones is called _______ (一个连字符词，今日词卡).</div>
+    <input class="blank-input" placeholder="键入答案">
+    <div class="explanation">
+      <div class="answer">profit-shifting</div>
+      "profit-shifting" = 利润转移，原文第一段 "profit-shifting by multinational corporations"。
+    </div>
+  </div>
+
+  <div class="question" data-type="blank" data-answer="multilateral">
+    <div class="q-num">Q10 · 词汇填空</div>
+    <div class="q-text">The OECD Pillar reforms aim to resolve tax tensions through a _______ framework, meaning one agreed upon by many countries simultaneously. (今日词卡)</div>
+    <input class="blank-input" placeholder="键入答案">
+    <div class="explanation">
+      <div class="answer">multilateral</div>
+      "multilateral" = 多边的，文中 "at a multilateral level"。也可接受 "multilateral framework"。
+    </div>
+  </div>
+
+</div>
+
+<div class="actions">
+  <button class="btn btn-secondary" onclick="resetQuiz()">重做</button>
+  <button class="btn btn-primary" onclick="submitQuiz()">提交对答</button>
+</div>
+
+<div class="result" id="result">
+  <div class="score" id="scoreNum">--</div>
+  <div class="score-label">正确率</div>
+  <div id="scoreDetail" style="margin-top:10px;color:var(--muted);"></div>
+</div>
+
+</main>
+
+<nav class="tabbar">
+  <a class="tab-btn" href="index.html#home"><span class="icon">&#127968;</span>概览</a>
+  <a class="tab-btn" href="index.html#materials"><span class="icon">&#128250;</span>材料</a>
+  <a class="tab-btn active" href="index.html#quizzes"><span class="icon">&#9999;&#65039;</span>测验</a>
+  <a class="tab-btn" href="index.html#plan"><span class="icon">&#128203;</span>计划</a>
+</nav>
+
+<script>
+  document.querySelectorAll(".option").forEach(opt=>{
+    opt.addEventListener("click",()=>{
+      const q=opt.closest(".question");
+      q.querySelectorAll(".option").forEach(o=>o.classList.remove("selected"));
+      opt.classList.add("selected");
+      q.dataset.userAnswer=opt.dataset.key;
+      updateProgress();
+    });
+  });
+  document.querySelectorAll(".blank-input").forEach(inp=>{
+    inp.addEventListener("input",()=>{
+      inp.closest(".question").dataset.userAnswer=inp.value.trim();
+      updateProgress();
+    });
+  });
+  function updateProgress(){
+    const total=document.querySelectorAll(".question").length;
+    const done=document.querySelectorAll(".question[data-user-answer]").length;
+    document.getElementById("progressFill").style.width=(done/total*100)+"%";
+  }
+  function submitQuiz(){
+    let correct=0,total=0;
+    document.querySelectorAll(".question").forEach(q=>{
+      total++;
+      const userAns=(q.dataset.userAnswer||"").toLowerCase().trim();
+      const correctAns=q.dataset.answer.toLowerCase().trim();
+      const isCorrect=userAns===correctAns||(q.dataset.type==="blank"&&userAns.includes(correctAns.split(" ")[0]));
+      if(isCorrect)correct++;
+      if(q.dataset.type==="mcq"){
+        q.querySelectorAll(".option").forEach(o=>{
+          if(o.dataset.key.toLowerCase()===correctAns)o.classList.add("correct");
+          else if(o.dataset.key.toLowerCase()===userAns&&!isCorrect)o.classList.add("wrong");
+        });
+      }else if(q.dataset.type==="blank"){
+        const inp=q.querySelector(".blank-input");
+        inp.classList.add(isCorrect?"correct":"wrong");
+      }
+      q.querySelector(".explanation")?.classList.add("show");
+    });
+    const result=document.getElementById("result");
+    const pct=Math.round(correct/total*100);
+    document.getElementById("scoreNum").textContent=pct+"%";
+    document.getElementById("scoreDetail").textContent=`${correct} / ${total} 正确`;
+    result.classList.add("show");
+    result.scrollIntoView({behavior:"smooth"});
+  }
+  function resetQuiz(){
+    document.querySelectorAll(".question").forEach(q=>{
+      delete q.dataset.userAnswer;
+      q.querySelectorAll(".option").forEach(o=>o.classList.remove("selected","correct","wrong"));
+      const inp=q.querySelector(".blank-input");
+      if(inp){inp.value="";inp.classList.remove("correct","wrong");}
+      q.querySelector(".explanation")?.classList.remove("show");
+    });
+    document.getElementById("result").classList.remove("show");
+    document.getElementById("progressFill").style.width="0%";
+  }
+</script>
+
+</body>
+</html>
