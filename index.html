@@ -8,120 +8,119 @@
 <meta name="theme-color" content="#2563eb">
 <title>IELTS &middot; 6.0&rarr;7.0</title>
 <style>
-  :root { --bg:#fff; --fg:#1a1a1a; --muted:#6b7280; --accent:#2563eb; --warn:#d97706; --ok:#059669; --err:#dc2626; --card:#f9fafb; --border:#e5e7eb; --nav-bg:rgba(255,255,255,0.92); --header-bg:linear-gradient(135deg,#2563eb 0%,#7c3aed 100%); }
-  @media (prefers-color-scheme: dark) { :root { --bg:#0f172a; --fg:#f1f5f9; --muted:#94a3b8; --accent:#60a5fa; --warn:#fbbf24; --ok:#34d399; --err:#f87171; --card:#1e293b; --border:#334155; --nav-bg:rgba(15,23,42,0.92); --header-bg:linear-gradient(135deg,#1e40af 0%,#6b21a8 100%); } }
-  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-  html,body { margin:0; padding:0; background:var(--bg); color:var(--fg); }
-  body { font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue",sans-serif; line-height:1.55; min-height:100vh; padding-bottom:calc(64px + env(safe-area-inset-bottom,0)); }
-  .app-header { background:var(--header-bg); color:white; padding:calc(env(safe-area-inset-top,16px) + 16px) 20px 20px; position:sticky; top:0; z-index:20; }
-  .app-title { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
-  .app-title .name { font-size:1.05rem; font-weight:700; letter-spacing:0.02em; display:flex; align-items:center; gap:6px; }
-  .app-title .name::before { content:"&#127919;"; font-size:1.2rem; }
-  .app-title .date { font-size:0.78rem; opacity:0.85; }
-  .gear-btn { background:rgba(255,255,255,0.18); border:none; color:white; width:32px; height:32px; border-radius:8px; font-size:1rem; cursor:pointer; }
-  .band-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; text-align:center; }
-  .band-cell .num { font-size:1.5rem; font-weight:700; line-height:1.2; }
-  .band-cell .lbl { font-size:0.7rem; opacity:0.85; letter-spacing:0.04em; text-transform:uppercase; margin-top:2px; }
-  .band-cell.target .num { color:#fef08a; }
-  .band-cell.days .num { color:#fef3c7; }
-  main { max-width:760px; margin:0 auto; padding:16px; }
-  .tab-content { display:none; }
-  .tab-content.active { display:block; }
-  .card { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:16px; margin-bottom:14px; }
-  .card h2 { font-size:0.78rem; margin:0 0 12px; color:var(--muted); text-transform:uppercase; letter-spacing:0.06em; font-weight:700; display:flex; align-items:center; gap:6px; }
-  .card h2 .badge { background:var(--accent); color:white; font-size:0.7rem; padding:1px 7px; border-radius:999px; font-weight:700; letter-spacing:0; text-transform:none; }
-  .today-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
-  .today-tile { background:var(--bg); border:1px solid var(--border); border-radius:12px; padding:14px; text-decoration:none; color:var(--fg); display:flex; flex-direction:column; gap:6px; transition:transform 0.1s, border-color 0.1s; min-height:92px; }
-  .today-tile:active { transform:scale(0.98); border-color:var(--accent); }
-  .today-tile .icon { font-size:1.6rem; }
-  .today-tile .ttl { font-size:0.92rem; font-weight:600; }
-  .today-tile .sub { font-size:0.76rem; color:var(--muted); }
-  .weak-tags { display:flex; flex-wrap:wrap; gap:6px; }
-  .tag { background:var(--border); color:var(--fg); padding:3px 10px; border-radius:999px; font-size:0.78rem; }
-  ul.tasks { list-style:none; padding:0; margin:0; }
-  ul.tasks li { padding:10px 0; border-bottom:1px solid var(--border); display:flex; align-items:flex-start; gap:10px; font-size:0.93rem; }
-  ul.tasks li:last-child { border-bottom:none; }
-  .checkbox { flex-shrink:0; width:18px; height:18px; border:2px solid var(--muted); border-radius:5px; margin-top:3px; cursor:pointer; }
-  ul.tasks li.done .checkbox { background:var(--ok); border-color:var(--ok); background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='white'><path d='M4 8.5l3 3 5-7' stroke='white' stroke-width='2' fill='none'/></svg>"); background-position:center; background-repeat:no-repeat; background-size:14px; }
-  ul.tasks li.done .task-text { text-decoration:line-through; color:var(--muted); }
-  ul.tasks li.today .task-text { font-weight:600; color:var(--accent); }
-  .task-text code { background:var(--bg); padding:1px 6px; border-radius:4px; color:var(--accent); font-family:"SF Mono",Menlo,monospace; font-size:0.82rem; }
-  .stat-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
-  .stat-cell { background:var(--bg); border:1px solid var(--border); border-radius:10px; padding:12px; text-align:center; }
-  .stat-cell .num { font-size:1.7rem; font-weight:700; color:var(--warn); }
-  .stat-cell .lbl { color:var(--muted); font-size:0.82rem; margin-top:2px; }
-  .empty { text-align:center; padding:32px 16px; color:var(--muted); }
-  .empty .icon { font-size:2.5rem; margin-bottom:8px; opacity:0.5; }
-  .empty .hint { font-size:0.88rem; }
-  .empty .cmd { margin-top:12px; background:var(--card); color:var(--accent); padding:8px 14px; border-radius:8px; display:inline-block; font-family:"SF Mono",Menlo,monospace; font-size:0.85rem; }
-  .item-list { display:flex; flex-direction:column; gap:10px; }
-  .item-card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:14px; text-decoration:none; color:var(--fg); display:flex; gap:12px; transition:transform 0.1s, border-color 0.1s; }
-  .item-card:active { transform:scale(0.985); border-color:var(--accent); }
-  .item-card .thumb { flex-shrink:0; width:56px; height:56px; border-radius:10px; background:var(--header-bg); display:flex; align-items:center; justify-content:center; font-size:1.4rem; color:white; }
-  .item-card .info { flex:1; min-width:0; }
-  .item-card .info .ttl { font-weight:600; font-size:0.95rem; line-height:1.3; margin-bottom:4px; overflow:hidden; text-overflow:ellipsis; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; }
-  .item-card .info .meta { color:var(--muted); font-size:0.78rem; display:flex; gap:6px; align-items:center; flex-wrap:wrap; }
-  .item-card .info .meta .dot { color:var(--border); }
-  .item-card .info .meta .pill { background:var(--bg); padding:1px 7px; border-radius:99px; color:var(--muted); font-size:0.72rem; }
-  .item-card .chev { color:var(--muted); font-size:1.2rem; align-self:center; }
-  .date-group { color:var(--muted); font-size:0.78rem; text-transform:uppercase; letter-spacing:0.06em; padding:8px 4px; font-weight:700; display:flex; justify-content:space-between; align-items:center; }
-  .date-group .count { background:var(--card); padding:1px 8px; border-radius:999px; font-size:0.72rem; font-weight:600; color:var(--accent); }
-  .speaking-card { background:linear-gradient(135deg,rgba(219,39,119,0.08),rgba(124,58,237,0.08)); border:1px solid var(--border); border-radius:14px; padding:16px; margin-bottom:14px; }
-  .speaking-card .label { font-size:0.7rem; color:var(--muted); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:8px; font-weight:700; }
-  .speaking-card .topic { font-size:1rem; font-weight:600; margin-bottom:8px; line-height:1.4; }
-  .speaking-card .bullets { font-size:0.88rem; color:var(--fg); padding-left:20px; margin:0; }
-  .speaking-card .bullets li { padding:2px 0; }
-  .speaking-card .hint { margin-top:10px; padding:8px 10px; background:var(--bg); border-radius:8px; font-size:0.82rem; color:var(--muted); }
-  .speaking-card .hint code { background:var(--card); padding:1px 6px; border-radius:4px; color:var(--accent); font-family:"SF Mono",Menlo,monospace; font-size:0.78rem; }
-  .tomorrow-card { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:16px; margin-bottom:14px; }
-  .tomorrow-card h2 { font-size:0.78rem; margin:0 0 12px; color:var(--muted); text-transform:uppercase; letter-spacing:0.06em; font-weight:700; }
-  .tom-opts { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:10px; }
-  .tom-opt { padding:12px 10px; background:var(--bg); border:1.5px solid var(--border); border-radius:10px; cursor:pointer; font-family:inherit; color:var(--fg); text-align:center; font-size:0.88rem; }
-  .tom-opt:active { transform:scale(0.97); }
-  .tom-opt.selected { border-color:var(--accent); background:rgba(37,99,235,0.08); color:var(--accent); font-weight:600; }
-  .tom-opt .ttl { font-weight:600; }
-  .tom-opt .sub { display:block; font-size:0.72rem; color:var(--muted); margin-top:2px; }
-  .tom-opt.selected .sub { color:var(--accent); opacity:0.85; }
-  .tom-submit { width:100%; padding:11px; background:var(--accent); color:white; border:none; border-radius:10px; font-size:0.92rem; font-weight:600; cursor:pointer; font-family:inherit; }
-  .tom-submit:disabled { background:var(--border); color:var(--muted); cursor:not-allowed; }
-  .tom-saved { margin-top:10px; padding:10px 12px; background:rgba(5,150,105,0.08); border-left:3px solid var(--ok); border-radius:6px; font-size:0.85rem; color:var(--fg); display:none; }
-  .tom-saved.show { display:block; }
-  .tom-saved strong { color:var(--ok); }
-  .plan-week { background:var(--card); border:1px solid var(--border); border-radius:12px; margin-bottom:12px; overflow:hidden; }
-  .plan-week.current { border-color:var(--accent); border-width:2px; }
-  .plan-week .head { background:var(--bg); padding:10px 14px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; font-weight:600; font-size:0.92rem; }
-  .plan-week.current .head { background:rgba(37,99,235,0.06); color:var(--accent); }
-  .plan-week .head .dates { color:var(--muted); font-size:0.78rem; font-weight:400; }
-  .plan-week .body { padding:4px 14px; }
-  .plan-week .body ul { list-style:none; padding:0; margin:0; }
-  .plan-week .body li { padding:8px 0; font-size:0.88rem; border-bottom:1px solid var(--border); }
-  .plan-week .body li:last-child { border-bottom:none; }
-  .tabbar { position:fixed; bottom:0; left:0; right:0; background:var(--nav-bg); backdrop-filter:saturate(180%) blur(20px); -webkit-backdrop-filter:saturate(180%) blur(20px); border-top:1px solid var(--border); display:flex; padding-bottom:env(safe-area-inset-bottom,0); z-index:30; }
-  .tab-btn { flex:1; background:transparent; border:none; padding:10px 4px 8px; color:var(--muted); font-size:0.68rem; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:3px; font-family:inherit; }
-  .tab-btn .icon { font-size:1.25rem; line-height:1; }
-  .tab-btn.active { color:var(--accent); }
-  .foot-meta { text-align:center; color:var(--muted); font-size:0.72rem; margin:16px 0 8px; }
-  .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.5); display:none; align-items:center; justify-content:center; z-index:100; padding:20px; }
-  .modal-overlay.show { display:flex; }
-  .modal { background:var(--bg); border-radius:16px; max-width:440px; width:100%; max-height:85vh; overflow-y:auto; padding:20px; box-shadow:0 20px 50px rgba(0,0,0,0.3); }
-  .modal h3 { margin:0 0 12px; font-size:1.05rem; }
-  .modal .desc { color:var(--muted); font-size:0.85rem; margin-bottom:14px; line-height:1.5; }
-  .modal label { display:block; font-size:0.85rem; font-weight:600; margin-bottom:6px; }
-  .modal input { width:100%; padding:10px 12px; background:var(--card); border:1px solid var(--border); border-radius:8px; font-size:0.9rem; color:var(--fg); font-family:"SF Mono",Menlo,monospace; }
-  .modal .status { margin:10px 0; padding:8px 12px; border-radius:6px; font-size:0.85rem; display:none; }
-  .modal .status.show { display:block; }
-  .modal .status.ok { background:rgba(5,150,105,0.1); color:var(--ok); }
-  .modal .status.err { background:rgba(220,38,38,0.1); color:var(--err); }
-  .modal-actions { display:flex; gap:8px; margin-top:16px; }
-  .modal-actions button { flex:1; padding:10px; border:none; border-radius:8px; font-size:0.9rem; font-weight:600; cursor:pointer; font-family:inherit; }
-  .modal-actions .test { background:var(--card); color:var(--fg); border:1px solid var(--border); }
-  .modal-actions .save { background:var(--accent); color:white; }
-  .modal-actions .close { background:transparent; color:var(--muted); border:1px solid var(--border); }
-  .modal-actions .clear { background:transparent; color:var(--err); border:1px solid var(--border); }
-  .pat-help { background:var(--card); padding:12px; border-radius:8px; font-size:0.82rem; color:var(--muted); line-height:1.6; margin-top:12px; }
-  .pat-help a { color:var(--accent); }
-  .pat-help code { background:var(--bg); padding:1px 5px; border-radius:3px; font-family:"SF Mono",Menlo,monospace; font-size:0.78rem; color:var(--accent); }
-  .refresh-badge { font-size:0.68rem; background:rgba(5,150,105,0.15); color:var(--ok); padding:1px 7px; border-radius:999px; font-weight:600; margin-left:6px; }
+  :root{--bg:#fff;--fg:#1a1a1a;--muted:#6b7280;--accent:#2563eb;--warn:#d97706;--ok:#059669;--err:#dc2626;--card:#f9fafb;--border:#e5e7eb;--nav-bg:rgba(255,255,255,0.92);--header-bg:linear-gradient(135deg,#2563eb 0%,#7c3aed 100%);}
+  @media(prefers-color-scheme:dark){:root{--bg:#0f172a;--fg:#f1f5f9;--muted:#94a3b8;--accent:#60a5fa;--warn:#fbbf24;--ok:#34d399;--err:#f87171;--card:#1e293b;--border:#334155;--nav-bg:rgba(15,23,42,0.92);--header-bg:linear-gradient(135deg,#1e40af 0%,#6b21a8 100%);}}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--fg);}
+  body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue",sans-serif;line-height:1.55;min-height:100vh;padding-bottom:calc(64px + env(safe-area-inset-bottom,0));}
+  .app-header{background:var(--header-bg);color:white;padding:calc(env(safe-area-inset-top,16px) + 16px) 20px 20px;position:sticky;top:0;z-index:20;}
+  .app-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+  .app-title .name{font-size:1.05rem;font-weight:700;letter-spacing:0.02em;display:flex;align-items:center;gap:6px;}
+  .app-title .name::before{content:"&#127919;";font-size:1.2rem;}
+  .app-title .date{font-size:0.78rem;opacity:0.85;}
+  .gear-btn{background:rgba(255,255,255,0.18);border:none;color:white;width:32px;height:32px;border-radius:8px;font-size:1rem;cursor:pointer;}
+  .band-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;text-align:center;}
+  .band-cell .num{font-size:1.5rem;font-weight:700;line-height:1.2;}
+  .band-cell .lbl{font-size:0.7rem;opacity:0.85;letter-spacing:0.04em;text-transform:uppercase;margin-top:2px;}
+  .band-cell.target .num{color:#fef08a;}
+  .band-cell.days .num{color:#fef3c7;}
+  main{max-width:760px;margin:0 auto;padding:16px;}
+  .tab-content{display:none;}
+  .tab-content.active{display:block;}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:14px;}
+  .card h2{font-size:0.78rem;margin:0 0 12px;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;font-weight:700;display:flex;align-items:center;gap:6px;}
+  .card h2 .badge{background:var(--accent);color:white;font-size:0.7rem;padding:1px 7px;border-radius:999px;font-weight:700;letter-spacing:0;text-transform:none;}
+  .today-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .today-tile{background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:14px;text-decoration:none;color:var(--fg);display:flex;flex-direction:column;gap:6px;transition:transform 0.1s,border-color 0.1s;min-height:92px;}
+  .today-tile:active{transform:scale(0.98);border-color:var(--accent);}
+  .today-tile .icon{font-size:1.6rem;}
+  .today-tile .ttl{font-size:0.92rem;font-weight:600;}
+  .today-tile .sub{font-size:0.76rem;color:var(--muted);}
+  .weak-tags{display:flex;flex-wrap:wrap;gap:6px;}
+  .tag{background:var(--border);color:var(--fg);padding:3px 10px;border-radius:999px;font-size:0.78rem;}
+  ul.tasks{list-style:none;padding:0;margin:0;}
+  ul.tasks li{padding:10px 0;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;gap:10px;font-size:0.93rem;}
+  ul.tasks li:last-child{border-bottom:none;}
+  .checkbox{flex-shrink:0;width:18px;height:18px;border:2px solid var(--muted);border-radius:5px;margin-top:3px;cursor:pointer;}
+  ul.tasks li.done .checkbox{background:var(--ok);border-color:var(--ok);background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='white'><path d='M4 8.5l3 3 5-7' stroke='white' stroke-width='2' fill='none'/></svg>");background-position:center;background-repeat:no-repeat;background-size:14px;}
+  ul.tasks li.done .task-text{text-decoration:line-through;color:var(--muted);}
+  ul.tasks li.today .task-text{font-weight:600;color:var(--accent);}
+  .task-text code{background:var(--bg);padding:1px 6px;border-radius:4px;color:var(--accent);font-family:"SF Mono",Menlo,monospace;font-size:0.82rem;}
+  .stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .stat-cell{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center;}
+  .stat-cell .num{font-size:1.7rem;font-weight:700;color:var(--warn);}
+  .stat-cell .lbl{color:var(--muted);font-size:0.82rem;margin-top:2px;}
+  .empty{text-align:center;padding:32px 16px;color:var(--muted);}
+  .empty .icon{font-size:2.5rem;margin-bottom:8px;opacity:0.5;}
+  .empty .hint{font-size:0.88rem;}
+  .item-list{display:flex;flex-direction:column;gap:10px;}
+  .item-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;text-decoration:none;color:var(--fg);display:flex;gap:12px;transition:transform 0.1s,border-color 0.1s;}
+  .item-card:active{transform:scale(0.985);border-color:var(--accent);}
+  .item-card .thumb{flex-shrink:0;width:56px;height:56px;border-radius:10px;background:var(--header-bg);display:flex;align-items:center;justify-content:center;font-size:1.4rem;color:white;}
+  .item-card .info{flex:1;min-width:0;}
+  .item-card .info .ttl{font-weight:600;font-size:0.95rem;line-height:1.3;margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;}
+  .item-card .info .meta{color:var(--muted);font-size:0.78rem;display:flex;gap:6px;align-items:center;flex-wrap:wrap;}
+  .item-card .info .meta .dot{color:var(--border);}
+  .item-card .info .meta .pill{background:var(--bg);padding:1px 7px;border-radius:99px;color:var(--muted);font-size:0.72rem;}
+  .item-card .chev{color:var(--muted);font-size:1.2rem;align-self:center;}
+  .date-group{color:var(--muted);font-size:0.78rem;text-transform:uppercase;letter-spacing:0.06em;padding:8px 4px;font-weight:700;display:flex;justify-content:space-between;align-items:center;}
+  .date-group .count{background:var(--card);padding:1px 8px;border-radius:999px;font-size:0.72rem;font-weight:600;color:var(--accent);}
+  .speaking-card{background:linear-gradient(135deg,rgba(219,39,119,0.08),rgba(124,58,237,0.08));border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:14px;}
+  .speaking-card .label{font-size:0.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px;font-weight:700;}
+  .speaking-card .topic{font-size:1rem;font-weight:600;margin-bottom:8px;line-height:1.4;}
+  .speaking-card .bullets{font-size:0.88rem;color:var(--fg);padding-left:20px;margin:0;}
+  .speaking-card .bullets li{padding:2px 0;}
+  .speaking-card .hint{margin-top:10px;padding:8px 10px;background:var(--bg);border-radius:8px;font-size:0.82rem;color:var(--muted);}
+  .speaking-card .hint code{background:var(--card);padding:1px 6px;border-radius:4px;color:var(--accent);font-family:"SF Mono",Menlo,monospace;font-size:0.78rem;}
+  .tomorrow-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:14px;}
+  .tomorrow-card h2{font-size:0.78rem;margin:0 0 12px;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;font-weight:700;}
+  .tom-opts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;}
+  .tom-opt{padding:12px 10px;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;cursor:pointer;font-family:inherit;color:var(--fg);text-align:center;font-size:0.88rem;}
+  .tom-opt:active{transform:scale(0.97);}
+  .tom-opt.selected{border-color:var(--accent);background:rgba(37,99,235,0.08);color:var(--accent);font-weight:600;}
+  .tom-opt .ttl{font-weight:600;}
+  .tom-opt .sub{display:block;font-size:0.72rem;color:var(--muted);margin-top:2px;}
+  .tom-opt.selected .sub{color:var(--accent);opacity:0.85;}
+  .tom-submit{width:100%;padding:11px;background:var(--accent);color:white;border:none;border-radius:10px;font-size:0.92rem;font-weight:600;cursor:pointer;font-family:inherit;}
+  .tom-submit:disabled{background:var(--border);color:var(--muted);cursor:not-allowed;}
+  .tom-saved{margin-top:10px;padding:10px 12px;background:rgba(5,150,105,0.08);border-left:3px solid var(--ok);border-radius:6px;font-size:0.85rem;color:var(--fg);display:none;}
+  .tom-saved.show{display:block;}
+  .tom-saved strong{color:var(--ok);}
+  .plan-week{background:var(--card);border:1px solid var(--border);border-radius:12px;margin-bottom:12px;overflow:hidden;}
+  .plan-week.current{border-color:var(--accent);border-width:2px;}
+  .plan-week .head{background:var(--bg);padding:10px 14px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;font-weight:600;font-size:0.92rem;}
+  .plan-week.current .head{background:rgba(37,99,235,0.06);color:var(--accent);}
+  .plan-week .head .dates{color:var(--muted);font-size:0.78rem;font-weight:400;}
+  .plan-week .body{padding:4px 14px;}
+  .plan-week .body ul{list-style:none;padding:0;margin:0;}
+  .plan-week .body li{padding:8px 0;font-size:0.88rem;border-bottom:1px solid var(--border);}
+  .plan-week .body li:last-child{border-bottom:none;}
+  .tabbar{position:fixed;bottom:0;left:0;right:0;background:var(--nav-bg);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-top:1px solid var(--border);display:flex;padding-bottom:env(safe-area-inset-bottom,0);z-index:30;}
+  .tab-btn{flex:1;background:transparent;border:none;padding:10px 4px 8px;color:var(--muted);font-size:0.68rem;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;font-family:inherit;}
+  .tab-btn .icon{font-size:1.25rem;line-height:1;}
+  .tab-btn.active{color:var(--accent);}
+  .foot-meta{text-align:center;color:var(--muted);font-size:0.72rem;margin:16px 0 8px;}
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);display:none;align-items:center;justify-content:center;z-index:100;padding:20px;}
+  .modal-overlay.show{display:flex;}
+  .modal{background:var(--bg);border-radius:16px;max-width:440px;width:100%;max-height:85vh;overflow-y:auto;padding:20px;box-shadow:0 20px 50px rgba(0,0,0,0.3);}
+  .modal h3{margin:0 0 12px;font-size:1.05rem;}
+  .modal .desc{color:var(--muted);font-size:0.85rem;margin-bottom:14px;line-height:1.5;}
+  .modal label{display:block;font-size:0.85rem;font-weight:600;margin-bottom:6px;}
+  .modal input{width:100%;padding:10px 12px;background:var(--card);border:1px solid var(--border);border-radius:8px;font-size:0.9rem;color:var(--fg);font-family:"SF Mono",Menlo,monospace;}
+  .modal .status{margin:10px 0;padding:8px 12px;border-radius:6px;font-size:0.85rem;display:none;}
+  .modal .status.show{display:block;}
+  .modal .status.ok{background:rgba(5,150,105,0.1);color:var(--ok);}
+  .modal .status.err{background:rgba(220,38,38,0.1);color:var(--err);}
+  .modal-actions{display:flex;gap:8px;margin-top:16px;}
+  .modal-actions button{flex:1;padding:10px;border:none;border-radius:8px;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:inherit;}
+  .modal-actions .test{background:var(--card);color:var(--fg);border:1px solid var(--border);}
+  .modal-actions .save{background:var(--accent);color:white;}
+  .modal-actions .close{background:transparent;color:var(--muted);border:1px solid var(--border);}
+  .modal-actions .clear{background:transparent;color:var(--err);border:1px solid var(--border);}
+  .pat-help{background:var(--card);padding:12px;border-radius:8px;font-size:0.82rem;color:var(--muted);line-height:1.6;margin-top:12px;}
+  .pat-help a{color:var(--accent);}
+  .pat-help code{background:var(--bg);padding:1px 5px;border-radius:3px;font-family:"SF Mono",Menlo,monospace;font-size:0.78rem;color:var(--accent);}
+  .refresh-badge{font-size:0.68rem;background:rgba(5,150,105,0.15);color:var(--ok);padding:1px 7px;border-radius:999px;font-weight:600;margin-left:6px;}
 </style>
 </head>
 <body>
@@ -130,23 +129,14 @@
   <div class="app-title">
     <span class="name">IELTS Coach</span>
     <span style="display:flex;align-items:center;gap:10px;">
-      <span class="date">2026-06-21 (周日) &middot; Day 32</span>
+      <span class="date">2026-06-22 (&#21608;&#19968;) &middot; Day 33</span>
       <button class="gear-btn" title="&#35774;&#32622;" onclick="openSettings()">&#9881;&#65039;</button>
     </span>
   </div>
   <div class="band-grid">
-    <div class="band-cell">
-      <div class="num">6.0</div>
-      <div class="lbl">CURRENT</div>
-    </div>
-    <div class="band-cell target">
-      <div class="num">7.0</div>
-      <div class="lbl">TARGET</div>
-    </div>
-    <div class="band-cell days">
-      <div class="num">59</div>
-      <div class="lbl">DAYS LEFT</div>
-    </div>
+    <div class="band-cell"><div class="num">6.0</div><div class="lbl">CURRENT</div></div>
+    <div class="band-cell target"><div class="num">7.0</div><div class="lbl">TARGET</div></div>
+    <div class="band-cell days"><div class="num">58</div><div class="lbl">DAYS LEFT</div></div>
   </div>
 </header>
 
@@ -155,53 +145,53 @@
 <section class="tab-content active" id="tab-home">
 
   <div class="card">
-    <h2>&#127827; 今日学习 <span class="badge">Day 32</span></h2>
+    <h2>&#127827; 今日学习 <span class="badge">Day 33</span></h2>
     <div class="today-grid">
-      <a class="today-tile" href="vocab-20260621.html">
+      <a class="today-tile" href="vocab-20260622.html">
         <div class="icon">&#128221;</div>
         <div class="ttl">150 词卡</div>
-        <div class="sub">Gov &amp; Society Day 4 &middot; 国际关系/地缘政治/外交/社会运动</div>
+        <div class="sub">Gov &amp; Society Day 5 &middot; 税制/移民/媒体/民粹/反腐</div>
       </a>
-      <a class="today-tile" href="quiz-20260621-reading-tfng.html">
+      <a class="today-tile" href="quiz-20260622-reading-tfng.html">
         <div class="icon">&#128218;</div>
         <div class="ttl">阅读小测</div>
-        <div class="sub">T/F/NG &middot; 多边主义的危机 &middot; 7 T/F/NG + 3 词汇 &middot; 10 题</div>
+        <div class="sub">T/F/NG &middot; 数字税与全球税制改革 &middot; 10 题</div>
       </a>
       <a class="today-tile" href="#materials" onclick="switchTab('tab-materials')">
         <div class="icon">&#127916;</div>
         <div class="ttl">10 视频</div>
-        <div class="sub">IELTS 策略 &middot; 影子跟读 Bremmer/Tharoor/Lang 地缘政治</div>
+        <div class="sub">IELTS 策略(周一刷新) &middot; 影子跟读 Adichie/Sandel/Wilkinson</div>
       </a>
       <div class="today-tile" style="cursor:default;">
         <div class="icon">&#128483;&#65039;</div>
         <div class="ttl">口语题</div>
-        <div class="sub">P2 #7 &middot; 见下方</div>
+        <div class="sub">P2 #8 &middot; 见下方</div>
       </div>
     </div>
   </div>
 
   <div class="speaking-card">
-    <div class="label">&#128483;&#65039; 今日口语题 &middot; Part 2 &middot; #7</div>
-    <div class="topic">Describe a quiet place you like to go</div>
+    <div class="label">&#128483;&#65039; 今日口语题 &middot; Part 2 &middot; #8</div>
+    <div class="topic">Describe a beautiful city you have visited</div>
     <ul class="bullets">
       <li>Where it is</li>
-      <li>How often you go there</li>
-      <li>What you do there</li>
-      <li>How you feel about it</li>
+      <li>When you went</li>
+      <li>What you did there</li>
+      <li>Why you thought it was beautiful</li>
     </ul>
-    <div class="hint">1 分钟笔记 + 1.5-2 分钟独白。可用今日词卡词汇：<code>bastion / enshrine / apathy / erode</code>。到 Mac 时用 <code>/ielts practice grade speaking</code> 给我看你的回答</div>
+    <div class="hint">1 分钟笔记 + 1.5-2 分钟独白。可用今日词卡词汇：<code>austerity / populism / fiscal / whistleblower</code>（城市话题中嵌入政治背景）。到 Mac 时用 <code>/ielts practice grade speaking</code> 给我看你的回答</div>
   </div>
 
   <div class="card">
     <h2>&#128197; 本周计划 <span class="badge">Week 5</span></h2>
     <ul class="tasks">
-      <li class="done"><span class="checkbox"></span><span class="task-text">周四 6-18: Gov &amp; Society Day 1 词卡 + 阅读 T/F/NG &middot; 民主问责与法治 &#10003;</span></li>
-      <li class="done"><span class="checkbox"></span><span class="task-text">周五 6-19: Gov &amp; Society Day 2 词卡 + 阅读 T/F/NG &middot; 刑事司法改革 &#10003;</span></li>
-      <li class="today"><span class="checkbox"></span><span class="task-text">周六 6-20: Gov &amp; Society Day 3 词卡 + 阅读 T/F/NG &middot; 福利国家的压力 &#8592; 今日</span></li>
-      <li><span class="checkbox"></span><span class="task-text">周日 6-21: Gov &amp; Society Day 4 词卡 + 阅读 T/F/NG</span></li>
-      <li><span class="checkbox"></span><span class="task-text">周一 6-22: Gov &amp; Society Day 5 词卡 + 阅读 T/F/NG</span></li>
-      <li><span class="checkbox"></span><span class="task-text">周二 6-23: Gov &amp; Society Day 6 词卡 + 阅读 T/F/NG</span></li>
-      <li><span class="checkbox"></span><span class="task-text">周三 6-24: Gov &amp; Society Day 7 词卡 + 阅读 T/F/NG</span></li>
+      <li class="done"><span class="checkbox"></span><span class="task-text">&#21608;&#22235; 6-18: Gov &amp; Society Day 1 词卡 + 阅读 T/F/NG &middot; 民主问责与法治 &#10003;</span></li>
+      <li class="done"><span class="checkbox"></span><span class="task-text">&#21608;&#20116; 6-19: Gov &amp; Society Day 2 词卡 + 阅读 T/F/NG &middot; 刑事司法改革 &#10003;</span></li>
+      <li class="done"><span class="checkbox"></span><span class="task-text">&#21608;&#20845; 6-20: Gov &amp; Society Day 3 词卡 + 阅读 T/F/NG &middot; 福利国家的压力 &#10003;</span></li>
+      <li class="done"><span class="checkbox"></span><span class="task-text">&#21608;&#26085; 6-21: Gov &amp; Society Day 4 词卡 + 阅读 T/F/NG &middot; 多边主义与外交 &#10003;</span></li>
+      <li class="today"><span class="checkbox"></span><span class="task-text">&#21608;&#19968; 6-22: Gov &amp; Society Day 5 词卡 + 阅读 T/F/NG &middot; 数字税制改革 &#8592; 今日</span></li>
+      <li><span class="checkbox"></span><span class="task-text">&#21608;&#20108; 6-23: Gov &amp; Society Day 6 词卡 + 阅读 T/F/NG</span></li>
+      <li><span class="checkbox"></span><span class="task-text">&#21608;&#19977; 6-24: Gov &amp; Society Day 7 词卡 + 阅读 T/F/NG</span></li>
     </ul>
   </div>
 
@@ -217,14 +207,8 @@
   <div class="card">
     <h2>&#128204; 待复习</h2>
     <div class="stat-grid">
-      <div class="stat-cell">
-        <div class="num">0</div>
-        <div class="lbl">错题</div>
-      </div>
-      <div class="stat-cell">
-        <div class="num">4800</div>
-        <div class="lbl">总记忆卡 (Day 1-32)</div>
-      </div>
+      <div class="stat-cell"><div class="num">0</div><div class="lbl">错题</div></div>
+      <div class="stat-cell"><div class="num">4950</div><div class="lbl">总记忆卡 (Day 1-33)</div></div>
     </div>
   </div>
 
@@ -246,11 +230,11 @@
 <section class="tab-content" id="tab-materials">
 
   <div class="date-group">
-    <span>&#128218; 雅思主题 <span class="refresh-badge">周一刷新</span></span>
+    <span>&#128218; 雅思主题 <span class="refresh-badge">&#10003; 周一已刷新</span></span>
     <span class="count">5 个</span>
   </div>
   <div style="color:var(--muted);font-size:0.78rem;padding:0 4px 8px;line-height:1.5;">
-    策略类视频反复学习更有效。<strong>每周一</strong> cron agent 用 WebSearch 找当周新发现的高质量 IELTS 视频替换其中 1-2 个。任何时候你可在 Mac 上跑 <code style="background:var(--card);padding:1px 5px;border-radius:3px;color:var(--accent);font-family:'SF Mono',Menlo,monospace;font-size:0.72rem;">/ielts materials refresh-ielts</code> 立即强制更换。
+    今日 (周一) 已替换 2 个旧视频。策略类视频反复学习更有效。任何时候可在 Mac 跑 <code style="background:var(--card);padding:1px 5px;border-radius:3px;color:var(--accent);font-family:'SF Mono',Menlo,monospace;font-size:0.72rem;">/ielts materials refresh-ielts</code> 立即强制更换。
   </div>
 
   <div class="item-list">
@@ -258,7 +242,7 @@
       <div class="thumb">&#128218;</div>
       <div class="info">
         <div class="ttl">The ONLY IELTS Reading Strategy You Need in 2026</div>
-        <div class="meta"><span class="pill">IELTS 2026 &#128197;周一更新</span><span>~16 min</span><span class="dot">&middot;</span><span>阅读超经策略</span></div>
+        <div class="meta"><span class="pill">IELTS 2026 &#128197;常驻</span><span>~16 min</span><span class="dot">&middot;</span><span>阅读超经策略</span></div>
       </div>
       <div class="chev">&#8599;</div>
     </a>
@@ -266,15 +250,7 @@
       <div class="thumb">&#128218;</div>
       <div class="info">
         <div class="ttl">Band 9 IELTS Reading TRUE - FALSE - NOT GIVEN &middot; Strategy &amp; Practice</div>
-        <div class="meta"><span class="pill">IELTS Reading &#128197;周一更新</span><span>~18 min</span><span class="dot">&middot;</span><span>T/F/NG 高分策略</span></div>
-      </div>
-      <div class="chev">&#8599;</div>
-    </a>
-    <a class="item-card" href="https://www.youtube.com/watch?v=fem98bC1Q48" target="_blank" rel="noopener">
-      <div class="thumb">&#127908;</div>
-      <div class="info">
-        <div class="ttl">IELTS Speaking Test Band Score 7 &middot; Amazing Candidate 2026</div>
-        <div class="meta"><span class="pill">Ross IELTS Academy</span><span>~15 min</span><span class="dot">&middot;</span><span>口语真考示范</span></div>
+        <div class="meta"><span class="pill">IELTS Reading &#128197;常驻</span><span>~18 min</span><span class="dot">&middot;</span><span>T/F/NG 高分策略</span></div>
       </div>
       <div class="chev">&#8599;</div>
     </a>
@@ -282,63 +258,71 @@
       <div class="thumb">&#9999;&#65039;</div>
       <div class="info">
         <div class="ttl">E2 IELTS Writing | 7 Steps to Achieve Band 7+</div>
-        <div class="meta"><span class="pill">E2 IELTS</span><span>~20 min</span><span class="dot">&middot;</span><span>写作策略</span></div>
+        <div class="meta"><span class="pill">E2 IELTS &#128197;常驻</span><span>~20 min</span><span class="dot">&middot;</span><span>写作策略</span></div>
       </div>
       <div class="chev">&#8599;</div>
     </a>
-    <a class="item-card" href="https://www.youtube.com/watch?v=ROmQsqmeUB8" target="_blank" rel="noopener">
+    <a class="item-card" href="https://www.youtube.com/watch?v=csCJW1THsCs" target="_blank" rel="noopener">
+      <div class="thumb">&#127908;</div>
+      <div class="info">
+        <div class="ttl">IELTS 2026 Speaking &amp; Writing Mock Test &middot; E2 IELTS</div>
+        <div class="meta"><span class="pill">E2 IELTS &#128197;周一新增</span><span>~35 min</span><span class="dot">&middot;</span><span>口语+写作真考模拟</span></div>
+      </div>
+      <div class="chev">&#8599;</div>
+    </a>
+    <a class="item-card" href="https://www.youtube.com/watch?v=Cn685YnHa8M" target="_blank" rel="noopener">
       <div class="thumb">&#9999;&#65039;</div>
       <div class="info">
-        <div class="ttl">The ONLY IELTS Writing Task 2 Strategy You Need</div>
-        <div class="meta"><span class="pill">IELTS Liz</span><span>~15 min</span><span class="dot">&middot;</span><span>写作超经路径</span></div>
+        <div class="ttl">Every IELTS 2026 Strategy in One Video (Full Course)</div>
+        <div class="meta"><span class="pill">IELTS 2026 &#128197;周一新增</span><span>~60 min</span><span class="dot">&middot;</span><span>全科策略精讲</span></div>
       </div>
       <div class="chev">&#8599;</div>
     </a>
   </div>
 
   <div class="date-group" style="margin-top:24px;">
-    <span>&#127908; 影子跟读材料 &middot; 今日 (Gov &amp; Society Day 4 &middot; 地缘政治/外交/软实力 &middot; Bremmer/Tharoor/Lang)</span>
+    <span>&#127908; 影子跟读材料 &middot; 今日 (Gov &amp; Society Day 5 &middot; 税制/移民/不平等/民主辩论 &middot; 多口音)</span>
     <span class="count">5 个</span>
   </div>
 
   <div class="item-list">
-    <a class="item-card" href="https://www.youtube.com/watch?v=uiUPD-z9DTg" target="_blank" rel="noopener">
+    <a class="item-card" href="https://www.youtube.com/watch?v=D9Ihs241zeg" target="_blank" rel="noopener">
       <div class="thumb">&#127758;</div>
       <div class="info">
-        <div class="ttl">The Next Global Superpower Isn't Who You Think &middot; Ian Bremmer &middot; TED</div>
-        <div class="meta"><span class="pill">TED &middot; Bremmer</span><span>~15 min</span><span class="dot">&middot;</span><span>美音 &middot; 全球霸权格局 C1</span></div>
+        <div class="ttl">The danger of a single story &middot; Chimamanda Ngozi Adichie &middot; TED</div>
+        <div class="meta"><span class="pill">TED &middot; Adichie</span><span>~19 min</span><span class="dot">&middot;</span><span>非洲口音英语 &middot; 多元叙事/移民 B2+</span></div>
       </div>
       <div class="chev">&#8599;</div>
     </a>
-    <a class="item-card" href="https://www.youtube.com/watch?v=U509hHthip8" target="_blank" rel="noopener">
-      <div class="thumb">&#127759;</div>
+    <a class="item-card" href="https://www.youtube.com/watch?v=MuiazbyOSqQ" target="_blank" rel="noopener">
+      <div class="thumb">&#127919;</div>
       <div class="info">
-        <div class="ttl">The Biggest Global Risks for 2025 &middot; Ian Bremmer &middot; TED Explains the World</div>
-        <div class="meta"><span class="pill">TED &middot; Bremmer 2025</span><span>~20 min</span><span class="dot">&middot;</span><span>美音 &middot; 2025 全球风险 C1</span></div>
+        <div class="ttl">The lost art of democratic debate &middot; Michael Sandel &middot; TED</div>
+        <div class="meta"><span class="pill">TED &middot; Sandel</span><span>~20 min</span><span class="dot">&middot;</span><span>美音 &middot; 民主辩论/公民社会 C1</span></div>
       </div>
       <div class="chev">&#8599;</div>
     </a>
-    <a class="item-card" href="https://www.youtube.com/watch?v=bPy3cZ4Sw38" target="_blank" rel="noopener">
-      <div class="thumb">&#128081;</div>
-      <div class="info">
-        <div class="ttl">Why nations should pursue 'soft' power &middot; Dr. Shashi Tharoor &middot; TED</div>
-        <div class="meta"><span class="pill">TED &middot; Tharoor</span><span>~15 min</span><span class="dot">&middot;</span><span>印度口音英语 &middot; 软实力外交 B2+</span></div>
-      </div>
-      <div class="chev">&#8599;</div>
-    </a>
-    <a class="item-card" href="https://www.youtube.com/watch?v=PYRFxrLt30A" target="_blank" rel="noopener">
+    <a class="item-card" href="https://www.youtube.com/watch?v=3u7M3vb6KUU" target="_blank" rel="noopener">
       <div class="thumb">&#127760;</div>
       <div class="info">
-        <div class="ttl">5 Ways Leaders Can Adapt to Shifting Geopolitics &middot; Nikolaus S. Lang &middot; TED</div>
-        <div class="meta"><span class="pill">TED &middot; Lang 2024</span><span>~15 min</span><span class="dot">&middot;</span><span>欧洲口音英语 &middot; 地缘政治应对 B2+</span></div>
+        <div class="ttl">Who controls the world? &middot; James Glattfelder &middot; TED</div>
+        <div class="meta"><span class="pill">TED &middot; Glattfelder</span><span>~14 min</span><span class="dot">&middot;</span><span>欧洲口音英语 &middot; 全球权力/金融网络 B2+</span></div>
       </div>
       <div class="chev">&#8599;</div>
     </a>
-    <a class="item-card" href="https://www.youtube.com/watch?v=URw3ITsBU6s" target="_blank" rel="noopener">
-      <div class="thumb">&#127468;&#127463;</div>
+    <a class="item-card" href="https://www.youtube.com/watch?v=cZ7LzE3u7Bw" target="_blank" rel="noopener">
+      <div class="thumb">&#128200;</div>
       <div class="info">
-        <div class="ttl">Do our political views change as we get older? &middot; BBC 6 Minute English</div>
-        <div class="meta"><span class="pill">BBC 6 Min English</span><span>~6 min</span><span class="dot">&middot;</span><span>英音 &middot; 政治观点演变 B2</span></div>
+        <div class="ttl">How economic inequality harms societies &middot; Richard Wilkinson &middot; TED</div>
+        <div class="meta"><span class="pill">TED &middot; Wilkinson</span><span>~17 min</span><span class="dot">&middot;</span><span>英音 &middot; 不平等与社会政策 B2+</span></div>
+      </div>
+      <div class="chev">&#8599;</div>
+    </a>
+    <a class="item-card" href="https://www.youtube.com/watch?v=jO71wMJnVkc" target="_blank" rel="noopener">
+      <div class="thumb">&#9878;&#65039;</div>
+      <div class="info">
+        <div class="ttl">Four ways to fix a broken legal system &middot; Philip Howard &middot; TED</div>
+        <div class="meta"><span class="pill">TED &middot; Howard</span><span>~14 min</span><span class="dot">&middot;</span><span>美音 &middot; 法律/政府改革 B2</span></div>
       </div>
       <div class="chev">&#8599;</div>
     </a>
@@ -349,23 +333,23 @@
 <section class="tab-content" id="tab-quizzes">
 
   <div class="date-group">
-    <span>2026-06-21 &middot; 今日 (Day 32)</span>
+    <span>2026-06-22 &middot; 今日 (Day 33)</span>
     <span class="count">2 项</span>
   </div>
 
   <div class="item-list">
-    <a class="item-card" href="quiz-20260621-reading-tfng.html">
+    <a class="item-card" href="quiz-20260622-reading-tfng.html">
       <div class="thumb">&#128218;</div>
       <div class="info">
-        <div class="ttl">Reading T/F/NG &middot; 多边主义的危机: The Architecture of Global Diplomacy (10 题)</div>
+        <div class="ttl">Reading T/F/NG &middot; 数字税与全球税制改革: The Digital Services Tax Debate (10 题)</div>
         <div class="meta"><span class="pill">阅读</span><span>~12 min</span></div>
       </div>
       <div class="chev">&rsaquo;</div>
     </a>
-    <a class="item-card" href="vocab-20260621.html">
+    <a class="item-card" href="vocab-20260622.html">
       <div class="thumb">&#128221;</div>
       <div class="info">
-        <div class="ttl">今日词卡 (Gov &amp; Society Day 4 &middot; 国际关系/地缘政治/外交/社会运动)</div>
+        <div class="ttl">今日词卡 (Gov &amp; Society Day 5 &middot; 税制/移民/新闻自由/民粹/反腐)</div>
         <div class="meta"><span class="pill">词汇</span><span>无时限</span></div>
       </div>
       <div class="chev">&rsaquo;</div>
@@ -374,10 +358,26 @@
 
   <div class="date-group" style="margin-top:20px;">
     <span>&#128218; 历史 (前几日)</span>
-    <span class="count">50 项</span>
+    <span class="count">52 项</span>
   </div>
 
   <div class="item-list">
+    <a class="item-card" href="quiz-20260621-reading-tfng.html">
+      <div class="thumb">📖</div>
+      <div class="info">
+        <div class="ttl">Day 32: Reading T/F/NG &middot; 多边主义的危机: The Architecture of Global Diplomacy (10 题)</div>
+        <div class="meta"><span class="pill">阅读</span><span>6-21</span></div>
+      </div>
+      <div class="chev">&rsaquo;</div>
+    </a>
+    <a class="item-card" href="vocab-20260621.html">
+      <div class="thumb">📝</div>
+      <div class="info">
+        <div class="ttl">Day 32: 150 词卡 &middot; Gov &amp; Society Day 4 &middot; 国际关系/地缘政治/外交/社会运动</div>
+        <div class="meta"><span class="pill">词汇</span><span>6-21</span></div>
+      </div>
+      <div class="chev">&rsaquo;</div>
+    </a>
     <a class="item-card" href="quiz-20260620-reading-tfng.html">
       <div class="thumb">📖</div>
       <div class="info">
@@ -389,7 +389,7 @@
     <a class="item-card" href="vocab-20260620.html">
       <div class="thumb">📝</div>
       <div class="info">
-        <div class="ttl">Day 31: 150 词卡 · Gov &amp; Society Day 3 · 公共政策/社会福利/城市治理</div>
+        <div class="ttl">Day 31: 150 词卡 &middot; Gov &amp; Society Day 3 &middot; 公共政策/社会福利/城市治理</div>
         <div class="meta"><span class="pill">词汇</span><span>6-20</span></div>
       </div>
       <div class="chev">&rsaquo;</div>
@@ -405,7 +405,7 @@
     <a class="item-card" href="vocab-20260619.html">
       <div class="thumb">📝</div>
       <div class="info">
-        <div class="ttl">Day 30: 150 词卡 · Gov &amp; Society Day 2 · 刑事司法/选举/人权/意识形态</div>
+        <div class="ttl">Day 30: 150 词卡 &middot; Gov &amp; Society Day 2 &middot; 刑事司法/选举/人权/意识形态</div>
         <div class="meta"><span class="pill">词汇</span><span>6-19</span></div>
       </div>
       <div class="chev">&rsaquo;</div>
@@ -413,7 +413,7 @@
     <a class="item-card" href="quiz-20260618-reading-tfng.html">
       <div class="thumb">📖</div>
       <div class="info">
-        <div class="ttl">Day 29: Reading T/F/NG · 民主问责与法治 (10 题)</div>
+        <div class="ttl">Day 29: Reading T/F/NG &middot; 民主问责与法治 (10 题)</div>
         <div class="meta"><span class="pill">阅读</span><span>6-18</span></div>
       </div>
       <div class="chev">&rsaquo;</div>
@@ -421,7 +421,7 @@
     <a class="item-card" href="vocab-20260618.html">
       <div class="thumb">📝</div>
       <div class="info">
-        <div class="ttl">Day 29: 150 词卡 · Gov &amp; Society Day 1 · 立法/民主/法治/选举/公民社会</div>
+        <div class="ttl">Day 29: 150 词卡 &middot; Gov &amp; Society Day 1 &middot; 立法/民主/法治/选举/公民社会</div>
         <div class="meta"><span class="pill">词汇</span><span>6-18</span></div>
       </div>
       <div class="chev">&rsaquo;</div>
@@ -429,7 +429,7 @@
     <a class="item-card" href="quiz-20260616-reading-tfng.html">
       <div class="thumb">📖</div>
       <div class="info">
-        <div class="ttl">Day 27: Reading T/F/NG · 健康的社会决定因素 (10 题)</div>
+        <div class="ttl">Day 27: Reading T/F/NG &middot; 健康的社会决定因素 (10 题)</div>
         <div class="meta"><span class="pill">阅读</span><span>6-16</span></div>
       </div>
       <div class="chev">&rsaquo;</div>
@@ -437,7 +437,7 @@
     <a class="item-card" href="vocab-20260616.html">
       <div class="thumb">📝</div>
       <div class="info">
-        <div class="ttl">Day 27: 150 词卡 · Health Day 6 · 公共卫生/职业健康/老龄化/循证医学</div>
+        <div class="ttl">Day 27: 150 词卡 &middot; Health Day 6 &middot; 公共卫生/职业健康/老龄化/循证医学</div>
         <div class="meta"><span class="pill">词汇</span><span>6-16</span></div>
       </div>
       <div class="chev">&rsaquo;</div>
@@ -445,7 +445,7 @@
     <a class="item-card" href="quiz-20260615-reading-tfng.html">
       <div class="thumb">📖</div>
       <div class="info">
-        <div class="ttl">Day 26: Reading T/F/NG · 数字医疗与远程医疗 (10 题)</div>
+        <div class="ttl">Day 26: Reading T/F/NG &middot; 数字医疗与远程医疗 (10 题)</div>
         <div class="meta"><span class="pill">阅读</span><span>6-15</span></div>
       </div>
       <div class="chev">&rsaquo;</div>
@@ -453,7 +453,7 @@
     <a class="item-card" href="vocab-20260615.html">
       <div class="thumb">📝</div>
       <div class="info">
-        <div class="ttl">Day 26: 150 词卡 · Health Day 5 · 医疗体系/心理治疗/流行病学</div>
+        <div class="ttl">Day 26: 150 词卡 &middot; Health Day 5 &middot; 医疗体系/心理治疗/流行病学</div>
         <div class="meta"><span class="pill">词汇</span><span>6-15</span></div>
       </div>
       <div class="chev">&rsaquo;</div>
@@ -461,7 +461,7 @@
     <a class="item-card" href="quiz-20260614-reading-tfng.html">
       <div class="thumb">📖</div>
       <div class="info">
-        <div class="ttl">Day 25: Reading T/F/NG · 饮食与慢性病预防 (10 题)</div>
+        <div class="ttl">Day 25: Reading T/F/NG &middot; 饮食与慢性病预防 (10 题)</div>
         <div class="meta"><span class="pill">阅读</span><span>6-14</span></div>
       </div>
       <div class="chev">&rsaquo;</div>
@@ -469,7 +469,7 @@
     <a class="item-card" href="vocab-20260614.html">
       <div class="thumb">📝</div>
       <div class="info">
-        <div class="ttl">Day 25: 150 词卡 · Health Day 4 · 慢性病/营养/专科/替代医学</div>
+        <div class="ttl">Day 25: 150 词卡 &middot; Health Day 4 &middot; 慢性病/营养/专科/替代医学</div>
         <div class="meta"><span class="pill">词汇</span><span>6-14</span></div>
       </div>
       <div class="chev">&rsaquo;</div>
@@ -477,7 +477,7 @@
     <a class="item-card" href="quiz-20260613-reading-tfng.html">
       <div class="thumb">📖</div>
       <div class="info">
-        <div class="ttl">Day 24: Reading T/F/NG · 睡眠科学与公共健康 (10 题)</div>
+        <div class="ttl">Day 24: Reading T/F/NG &middot; 睡眠科学与公共健康 (10 题)</div>
         <div class="meta"><span class="pill">阅读</span><span>6-13</span></div>
       </div>
       <div class="chev">&rsaquo;</div>
@@ -485,7 +485,7 @@
     <a class="item-card" href="vocab-20260613.html">
       <div class="thumb">📝</div>
       <div class="info">
-        <div class="ttl">Day 24: 150 词卡 · Health Day 3 · 手术/疫苗/睡眠/老龄化</div>
+        <div class="ttl">Day 24: 150 词卡 &middot; Health Day 3 &middot; 手术/疫苗/睡眠/老龄化</div>
         <div class="meta"><span class="pill">词汇</span><span>6-13</span></div>
       </div>
       <div class="chev">&rsaquo;</div>
@@ -493,7 +493,7 @@
     <a class="item-card" href="quiz-20260612-reading-tfng.html">
       <div class="thumb">📖</div>
       <div class="info">
-        <div class="ttl">Day 23: Reading T/F/NG · 全球心理健康危机 (10 题)</div>
+        <div class="ttl">Day 23: Reading T/F/NG &middot; 全球心理健康危机 (10 题)</div>
         <div class="meta"><span class="pill">阅读</span><span>6-12</span></div>
       </div>
       <div class="chev">&rsaquo;</div>
@@ -501,7 +501,7 @@
     <a class="item-card" href="vocab-20260612.html">
       <div class="thumb">📝</div>
       <div class="info">
-        <div class="ttl">Day 23: 150 词卡 · Health Day 2</div>
+        <div class="ttl">Day 23: 150 词卡 &middot; Health Day 2</div>
         <div class="meta"><span class="pill">词汇</span><span>6-12</span></div>
       </div>
       <div class="chev">&rsaquo;</div>
@@ -509,7 +509,7 @@
     <a class="item-card" href="quiz-20260611-reading-tfng.html">
       <div class="thumb">📖</div>
       <div class="info">
-        <div class="ttl">Day 22: Reading T/F/NG · 预防医学与个性化医疗 (10 题)</div>
+        <div class="ttl">Day 22: Reading T/F/NG &middot; 预防医学与个性化医疗 (10 题)</div>
         <div class="meta"><span class="pill">阅读</span><span>6-11</span></div>
       </div>
       <div class="chev">&rsaquo;</div>
@@ -517,7 +517,7 @@
     <a class="item-card" href="vocab-20260611.html">
       <div class="thumb">📝</div>
       <div class="info">
-        <div class="ttl">Day 22: 150 词卡 · Health Day 1</div>
+        <div class="ttl">Day 22: 150 词卡 &middot; Health Day 1</div>
         <div class="meta"><span class="pill">词汇</span><span>6-11</span></div>
       </div>
       <div class="chev">&rsaquo;</div>
@@ -525,7 +525,7 @@
     <a class="item-card" href="quiz-20260610-reading-tfng.html">
       <div class="thumb">📖</div>
       <div class="info">
-        <div class="ttl">Day 21: Reading T/F/NG · CRISPR 基因编辑革命 (10 题)</div>
+        <div class="ttl">Day 21: Reading T/F/NG &middot; CRISPR 基因编辑革命 (10 题)</div>
         <div class="meta"><span class="pill">阅读</span><span>6-10</span></div>
       </div>
       <div class="chev">&rsaquo;</div>
@@ -533,7 +533,7 @@
     <a class="item-card" href="vocab-20260610.html">
       <div class="thumb">📝</div>
       <div class="info">
-        <div class="ttl">Day 21: 150 词卡 · Technology Day 7</div>
+        <div class="ttl">Day 21: 150 词卡 &middot; Technology Day 7</div>
         <div class="meta"><span class="pill">词汇</span><span>6-10</span></div>
       </div>
       <div class="chev">&rsaquo;</div>
@@ -541,7 +541,7 @@
     <a class="item-card" href="quiz-20260609-reading-tfng.html">
       <div class="thumb">📖</div>
       <div class="info">
-        <div class="ttl">Day 20: Reading T/F/NG · Fintech 金融科技革命 (10 题)</div>
+        <div class="ttl">Day 20: Reading T/F/NG &middot; Fintech 金融科技革命 (10 题)</div>
         <div class="meta"><span class="pill">阅读</span><span>6-9</span></div>
       </div>
       <div class="chev">&rsaquo;</div>
@@ -549,7 +549,7 @@
     <a class="item-card" href="vocab-20260609.html">
       <div class="thumb">📝</div>
       <div class="info">
-        <div class="ttl">Day 20: 150 词卡 · Technology Day 6</div>
+        <div class="ttl">Day 20: 150 词卡 &middot; Technology Day 6</div>
         <div class="meta"><span class="pill">词汇</span><span>6-9</span></div>
       </div>
       <div class="chev">&rsaquo;</div>
@@ -557,7 +557,7 @@
     <a class="item-card" href="quiz-20260608-reading-tfng.html">
       <div class="thumb">📖</div>
       <div class="info">
-        <div class="ttl">Day 19: Reading T/F/NG · AI 伦理与算法偏见 (12 题)</div>
+        <div class="ttl">Day 19: Reading T/F/NG &middot; AI 伦理与算法偏见 (12 题)</div>
         <div class="meta"><span class="pill">阅读</span><span>6-8</span></div>
       </div>
       <div class="chev">&rsaquo;</div>
@@ -565,7 +565,7 @@
     <a class="item-card" href="vocab-20260608.html">
       <div class="thumb">📝</div>
       <div class="info">
-        <div class="ttl">Day 19: 150 词卡 · Technology Day 5</div>
+        <div class="ttl">Day 19: 150 词卡 &middot; Technology Day 5</div>
         <div class="meta"><span class="pill">词汇</span><span>6-8</span></div>
       </div>
       <div class="chev">&rsaquo;</div>
@@ -573,7 +573,7 @@
     <a class="item-card" href="quiz-20260606-reading-tfng.html">
       <div class="thumb">📖</div>
       <div class="info">
-        <div class="ttl">Day 17: Reading T/F/NG · 监控技术与智慧城市 (10 题)</div>
+        <div class="ttl">Day 17: Reading T/F/NG &middot; 监控技术与智慧城市 (10 题)</div>
         <div class="meta"><span class="pill">阅读</span><span>6-6</span></div>
       </div>
       <div class="chev">&rsaquo;</div>
@@ -581,7 +581,7 @@
     <a class="item-card" href="vocab-20260606.html">
       <div class="thumb">📝</div>
       <div class="info">
-        <div class="ttl">Day 17: 150 词卡 · Technology Day 3</div>
+        <div class="ttl">Day 17: 150 词卡 &middot; Technology Day 3</div>
         <div class="meta"><span class="pill">词汇</span><span>6-6</span></div>
       </div>
       <div class="chev">&rsaquo;</div>
@@ -589,7 +589,7 @@
     <a class="item-card" href="quiz-20260605-reading-tfng.html">
       <div class="thumb">📖</div>
       <div class="info">
-        <div class="ttl">Day 16: Reading T/F/NG · 量子计算的本质与风险 (8 题)</div>
+        <div class="ttl">Day 16: Reading T/F/NG &middot; 量子计算的本质与风险 (8 题)</div>
         <div class="meta"><span class="pill">阅读</span><span>6-5</span></div>
       </div>
       <div class="chev">&rsaquo;</div>
@@ -597,7 +597,7 @@
     <a class="item-card" href="vocab-20260605.html">
       <div class="thumb">📝</div>
       <div class="info">
-        <div class="ttl">Day 16: 150 词卡 · Technology Day 2</div>
+        <div class="ttl">Day 16: 150 词卡 &middot; Technology Day 2</div>
         <div class="meta"><span class="pill">词汇</span><span>6-5</span></div>
       </div>
       <div class="chev">&rsaquo;</div>
@@ -605,7 +605,7 @@
     <a class="item-card" href="quiz-20260604-reading-tfng.html">
       <div class="thumb">📖</div>
       <div class="info">
-        <div class="ttl">Day 15: Reading T/F/NG · AI 与工作的未来 (10 题)</div>
+        <div class="ttl">Day 15: Reading T/F/NG &middot; AI 与工作的未来 (10 题)</div>
         <div class="meta"><span class="pill">阅读</span><span>6-4</span></div>
       </div>
       <div class="chev">&rsaquo;</div>
@@ -613,7 +613,7 @@
     <a class="item-card" href="vocab-20260604.html">
       <div class="thumb">📝</div>
       <div class="info">
-        <div class="ttl">Day 15: 150 词卡 · Technology Day 1</div>
+        <div class="ttl">Day 15: 150 词卡 &middot; Technology Day 1</div>
         <div class="meta"><span class="pill">词汇</span><span>6-4</span></div>
       </div>
       <div class="chev">&rsaquo;</div>
@@ -621,7 +621,7 @@
     <a class="item-card" href="quiz-20260601-reading-tfng.html">
       <div class="thumb">📖</div>
       <div class="info">
-        <div class="ttl">Day 12: Reading T/F/NG · 全球水资源危机 (10 题)</div>
+        <div class="ttl">Day 12: Reading T/F/NG &middot; 全球水资源危机 (10 题)</div>
         <div class="meta"><span class="pill">阅读</span><span>6-1</span></div>
       </div>
       <div class="chev">&rsaquo;</div>
@@ -629,7 +629,7 @@
     <a class="item-card" href="vocab-20260601.html">
       <div class="thumb">📝</div>
       <div class="info">
-        <div class="ttl">Day 12: 150 词卡 · Environment</div>
+        <div class="ttl">Day 12: 150 词卡 &middot; Environment</div>
         <div class="meta"><span class="pill">词汇</span><span>6-1</span></div>
       </div>
       <div class="chev">&rsaquo;</div>
@@ -637,7 +637,7 @@
     <a class="item-card" href="quiz-20260531-reading-tfng.html">
       <div class="thumb">📖</div>
       <div class="info">
-        <div class="ttl">Day 11: Reading T/F/NG · 碳市场争议 (10 题)</div>
+        <div class="ttl">Day 11: Reading T/F/NG &middot; 碳市场争议 (10 题)</div>
         <div class="meta"><span class="pill">阅读</span><span>5-31</span></div>
       </div>
       <div class="chev">&rsaquo;</div>
@@ -645,7 +645,7 @@
     <a class="item-card" href="vocab-20260531.html">
       <div class="thumb">📝</div>
       <div class="info">
-        <div class="ttl">Day 11: 150 词卡 · Environment</div>
+        <div class="ttl">Day 11: 150 词卡 &middot; Environment</div>
         <div class="meta"><span class="pill">词汇</span><span>5-31</span></div>
       </div>
       <div class="chev">&rsaquo;</div>
@@ -653,7 +653,7 @@
     <a class="item-card" href="quiz-20260530-reading-tfng.html">
       <div class="thumb">📖</div>
       <div class="info">
-        <div class="ttl">Day 10: Reading T/F/NG · 气候测政危机 (10 题)</div>
+        <div class="ttl">Day 10: Reading T/F/NG &middot; 气候危机的政治困境 (10 题)</div>
         <div class="meta"><span class="pill">阅读</span><span>5-30</span></div>
       </div>
       <div class="chev">&rsaquo;</div>
@@ -661,7 +661,7 @@
     <a class="item-card" href="vocab-20260530.html">
       <div class="thumb">📝</div>
       <div class="info">
-        <div class="ttl">Day 10: 150 词卡 · Environment</div>
+        <div class="ttl">Day 10: 150 词卡 &middot; Environment</div>
         <div class="meta"><span class="pill">词汇</span><span>5-30</span></div>
       </div>
       <div class="chev">&rsaquo;</div>
@@ -669,7 +669,7 @@
     <a class="item-card" href="quiz-20260528-reading-tfng.html">
       <div class="thumb">📖</div>
       <div class="info">
-        <div class="ttl">Day 8: Reading T/F/NG · 野生动物恢复 (10 题)</div>
+        <div class="ttl">Day 8: Reading T/F/NG &middot; 野生动物恢复 (10 题)</div>
         <div class="meta"><span class="pill">阅读</span><span>5-28</span></div>
       </div>
       <div class="chev">&rsaquo;</div>
@@ -677,7 +677,7 @@
     <a class="item-card" href="vocab-20260528.html">
       <div class="thumb">📝</div>
       <div class="info">
-        <div class="ttl">Day 8: 150 词卡 · Environment</div>
+        <div class="ttl">Day 8: 150 词卡 &middot; Environment</div>
         <div class="meta"><span class="pill">词汇</span><span>5-28</span></div>
       </div>
       <div class="chev">&rsaquo;</div>
@@ -685,7 +685,7 @@
     <a class="item-card" href="quiz-20260527-reading-tfng.html">
       <div class="thumb">📖</div>
       <div class="info">
-        <div class="ttl">Day 7: Reading T/F/NG · 神经科学与学习 (11 题)</div>
+        <div class="ttl">Day 7: Reading T/F/NG &middot; 神经科学与学习 (11 题)</div>
         <div class="meta"><span class="pill">阅读</span><span>5-27</span></div>
       </div>
       <div class="chev">&rsaquo;</div>
@@ -693,7 +693,7 @@
     <a class="item-card" href="vocab-20260527.html">
       <div class="thumb">📝</div>
       <div class="info">
-        <div class="ttl">Day 7: 150 词卡 · Education</div>
+        <div class="ttl">Day 7: 150 词卡 &middot; Education</div>
         <div class="meta"><span class="pill">词汇</span><span>5-27</span></div>
       </div>
       <div class="chev">&rsaquo;</div>
@@ -701,7 +701,7 @@
     <a class="item-card" href="quiz-20260526-reading-tfng.html">
       <div class="thumb">📖</div>
       <div class="info">
-        <div class="ttl">Day 6: Reading T/F/NG · 隐性课程 (8 题)</div>
+        <div class="ttl">Day 6: Reading T/F/NG &middot; 隐性课程 (8 题)</div>
         <div class="meta"><span class="pill">阅读</span><span>5-26</span></div>
       </div>
       <div class="chev">&rsaquo;</div>
@@ -709,7 +709,7 @@
     <a class="item-card" href="vocab-20260526.html">
       <div class="thumb">📝</div>
       <div class="info">
-        <div class="ttl">Day 6: 150 词卡 · Education</div>
+        <div class="ttl">Day 6: 150 词卡 &middot; Education</div>
         <div class="meta"><span class="pill">词汇</span><span>5-26</span></div>
       </div>
       <div class="chev">&rsaquo;</div>
@@ -717,7 +717,7 @@
     <a class="item-card" href="quiz-20260525-reading-tfng.html">
       <div class="thumb">📖</div>
       <div class="info">
-        <div class="ttl">Day 5: Reading T/F/NG · 能力本位教学 (8 题)</div>
+        <div class="ttl">Day 5: Reading T/F/NG &middot; 能力本位教学 (8 题)</div>
         <div class="meta"><span class="pill">阅读</span><span>5-25</span></div>
       </div>
       <div class="chev">&rsaquo;</div>
@@ -725,7 +725,7 @@
     <a class="item-card" href="vocab-20260525.html">
       <div class="thumb">📝</div>
       <div class="info">
-        <div class="ttl">Day 5: 150 词卡 · Education</div>
+        <div class="ttl">Day 5: 150 词卡 &middot; Education</div>
         <div class="meta"><span class="pill">词汇</span><span>5-25</span></div>
       </div>
       <div class="chev">&rsaquo;</div>
@@ -733,7 +733,7 @@
     <a class="item-card" href="quiz-20260524-listening-s1.html">
       <div class="thumb">🎧</div>
       <div class="info">
-        <div class="ttl">Day 4: Listening Section 1 · 课程报名对话 (10 题)</div>
+        <div class="ttl">Day 4: Listening Section 1 &middot; 课程报名对话 (10 题)</div>
         <div class="meta"><span class="pill">听力</span><span>5-24</span></div>
       </div>
       <div class="chev">&rsaquo;</div>
@@ -741,7 +741,7 @@
     <a class="item-card" href="vocab-20260524.html">
       <div class="thumb">📝</div>
       <div class="info">
-        <div class="ttl">Day 4: 150 词卡 · Education</div>
+        <div class="ttl">Day 4: 150 词卡 &middot; Education</div>
         <div class="meta"><span class="pill">词汇</span><span>5-24</span></div>
       </div>
       <div class="chev">&rsaquo;</div>
@@ -749,7 +749,7 @@
     <a class="item-card" href="quiz-20260522-reading.html">
       <div class="thumb">📖</div>
       <div class="info">
-        <div class="ttl">Day 2: Reading T/F/NG · AI Tutors (7 题)</div>
+        <div class="ttl">Day 2: Reading T/F/NG &middot; AI Tutors (7 题)</div>
         <div class="meta"><span class="pill">阅读</span><span>5-22</span></div>
       </div>
       <div class="chev">&rsaquo;</div>
@@ -757,7 +757,7 @@
     <a class="item-card" href="vocab-20260522.html">
       <div class="thumb">📝</div>
       <div class="info">
-        <div class="ttl">Day 2: 150 词卡 · Education</div>
+        <div class="ttl">Day 2: 150 词卡 &middot; Education</div>
         <div class="meta"><span class="pill">词汇</span><span>5-22</span></div>
       </div>
       <div class="chev">&rsaquo;</div>
@@ -765,7 +765,7 @@
     <a class="item-card" href="quiz-20260521-reading.html">
       <div class="thumb">📖</div>
       <div class="info">
-        <div class="ttl">Day 1: Reading T/F/NG · Coral Reefs</div>
+        <div class="ttl">Day 1: Reading T/F/NG &middot; Coral Reefs</div>
         <div class="meta"><span class="pill">阅读</span><span>5-21</span></div>
       </div>
       <div class="chev">&rsaquo;</div>
@@ -773,19 +773,19 @@
     <a class="item-card" href="vocab-20260521.html">
       <div class="thumb">📝</div>
       <div class="info">
-        <div class="ttl">Day 1: 150 词卡 · Education</div>
+        <div class="ttl">Day 1: 150 词卡 &middot; Education</div>
         <div class="meta"><span class="pill">词汇</span><span>5-21</span></div>
       </div>
       <div class="chev">&rsaquo;</div>
     </a>
   </div>
 
-  </section>
+</section>
 
 <section class="tab-content" id="tab-plan">
 
   <div class="tomorrow-card">
-    <h2>&#127749; 明日 (<span id="tomDate">6-22</span>) 小测内容 &middot; 可多选</h2>
+    <h2>&#127749; 明日 (<span id="tomDate">6-23</span>) 小测内容 &middot; 可多选</h2>
     <div style="color:var(--muted);font-size:0.8rem;margin-bottom:10px;">点选一个或多个模块，cron agent 会为每项生成独立小测页</div>
     <div class="tom-opts">
       <button class="tom-opt" data-key="listening-s1"><span class="ttl">&#127911; 听力</span><span class="sub">Section 1 日常对话</span></button>
@@ -801,141 +801,101 @@
   </div>
 
   <div class="plan-week">
-    <div class="head">
-      <span>Week 1 &middot; 诊断 + 立基础 &#10003;</span>
-      <span class="dates">5-21 &rarr; 5-27</span>
-    </div>
-    <div class="body">
-      <ul>
-        <li>&#10003; 周四 5-21: setup + Day 1 学习包</li>
-        <li>&#10003; 周五 5-22: Day 2 词卡 + AI Tutors 阅读</li>
-        <li>&#10003; 周六 5-23: Day 3 词卡</li>
-        <li>&#10003; 周日 5-24: Day 4 词卡 + 听力 Section 1</li>
-        <li>&#10003; 周一 5-25: Day 5 词卡 + 阅读 T/F/NG</li>
-        <li>&#10003; 周二 5-26: Day 6 词卡 + 阅读 T/F/NG</li>
-        <li>&#10003; 周三 5-27: Day 7 词卡 + 阅读 T/F/NG</li>
-      </ul>
-    </div>
+    <div class="head"><span>Week 1 &middot; 诊断 + 立基础 &#10003;</span><span class="dates">5-21 &rarr; 5-27</span></div>
+    <div class="body"><ul>
+      <li>&#10003; 周四 5-21: setup + Day 1 学习包</li>
+      <li>&#10003; 周五 5-22: Day 2 词卡 + AI Tutors 阅读</li>
+      <li>&#10003; 周六 5-23: Day 3 词卡</li>
+      <li>&#10003; 周日 5-24: Day 4 词卡 + 听力 Section 1</li>
+      <li>&#10003; 周一 5-25: Day 5 词卡 + 阅读 T/F/NG</li>
+      <li>&#10003; 周二 5-26: Day 6 词卡 + 阅读 T/F/NG</li>
+      <li>&#10003; 周三 5-27: Day 7 词卡 + 阅读 T/F/NG</li>
+    </ul></div>
   </div>
 
   <div class="plan-week">
-    <div class="head">
-      <span>Week 2 &middot; 环境话题打基础 &#10003;</span>
-      <span class="dates">5-28 &rarr; 6-3</span>
-    </div>
-    <div class="body">
-      <ul>
-        <li>&#10003; 周四 5-28: Day 8 词卡 + 阅读 T/F/NG &middot; 野生动物恢复</li>
-        <li>&#10003; 周五 5-29: Environment Day 2 词卡</li>
-        <li>&#10003; 周六 5-30: Day 10 词卡 + 阅读 T/F/NG &middot; 气候测政危机</li>
-        <li>&#10003; 周日 5-31: Day 11 词卡 + 阅读 T/F/NG &middot; 碳市场争议</li>
-        <li>&#10003; 周一 6-1: Day 12 词卡 + 阅读 T/F/NG &middot; 全球水资源危机</li>
-        <li>○ 周二 6-2: Environment Day 6 词卡</li>
-        <li>○ 周三 6-3: Environment Day 7 词卡</li>
-      </ul>
-    </div>
+    <div class="head"><span>Week 2 &middot; 环境话题打基础 &#10003;</span><span class="dates">5-28 &rarr; 6-3</span></div>
+    <div class="body"><ul>
+      <li>&#10003; 周四 5-28: Day 8 词卡 + 阅读 T/F/NG &middot; 野生动物恢复</li>
+      <li>&#10003; 周五 5-29: Environment Day 2 词卡</li>
+      <li>&#10003; 周六 5-30: Day 10 词卡 + 阅读 T/F/NG &middot; 气候危机</li>
+      <li>&#10003; 周日 5-31: Day 11 词卡 + 阅读 T/F/NG &middot; 碳市场争议</li>
+      <li>&#10003; 周一 6-1: Day 12 词卡 + 阅读 T/F/NG &middot; 全球水资源危机</li>
+      <li>&#9675; 周二 6-2: Environment Day 6 词卡</li>
+      <li>&#9675; 周三 6-3: Environment Day 7 词卡</li>
+    </ul></div>
   </div>
 
   <div class="plan-week">
-    <div class="head">
-      <span>Week 3 &middot; Technology 话题打基础 &#10003;</span>
-      <span class="dates">6-4 &rarr; 6-10</span>
-    </div>
-    <div class="body">
-      <ul>
-        <li>&#10003; 周四 6-4: Day 15 词卡 + 阅读 T/F/NG &middot; AI 与工作的未来</li>
-        <li>&#10003; 周五 6-5: Day 16 词卡 + 阅读 T/F/NG &middot; 量子计算</li>
-        <li>&#10003; 周六 6-6: Day 17 词卡 + 阅读 T/F/NG &middot; 监控技术与智慧城市</li>
-        <li>&#10003; 周日 6-7: Technology Day 4 词卡</li>
-        <li>&#10003; 周一 6-8: Technology Day 5 词卡 + 阅读 T/F/NG &middot; AI 伦理与算法偏见</li>
-        <li>&#10003; 周二 6-9: Technology Day 6 词卡 + 阅读 T/F/NG &middot; Fintech 金融科技革命</li>
-        <li>&#10003; 周三 6-10: Technology Day 7 词卡 + 阅读 T/F/NG &middot; CRISPR 基因编辑</li>
-      </ul>
-    </div>
+    <div class="head"><span>Week 3 &middot; Technology 话题打基础 &#10003;</span><span class="dates">6-4 &rarr; 6-10</span></div>
+    <div class="body"><ul>
+      <li>&#10003; 周四 6-4: Day 15 词卡 + 阅读 T/F/NG &middot; AI 与工作的未来</li>
+      <li>&#10003; 周五 6-5: Day 16 词卡 + 阅读 T/F/NG &middot; 量子计算</li>
+      <li>&#10003; 周六 6-6: Day 17 词卡 + 阅读 T/F/NG &middot; 监控技术与智慧城市</li>
+      <li>&#10003; 周日 6-7: Technology Day 4 词卡</li>
+      <li>&#10003; 周一 6-8: Technology Day 5 词卡 + 阅读 T/F/NG &middot; AI 伦理与算法偏见</li>
+      <li>&#10003; 周二 6-9: Technology Day 6 词卡 + 阅读 T/F/NG &middot; Fintech 金融科技革命</li>
+      <li>&#10003; 周三 6-10: Technology Day 7 词卡 + 阅读 T/F/NG &middot; CRISPR 基因编辑</li>
+    </ul></div>
   </div>
 
   <div class="plan-week">
-    <div class="head">
-      <span>Week 4 &middot; Health 话题 &#10003;</span>
-      <span class="dates">6-11 &rarr; 6-17</span>
-    </div>
-    <div class="body">
-      <ul>
-        <li>&#10003; 周四 6-11: Health Day 1 词卡 + 阅读 T/F/NG &middot; 预防医学</li>
-        <li>&#10003; 周五 6-12: Health Day 2 词卡 + 阅读 T/F/NG &middot; 全球心理健康危机</li>
-        <li>&#10003; 周六 6-13: Health Day 3 词卡 + 阅读 T/F/NG &middot; 睡眠科学与公共健康</li>
-        <li>&#10003; 周日 6-14: Health Day 4 词卡 + 阅读 T/F/NG &middot; 饮食与慢性病预防</li>
-        <li>&#10003; 周一 6-15: Health Day 5 词卡 + 阅读 T/F/NG &middot; 数字医疗与远程医疗</li>
-        <li>&#10003; 周二 6-16: Health Day 6 词卡 + 阅读 T/F/NG &middot; 健康的社会决定因素</li>
-        <li>○ 周三 6-17: Health Day 7 词卡 (未生成)</li>
-      </ul>
-    </div>
+    <div class="head"><span>Week 4 &middot; Health 话题 &#10003;</span><span class="dates">6-11 &rarr; 6-17</span></div>
+    <div class="body"><ul>
+      <li>&#10003; 周四 6-11: Health Day 1 词卡 + 阅读 T/F/NG &middot; 预防医学</li>
+      <li>&#10003; 周五 6-12: Health Day 2 词卡 + 阅读 T/F/NG &middot; 全球心理健康危机</li>
+      <li>&#10003; 周六 6-13: Health Day 3 词卡 + 阅读 T/F/NG &middot; 睡眠科学与公共健康</li>
+      <li>&#10003; 周日 6-14: Health Day 4 词卡 + 阅读 T/F/NG &middot; 饮食与慢性病预防</li>
+      <li>&#10003; 周一 6-15: Health Day 5 词卡 + 阅读 T/F/NG &middot; 数字医疗与远程医疗</li>
+      <li>&#10003; 周二 6-16: Health Day 6 词卡 + 阅读 T/F/NG &middot; 健康的社会决定因素</li>
+      <li>&#9675; 周三 6-17: Health Day 7 词卡 (未生成)</li>
+    </ul></div>
   </div>
 
   <div class="plan-week current">
-    <div class="head">
-      <span>Week 5 &middot; Government &amp; Society 话题</span>
-      <span class="dates">6-18 &rarr; 6-24</span>
-    </div>
-    <div class="body">
-      <ul>
-        <li>&#10003; 周四 6-18: Gov &amp; Society Day 1 词卡 + 阅读 T/F/NG &middot; 民主问责与法治 &#10003;</li>
-        <li>&#10003; 周五 6-19: Gov &amp; Society Day 2 词卡 + 阅读 T/F/NG &middot; 刑事司法改革 &#10003;</li>
-        <li>&#9654; 周六 6-20: Gov &amp; Society Day 3 词卡 + 阅读 T/F/NG &middot; 福利国家的压力 &#8592; 今日</li>
-        <li>○ 周日 6-21: Gov &amp; Society Day 4 词卡 + 阅读 T/F/NG</li>
-        <li>○ 周一 6-22: Gov &amp; Society Day 5 词卡 + 阅读 T/F/NG</li>
-        <li>○ 周二 6-23: Gov &amp; Society Day 6 词卡 + 阅读 T/F/NG</li>
-        <li>○ 周三 6-24: Gov &amp; Society Day 7 词卡 + 阅读 T/F/NG</li>
-      </ul>
-    </div>
+    <div class="head"><span>Week 5 &middot; Government &amp; Society 话题</span><span class="dates">6-18 &rarr; 6-24</span></div>
+    <div class="body"><ul>
+      <li>&#10003; 周四 6-18: Gov &amp; Society Day 1 词卡 + 阅读 T/F/NG &middot; 民主问责与法治 &#10003;</li>
+      <li>&#10003; 周五 6-19: Gov &amp; Society Day 2 词卡 + 阅读 T/F/NG &middot; 刑事司法改革 &#10003;</li>
+      <li>&#10003; 周六 6-20: Gov &amp; Society Day 3 词卡 + 阅读 T/F/NG &middot; 福利国家的压力 &#10003;</li>
+      <li>&#10003; 周日 6-21: Gov &amp; Society Day 4 词卡 + 阅读 T/F/NG &middot; 多边主义与外交 &#10003;</li>
+      <li>&#9654; 周一 6-22: Gov &amp; Society Day 5 词卡 + 阅读 T/F/NG &middot; 数字税制改革 &#8592; 今日</li>
+      <li>&#9675; 周二 6-23: Gov &amp; Society Day 6 词卡 + 阅读 T/F/NG</li>
+      <li>&#9675; 周三 6-24: Gov &amp; Society Day 7 词卡 + 阅读 T/F/NG</li>
+    </ul></div>
   </div>
 
   <div class="plan-week">
-    <div class="head">
-      <span>Week 6 &middot; Work &amp; Economy 话题</span>
-      <span class="dates">6-25 &rarr; 7-1</span>
-    </div>
-    <div class="body">
-      <ul>
-        <li>○ 每天 150 词 (Work &amp; Economy 话题)</li>
-        <li>○ 每天 阅读 T/F/NG 专项</li>
-        <li>○ 每周 写作 Task 2 一篇 (到 Mac 让我改)</li>
-      </ul>
-    </div>
+    <div class="head"><span>Week 6 &middot; Work &amp; Economy 话题</span><span class="dates">6-25 &rarr; 7-1</span></div>
+    <div class="body"><ul>
+      <li>&#9675; 每天 150 词 (Work &amp; Economy 话题)</li>
+      <li>&#9675; 每天 阅读 T/F/NG 专项</li>
+      <li>&#9675; 每周 写作 Task 2 一篇 (到 Mac 让我改)</li>
+    </ul></div>
   </div>
 
   <div class="plan-week">
-    <div class="head">
-      <span>Week 7-9 &middot; 题型专攻</span>
-      <span class="dates">7-2 &rarr; 7-22</span>
-    </div>
-    <div class="body">
-      <ul>
-        <li>○ T/F/NG + Matching Headings 突破</li>
-        <li>○ Listening Section 4 专项</li>
-        <li>○ Writing 五大题型轮练</li>
-        <li>○ Speaking Q2 题库 25 张 P2</li>
-      </ul>
-    </div>
+    <div class="head"><span>Week 7-9 &middot; 题型专攻</span><span class="dates">7-2 &rarr; 7-22</span></div>
+    <div class="body"><ul>
+      <li>&#9675; T/F/NG + Matching Headings 突破</li>
+      <li>&#9675; Listening Section 4 专项</li>
+      <li>&#9675; Writing 五大题型轮练</li>
+      <li>&#9675; Speaking Q2 题库 25 张 P2</li>
+    </ul></div>
   </div>
 
   <div class="plan-week">
-    <div class="head">
-      <span>Week 10-12 &middot; 模拟冲刺</span>
-      <span class="dates">7-23 &rarr; 8-19</span>
-    </div>
-    <div class="body">
-      <ul>
-        <li>○ Week 10: 全真模拟 &times; 3</li>
-        <li>○ Week 11: 错题深化 + 口语全过</li>
-        <li>○ Week 12: 状态调整</li>
-      </ul>
-    </div>
+    <div class="head"><span>Week 10-12 &middot; 模拟冲刺</span><span class="dates">7-23 &rarr; 8-19</span></div>
+    <div class="body"><ul>
+      <li>&#9675; Week 10: 全真模拟 &times; 3</li>
+      <li>&#9675; Week 11: 错题深化 + 口语全过</li>
+      <li>&#9675; Week 12: 状态调整</li>
+    </ul></div>
   </div>
 
 </section>
 
-<div class="foot-meta">由 cron agent 生成 &middot; 2026-06-21 &middot; Day 32</div>
+<div class="foot-meta">由 cron agent 生成 &middot; 2026-06-22 &middot; Day 33 &middot; &#21608;&#19968;刷新 IELTS 视频</div>
 
 </main>
 
@@ -974,128 +934,115 @@
 </div>
 
 <script>
-  function switchTab(target) {
-    document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
-    document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
-    document.querySelector('[data-target="' + target + '"]')?.classList.add("active");
+  function switchTab(target){
+    document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
+    document.querySelectorAll(".tab-content").forEach(c=>c.classList.remove("active"));
+    document.querySelector('[data-target="'+target+'"]')?.classList.add("active");
     document.getElementById(target).classList.add("active");
-    window.scrollTo({top:0, behavior:"instant"});
-    history.replaceState(null, "", "#" + target.replace("tab-",""));
+    window.scrollTo({top:0,behavior:"instant"});
+    history.replaceState(null,"","#"+target.replace("tab-",""));
   }
-  const hash = (location.hash || "#home").replace("#","");
-  if (hash !== "home") switchTab("tab-" + hash);
-  document.querySelectorAll("ul.tasks li").forEach(li => {
-    li.querySelector(".checkbox")?.addEventListener("click", () => li.classList.toggle("done"));
+  const hash=(location.hash||"#home").replace("#","");
+  if(hash!=="home")switchTab("tab-"+hash);
+  document.querySelectorAll("ul.tasks li").forEach(li=>{
+    li.querySelector(".checkbox")?.addEventListener("click",()=>li.classList.toggle("done"));
   });
 
-  const REPO = "Jiangvv20/ielts-coach";
-  const TOM_LABELS = {
-    "listening-s1": "&#127911; 听力 · Section 1 日常对话",
-    "reading-tfng": "&#128218; 阅读 · T/F/NG 专项",
-    "writing-t2": "&#9999;&#65039; 写作 · Task 2 议论文",
-    "speaking-p3": "&#128483;&#65039; 口语 · Part 3 抽象题"
+  const REPO="Jiangvv20/ielts-coach";
+  const TOM_LABELS={
+    "listening-s1":"&#127911; 听力 · Section 1 日常对话",
+    "reading-tfng":"&#128218; 阅读 · T/F/NG 专项",
+    "writing-t2":"&#9999;&#65039; 写作 · Task 2 议论文",
+    "speaking-p3":"&#128483;&#65039; 口语 · Part 3 抽象题"
   };
-  function tomorrowDateISO() { const t = new Date(); t.setDate(t.getDate() + 1); return t.toISOString().slice(0,10); }
-  function tomorrowDateLabel() { return tomorrowDateISO().slice(5); }
-  const TOM_KEY = "ielts_tomorrow_" + tomorrowDateISO().replace(/-/g,"");
-  let tomChoices = JSON.parse(localStorage.getItem(TOM_KEY) || "[]");
-  if (!Array.isArray(tomChoices)) tomChoices = [];
-  document.getElementById("tomDate") && (document.getElementById("tomDate").textContent = tomorrowDateLabel());
+  function tomorrowDateISO(){const t=new Date();t.setDate(t.getDate()+1);return t.toISOString().slice(0,10);}
+  function tomorrowDateLabel(){return tomorrowDateISO().slice(5);}
+  const TOM_KEY="ielts_tomorrow_"+tomorrowDateISO().replace(/-/g,"");
+  let tomChoices=JSON.parse(localStorage.getItem(TOM_KEY)||"[]");
+  if(!Array.isArray(tomChoices))tomChoices=[];
+  document.getElementById("tomDate")&&(document.getElementById("tomDate").textContent=tomorrowDateLabel());
 
-  function applyTomUI() {
-    document.querySelectorAll(".tom-opt").forEach(b => {
-      b.classList.toggle("selected", tomChoices.includes(b.dataset.key));
+  function applyTomUI(){
+    document.querySelectorAll(".tom-opt").forEach(b=>{
+      b.classList.toggle("selected",tomChoices.includes(b.dataset.key));
     });
-    const submit = document.getElementById("tomSubmit");
-    if (tomChoices.length === 0) {
-      submit.disabled = true;
-      submit.textContent = "请先选择 (可多选)";
-      document.getElementById("tomSaved").classList.remove("show");
-      return;
-    }
-    submit.disabled = false;
-    const savedJson = localStorage.getItem(TOM_KEY + "_saved") || "[]";
-    const syncedJson = localStorage.getItem(TOM_KEY + "_synced") || "[]";
-    const currJson = JSON.stringify([...tomChoices].sort());
-    const isSynced = syncedJson === currJson;
-    const hasPat = !!localStorage.getItem("ielts_pat");
-    submit.textContent = isSynced ? ("✓ 已同步 " + tomChoices.length + " 项 · 重新同步") : (hasPat ? ("同步 " + tomChoices.length + " 项到 GitHub") : ("保存 " + tomChoices.length + " 项 (本地)"));
-    if (savedJson === currJson) {
+    const submit=document.getElementById("tomSubmit");
+    if(tomChoices.length===0){submit.disabled=true;submit.textContent="请先选择 (可多选)";document.getElementById("tomSaved").classList.remove("show");return;}
+    submit.disabled=false;
+    const savedJson=localStorage.getItem(TOM_KEY+"_saved")||"[]";
+    const syncedJson=localStorage.getItem(TOM_KEY+"_synced")||"[]";
+    const currJson=JSON.stringify([...tomChoices].sort());
+    const isSynced=syncedJson===currJson;
+    const hasPat=!!localStorage.getItem("ielts_pat");
+    submit.textContent=isSynced?("✓ 已同步 "+tomChoices.length+" 项 · 重新同步"):(hasPat?("同步 "+tomChoices.length+" 项到 GitHub"):("保存 "+tomChoices.length+" 项 (本地)"));
+    if(savedJson===currJson){
       document.getElementById("tomSaved").classList.add("show");
-      document.getElementById("tomSavedText").innerHTML = tomChoices.map(k => "<br>· " + TOM_LABELS[k]).join("");
-      document.getElementById("tomSavedHead").textContent = isSynced ? ("✓ 已同步 " + tomChoices.length + " 项到 GitHub") : ("○ 仅本地保存 " + tomChoices.length + " 项");
-      document.getElementById("tomSavedSub").textContent = isSynced
-        ? "明早 06:00 (UTC+8) cron agent 读取并各生成一份小测页"
-        : "未配置 PAT，选择只存本地。配置 PAT 才能跨设备同步。";
-    } else {
-      document.getElementById("tomSaved").classList.remove("show");
-    }
+      document.getElementById("tomSavedText").innerHTML=tomChoices.map(k=>"<br>· "+TOM_LABELS[k]).join("");
+      document.getElementById("tomSavedHead").textContent=isSynced?("✓ 已同步 "+tomChoices.length+" 项到 GitHub"):("○ 仅本地保存 "+tomChoices.length+" 项");
+      document.getElementById("tomSavedSub").textContent=isSynced?"明早 06:00 (UTC+8) cron agent 读取并各生成一份小测页":"未配置 PAT，选择只存本地。配置 PAT 才能跨设备同步。";
+    }else{document.getElementById("tomSaved").classList.remove("show");}
   }
-  document.querySelectorAll(".tom-opt").forEach(b => {
-    b.addEventListener("click", () => {
-      const k = b.dataset.key;
-      const idx = tomChoices.indexOf(k);
-      if (idx >= 0) tomChoices.splice(idx, 1); else tomChoices.push(k);
-      localStorage.setItem(TOM_KEY, JSON.stringify(tomChoices));
+  document.querySelectorAll(".tom-opt").forEach(b=>{
+    b.addEventListener("click",()=>{
+      const k=b.dataset.key;
+      const idx=tomChoices.indexOf(k);
+      if(idx>=0)tomChoices.splice(idx,1);else tomChoices.push(k);
+      localStorage.setItem(TOM_KEY,JSON.stringify(tomChoices));
       applyTomUI();
     });
   });
   applyTomUI();
 
-  async function syncTomorrow() {
-    const pat = localStorage.getItem("ielts_pat");
-    const date = tomorrowDateISO();
-    const payload = { date, modules: tomChoices, moduleLabels: tomChoices.map(k => TOM_LABELS[k]), selectedAt: new Date().toISOString() };
-    const currJson = JSON.stringify([...tomChoices].sort());
-    localStorage.setItem(TOM_KEY + "_saved", JSON.stringify([...tomChoices].sort()));
-    if (!pat) { applyTomUI(); return; }
-    try {
-      const ghApi = "https://api.github.com/repos/" + REPO + "/contents/tomorrow.json";
-      const getRes = await fetch(ghApi, { headers: { Authorization: "Bearer " + pat, Accept: "application/vnd.github+json" } });
-      const getJson = await getRes.json();
-      const sha = getJson.sha;
-      const content = btoa(unescape(encodeURIComponent(JSON.stringify(payload, null, 2))));
-      const body = sha ? { message: "select modules for " + date, content, sha } : { message: "select modules for " + date, content };
-      const putRes = await fetch(ghApi, { method: "PUT", headers: { Authorization: "Bearer " + pat, Accept: "application/vnd.github+json", "Content-Type": "application/json" }, body: JSON.stringify(body) });
-      if (putRes.ok) { localStorage.setItem(TOM_KEY + "_synced", currJson); }
-    } catch(e) {}
+  async function syncTomorrow(){
+    const pat=localStorage.getItem("ielts_pat");
+    const date=tomorrowDateISO();
+    const payload={date,modules:tomChoices,moduleLabels:tomChoices.map(k=>TOM_LABELS[k]),selectedAt:new Date().toISOString()};
+    const currJson=JSON.stringify([...tomChoices].sort());
+    localStorage.setItem(TOM_KEY+"_saved",JSON.stringify([...tomChoices].sort()));
+    if(!pat){applyTomUI();return;}
+    try{
+      const ghApi="https://api.github.com/repos/"+REPO+"/contents/tomorrow.json";
+      const getRes=await fetch(ghApi,{headers:{Authorization:"Bearer "+pat,Accept:"application/vnd.github+json"}});
+      const getJson=await getRes.json();
+      const sha=getJson.sha;
+      const content=btoa(unescape(encodeURIComponent(JSON.stringify(payload,null,2))));
+      const body=sha?{message:"select modules for "+date,content,sha}:{message:"select modules for "+date,content};
+      const putRes=await fetch(ghApi,{method:"PUT",headers:{Authorization:"Bearer "+pat,Accept:"application/vnd.github+json","Content-Type":"application/json"},body:JSON.stringify(body)});
+      if(putRes.ok){localStorage.setItem(TOM_KEY+"_synced",currJson);}
+    }catch(e){}
     applyTomUI();
   }
 
-  function openSettings() { document.getElementById("settingsModal").classList.add("show"); }
-  function closeSettings() { document.getElementById("settingsModal").classList.remove("show"); }
-
-  async function testPAT() {
-    const pat = document.getElementById("patInput").value.trim();
-    const status = document.getElementById("patStatus");
-    if (!pat) { status.className="status err show"; status.textContent="请输入 PAT"; return; }
-    status.className="status show"; status.textContent="测试中...";
-    try {
-      const r = await fetch("https://api.github.com/user", { headers: { Authorization: "Bearer " + pat } });
-      const j = await r.json();
-      if (j.login) { status.className="status ok show"; status.textContent="✓ 验证成功: " + j.login; }
-      else { status.className="status err show"; status.textContent="✗ 失败: " + (j.message || "未知错误"); }
-    } catch(e) { status.className="status err show"; status.textContent="✗ 网络错误"; }
+  function openSettings(){document.getElementById("settingsModal").classList.add("show");}
+  function closeSettings(){document.getElementById("settingsModal").classList.remove("show");}
+  async function testPAT(){
+    const pat=document.getElementById("patInput").value.trim();
+    const status=document.getElementById("patStatus");
+    if(!pat){status.className="status err show";status.textContent="请输入 PAT";return;}
+    status.className="status show";status.textContent="测试中...";
+    try{
+      const r=await fetch("https://api.github.com/user",{headers:{Authorization:"Bearer "+pat}});
+      const j=await r.json();
+      if(j.login){status.className="status ok show";status.textContent="✓ 验证成功: "+j.login;}
+      else{status.className="status err show";status.textContent="✗ 失败: "+(j.message||"未知错误");}
+    }catch(e){status.className="status err show";status.textContent="✗ 网络错误";}
   }
-
-  function savePAT() {
-    const pat = document.getElementById("patInput").value.trim();
-    if (!pat) return;
-    localStorage.setItem("ielts_pat", pat);
+  function savePAT(){
+    const pat=document.getElementById("patInput").value.trim();
+    if(!pat)return;
+    localStorage.setItem("ielts_pat",pat);
     document.getElementById("patStatus").className="status ok show";
     document.getElementById("patStatus").textContent="✓ PAT 已保存到本机";
-    setTimeout(closeSettings, 1200);
+    setTimeout(closeSettings,1200);
   }
-
-  function clearPAT() {
+  function clearPAT(){
     localStorage.removeItem("ielts_pat");
-    document.getElementById("patInput").value = "";
+    document.getElementById("patInput").value="";
     document.getElementById("patStatus").className="status show";
     document.getElementById("patStatus").textContent="PAT 已清除";
   }
-
-  const storedPat = localStorage.getItem("ielts_pat");
-  if (storedPat) document.getElementById("patInput").value = storedPat;
+  const storedPat=localStorage.getItem("ielts_pat");
+  if(storedPat)document.getElementById("patInput").value=storedPat;
 </script>
 
 </body>
