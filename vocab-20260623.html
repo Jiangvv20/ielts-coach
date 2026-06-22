@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#2563eb">
+<title>今日 150 词 · 2026-06-23 · Government &amp; Society</title>
+<style>
+  :root {
+    --bg: #ffffff; --fg: #1a1a1a; --muted: #6b7280;
+    --accent: #2563eb; --ok: #059669; --warn: #d97706;
+    --card: #f9fafb; --border: #e5e7eb;
+    --nav-bg: rgba(255,255,255,0.92);
+    --header-bg: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f172a; --fg: #f1f5f9; --muted: #94a3b8;
+      --accent: #60a5fa; --ok: #34d399; --warn: #fbbf24;
+      --card: #1e293b; --border: #334155;
+      --nav-bg: rgba(15,23,42,0.92);
+      --header-bg: linear-gradient(135deg, #1e40af 0%, #6b21a8 100%);
+    }
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg); }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif;
+    line-height: 1.5;
+    min-height: 100vh;
+    padding-bottom: calc(64px + env(safe-area-inset-bottom, 0));
+  }
+  .app-header {
+    background: var(--header-bg); color: white;
+    padding: calc(env(safe-area-inset-top, 16px) + 12px) 16px 14px;
+    position: sticky; top: 0; z-index: 20;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .back-btn {
+    background: rgba(255,255,255,0.18); border: none; color: white;
+    width: 34px; height: 34px; border-radius: 10px;
+    font-size: 1.1rem; cursor: pointer; flex-shrink: 0;
+    text-decoration: none; display: flex; align-items: center; justify-content: center;
+  }
+  .app-header .ttl { font-size: 1rem; font-weight: 700; }
+  .app-header .sub {
+    font-size: 0.72rem; opacity: 0.85; margin-top: 1px;
+    letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  .stats {
+    background: var(--card); padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px; text-align: center;
+  }
+  .stat .num { font-size: 1.4rem; font-weight: 700; }
+  .stat .num.know { color: var(--ok); }
+  .stat .num.weak { color: var(--warn); }
+  .stat .num.left { color: var(--accent); }
+  .stat .lbl { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; margin-top: 2px; }
+  .progress-bar {
+    height: 4px; background: var(--border);
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%; background: var(--accent);
+    transition: width 0.3s;
+  }
+  .card-stage {
+    margin: 24px 16px;
+    perspective: 1000px;
+  }
+  .card-3d {
+    position: relative;
+    width: 100%; min-height: 260px;
+    transform-style: preserve-3d;
+    transition: transform 0.5s;
+    cursor: pointer;
+  }
+  .card-3d.flipped { transform: rotateY(180deg); }
+  .face {
+    position: absolute; width: 100%; height: 100%;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 24px 20px;
+    display: flex; flex-direction: column;
+    justify-content: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .face.front { text-align: center; }
+  .face.front .word {
+    font-size: 2rem; font-weight: 700;
+    color: var(--accent); margin-bottom: 8px;
+    word-break: break-word;
+  }
+  .face.front .pos {
+    color: var(--muted); font-size: 0.95rem;
+    font-style: italic;
+  }
+  .face.front .hint {
+    margin-top: 28px; color: var(--muted);
+    font-size: 0.82rem;
+  }
+  .face.back { transform: rotateY(180deg); }
+  .face.back .zh {
+    font-size: 1.3rem; font-weight: 600;
+    color: var(--accent); margin-bottom: 12px;
+  }
+  .face.back .collo {
+    background: var(--bg); padding: 8px 12px;
+    border-radius: 8px; font-size: 0.92rem;
+    color: var(--fg); margin-bottom: 10px;
+    border-left: 3px solid var(--accent);
+  }
+  .face.back .ex {
+    font-size: 0.95rem; font-style: italic;
+    color: var(--fg); line-height: 1.6;
+  }
+  .face.back .ex strong { color: var(--accent); font-style: normal; }
+  .speaker {
+    position: absolute; top: 14px; right: 14px;
+    width: 36px; height: 36px; border-radius: 50%;
+    background: var(--bg); border: 1px solid var(--border);
+    cursor: pointer; font-size: 1.1rem; padding: 0;
+    color: var(--accent);
+  }
+  .view-toggle {
+    display: flex; padding: 12px 16px 0;
+    gap: 8px;
+  }
+  .view-toggle button {
+    flex: 1; padding: 8px;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 8px; color: var(--muted);
+    font-size: 0.85rem; cursor: pointer; font-family: inherit;
+  }
+  .view-toggle button.active { background: var(--accent); color: white; border-color: var(--accent); }
+  .list-view { display: none; padding: 12px 16px 24px; }
+  .list-view.active { display: block; }
+  .list-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px; border-bottom: 1px solid var(--border);
+    background: var(--card); border-radius: 8px;
+    margin-bottom: 6px;
+  }
+  .list-row .num {
+    flex-shrink: 0; width: 28px;
+    color: var(--muted); font-size: 0.72rem;
+    font-family: "SF Mono", Menlo, monospace;
+  }
+  .list-row .word {
+    flex: 1; min-width: 0;
+  }
+  .list-row .w { font-weight: 600; font-size: 0.95rem; color: var(--fg); }
+  .list-row .w.knew { color: var(--ok); }
+  .list-row .w.weak { color: var(--warn); }
+  .list-row .zh {
+    font-size: 0.78rem; color: var(--muted); margin-top: 2px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .list-row .spk {
+    flex-shrink: 0; width: 32px; height: 32px;
+    border-radius: 50%; background: var(--bg);
+    border: 1px solid var(--border); cursor: pointer;
+    color: var(--accent); font-size: 0.9rem; padding: 0;
+  }
+  .list-row .mk {
+    flex-shrink: 0; width: 24px; text-align: center;
+    color: var(--muted);
+  }
+  .list-row .mk.know { color: var(--ok); }
+  .list-row .mk.weak { color: var(--warn); }
+  .curriculum-note {
+    margin: 16px; padding: 12px 14px;
+    background: var(--card); border-left: 3px solid var(--accent);
+    border-radius: 8px; font-size: 0.82rem;
+    color: var(--muted); line-height: 1.5;
+  }
+  .curriculum-note strong { color: var(--fg); }
+  .actions {
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px; padding: 0 16px;
+  }
+  .btn {
+    padding: 14px 8px; border: 1px solid var(--border);
+    border-radius: 12px; background: var(--card);
+    color: var(--fg); font-size: 0.95rem;
+    font-weight: 600; cursor: pointer; font-family: inherit;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .btn .ico { display: block; font-size: 1.4rem; margin-bottom: 2px; }
+  .btn.weak { color: var(--warn); }
+  .btn.weak:active { background: rgba(217,119,6,0.1); }
+  .btn.flip { color: var(--accent); }
+  .btn.flip:active { background: rgba(37,99,235,0.1); }
+  .btn.know { color: var(--ok); }
+  .btn.know:active { background: rgba(5,150,105,0.1); }
+  .meta {
+    text-align: center; color: var(--muted);
+    font-size: 0.78rem; margin-top: 20px;
+  }
+  .tabbar {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: var(--nav-bg);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    border-top: 1px solid var(--border);
+    display: flex;
+    padding-bottom: env(safe-area-inset-bottom, 0);
+    z-index: 30;
+  }
+  .tab-btn {
+    flex: 1; background: transparent; border: none;
+    padding: 10px 4px 8px; color: var(--muted); font-size: 0.68rem;
+    cursor: pointer;
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    font-family: inherit; text-decoration: none;
+  }
+  .tab-btn .icon { font-size: 1.25rem; line-height: 1; }
+  .tab-btn.active { color: var(--accent); }
+  .done-screen {
+    text-align: center; padding: 60px 24px;
+    display: none;
+  }
+  .done-screen.show { display: block; }
+  .done-screen .big { font-size: 4rem; }
+  .done-screen .ttl { font-size: 1.3rem; font-weight: 700; margin: 8px 0; }
+  .done-screen .sub { color: var(--muted); margin-bottom: 24px; }
+  .done-screen button {
+    background: var(--accent); color: white; border: none;
+    padding: 12px 24px; border-radius: 12px;
+    font-size: 0.95rem; font-weight: 600; cursor: pointer;
+    font-family: inherit; margin: 4px;
+  }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <a class="back-btn" href="index.html#home">&#8592;</a>
+  <div style="flex:1;">
+    <div class="ttl">今日 150 词 &middot; Government &amp; Society</div>
+    <div class="sub">2026-06-23 &middot; Day 34</div>
+  </div>
+</header>
+
+<div class="stats">
+  <div class="stat"><div class="num know" id="kn">0</div><div class="lbl">知道</div></div>
+  <div class="stat"><div class="num weak" id="wk">0</div><div class="lbl">不熟</div></div>
+  <div class="stat"><div class="num left" id="lf">150</div><div class="lbl">剩余</div></div>
+</div>
+<div class="progress-bar"><div class="progress-fill" id="pg" style="width:0%"></div></div>
+
+<div class="view-toggle">
+  <button id="vtFlash" class="active" onclick="setView('flash')">&#128199; 卡片</button>
+  <button id="vtList" onclick="setView('list')">&#128203; 列表</button>
+</div>
+
+<div id="deck">
+  <div class="card-stage">
+    <div class="card-3d" id="card" onclick="flip()">
+      <div class="face front">
+        <button class="speaker" onclick="event.stopPropagation();speak(document.getElementById('w').textContent)">&#128266;</button>
+        <div class="word" id="w">&#8212;</div>
+        <div class="pos" id="p">&#8212;</div>
+        <div class="hint">轻触卡片 &middot; 翻看释义</div>
+      </div>
+      <div class="face back">
+        <button class="speaker" onclick="event.stopPropagation();speak(document.getElementById('w').textContent)">&#128266;</button>
+        <div class="zh" id="zh">&#8212;</div>
+        <div class="collo" id="cl">&#8212;</div>
+        <div class="ex" id="ex">&#8212;</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="btn weak" onclick="mark('weak')"><span class="ico">&#128543;</span>不熟</button>
+    <button class="btn flip" onclick="flip()"><span class="ico">&#128260;</span>翻转</button>
+    <button class="btn know" onclick="mark('know')"><span class="ico">&#9989;</span>知道</button>
+  </div>
+
+  <div class="meta" id="meta">1 / 150 &middot; 今日主题 Government &amp; Society</div>
+</div>
+
+<div class="list-view" id="listView">
+  <div id="listBody"></div>
+</div>
+
+<div class="curriculum-note">
+  <strong>词汇来源</strong>: 8 天主题轮换，涵盖雅思高频话题。<br>
+  Day 29-35 <strong>Government &amp; Society</strong> &middot; 今日 Day 6 专题: 媒体自由/环境治理/数字权利/住房政策/公共卫生治理<br>
+  词汇为 Band 7+ 难度，每条含 词性 &middot; 中文 &middot; 搭配 &middot; 例句，由 IELTS 高分话题词库扩展生成。
+</div>
+
+<div class="done-screen" id="done">
+  <div class="big">&#127881;</div>
+  <div class="ttl" id="doneTtl">今日 150 词完成!</div>
+  <div class="sub" id="doneSub">知道 0 &middot; 不熟 0</div>
+  <button onclick="resetAll()">重新开始</button>
+  <button onclick="reviewWeak()">只复习不熟</button>
+  <button onclick="location.href='index.html'">回主页</button>
+</div>
+
+<nav class="tabbar">
+  <a class="tab-btn active" href="index.html#home"><span class="icon">&#127968;</span>概览</a>
+  <a class="tab-btn" href="index.html#materials"><span class="icon">&#128250;</span>材料</a>
+  <a class="tab-btn" href="index.html#quizzes"><span class="icon">&#9999;&#65039;</span>测验</a>
+  <a class="tab-btn" href="index.html#plan"><span class="icon">&#128203;</span>计划</a>
+</nav>
+
+<script>
+const CARDS = [
+{"w":"defamation","p":"n.","zh":"诽谤 (书面+口头)","cl":"defamation law / a defamation suit","ex":"She filed a <strong>defamation</strong> suit against the newspaper for the false and damaging report."},
+{"w":"slander","p":"n./v.","zh":"口头诽谤","cl":"sue for slander","ex":"His public accusation amounted to <strong>slander</strong> and the court agreed."},
+{"w":"tabloid","p":"n./adj.","zh":"小报 / 耸人听闻的","cl":"the tabloid press","ex":"The <strong>tabloid</strong> press thrives on sensationalism and celebrity gossip."},
+{"w":"broadsheet","p":"n.","zh":"严肃大报","cl":"a quality broadsheet","ex":"She prefers reading a quality <strong>broadsheet</strong> to celebrity gossip magazines."},
+{"w":"paywall","p":"n.","zh":"付费墙","cl":"hide behind a paywall","ex":"Quality investigative journalism is often locked behind a <strong>paywall</strong>."},
+{"w":"oligopoly","p":"n.","zh":"寡头垄断","cl":"a media oligopoly","ex":"A handful of conglomerates form a <strong>oligopoly</strong> in the news industry."},
+{"w":"consolidation","p":"n.","zh":"兼并整合","cl":"media consolidation","ex":"Media <strong>consolidation</strong> threatens plurality of voices and editorial independence."},
+{"w":"sensationalism","p":"n.","zh":"耸人听闻","cl":"tabloid sensationalism","ex":"<strong>Sensationalism</strong> drives clicks but erodes public trust in journalism."},
+{"w":"clickbait","p":"n.","zh":"标题党","cl":"resort to clickbait","ex":"Struggling news outlets resort to <strong>clickbait</strong> headlines to drive digital traffic."},
+{"w":"journalistic integrity","p":"n.","zh":"新闻职业操守","cl":"uphold journalistic integrity","ex":"Upholding <strong>journalistic integrity</strong> means strictly separating news reporting from opinion."},
+{"w":"credibility","p":"n.","zh":"可信度","cl":"journalistic credibility","ex":"Persistent factual errors erode a publication's <strong>credibility</strong> irreparably."},
+{"w":"retraction","p":"n.","zh":"撤稿更正","cl":"issue a retraction","ex":"The publisher issued a formal <strong>retraction</strong> after the story was found to be fabricated."},
+{"w":"objectivity","p":"n.","zh":"客观性","cl":"journalistic objectivity","ex":"Complete <strong>objectivity</strong> is an ideal that even the most rigorous journalists struggle to achieve."},
+{"w":"spin doctor","p":"n.","zh":"公关专员/形象顾问","cl":"hire a spin doctor","ex":"Politicians hire <strong>spin doctors</strong> to manage their public image and control the narrative."},
+{"w":"proprietor","p":"n.","zh":"报社所有者","cl":"a media proprietor","ex":"The media <strong>proprietor</strong> exerted undue political influence over editorial coverage."},
+{"w":"self-regulation","p":"n.","zh":"行业自律","cl":"industry self-regulation","ex":"Critics argue that industry <strong>self-regulation</strong> of the press has consistently failed."},
+{"w":"muzzle","p":"v.","zh":"噤声 / 压制","cl":"muzzle the press","ex":"Authoritarian governments routinely attempt to <strong>muzzle</strong> the independent press."},
+{"w":"stringent","p":"adj.","zh":"严格的","cl":"stringent media regulations","ex":"<strong>Stringent</strong> media regulations are needed to curb disinformation without stifling free speech."},
+{"w":"editorial independence","p":"n.","zh":"编辑独立性","cl":"protect editorial independence","ex":"Advertisers must not be permitted to undermine <strong>editorial independence</strong>."},
+{"w":"fourth estate","p":"n./idiom","zh":"第四权力 (新闻媒体)","cl":"the fourth estate","ex":"A free press, often called the <strong>fourth estate</strong>, is indispensable to democratic accountability."},
+{"w":"carbon pricing","p":"n.","zh":"碳定价","cl":"implement carbon pricing","ex":"Economists broadly support <strong>carbon pricing</strong> as a cost-effective tool for reducing emissions."},
+{"w":"net zero","p":"n./adj.","zh":"净零排放","cl":"net zero target / reach net zero","ex":"Many countries have pledged to reach <strong>net zero</strong> greenhouse gas emissions by 2050."},
+{"w":"cap-and-trade","p":"n.","zh":"总量管制与交易体系","cl":"a cap-and-trade scheme","ex":"The EU's <strong>cap-and-trade</strong> system places a ceiling on total emissions and allows companies to trade allowances."},
+{"w":"carbon budget","p":"n.","zh":"碳预算","cl":"a shrinking carbon budget","ex":"Scientists warn that the global <strong>carbon budget</strong> consistent with 1.5°C of warming is nearly exhausted."},
+{"w":"greenwashing","p":"n.","zh":"漂绿 (虚假环保宣传)","cl":"accused of greenwashing","ex":"Several corporations were accused of <strong>greenwashing</strong> by exaggerating their sustainability credentials."},
+{"w":"decarbonise","p":"v.","zh":"去碳化","cl":"decarbonise the economy","ex":"Policymakers face immense pressure to <strong>decarbonise</strong> the economy within a generation."},
+{"w":"stranded asset","p":"n.","zh":"搁浅资产","cl":"fossil-fuel stranded assets","ex":"Fossil-fuel reserves risk becoming <strong>stranded assets</strong> as the energy transition accelerates."},
+{"w":"just transition","p":"n.","zh":"公正转型","cl":"a just transition for workers","ex":"A <strong>just transition</strong> must protect workers in fossil-fuel industries from economic hardship."},
+{"w":"green bond","p":"n.","zh":"绿色债券","cl":"issue green bonds","ex":"Cities are issuing <strong>green bonds</strong> to finance low-carbon public transport and building retrofits."},
+{"w":"circular economy","p":"n.","zh":"循环经济","cl":"shift to a circular economy","ex":"A <strong>circular economy</strong> minimises waste by keeping materials in use through reuse and recycling."},
+{"w":"biodiversity offsetting","p":"n.","zh":"生物多样性补偿","cl":"mandatory biodiversity offsetting","ex":"New planning laws require <strong>biodiversity offsetting</strong> for developments that harm natural habitats."},
+{"w":"polluter pays principle","p":"n.","zh":"污染者付费原则","cl":"enforce the polluter pays principle","ex":"The <strong>polluter pays principle</strong> makes industries financially responsible for the environmental damage they cause."},
+{"w":"climate litigation","p":"n.","zh":"气候诉讼","cl":"a wave of climate litigation","ex":"A surge of <strong>climate litigation</strong> is holding governments and corporations to their emissions pledges."},
+{"w":"nature-based solution","p":"n.","zh":"基于自然的解决方案","cl":"invest in nature-based solutions","ex":"Policymakers are embracing <strong>nature-based solutions</strong> such as rewilding and mangrove restoration."},
+{"w":"energy transition","p":"n.","zh":"能源转型","cl":"accelerate the energy transition","ex":"The pace of the <strong>energy transition</strong> is accelerating but remains insufficient to meet climate goals."},
+{"w":"scope 3 emissions","p":"n.","zh":"范围三排放 (供应链上下游)","cl":"disclose scope 3 emissions","ex":"Companies are increasingly required to disclose their <strong>scope 3 emissions</strong> across the entire supply chain."},
+{"w":"extended producer responsibility","p":"n.","zh":"延伸生产者责任","cl":"extended producer responsibility scheme","ex":"<strong>Extended producer responsibility</strong> requires manufacturers to manage their products at end-of-life."},
+{"w":"carbon border adjustment","p":"n.","zh":"碳边境调节机制","cl":"a carbon border adjustment mechanism","ex":"The <strong>carbon border adjustment</strong> mechanism prevents carbon leakage by taxing imports from less-regulated markets."},
+{"w":"planetary boundary","p":"n.","zh":"地球边界","cl":"exceed planetary boundaries","ex":"Scientists warn that humanity is simultaneously exceeding several <strong>planetary boundaries</strong>."},
+{"w":"loss and damage","p":"n.","zh":"损失与损害 (气候谈判术语)","cl":"a loss and damage fund","ex":"Developing nations secured a <strong>loss and damage</strong> fund at COP to compensate for climate-related harm."},
+{"w":"platform accountability","p":"n.","zh":"平台问责制","cl":"demand platform accountability","ex":"Legislators are pushing for stronger <strong>platform accountability</strong> to prevent the spread of harmful content."},
+{"w":"content moderation","p":"n.","zh":"内容审核","cl":"automated content moderation","ex":"<strong>Content moderation</strong> at scale requires a combination of AI tools and human reviewers."},
+{"w":"interoperability","p":"n.","zh":"互操作性","cl":"mandate interoperability","ex":"Mandating <strong>interoperability</strong> between platforms would reduce user lock-in and foster competition."},
+{"w":"digital sovereignty","p":"n.","zh":"数字主权","cl":"assert digital sovereignty","ex":"Some states seek to assert <strong>digital sovereignty</strong> by restricting access to foreign-owned platforms."},
+{"w":"data localisation","p":"n.","zh":"数据本地化","cl":"data localisation requirements","ex":"<strong>Data localisation</strong> requirements compel companies to store user data within national borders."},
+{"w":"right to be forgotten","p":"n.","zh":"被遗忘权","cl":"invoke the right to be forgotten","ex":"Individuals in the EU can invoke the <strong>right to be forgotten</strong> to have outdated personal data erased."},
+{"w":"age verification","p":"n.","zh":"年龄验证","cl":"online age verification","ex":"Online <strong>age verification</strong> remains technically difficult to implement without compromising user privacy."},
+{"w":"hate speech","p":"n.","zh":"仇恨言论","cl":"criminalise hate speech","ex":"Balancing the criminalisation of <strong>hate speech</strong> with free expression is one of the defining challenges of digital governance."},
+{"w":"net neutrality","p":"n.","zh":"网络中立原则","cl":"protect net neutrality","ex":"Advocates argue that <strong>net neutrality</strong> prevents internet providers from throttling or blocking content."},
+{"w":"surveillance capitalism","p":"n.","zh":"监控资本主义","cl":"the model of surveillance capitalism","ex":"Zuboff coined <strong>surveillance capitalism</strong> to describe the monetisation of personal behavioural data."},
+{"w":"dark pattern","p":"n.","zh":"暗黑模式 (界面欺骗设计)","cl":"exploit dark patterns","ex":"Regulators are cracking down on <strong>dark patterns</strong> that trick users into sharing more data than intended."},
+{"w":"digital footprint","p":"n.","zh":"数字足迹","cl":"reduce one's digital footprint","ex":"Users are often unaware of the vast <strong>digital footprint</strong> they leave across online platforms."},
+{"w":"privacy by design","p":"n.","zh":"隐私内嵌设计","cl":"adopt privacy by design","ex":"<strong>Privacy by design</strong> requires companies to embed data protection into systems from the outset."},
+{"w":"encryption","p":"n.","zh":"加密","cl":"end-to-end encryption","ex":"End-to-end <strong>encryption</strong> ensures that only sender and recipient can read a message."},
+{"w":"regulatory sandbox","p":"n.","zh":"监管沙盒","cl":"create a regulatory sandbox","ex":"The government established a <strong>regulatory sandbox</strong> to allow fintech firms to test products safely."},
+{"w":"algorithmic bias","p":"n.","zh":"算法偏见","cl":"address algorithmic bias","ex":"Facial recognition software has repeatedly been found to exhibit significant <strong>algorithmic bias</strong>."},
+{"w":"gatekeeper","p":"n.","zh":"守门人","cl":"a digital gatekeeper","ex":"Large technology companies function as <strong>gatekeepers</strong> of digital information and commerce."},
+{"w":"take-down notice","p":"n.","zh":"内容下架通知","cl":"issue a take-down notice","ex":"Platforms must act on <strong>take-down notices</strong> within specified timeframes under new legislation."},
+{"w":"disinformation campaign","p":"n.","zh":"蓄意虚假信息行动","cl":"mount a disinformation campaign","ex":"State actors mounted coordinated <strong>disinformation campaigns</strong> ahead of national elections."},
+{"w":"cyber sovereignty","p":"n.","zh":"网络主权","cl":"advance cyber sovereignty","ex":"Some governments advocate <strong>cyber sovereignty</strong>, asserting the right to control the internet within their borders."},
+{"w":"affordable housing","p":"n.","zh":"经济适用房","cl":"build affordable housing","ex":"The city council pledged to build 10,000 units of <strong>affordable housing</strong> over five years."},
+{"w":"housing crisis","p":"n.","zh":"住房危机","cl":"address the housing crisis","ex":"The <strong>housing crisis</strong> is pricing essential workers out of major urban centres."},
+{"w":"planning permission","p":"n.","zh":"规划许可","cl":"obtain planning permission","ex":"Developers must obtain <strong>planning permission</strong> from the local authority before breaking ground."},
+{"w":"brownfield site","p":"n.","zh":"棕地 (废弃已开发用地)","cl":"redevelop brownfield sites","ex":"Redeveloping <strong>brownfield sites</strong> is preferable to encroaching on green spaces."},
+{"w":"nimbyism","p":"n.","zh":"邻避效应 / '别在我家门口'","cl":"overcome nimbyism","ex":"<strong>Nimbyism</strong> frequently blocks the construction of essential housing and infrastructure."},
+{"w":"community land trust","p":"n.","zh":"社区土地信托","cl":"establish a community land trust","ex":"A <strong>community land trust</strong> holds land collectively, enabling permanent affordability for residents."},
+{"w":"rent control","p":"n.","zh":"租金管控","cl":"introduce rent control","ex":"Economists debate whether <strong>rent control</strong> helps tenants or ultimately worsens housing shortages."},
+{"w":"eviction moratorium","p":"n.","zh":"驱逐令暂停","cl":"extend the eviction moratorium","ex":"An <strong>eviction moratorium</strong> protected millions of renters from homelessness during the economic crisis."},
+{"w":"densification","p":"n.","zh":"城市密度化","cl":"urban densification","ex":"Urban <strong>densification</strong>—building more homes in existing areas—is seen as the most sustainable response to housing pressure."},
+{"w":"15-minute city","p":"n.","zh":"15分钟城市","cl":"the 15-minute city concept","ex":"The <strong>15-minute city</strong> concept envisions every resident being able to reach daily needs within a short walk or cycle."},
+{"w":"transit-oriented development","p":"n.","zh":"以公交为导向的开发","cl":"encourage transit-oriented development","ex":"<strong>Transit-oriented development</strong> concentrates housing and services around public transport hubs."},
+{"w":"land value capture","p":"n.","zh":"土地增值回收","cl":"use land value capture","ex":"<strong>Land value capture</strong> enables governments to recoup increases in land value generated by public investment."},
+{"w":"retrofitting","p":"n.","zh":"翻新改造 (建筑节能)","cl":"retrofit existing buildings","ex":"<strong>Retrofitting</strong> older buildings with better insulation is a cost-effective route to cutting carbon emissions."},
+{"w":"co-housing","p":"n.","zh":"协同住宅","cl":"a co-housing community","ex":"<strong>Co-housing</strong> communities share facilities while maintaining private living spaces."},
+{"w":"compulsory purchase","p":"n.","zh":"强制征购","cl":"use compulsory purchase powers","ex":"The council exercised <strong>compulsory purchase</strong> powers to acquire derelict land for affordable housing."},
+{"w":"land banking","p":"n.","zh":"土地囤积","cl":"criticise land banking","ex":"Critics blame <strong>land banking</strong> by developers for artificially restricting housing supply to inflate prices."},
+{"w":"build-to-rent","p":"adj.","zh":"建房出租","cl":"the build-to-rent sector","ex":"The <strong>build-to-rent</strong> sector has grown rapidly in response to declining homeownership rates."},
+{"w":"mixed-use","p":"adj.","zh":"综合用途的","cl":"mixed-use development","ex":"<strong>Mixed-use</strong> developments combine residential, commercial and community spaces to create vibrant neighbourhoods."},
+{"w":"placemaking","p":"n.","zh":"场所营造","cl":"community-led placemaking","ex":"<strong>Placemaking</strong> initiatives transform neglected urban spaces into vibrant community hubs."},
+{"w":"overcrowding","p":"n.","zh":"过度拥挤","cl":"tackle housing overcrowding","ex":"<strong>Overcrowding</strong> in urban dwellings is strongly associated with poor health and social outcomes."},
+{"w":"public health emergency","p":"n.","zh":"公共卫生紧急事件","cl":"declare a public health emergency","ex":"The WHO declared an international <strong>public health emergency</strong> within weeks of the pathogen's detection."},
+{"w":"health equity","p":"n.","zh":"健康公平","cl":"advance health equity","ex":"Advancing <strong>health equity</strong> requires dismantling structural barriers that prevent marginalised groups from accessing care."},
+{"w":"social determinants","p":"n.","zh":"社会决定因素 (健康)","cl":"the social determinants of health","ex":"Poverty, housing quality and education are key <strong>social determinants</strong> of population health."},
+{"w":"contact tracing","p":"n.","zh":"接触者追踪","cl":"conduct contact tracing","ex":"Rapid <strong>contact tracing</strong> was essential for containing the virus in the early stages of the outbreak."},
+{"w":"vaccine rollout","p":"n.","zh":"疫苗接种推广","cl":"accelerate the vaccine rollout","ex":"The government was widely praised for the speed and efficiency of its <strong>vaccine rollout</strong>."},
+{"w":"herd immunity","p":"n.","zh":"群体免疫","cl":"achieve herd immunity","ex":"<strong>Herd immunity</strong> through vaccination protects those who cannot receive the vaccine themselves."},
+{"w":"health literacy","p":"n.","zh":"健康素养","cl":"improve health literacy","ex":"Low <strong>health literacy</strong> is associated with poorer adherence to treatment and worse outcomes."},
+{"w":"mental health parity","p":"n.","zh":"心理健康同等待遇","cl":"enforce mental health parity","ex":"<strong>Mental health parity</strong> laws require insurers to cover psychiatric care on equal terms with physical health."},
+{"w":"universal health coverage","p":"n.","zh":"全民医疗保障","cl":"achieve universal health coverage","ex":"<strong>Universal health coverage</strong> ensures all citizens can access essential health services without financial hardship."},
+{"w":"pharmaceutical pricing","p":"n.","zh":"药物定价","cl":"regulate pharmaceutical pricing","ex":"<strong>Pharmaceutical pricing</strong> is a contentious political issue, with governments pushing back against industry monopolies."},
+{"w":"antimicrobial resistance","p":"n.","zh":"抗菌素耐药性","cl":"tackle antimicrobial resistance","ex":"<strong>Antimicrobial resistance</strong> threatens to make routine surgery and common infections life-threatening."},
+{"w":"biosecurity","p":"n.","zh":"生物安全","cl":"strengthen biosecurity","ex":"The pandemic exposed major gaps in global <strong>biosecurity</strong> preparedness."},
+{"w":"disease surveillance","p":"n.","zh":"疾病监测","cl":"strengthen disease surveillance","ex":"Robust <strong>disease surveillance</strong> systems enable governments to detect outbreaks before they escalate."},
+{"w":"epidemiological","p":"adj.","zh":"流行病学的","cl":"epidemiological modelling","ex":"<strong>Epidemiological</strong> modelling informed key government decisions about lockdown timing."},
+{"w":"outbreak response","p":"n.","zh":"疫情应对","cl":"coordinate an outbreak response","ex":"International coordination is critical for an effective and timely <strong>outbreak response</strong>."},
+{"w":"out-of-pocket cost","p":"n.","zh":"自付医疗费用","cl":"reduce out-of-pocket costs","ex":"High <strong>out-of-pocket costs</strong> deter low-income patients from seeking preventive care."},
+{"w":"primary healthcare","p":"n.","zh":"初级卫生保健","cl":"invest in primary healthcare","ex":"Investing in <strong>primary healthcare</strong> reduces costly hospital admissions and improves long-term outcomes."},
+{"w":"health inequity","p":"n.","zh":"健康不平等","cl":"address health inequity","ex":"The pandemic laid bare deep <strong>health inequities</strong> within even the wealthiest nations."},
+{"w":"excess mortality","p":"n.","zh":"超额死亡率","cl":"excess mortality figures","ex":"<strong>Excess mortality</strong> data provides a more complete picture of a pandemic's true toll than official counts."},
+{"w":"lockdown","p":"n.","zh":"封锁令 / 禁足令","cl":"impose a lockdown","ex":"The government imposed a nationwide <strong>lockdown</strong> to curb transmission after case numbers surged."},
+{"w":"press freedom","p":"n.","zh":"新闻自由","cl":"safeguard press freedom","ex":"Reporters Without Borders annually ranks countries by the state of <strong>press freedom</strong>."},
+{"w":"prior restraint","p":"n.","zh":"预先审查","cl":"impose prior restraint on publication","ex":"Courts are extremely reluctant to impose <strong>prior restraint</strong> on publication in free societies."},
+{"w":"shield law","p":"n.","zh":"记者信源保护法","cl":"a journalist shield law","ex":"A <strong>shield law</strong> protects journalists from being compelled to reveal their confidential sources."},
+{"w":"chilling effect","p":"n.","zh":"寒蝉效应","cl":"create a chilling effect on free speech","ex":"Overly broad defamation laws create a <strong>chilling effect</strong> on investigative reporting."},
+{"w":"media literacy","p":"n.","zh":"媒体素养","cl":"promote media literacy","ex":"Schools are integrating <strong>media literacy</strong> into curricula to help students identify misinformation."},
+{"w":"fact-checking","p":"n.","zh":"事实核查","cl":"independent fact-checking","ex":"Independent <strong>fact-checking</strong> organisations play a critical role in countering online misinformation."},
+{"w":"carbon neutrality","p":"n.","zh":"碳中和","cl":"achieve carbon neutrality","ex":"The corporation has pledged to achieve <strong>carbon neutrality</strong> across all its operations by 2040."},
+{"w":"nationally determined contribution","p":"n.","zh":"国家自主贡献 (NDC)","cl":"strengthen a nationally determined contribution","ex":"Countries must submit updated <strong>nationally determined contributions</strong> under the Paris Agreement."},
+{"w":"digital governance","p":"n.","zh":"数字治理","cl":"a framework for digital governance","ex":"<strong>Digital governance</strong> frameworks must evolve rapidly to keep pace with technological change."},
+{"w":"online safety","p":"n.","zh":"在线安全 (内容安全)","cl":"the Online Safety Act","ex":"The <strong>online safety</strong> legislation places new content moderation duties on large technology platforms."},
+{"w":"data protection","p":"n.","zh":"数据保护","cl":"robust data protection","ex":"The GDPR sets a global benchmark for <strong>data protection</strong> that many other jurisdictions have since emulated."},
+{"w":"algorithmic accountability","p":"n.","zh":"算法问责","cl":"demand algorithmic accountability","ex":"Citizens and regulators are demanding greater <strong>algorithmic accountability</strong> from technology companies."},
+{"w":"platform regulation","p":"n.","zh":"平台监管","cl":"tighten platform regulation","ex":"<strong>Platform regulation</strong> remains a fiercely contested arena where governments and big tech clash."},
+{"w":"safe harbour","p":"n.","zh":"安全港 (免责保护)","cl":"conditional safe harbour provision","ex":"The <strong>safe harbour</strong> provision has historically shielded platforms from liability for user-generated content."},
+{"w":"right to information","p":"n.","zh":"信息公开权","cl":"a right to information request","ex":"The journalist filed a <strong>right to information</strong> request for the details of the government contract."},
+{"w":"housing affordability","p":"n.","zh":"住房可负担性","cl":"housing affordability crisis","ex":"The <strong>housing affordability</strong> crisis has fuelled political discontent across major global cities."},
+{"w":"planning reform","p":"n.","zh":"规划改革","cl":"push for planning reform","ex":"<strong>Planning reform</strong> is widely regarded as critical to unlocking the housing supply needed."},
+{"w":"green infrastructure","p":"n.","zh":"绿色基础设施","cl":"invest in green infrastructure","ex":"<strong>Green infrastructure</strong> such as urban parks and green roofs mitigates the urban heat island effect."},
+{"w":"social prescribing","p":"n.","zh":"社会处方","cl":"adopt social prescribing","ex":"<strong>Social prescribing</strong> connects patients to community activities to address the non-medical roots of ill-health."},
+{"w":"health system resilience","p":"n.","zh":"医疗体系韧性","cl":"build health system resilience","ex":"The pandemic tested the <strong>health system resilience</strong> of even the wealthiest and best-prepared nations."},
+{"w":"regulatory capture","p":"n.","zh":"监管俘获","cl":"risk of regulatory capture","ex":"Watchdog bodies risk <strong>regulatory capture</strong> when their senior staff are drawn from the industries they oversee."},
+{"w":"institutional inertia","p":"n.","zh":"制度惯性","cl":"overcome institutional inertia","ex":"<strong>Institutional inertia</strong> is one of the biggest obstacles to the rapid adoption of evidence-based policy."},
+{"w":"evidence-based policy","p":"n.","zh":"循证政策","cl":"adopt evidence-based policy","ex":"Public health officials urged governments to adopt <strong>evidence-based policies</strong> during the pandemic."},
+{"w":"freedom of information","p":"n.","zh":"信息自由 / 信息公开","cl":"a freedom of information request","ex":"A <strong>freedom of information</strong> request revealed that the department had withheld critical safety data."},
+{"w":"proportionate response","p":"n.","zh":"相称回应","cl":"a proportionate response","ex":"Human rights bodies assess whether emergency measures constitute a <strong>proportionate response</strong> to the threat."},
+{"w":"preventable disease","p":"n.","zh":"可预防疾病","cl":"reduce preventable disease","ex":"A large proportion of healthcare spending is consumed by entirely <strong>preventable diseases</strong>."},
+{"w":"energy efficiency","p":"n.","zh":"能源效率","cl":"improve energy efficiency","ex":"Improving the <strong>energy efficiency</strong> of buildings is a cost-effective route to reducing national emissions."},
+{"w":"digital public service","p":"n.","zh":"数字公共服务","cl":"deliver digital public services","ex":"Governments are increasingly delivering <strong>digital public services</strong> to improve access and reduce costs."},
+{"w":"creative destruction","p":"n.","zh":"创造性破坏","cl":"the creative destruction of industries","ex":"Schumpeter's concept of <strong>creative destruction</strong> aptly describes the disruption of traditional media."},
+{"w":"open government","p":"n.","zh":"开放政府","cl":"open government initiatives","ex":"<strong>Open government</strong> initiatives use transparency and citizen participation to rebuild trust in institutions."},
+{"w":"cast a long shadow over","p":"idiom","zh":"对…留下深远影响","cl":"cast a long shadow over policy","ex":"The 2008 financial crisis continues to <strong>cast a long shadow over</strong> housing and financial policy today."},
+{"w":"cut through the noise","p":"phrasal v.","zh":"穿透噪音 / 抓住关键","cl":"cut through the political noise","ex":"Effective government communication must <strong>cut through the noise</strong> of the 24-hour news cycle."},
+{"w":"read between the lines","p":"idiom","zh":"字里行间推敲","cl":"read between the lines of a statement","ex":"To understand official policy, analysts must often <strong>read between the lines</strong> of carefully worded statements."},
+{"w":"go against the grain","p":"idiom","zh":"逆势而为","cl":"go against the grain of public opinion","ex":"Bold climate legislation often <strong>goes against the grain</strong> of short-term economic interest."},
+{"w":"put the cart before the horse","p":"idiom","zh":"本末倒置","cl":"put the cart before the horse","ex":"Deploying AI in public services without proper governance frameworks is <strong>putting the cart before the horse</strong>."},
+{"w":"navigate uncharted waters","p":"idiom","zh":"在未知领域中摸索","cl":"navigate uncharted regulatory waters","ex":"Regulators are <strong>navigating uncharted waters</strong> as they attempt to govern rapidly evolving artificial intelligence."},
+{"w":"the tip of the iceberg","p":"idiom","zh":"冰山一角","cl":"be just the tip of the iceberg","ex":"The corruption cases uncovered so far may well <strong>be just the tip of the iceberg</strong>."},
+{"w":"strike while the iron is hot","p":"idiom","zh":"趁热打铁","cl":"strike while the iron is hot","ex":"Reformers must <strong>strike while the iron is hot</strong> in the months immediately following electoral victory."},
+{"w":"tipping point","p":"n.","zh":"临界点","cl":"reach a tipping point","ex":"Climate scientists warn that continued emissions may push key ecosystems past irreversible <strong>tipping points</strong>."},
+{"w":"a watershed moment","p":"n.","zh":"分水岭时刻","cl":"a watershed moment for democracy","ex":"The court ruling was widely described as <strong>a watershed moment</strong> for digital press freedom."},
+{"w":"throw down the gauntlet","p":"idiom","zh":"发出挑战","cl":"throw down the gauntlet","ex":"The opposition <strong>threw down the gauntlet</strong> to the government by calling for an emergency debate."},
+{"w":"lose sight of","p":"phrasal v.","zh":"失去关注 / 忽视","cl":"lose sight of the bigger picture","ex":"Policymakers must not <strong>lose sight of</strong> long-term environmental commitments amid short-term pressures."},
+{"w":"a two-speed approach","p":"n.","zh":"两速方法 (快慢并行)","cl":"adopt a two-speed approach","ex":"Adopting <strong>a two-speed approach</strong> to digital regulation risks widening inequalities between large and small nations."},
+{"w":"hold the fort","p":"idiom","zh":"维持局面 / 坚守阵地","cl":"hold the fort during a crisis","ex":"Emergency legislation can <strong>hold the fort</strong> while a more permanent policy solution is negotiated."},
+{"w":"at the expense of","p":"phrasal","zh":"以…为代价","cl":"at the expense of privacy","ex":"Efficiency gains in public services must not come <strong>at the expense of</strong> citizens' fundamental rights."},
+{"w":"It is incumbent upon governments to","p":"sentence stem","zh":"政府有责任…","cl":"It is incumbent upon governments to protect...","ex":"<strong>It is incumbent upon governments to</strong> protect citizens' digital rights in an era of surveillance capitalism."},
+{"w":"In the absence of robust regulation","p":"sentence stem","zh":"在缺乏有力监管的情况下","cl":"In the absence of robust regulation, platforms...","ex":"<strong>In the absence of robust regulation</strong>, platforms will continue to prioritise profit over user safety."},
+{"w":"The onus is on","p":"sentence stem","zh":"责任在于","cl":"The onus is on governments to...","ex":"<strong>The onus is on</strong> governments and corporations alike to bridge the widening digital divide."},
+{"w":"Far from being a silver bullet","p":"sentence stem","zh":"远非万能之策","cl":"Far from being a silver bullet, X must...","ex":"<strong>Far from being a silver bullet</strong>, carbon pricing must be complemented by regulatory and investment measures."},
+{"w":"Whether or not X materialises depends largely on","p":"sentence stem","zh":"是否实现很大程度上取决于","cl":"Whether or not... depends largely on political will","ex":"<strong>Whether or not</strong> the housing targets materialise <strong>depends largely on</strong> planning reform and political will."}
+];
+
+let state = JSON.parse(localStorage.getItem("ielts_vocab_20260623") || "{}");
+let queue = CARDS.map((c, i) => ({...c, idx: i})).filter(c => !state[c.idx] || state[c.idx] === "review");
+let cur = 0;
+
+function speak(text) {
+  if (!text || !window.speechSynthesis) return;
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = "en-US"; u.rate = 0.85; u.pitch = 1;
+  const voices = speechSynthesis.getVoices();
+  const en = voices.find(v => /en-(US|GB)/.test(v.lang) && /Samantha|Daniel|Alex|Karen|Moira|Google US English|Google UK English/.test(v.name))
+          || voices.find(v => v.lang.startsWith("en"));
+  if (en) u.voice = en;
+  speechSynthesis.speak(u);
+}
+if (window.speechSynthesis) speechSynthesis.onvoiceschanged = () => {};
+
+function render() {
+  if (cur >= queue.length) return showDone();
+  const c = queue[cur];
+  document.getElementById("w").textContent = c.w;
+  document.getElementById("p").textContent = c.p;
+  document.getElementById("zh").textContent = c.zh;
+  document.getElementById("cl").textContent = c.cl;
+  document.getElementById("ex").innerHTML = c.ex;
+  document.getElementById("card").classList.remove("flipped");
+  document.getElementById("meta").textContent = `${cur+1} / ${queue.length} · Government & Society Day 6`;
+  updateStats();
+  setTimeout(() => speak(c.w), 150);
+}
+
+function setView(v) {
+  document.getElementById("vtFlash").classList.toggle("active", v === "flash");
+  document.getElementById("vtList").classList.toggle("active", v === "list");
+  document.getElementById("deck").style.display = v === "flash" ? "" : "none";
+  document.getElementById("listView").classList.toggle("active", v === "list");
+  if (v === "list") renderList();
+}
+
+function renderList() {
+  const body = document.getElementById("listBody");
+  body.innerHTML = CARDS.map((c, i) => {
+    const mark = state[i] || "";
+    const cls = mark === "know" ? "knew" : mark === "weak" ? "weak" : "";
+    const ico = mark === "know" ? "✓" : mark === "weak" ? "○" : "·";
+    const mcls = mark === "know" ? "know" : mark === "weak" ? "weak" : "";
+    return `<div class="list-row">
+      <div class="num">${String(i+1).padStart(3,'0')}</div>
+      <div class="word"><div class="w ${cls}">${c.w} <span style="color:var(--muted);font-weight:400;font-size:0.78rem;">${c.p}</span></div><div class="zh">${c.zh}</div></div>
+      <button class="spk" onclick="speak('${c.w.replace(/'/g,"\\'")}')">&#128266;</button>
+      <div class="mk ${mcls}">${ico}</div>
+    </div>`;
+  }).join("");
+}
+
+function flip() { document.getElementById("card").classList.toggle("flipped"); }
+
+function mark(t) {
+  const c = queue[cur];
+  state[c.idx] = (t === "know" ? "know" : "weak");
+  localStorage.setItem("ielts_vocab_20260623", JSON.stringify(state));
+  cur++;
+  render();
+}
+
+function updateStats() {
+  const kn = Object.values(state).filter(v=>v==="know").length;
+  const wk = Object.values(state).filter(v=>v==="weak").length;
+  const lf = 150 - kn - wk;
+  document.getElementById("kn").textContent = kn;
+  document.getElementById("wk").textContent = wk;
+  document.getElementById("lf").textContent = lf;
+  document.getElementById("pg").style.width = ((kn+wk)/150*100) + "%";
+}
+
+function showDone() {
+  document.getElementById("deck").style.display = "none";
+  document.getElementById("done").classList.add("show");
+  const kn = Object.values(state).filter(v=>v==="know").length;
+  const wk = Object.values(state).filter(v=>v==="weak").length;
+  document.getElementById("doneTtl").textContent = wk > 0 ? `今日 150 词完成! 还有 ${wk} 张不熟` : "今日 150 词全掌握 🎉";
+  document.getElementById("doneSub").textContent = `知道 ${kn} · 不熟 ${wk}`;
+}
+
+function reviewWeak() {
+  queue = CARDS.map((c,i)=>({...c,idx:i})).filter(c => state[c.idx] === "weak");
+  if (queue.length === 0) { alert("没有不熟的卡!"); return; }
+  cur = 0;
+  document.getElementById("done").classList.remove("show");
+  document.getElementById("deck").style.display = "";
+  render();
+}
+
+function resetAll() {
+  if (!confirm("清空今日进度，重新开始?")) return;
+  localStorage.removeItem("ielts_vocab_20260623");
+  state = {};
+  queue = CARDS.map((c,i)=>({...c,idx:i}));
+  cur = 0;
+  document.getElementById("done").classList.remove("show");
+  document.getElementById("deck").style.display = "";
+  render();
+}
+
+render();
+</script>
+
+</body>
+</html>
