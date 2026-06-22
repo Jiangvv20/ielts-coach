@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#2563eb">
+<title>测验 · 2026-06-23 · Reading T/F/NG + 词汇</title>
+<style>
+  :root { --bg:#fff; --fg:#1a1a1a; --muted:#6b7280; --accent:#2563eb; --ok:#059669; --err:#dc2626; --card:#f9fafb; --border:#e5e7eb; --nav-bg:rgba(255,255,255,0.92); --header-bg:linear-gradient(135deg,#2563eb 0%,#7c3aed 100%); }
+  @media (prefers-color-scheme: dark) { :root { --bg:#0f172a; --fg:#f1f5f9; --muted:#94a3b8; --accent:#60a5fa; --ok:#34d399; --err:#f87171; --card:#1e293b; --border:#334155; --nav-bg:rgba(15,23,42,0.92); --header-bg:linear-gradient(135deg,#1e40af 0%,#6b21a8 100%); } }
+  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body { margin:0; padding:0; background:var(--bg); color:var(--fg); }
+  body { font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue",sans-serif; line-height:1.6; min-height:100vh; padding-bottom:calc(64px + env(safe-area-inset-bottom,0)); }
+  .app-header { background:var(--header-bg); color:white; padding:calc(env(safe-area-inset-top,16px) + 12px) 16px 14px; position:sticky; top:0; z-index:20; display:flex; align-items:center; gap:12px; }
+  .back-btn { background:rgba(255,255,255,0.18); border:none; color:white; width:34px; height:34px; border-radius:10px; font-size:1.1rem; cursor:pointer; flex-shrink:0; text-decoration:none; display:flex; align-items:center; justify-content:center; }
+  .app-header .ttl { font-size:1rem; font-weight:700; }
+  .app-header .sub { font-size:0.72rem; opacity:0.85; margin-top:1px; letter-spacing:0.04em; text-transform:uppercase; }
+  main { max-width:720px; margin:0 auto; padding:16px; }
+  .progress { height:6px; background:var(--border); border-radius:3px; margin-bottom:16px; overflow:hidden; }
+  .progress-fill { height:100%; background:var(--accent); transition:width 0.3s ease; }
+  .passage { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:14px 16px; margin-bottom:16px; font-size:0.95rem; line-height:1.7; }
+  .passage h3 { margin:0 0 8px; font-size:0.78rem; color:var(--muted); text-transform:uppercase; letter-spacing:0.06em; }
+  .question { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:16px; margin-bottom:14px; }
+  .q-num { color:var(--muted); font-size:0.78rem; font-family:"SF Mono",Menlo,monospace; margin-bottom:6px; text-transform:uppercase; letter-spacing:0.04em; }
+  .q-text { font-size:1rem; margin-bottom:12px; font-weight:500; }
+  .options { display:flex; flex-direction:column; gap:8px; }
+  .option { background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:12px 14px; cursor:pointer; font-size:0.95rem; text-align:left; color:var(--fg); font-family:inherit; }
+  .option.selected { border-color:var(--accent); background:rgba(37,99,235,0.08); }
+  .option.correct { border-color:var(--ok); background:rgba(5,150,105,0.1); }
+  .option.wrong { border-color:var(--err); background:rgba(220,38,38,0.1); }
+  .blank-input { width:100%; background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:10px 12px; font-size:1rem; color:var(--fg); font-family:inherit; }
+  .blank-input.correct { border-color:var(--ok); }
+  .blank-input.wrong { border-color:var(--err); }
+  .explanation { margin-top:10px; padding:10px 12px; background:var(--bg); border-left:3px solid var(--accent); border-radius:4px; font-size:0.9rem; color:var(--muted); display:none; }
+  .explanation.show { display:block; }
+  .explanation .answer { color:var(--ok); font-weight:600; }
+  .actions { display:flex; gap:10px; margin-top:20px; }
+  .btn { flex:1; padding:12px; border:none; border-radius:10px; font-size:1rem; font-weight:600; cursor:pointer; font-family:inherit; }
+  .btn-primary { background:var(--accent); color:white; }
+  .btn-secondary { background:var(--card); color:var(--fg); border:1px solid var(--border); }
+  .result { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:20px; text-align:center; margin-top:20px; display:none; }
+  .result.show { display:block; }
+  .score { font-size:2.5rem; font-weight:700; color:var(--accent); }
+  .score-label { color:var(--muted); font-size:0.9rem; margin-top:4px; }
+  .tabbar { position:fixed; bottom:0; left:0; right:0; background:var(--nav-bg); backdrop-filter:saturate(180%) blur(20px); -webkit-backdrop-filter:saturate(180%) blur(20px); border-top:1px solid var(--border); display:flex; padding-bottom:env(safe-area-inset-bottom,0); z-index:30; }
+  .tab-btn { flex:1; background:transparent; border:none; padding:10px 4px 8px; color:var(--muted); font-size:0.68rem; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:3px; font-family:inherit; text-decoration:none; }
+  .tab-btn .icon { font-size:1.25rem; line-height:1; }
+  .tab-btn.active { color:var(--accent); }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <a class="back-btn" href="index.html#quizzes">←</a>
+  <div style="flex:1;min-width:0;">
+    <div class="ttl">Reading T/F/NG + 词汇</div>
+    <div class="sub">Day 34 · 10 题 · ~8 分钟</div>
+  </div>
+</header>
+
+<main>
+
+  <div class="progress"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+
+  <div class="passage">
+    <h3>Passage · Platform Regulation and the Future of Online Speech</h3>
+    <p>The governance of online platforms has emerged as one of the defining policy battles of the 2020s. At the centre of this debate is a fundamental tension: how to curb the harms that large social-media companies can amplify — misinformation, hate speech, radicalisation — without simultaneously chilling legitimate expression. Two jurisdictions have adopted markedly different regulatory philosophies, and their divergence is reshaping global norms.</p>
+    <p>In the United States, Section 230 of the Communications Decency Act has for decades granted platforms broad immunity from liability for third-party content. Critics argue this blanket protection incentivises inaction on harmful content. Reform efforts have repeatedly stalled in Congress, however, with legislators unable to agree on whether the priority should be to hold platforms more accountable for extremist material or to prevent what some conservatives call anti-conservative censorship. The result is an effective regulatory standstill.</p>
+    <p>The European Union has taken a more interventionist path. The Digital Services Act (DSA), which entered into force in 2023, creates a tiered system of obligations: all platforms must remove illegal content expeditiously, but additional "systemic risk" duties — including mandatory algorithmic audits and independent researcher data access — apply only to the largest "very large online platforms" (VLOPs) such as Meta, TikTok, and X. This size-tiered approach distinguishes the DSA sharply from the American model. Crucially, the DSA replaces the old blanket immunity inherited from the EU's 2000 E-Commerce Directive with a conditional safe harbour: platforms retain protection only if they act with due diligence upon receiving notice of illegal content. Failure to do so exposes them to liability.</p>
+    <p>Critics of the DSA, however, caution that the law's broad content-moderation obligations risk creating a chilling effect on legitimate speech. If platforms face heavy fines for hosting borderline content, they may err on the side of over-removal, silencing minority viewpoints and political dissent. Civil-liberties groups have pointed to early evidence of over-blocking in the months following the DSA's rollout, though regulators contest this characterisation.</p>
+    <p>Underlying both regimes is a deeper structural critique articulated by scholars such as Shoshana Zuboff: that the business model of major platforms is built on what she terms <em>surveillance capitalism</em> — the systematic extraction and monetisation of users' behavioural data to predict and influence behaviour. This model, Zuboff argues, is incompatible with genuine democratic deliberation, because it structurally incentivises engagement over accuracy, outrage over nuance. Regulatory frameworks that focus only on content moderation, without addressing the underlying business model, may therefore treat symptoms rather than causes.</p>
+    <p>Whether the DSA model will become a global template — the so-called "Brussels Effect," whereby EU regulations de facto set international standards — or whether a genuinely international framework for platform governance will emerge, remains to be seen. Experts are divided, and the outcome will likely depend on how vigorously the European Commission enforces the DSA in its early years.</p>
+  </div>
+
+  <div id="questions">
+
+    <div class="question" data-type="mcq" data-answer="B">
+      <div class="q-num">Q01 · T/F/NG</div>
+      <div class="q-text">The DSA applies identical regulatory obligations to all online platforms regardless of their size.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">B · False</div>
+        原文: "creates a tiered system of obligations … additional 'systemic risk' duties … apply only to the largest 'very large online platforms'." DSA 按规模分层施责, 并非一视同仁。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="A">
+      <div class="q-num">Q02 · T/F/NG</div>
+      <div class="q-text">Under the DSA, platforms lose immunity from liability if they fail to act diligently on notices of illegal content.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">A · True</div>
+        原文: "platforms retain protection only if they act with due diligence upon receiving notice … Failure to do so exposes them to liability." 条件性安全港, 不履行义务则失去豁免。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="A">
+      <div class="q-num">Q03 · T/F/NG</div>
+      <div class="q-text">Civil-liberties groups have raised concerns that the DSA could lead to excessive removal of legitimate content.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">A · True</div>
+        原文: "Civil-liberties groups have pointed to early evidence of over-blocking in the months following the DSA's rollout." 对过度删除合法内容的担忧有明确表述。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="B">
+      <div class="q-num">Q04 · T/F/NG</div>
+      <div class="q-text">The DSA directly regulates the architecture of platform recommendation algorithms.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">B · False</div>
+        原文要求的是"mandatory algorithmic audits"(算法审计), 而非直接规定算法架构本身。审计 ≠ 规定架构设计, 与题目"directly regulates the architecture"矛盾。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="A">
+      <div class="q-num">Q05 · T/F/NG</div>
+      <div class="q-text">Attempts to reform Section 230 in the United States have so far been unsuccessful.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">A · True</div>
+        原文: "Reform efforts have repeatedly stalled in Congress … The result is an effective regulatory standstill." 改革屡次受阻, 即"unsuccessful"。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="C">
+      <div class="q-num">Q06 · T/F/NG</div>
+      <div class="q-text">Research has conclusively proven that platform recommendation algorithms directly cause political radicalisation.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">C · Not Given</div>
+        文章提及激进化 (radicalisation) 是需要被抑制的危害之一, 但并未讨论有关推荐算法与激进化之间因果关系的研究结论。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="C">
+      <div class="q-num">Q07 · T/F/NG</div>
+      <div class="q-text">Most experts believe the DSA will definitely become a global regulatory template for platform governance.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">C · Not Given</div>
+        原文: "Whether … remains to be seen. Experts are divided." 专家意见分歧, 并无多数共识; 题目的"definitely"与文意不符, 但文中也未明确否定, 故为 Not Given。
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="surveillance capitalism">
+      <div class="q-num">Q08 · 词汇填空</div>
+      <div class="q-text">Zuboff coined the term ____ to describe how platforms extract and monetise users' behavioural data to predict and shape their actions. (2 单词)</div>
+      <input class="blank-input" placeholder="键入答案">
+      <div class="explanation">
+        <div class="answer">surveillance capitalism</div>
+        原文: "what she terms surveillance capitalism — the systematic extraction and monetisation of users' behavioural data." Day 34 今日词卡重点搭配。
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="safe harbour">
+      <div class="q-num">Q09 · 词汇填空</div>
+      <div class="q-text">The DSA creates a conditional ____, meaning platforms only retain liability protection when they demonstrate due diligence. (2 单词, British spelling)</div>
+      <input class="blank-input" placeholder="键入答案">
+      <div class="explanation">
+        <div class="answer">safe harbour</div>
+        原文: "conditional safe harbour: platforms retain protection only if they act with due diligence." 也接受 "safe harbor"（美式拼写）。
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="chilling effect">
+      <div class="q-num">Q10 · 词汇填空</div>
+      <div class="q-text">Heavy fines for hosting borderline content may create a ____ on free expression, prompting platforms to over-remove. (2 单词)</div>
+      <input class="blank-input" placeholder="键入答案">
+      <div class="explanation">
+        <div class="answer">chilling effect</div>
+        原文: "risk creating a chilling effect on legitimate speech." 寒蝉效应 — 今日 Gov & Society Day 6 数字权利模块重点词。
+      </div>
+    </div>
+
+  </div>
+
+  <div class="actions">
+    <button class="btn btn-secondary" onclick="resetQuiz()">重做</button>
+    <button class="btn btn-primary" onclick="submitQuiz()">提交对答</button>
+  </div>
+
+  <div class="result" id="result">
+    <div class="score" id="scoreNum">--</div>
+    <div class="score-label">正确率</div>
+    <div id="scoreDetail" style="margin-top:10px;color:var(--muted);"></div>
+  </div>
+
+</main>
+
+<nav class="tabbar">
+  <a class="tab-btn" href="index.html#home"><span class="icon">🏠</span>概览</a>
+  <a class="tab-btn" href="index.html#materials"><span class="icon">📺</span>材料</a>
+  <a class="tab-btn active" href="index.html#quizzes"><span class="icon">✏️</span>测验</a>
+  <a class="tab-btn" href="index.html#plan"><span class="icon">📋</span>计划</a>
+</nav>
+
+<script>
+  document.querySelectorAll(".option").forEach(opt => {
+    opt.addEventListener("click", () => {
+      const q = opt.closest(".question");
+      q.querySelectorAll(".option").forEach(o => o.classList.remove("selected"));
+      opt.classList.add("selected");
+      q.dataset.userAnswer = opt.dataset.key;
+      updateProgress();
+    });
+  });
+  document.querySelectorAll(".blank-input").forEach(inp => {
+    inp.addEventListener("input", () => {
+      inp.closest(".question").dataset.userAnswer = inp.value.trim();
+      updateProgress();
+    });
+  });
+  function updateProgress() {
+    const total = document.querySelectorAll(".question").length;
+    const done = document.querySelectorAll(".question[data-user-answer]").length;
+    document.getElementById("progressFill").style.width = (done/total*100) + "%";
+  }
+  function submitQuiz() {
+    let correct = 0, total = 0;
+    document.querySelectorAll(".question").forEach(q => {
+      total++;
+      const userAns = (q.dataset.userAnswer || "").toLowerCase().trim();
+      const correctAns = q.dataset.answer.toLowerCase();
+      const isCorrect = userAns === correctAns || (correctAns === "safe harbour" && userAns === "safe harbor");
+      if (isCorrect) correct++;
+      if (q.dataset.type === "mcq") {
+        q.querySelectorAll(".option").forEach(o => {
+          if (o.dataset.key.toLowerCase() === correctAns) o.classList.add("correct");
+          else if (o.dataset.key.toLowerCase() === userAns && !isCorrect) o.classList.add("wrong");
+        });
+      } else if (q.dataset.type === "blank") {
+        const inp = q.querySelector(".blank-input");
+        inp.classList.add(isCorrect ? "correct" : "wrong");
+      }
+      q.querySelector(".explanation")?.classList.add("show");
+    });
+    const result = document.getElementById("result");
+    const pct = Math.round(correct/total*100);
+    document.getElementById("scoreNum").textContent = pct + "%";
+    document.getElementById("scoreDetail").textContent = `${correct} / ${total} 正确`;
+    result.classList.add("show");
+    result.scrollIntoView({behavior:"smooth"});
+  }
+  function resetQuiz() {
+    document.querySelectorAll(".question").forEach(q => {
+      delete q.dataset.userAnswer;
+      q.querySelectorAll(".option").forEach(o => o.classList.remove("selected","correct","wrong"));
+      const inp = q.querySelector(".blank-input");
+      if (inp) { inp.value = ""; inp.classList.remove("correct","wrong"); }
+      q.querySelector(".explanation")?.classList.remove("show");
+    });
+    document.getElementById("result").classList.remove("show");
+    document.getElementById("progressFill").style.width = "0%";
+  }
+</script>
+
+</body>
+</html>
