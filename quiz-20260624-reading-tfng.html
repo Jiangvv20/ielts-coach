@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#2563eb">
+<title>测验 · 2026-06-24 · Reading T/F/NG · 协商民主</title>
+<style>
+  :root { --bg:#fff; --fg:#1a1a1a; --muted:#6b7280; --accent:#2563eb; --ok:#059669; --err:#dc2626; --card:#f9fafb; --border:#e5e7eb; --nav-bg:rgba(255,255,255,0.92); --header-bg:linear-gradient(135deg,#2563eb 0%,#7c3aed 100%); }
+  @media (prefers-color-scheme: dark) { :root { --bg:#0f172a; --fg:#f1f5f9; --muted:#94a3b8; --accent:#60a5fa; --ok:#34d399; --err:#f87171; --card:#1e293b; --border:#334155; --nav-bg:rgba(15,23,42,0.92); --header-bg:linear-gradient(135deg,#1e40af 0%,#6b21a8 100%); } }
+  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body { margin:0; padding:0; background:var(--bg); color:var(--fg); }
+  body { font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue",sans-serif; line-height:1.6; min-height:100vh; padding-bottom:calc(64px + env(safe-area-inset-bottom,0)); }
+  .app-header { background:var(--header-bg); color:white; padding:calc(env(safe-area-inset-top,16px) + 12px) 16px 14px; position:sticky; top:0; z-index:20; display:flex; align-items:center; gap:12px; }
+  .back-btn { background:rgba(255,255,255,0.18); border:none; color:white; width:34px; height:34px; border-radius:10px; font-size:1.1rem; cursor:pointer; flex-shrink:0; text-decoration:none; display:flex; align-items:center; justify-content:center; }
+  .app-header .ttl { font-size:1rem; font-weight:700; }
+  .app-header .sub { font-size:0.72rem; opacity:0.85; margin-top:1px; letter-spacing:0.04em; text-transform:uppercase; }
+  main { max-width:720px; margin:0 auto; padding:16px; }
+  .progress { height:6px; background:var(--border); border-radius:3px; margin-bottom:16px; overflow:hidden; }
+  .progress-fill { height:100%; background:var(--accent); transition:width 0.3s ease; }
+  .passage { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:14px 16px; margin-bottom:16px; font-size:0.95rem; line-height:1.7; }
+  .passage h3 { margin:0 0 8px; font-size:0.78rem; color:var(--muted); text-transform:uppercase; letter-spacing:0.06em; }
+  .question { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:16px; margin-bottom:14px; }
+  .q-num { color:var(--muted); font-size:0.78rem; font-family:"SF Mono",Menlo,monospace; margin-bottom:6px; text-transform:uppercase; letter-spacing:0.04em; }
+  .q-text { font-size:1rem; margin-bottom:12px; font-weight:500; }
+  .options { display:flex; flex-direction:column; gap:8px; }
+  .option { background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:12px 14px; cursor:pointer; font-size:0.95rem; text-align:left; color:var(--fg); font-family:inherit; }
+  .option.selected { border-color:var(--accent); background:rgba(37,99,235,0.08); }
+  .option.correct { border-color:var(--ok); background:rgba(5,150,105,0.1); }
+  .option.wrong { border-color:var(--err); background:rgba(220,38,38,0.1); }
+  .blank-input { width:100%; background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:10px 12px; font-size:1rem; color:var(--fg); font-family:inherit; }
+  .blank-input.correct { border-color:var(--ok); }
+  .blank-input.wrong { border-color:var(--err); }
+  .explanation { margin-top:10px; padding:10px 12px; background:var(--bg); border-left:3px solid var(--accent); border-radius:4px; font-size:0.9rem; color:var(--muted); display:none; }
+  .explanation.show { display:block; }
+  .explanation .answer { color:var(--ok); font-weight:600; }
+  .actions { display:flex; gap:10px; margin-top:20px; }
+  .btn { flex:1; padding:12px; border:none; border-radius:10px; font-size:1rem; font-weight:600; cursor:pointer; font-family:inherit; }
+  .btn-primary { background:var(--accent); color:white; }
+  .btn-secondary { background:var(--card); color:var(--fg); border:1px solid var(--border); }
+  .result { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:20px; text-align:center; margin-top:20px; display:none; }
+  .result.show { display:block; }
+  .score { font-size:2.5rem; font-weight:700; color:var(--accent); }
+  .score-label { color:var(--muted); font-size:0.9rem; margin-top:4px; }
+  .tabbar { position:fixed; bottom:0; left:0; right:0; background:var(--nav-bg); backdrop-filter:saturate(180%) blur(20px); -webkit-backdrop-filter:saturate(180%) blur(20px); border-top:1px solid var(--border); display:flex; padding-bottom:env(safe-area-inset-bottom,0); z-index:30; }
+  .tab-btn { flex:1; background:transparent; border:none; padding:10px 4px 8px; color:var(--muted); font-size:0.68rem; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:3px; font-family:inherit; text-decoration:none; }
+  .tab-btn .icon { font-size:1.25rem; line-height:1; }
+  .tab-btn.active { color:var(--accent); }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <a class="back-btn" href="index.html#quizzes">←</a>
+  <div style="flex:1;min-width:0;">
+    <div class="ttl">Reading T/F/NG · 协商民主与公民参与</div>
+    <div class="sub">Day 35 · 10 题 · ~8 分钟</div>
+  </div>
+</header>
+
+<main>
+
+  <div class="progress"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+
+    <div class="passage">
+    <h3>Passage · Participatory Democracy in the Digital Age</h3>
+    <p>For much of the twentieth century, citizens engaged with their governments mainly by casting a vote every few years. In recent decades, however, a growing body of evidence suggests that this thin form of participation leaves many people feeling distant from the decisions that shape their lives. In response, reformers have experimented with new mechanisms that invite ordinary citizens directly into the work of deliberation. Two of the most influential are the deliberative poll and the citizen assembly, both of which rest on the conviction that, given time and good information, members of the public can reason their way to thoughtful collective judgements.</p>
+<p>The deliberative poll, developed by the political scientist James Fishkin in the late 1980s, begins with a conventional survey of public opinion. A representative sample of citizens is then brought together, supplied with balanced briefing materials, and given the chance to question experts and debate the issues among themselves. Crucially, their views are measured both before and after this process. The striking finding, repeated across dozens of such exercises around the world, is that opinions frequently shift once people have engaged seriously with the evidence. Proponents contend that this demonstrates a latent capacity for reasoned judgement that ordinary polling fails to capture, because a snapshot survey records only uninformed first impressions.</p>
+<p>The citizen assembly takes the logic further. Rather than merely measuring opinion, it asks a panel of residents — usually selected by sortition — to study a question in depth over many weeks and then issue concrete recommendations. Famous examples in Ireland addressed deeply contentious constitutional questions that elected politicians had long found too difficult to resolve. The assemblies heard from experts and campaigners on all sides, deliberated carefully, and produced proposals that were subsequently put to the wider electorate. Supporters argue that such bodies can break a political deadlock precisely because their members have no party loyalties to defend and no election to win.</p>
+<p>The digital age has accelerated these experiments. Online platforms allow assemblies to gather evidence remotely, enable far larger numbers of people to weigh in on draft proposals, and make the entire process more transparent. Some cities have combined deliberation with participatory budgeting, inviting residents to allocate a portion of public funds directly. Civic tech tools now help governments publish open data, run consultations, and gather feedback at a scale that would once have been impossible.</p>
+<p>Yet the picture is not uniformly positive. Critics caution that digital participation can favour the confident and the well-connected, while leaving others further behind. There is also the difficult question of authority: an assembly's recommendations are usually advisory rather than legally binding, and governments remain free to ignore them. Some commentators accuse politicians of merely paying lip service to deliberation — convening assemblies to appear responsive while quietly setting their conclusions aside.</p>
+  </div>
+
+  <div id="questions">
+
+    <div class="question" data-type="mcq" data-answer="B">
+      <div class="q-num">Q01 · T/F/NG</div>
+      <div class="q-text">The deliberative poll measures participants' opinions only after they have completed the discussions.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">B · False</div>
+        原文: "their views are measured both before and after this process" — 观点在讨论前后都被测量，非只在之后。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="A">
+      <div class="q-num">Q02 · T/F/NG</div>
+      <div class="q-text">In deliberative polls, participants' opinions frequently change once they have engaged seriously with the evidence.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">A · True</div>
+        原文: "opinions frequently shift once people have engaged seriously with the evidence" — 直接支持。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="A">
+      <div class="q-num">Q03 · T/F/NG</div>
+      <div class="q-text">Members of citizen assemblies are typically chosen by sortition rather than by election.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">A · True</div>
+        原文: "a panel of residents — usually selected by sortition" — 通常通过抽签选出，而非选举。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="B">
+      <div class="q-num">Q04 · T/F/NG</div>
+      <div class="q-text">The citizen assemblies held in Ireland produced recommendations that were legally binding on the government.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">B · False</div>
+        原文: "recommendations are usually advisory rather than legally binding" — 建议通常不具法律约束力；爱尔兰的建议被"put to the wider electorate"（交由更广泛选民决定），而非直接强制实施。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="C">
+      <div class="q-num">Q05 · T/F/NG</div>
+      <div class="q-text">Deliberative polls are more effective in wealthy countries than in developing nations.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">C · Not Given</div>
+        文中提到审议式民调已在全球多地实施，但未比较其在富裕国家与发展中国家之间的效果差异。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="B">
+      <div class="q-num">Q06 · T/F/NG</div>
+      <div class="q-text">Most advocates of citizen assemblies want them to replace traditional elected institutions entirely.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">B · False</div>
+        文章最后明确指出: "few of their advocates suggest they should" replace representative institutions — 倡导者并不主张完全取代。
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="sortition">
+      <div class="q-num">Q07 · 词汇填空</div>
+      <div class="q-text">Unlike elected bodies, citizen assemblies select members by ____, drawing names at random from the general population to ensure a representative cross-section. (选词自本日词汇表)</div>
+      <input class="blank-input" placeholder="键入答案...">
+      <div class="explanation">
+        <div class="answer">sortition</div>
+        抽签选任 (sortition) — 通过随机抽取而非选举产生代表，确保人口代表性。
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="participatory budgeting">
+      <div class="q-num">Q08 · 词汇填空</div>
+      <div class="q-text">Several cities have moved beyond pure deliberation to adopt ____ ____, giving residents direct control over how a portion of the municipal budget is spent. (2词)</div>
+      <input class="blank-input" placeholder="键入答案...">
+      <div class="explanation">
+        <div class="answer">participatory budgeting</div>
+        参与式预算 (participatory budgeting) — 让居民直接决定部分公共资金的用途。
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="contentious">
+      <div class="q-num">Q09 · 词汇填空</div>
+      <div class="q-text">Citizen assemblies have proven especially useful for addressing ____ constitutional questions that elected politicians find too politically dangerous to resolve. (adj.)</div>
+      <input class="blank-input" placeholder="键入答案...">
+      <div class="explanation">
+        <div class="answer">contentious</div>
+        有争议的 (contentious) — 指极具政治敏感性、各方争议激烈的问题，如宪法改革。
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="binding">
+      <div class="q-num">Q10 · 词汇填空</div>
+      <div class="q-text">Critics point out that assembly recommendations are usually advisory rather than legally ____, leaving governments free to disregard them. (adj.)</div>
+      <input class="blank-input" placeholder="键入答案...">
+      <div class="explanation">
+        <div class="answer">binding</div>
+        有约束力的 (binding) — 法律上具有强制执行力。"legally binding" 是固定搭配。
+      </div>
+    </div>
+
+  </div>
+
+  <div class="actions">
+    <button class="btn btn-secondary" onclick="resetQuiz()">重做</button>
+    <button class="btn btn-primary" onclick="submitQuiz()">提交对答</button>
+  </div>
+
+  <div class="result" id="result">
+    <div class="score" id="scoreNum">--</div>
+    <div class="score-label">正确率</div>
+    <div id="scoreDetail" style="margin-top:10px;color:var(--muted);"></div>
+  </div>
+
+</main>
+
+<nav class="tabbar">
+  <a class="tab-btn" href="index.html#home"><span class="icon">🏠</span>概览</a>
+  <a class="tab-btn" href="index.html#materials"><span class="icon">📺</span>材料</a>
+  <a class="tab-btn active" href="index.html#quizzes"><span class="icon">✏️</span>测验</a>
+  <a class="tab-btn" href="index.html#plan"><span class="icon">📋</span>计划</a>
+</nav>
+
+<script>
+  document.querySelectorAll(".option").forEach(opt => {
+    opt.addEventListener("click", () => {
+      const q = opt.closest(".question");
+      q.querySelectorAll(".option").forEach(o => o.classList.remove("selected"));
+      opt.classList.add("selected");
+      q.dataset.userAnswer = opt.dataset.key;
+      updateProgress();
+    });
+  });
+  document.querySelectorAll(".blank-input").forEach(inp => {
+    inp.addEventListener("input", () => {
+      inp.closest(".question").dataset.userAnswer = inp.value.trim();
+      updateProgress();
+    });
+  });
+  function updateProgress() {
+    const total = document.querySelectorAll(".question").length;
+    const done = document.querySelectorAll(".question[data-user-answer]").length;
+    document.getElementById("progressFill").style.width = (done/total*100) + "%";
+  }
+  function submitQuiz() {
+    let correct = 0, total = 0;
+    document.querySelectorAll(".question").forEach(q => {
+      total++;
+      const userAns = (q.dataset.userAnswer || "").toLowerCase();
+      const correctAns = q.dataset.answer.toLowerCase();
+      const isCorrect = userAns === correctAns;
+      if (isCorrect) correct++;
+      if (q.dataset.type === "mcq") {
+        q.querySelectorAll(".option").forEach(o => {
+          if (o.dataset.key.toLowerCase() === correctAns) o.classList.add("correct");
+          else if (o.dataset.key.toLowerCase() === userAns && !isCorrect) o.classList.add("wrong");
+        });
+      } else if (q.dataset.type === "blank") {
+        const inp = q.querySelector(".blank-input");
+        inp.classList.add(isCorrect ? "correct" : "wrong");
+      }
+      q.querySelector(".explanation")?.classList.add("show");
+    });
+    const result = document.getElementById("result");
+    const pct = Math.round(correct/total*100);
+    document.getElementById("scoreNum").textContent = pct + "%";
+    document.getElementById("scoreDetail").textContent = `${correct} / ${total} 正确`;
+    result.classList.add("show");
+    result.scrollIntoView({behavior:"smooth"});
+  }
+  function resetQuiz() {
+    document.querySelectorAll(".question").forEach(q => {
+      delete q.dataset.userAnswer;
+      q.querySelectorAll(".option").forEach(o => o.classList.remove("selected","correct","wrong"));
+      const inp = q.querySelector(".blank-input");
+      if (inp) { inp.value = ""; inp.classList.remove("correct","wrong"); }
+      q.querySelector(".explanation")?.classList.remove("show");
+    });
+    document.getElementById("result").classList.remove("show");
+    document.getElementById("progressFill").style.width = "0%";
+  }
+</script>
+
+</body>
+</html>
