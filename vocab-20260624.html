@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#2563eb">
+<title>今日 150 词 · 2026-06-24 · Gov &amp; Society Day 7</title>
+<style>
+  :root { --bg:#fff; --fg:#1a1a1a; --muted:#6b7280; --accent:#2563eb; --ok:#059669; --warn:#d97706; --card:#f9fafb; --border:#e5e7eb; --nav-bg:rgba(255,255,255,0.92); --header-bg:linear-gradient(135deg,#2563eb 0%,#7c3aed 100%); }
+  @media (prefers-color-scheme: dark) { :root { --bg:#0f172a; --fg:#f1f5f9; --muted:#94a3b8; --accent:#60a5fa; --ok:#34d399; --warn:#fbbf24; --card:#1e293b; --border:#334155; --nav-bg:rgba(15,23,42,0.92); --header-bg:linear-gradient(135deg,#1e40af 0%,#6b21a8 100%); } }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html,body { margin:0; padding:0; background:var(--bg); color:var(--fg); }
+  body { font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue",sans-serif; line-height:1.5; min-height:100vh; padding-bottom:calc(64px + env(safe-area-inset-bottom,0)); }
+  .app-header { background:var(--header-bg); color:white; padding:calc(env(safe-area-inset-top,16px) + 12px) 16px 14px; position:sticky; top:0; z-index:20; display:flex; align-items:center; gap:12px; }
+  .back-btn { background:rgba(255,255,255,0.18); border:none; color:white; width:34px; height:34px; border-radius:10px; font-size:1.1rem; cursor:pointer; flex-shrink:0; text-decoration:none; display:flex; align-items:center; justify-content:center; }
+  .app-header .ttl { font-size:1rem; font-weight:700; }
+  .app-header .sub { font-size:0.72rem; opacity:0.85; margin-top:1px; letter-spacing:0.04em; text-transform:uppercase; }
+  .stats { background:var(--card); padding:12px 16px; border-bottom:1px solid var(--border); display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; text-align:center; }
+  .stat .num { font-size:1.4rem; font-weight:700; }
+  .stat .num.know { color:var(--ok); }
+  .stat .num.weak { color:var(--warn); }
+  .stat .num.left { color:var(--accent); }
+  .stat .lbl { font-size:0.7rem; color:var(--muted); text-transform:uppercase; letter-spacing:0.04em; margin-top:2px; }
+  .progress-bar { height:4px; background:var(--border); overflow:hidden; }
+  .progress-fill { height:100%; background:var(--accent); transition:width 0.3s; }
+  .card-stage { margin:24px 16px; perspective:1000px; }
+  .card-3d { position:relative; width:100%; min-height:260px; transform-style:preserve-3d; transition:transform 0.5s; cursor:pointer; }
+  .card-3d.flipped { transform:rotateY(180deg); }
+  .face { position:absolute; width:100%; height:100%; backface-visibility:hidden; -webkit-backface-visibility:hidden; background:var(--card); border:1px solid var(--border); border-radius:18px; padding:24px 20px; display:flex; flex-direction:column; justify-content:center; box-shadow:0 1px 3px rgba(0,0,0,0.04); }
+  .face.front { text-align:center; }
+  .face.front .word { font-size:2rem; font-weight:700; color:var(--accent); margin-bottom:8px; word-break:break-word; }
+  .face.front .pos { color:var(--muted); font-size:0.95rem; font-style:italic; }
+  .face.front .hint { margin-top:28px; color:var(--muted); font-size:0.82rem; }
+  .face.back { transform:rotateY(180deg); }
+  .face.back .zh { font-size:1.3rem; font-weight:600; color:var(--accent); margin-bottom:12px; }
+  .face.back .collo { background:var(--bg); padding:8px 12px; border-radius:8px; font-size:0.92rem; color:var(--fg); margin-bottom:10px; border-left:3px solid var(--accent); }
+  .face.back .ex { font-size:0.95rem; font-style:italic; color:var(--fg); line-height:1.6; }
+  .face.back .ex strong { color:var(--accent); font-style:normal; }
+  .speaker { position:absolute; top:14px; right:14px; width:36px; height:36px; border-radius:50%; background:var(--bg); border:1px solid var(--border); cursor:pointer; font-size:1.1rem; padding:0; color:var(--accent); }
+  .view-toggle { display:flex; padding:12px 16px 0; gap:8px; }
+  .view-toggle button { flex:1; padding:8px; background:var(--card); border:1px solid var(--border); border-radius:8px; color:var(--muted); font-size:0.85rem; cursor:pointer; font-family:inherit; }
+  .view-toggle button.active { background:var(--accent); color:white; border-color:var(--accent); }
+  .list-view { display:none; padding:12px 16px 24px; }
+  .list-view.active { display:block; }
+  .list-row { display:flex; align-items:center; gap:10px; padding:10px 12px; border-bottom:1px solid var(--border); background:var(--card); border-radius:8px; margin-bottom:6px; }
+  .list-row .num { flex-shrink:0; width:28px; color:var(--muted); font-size:0.72rem; font-family:"SF Mono",Menlo,monospace; }
+  .list-row .word { flex:1; min-width:0; }
+  .list-row .w { font-weight:600; font-size:0.95rem; color:var(--fg); }
+  .list-row .w.knew { color:var(--ok); }
+  .list-row .w.weak { color:var(--warn); }
+  .list-row .zh { font-size:0.78rem; color:var(--muted); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .list-row .spk { flex-shrink:0; width:32px; height:32px; border-radius:50%; background:var(--bg); border:1px solid var(--border); cursor:pointer; color:var(--accent); font-size:0.9rem; padding:0; }
+  .list-row .mk { flex-shrink:0; width:24px; text-align:center; color:var(--muted); }
+  .list-row .mk.know { color:var(--ok); }
+  .list-row .mk.weak { color:var(--warn); }
+  .curriculum-note { margin:16px; padding:12px 14px; background:var(--card); border-left:3px solid var(--accent); border-radius:8px; font-size:0.82rem; color:var(--muted); line-height:1.5; }
+  .curriculum-note strong { color:var(--fg); }
+  .actions { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; padding:0 16px; }
+  .btn { padding:14px 8px; border:1px solid var(--border); border-radius:12px; background:var(--card); color:var(--fg); font-size:0.95rem; font-weight:600; cursor:pointer; font-family:inherit; -webkit-tap-highlight-color:transparent; }
+  .btn .ico { display:block; font-size:1.4rem; margin-bottom:2px; }
+  .btn.weak { color:var(--warn); }
+  .btn.weak:active { background:rgba(217,119,6,0.1); }
+  .btn.flip { color:var(--accent); }
+  .btn.flip:active { background:rgba(37,99,235,0.1); }
+  .btn.know { color:var(--ok); }
+  .btn.know:active { background:rgba(5,150,105,0.1); }
+  .meta { text-align:center; color:var(--muted); font-size:0.78rem; margin-top:20px; }
+  .tabbar { position:fixed; bottom:0; left:0; right:0; background:var(--nav-bg); backdrop-filter:saturate(180%) blur(20px); -webkit-backdrop-filter:saturate(180%) blur(20px); border-top:1px solid var(--border); display:flex; padding-bottom:env(safe-area-inset-bottom,0); z-index:30; }
+  .tab-btn { flex:1; background:transparent; border:none; padding:10px 4px 8px; color:var(--muted); font-size:0.68rem; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:3px; font-family:inherit; text-decoration:none; }
+  .tab-btn .icon { font-size:1.25rem; line-height:1; }
+  .tab-btn.active { color:var(--accent); }
+  .done-screen { text-align:center; padding:60px 24px; display:none; }
+  .done-screen.show { display:block; }
+  .done-screen .big { font-size:4rem; }
+  .done-screen .ttl { font-size:1.3rem; font-weight:700; margin:8px 0; }
+  .done-screen .sub { color:var(--muted); margin-bottom:24px; }
+  .done-screen button { background:var(--accent); color:white; border:none; padding:12px 24px; border-radius:12px; font-size:0.95rem; font-weight:600; cursor:pointer; font-family:inherit; margin:4px; }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <a class="back-btn" href="index.html#home">←</a>
+  <div style="flex:1;">
+    <div class="ttl">今日 150 词 · Gov &amp; Society</div>
+    <div class="sub">2026-06-24 · Day 7 of 7 (Final)</div>
+  </div>
+</header>
+
+<div class="stats">
+  <div class="stat"><div class="num know" id="kn">0</div><div class="lbl">知道</div></div>
+  <div class="stat"><div class="num weak" id="wk">0</div><div class="lbl">不熟</div></div>
+  <div class="stat"><div class="num left" id="lf">150</div><div class="lbl">剩余</div></div>
+</div>
+<div class="progress-bar"><div class="progress-fill" id="pg" style="width:0%"></div></div>
+
+<div class="view-toggle">
+  <button id="vtFlash" class="active" onclick="setView('flash')">📇 卡片</button>
+  <button id="vtList" onclick="setView('list')">📋 列表</button>
+</div>
+
+<div id="deck">
+  <div class="card-stage">
+    <div class="card-3d" id="card" onclick="flip()">
+      <div class="face front">
+        <button class="speaker" onclick="event.stopPropagation();speak(document.getElementById('w').textContent)">🔊</button>
+        <div class="word" id="w">—</div>
+        <div class="pos" id="p">—</div>
+        <div class="hint">轻触卡片 · 翻看释义</div>
+      </div>
+      <div class="face back">
+        <button class="speaker" onclick="event.stopPropagation();speak(document.getElementById('w').textContent)">🔊</button>
+        <div class="zh" id="zh">—</div>
+        <div class="collo" id="cl">—</div>
+        <div class="ex" id="ex">—</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="btn weak" onclick="mark('weak')"><span class="ico">😣</span>不熟</button>
+    <button class="btn flip" onclick="flip()"><span class="ico">🔄</span>翻转</button>
+    <button class="btn know" onclick="mark('know')"><span class="ico">✅</span>知道</button>
+  </div>
+
+  <div class="meta" id="meta">1 / 150 · Education Day 2 · 认知科学 / 教学心理 / 课堂 / 课程 / EdTech</div>
+</div>
+
+<div class="list-view" id="listView">
+  <div id="listBody"></div>
+</div>
+
+<div class="curriculum-note">
+  <strong>Day 7 / 7 · Government &amp; Society (Final)</strong><br>
+  今日 150 词聚焦: 劳工权利 (20) · 贸易法律 (18) · 宪政与司法 (18) · 发展援助 (12) · 行政法 (12) · 公民参与 (12) · 环境治理 (10) · 选举制度 (10) · 媒体规制 (10) · 习语/句型 (28)<br>
+  与 Day 1 (2026-06-18)-6 零重叠。下周主题: Work &amp; Economy Work &amp; Economy Week (Day 8+) 继续 Education 进入特殊教育 / 课程评估 / 学术诚信 / 全球教育趋势等子话题。
+</div>
+
+<div class="done-screen" id="done">
+  <div class="big">🎉</div>
+  <div class="ttl" id="doneTtl">今日 150 词完成!</div>
+  <div class="sub" id="doneSub">知道 0 · 不熟 0</div>
+  <button onclick="resetAll()">重新开始</button>
+  <button onclick="reviewWeak()">只复习不熟</button>
+  <button onclick="location.href='index.html'">回主页</button>
+</div>
+
+<nav class="tabbar">
+  <a class="tab-btn active" href="index.html#home"><span class="icon">🏠</span>概览</a>
+  <a class="tab-btn" href="index.html#materials"><span class="icon">📺</span>材料</a>
+  <a class="tab-btn" href="index.html#quizzes"><span class="icon">✏️</span>测验</a>
+  <a class="tab-btn" href="index.html#plan"><span class="icon">📋</span>计划</a>
+</nav>
+
+<script>
+const CARDS = [
+{"w": "trade union", "p": "n.", "zh": "工会", "cl": "join / form a trade union", "ex": "Workers voted to <strong>join a trade union</strong> after management refused to discuss wage increases."},
+{"w": "collective bargaining", "p": "n.", "zh": "集体谈判", "cl": "engage in collective bargaining", "ex": "The legislation guarantees employees the right to <strong>engage in collective bargaining</strong> with their employer."},
+{"w": "wildcat strike", "p": "n.", "zh": "自发性罢工", "cl": "stage a wildcat strike", "ex": "The workers <strong>staged a wildcat strike</strong> without official union authorisation when the factory floor became unsafe."},
+{"w": "lockout", "p": "n.", "zh": "停工封厂", "cl": "impose a lockout", "ex": "Management <strong>imposed a lockout</strong>, barring employees from entering the building until a new contract was signed."},
+{"w": "shop steward", "p": "n.", "zh": "车间工会代表", "cl": "elected shop steward", "ex": "The <strong>elected shop steward</strong> relayed workers' grievances directly to senior management."},
+{"w": "unfair dismissal", "p": "n.", "zh": "不公正解雇", "cl": "claim unfair dismissal", "ex": "She <strong>claimed unfair dismissal</strong> after being sacked without any written warning or formal process."},
+{"w": "redundancy", "p": "n.", "zh": "裁员/冗余岗位", "cl": "face redundancy", "ex": "Over 400 staff <strong>faced redundancy</strong> when the factory relocated production to another country."},
+{"w": "wage theft", "p": "n.", "zh": "工资盗取", "cl": "commit / suffer wage theft", "ex": "Gig-economy platforms have been accused of <strong>committing wage theft</strong> by misclassifying employees as independent contractors."},
+{"w": "gig economy", "p": "n.", "zh": "零工经济", "cl": "work in the gig economy", "ex": "Millions now <strong>work in the gig economy</strong>, enjoying flexibility but lacking employment rights and social protection."},
+{"w": "worker representation", "p": "n.", "zh": "劳工代表权", "cl": "demand worker representation", "ex": "Trade unions <strong>demand worker representation</strong> on corporate boards to give employees a voice in strategic decisions."},
+{"w": "solidarity", "p": "n.", "zh": "团结/声援", "cl": "show solidarity with", "ex": "Dockworkers <strong>showed solidarity with</strong> striking truck drivers by refusing to unload cargo."},
+{"w": "gender pay gap", "p": "n.", "zh": "性别薪酬差距", "cl": "close the gender pay gap", "ex": "Mandatory pay transparency reporting is seen as the most effective way to <strong>close the gender pay gap</strong>."},
+{"w": "pay equity", "p": "n.", "zh": "薪酬公平", "cl": "achieve pay equity", "ex": "The new legislation sets binding targets to <strong>achieve pay equity</strong> across public sector organisations by 2030."},
+{"w": "occupational hazard", "p": "n.", "zh": "职业风险", "cl": "identify occupational hazards", "ex": "Health and safety inspectors are required to <strong>identify occupational hazards</strong> and order employers to mitigate them."},
+{"w": "right to organise", "p": "n.", "zh": "组织权", "cl": "uphold the right to organise", "ex": "International labour conventions explicitly <strong>uphold the right to organise</strong> for all workers, regardless of sector."},
+{"w": "tariff", "p": "n.", "zh": "关税", "cl": "impose a tariff on", "ex": "The government imposed a 25% <strong>tariff on</strong> imported steel to protect domestic manufacturers from cheaper foreign competition."},
+{"w": "quota", "p": "n.", "zh": "配额", "cl": "set an import quota", "ex": "Brussels <strong>set an import quota</strong> limiting the volume of textiles that could enter the EU tariff-free."},
+{"w": "dumping", "p": "n.", "zh": "倾销", "cl": "anti-dumping duty", "ex": "Rival producers lobbied for an <strong>anti-dumping duty</strong> after foreign suppliers flooded the market with below-cost goods."},
+{"w": "countervailing duty", "p": "n.", "zh": "反补贴税", "cl": "apply a countervailing duty", "ex": "Authorities <strong>applied a countervailing duty</strong> of 18% to offset the illegal state subsidies received by the exporter."},
+{"w": "surplus", "p": "n.", "zh": "贸易盈余", "cl": "run a trade surplus", "ex": "Germany consistently <strong>runs a trade surplus</strong>, exporting far more than it imports."},
+{"w": "most-favoured-nation", "p": "n.", "zh": "最惠国", "cl": "most-favoured-nation status", "ex": "The accord granted each signatory <strong>most-favoured-nation status</strong>, ensuring non-discriminatory treatment in trade."},
+{"w": "rules of origin", "p": "n.", "zh": "原产地规则", "cl": "comply with rules of origin", "ex": "Under the trade deal, exporters must <strong>comply with rules of origin</strong> to claim preferential tariff rates."},
+{"w": "trade facilitation", "p": "n.", "zh": "贸易便利化", "cl": "promote trade facilitation", "ex": "Customs digitisation has done more to <strong>promote trade facilitation</strong> than any tariff reduction in the past decade."},
+{"w": "market access", "p": "n.", "zh": "市场准入", "cl": "negotiate market access", "ex": "The coalition's primary goal in the talks was to <strong>negotiate market access</strong> for its pharmaceutical companies."},
+{"w": "cartel", "p": "n.", "zh": "卡特尔/价格同盟", "cl": "form / break up a cartel", "ex": "The competition authority moved to <strong>break up a cartel</strong> that had fixed prices in the cement industry for seven years."},
+{"w": "ultra vires", "p": "adj./adv.", "zh": "越权", "cl": "declared ultra vires", "ex": "The court <strong>declared ultra vires</strong> the minister's decision to grant the licence without statutory authority."},
+{"w": "delegated legislation", "p": "n.", "zh": "授权立法", "cl": "pass delegated legislation", "ex": "Parliament passes framework laws and ministers then <strong>pass delegated legislation</strong> to fill in the technical details."},
+{"w": "administrative tribunal", "p": "n.", "zh": "行政裁判所", "cl": "appeal to an administrative tribunal", "ex": "Claimants who disagree with the benefit agency's ruling may <strong>appeal to an administrative tribunal</strong>."},
+{"w": "natural justice", "p": "n.", "zh": "自然公正原则", "cl": "principle of natural justice", "ex": "The dismissal was overturned because it breached the <strong>principle of natural justice</strong> — the employee was never heard."},
+{"w": "public inquiry", "p": "n.", "zh": "公开调查", "cl": "hold a public inquiry", "ex": "Mounting pressure from victims' families forced the government to <strong>hold a public inquiry</strong> into the disaster."},
+{"w": "judicial appointment", "p": "n.", "zh": "司法任命", "cl": "scrutinise judicial appointments", "ex": "A cross-party committee was set up to <strong>scrutinise judicial appointments</strong> and reduce executive interference."},
+{"w": "constitutional court", "p": "n.", "zh": "宪法法院", "cl": "refer to the constitutional court", "ex": "Opposition MPs voted to <strong>refer to the constitutional court</strong> the bill they believed violated fundamental rights."},
+{"w": "bill of rights", "p": "n.", "zh": "权利法案", "cl": "enshrine in a bill of rights", "ex": "Campaigners argued that digital rights should be <strong>enshrined in a bill of rights</strong> to give them the strongest legal protection."},
+{"w": "constitutional crisis", "p": "n.", "zh": "宪政危机", "cl": "trigger a constitutional crisis", "ex": "The President's refusal to accept the election result <strong>triggered a constitutional crisis</strong> that paralysed the government for months."},
+{"w": "judicial independence", "p": "n.", "zh": "司法独立", "cl": "safeguard judicial independence", "ex": "International observers warned that the new court-packing plan would undermine <strong>judicial independence</strong>."},
+{"w": "ODA", "p": "n.", "zh": "官方发展援助", "cl": "increase ODA to", "ex": "Rich nations reiterated their pledge to increase <strong>ODA to</strong> 0.7% of gross national income, a target few have met."},
+{"w": "aid conditionality", "p": "n.", "zh": "援助条件性", "cl": "impose aid conditionality", "ex": "Critics argue that <strong>aid conditionality</strong> tied to structural adjustment policies deepened poverty in recipient nations."},
+{"w": "structural adjustment", "p": "n.", "zh": "结构调整", "cl": "structural adjustment programme", "ex": "The <strong>structural adjustment programme</strong> mandated fiscal austerity, privatisation, and deregulation in exchange for IMF loans."},
+{"w": "human development index", "p": "n.", "zh": "人类发展指数", "cl": "rank on the human development index", "ex": "A country's <strong>human development index</strong> score reflects not just GDP but also health and education outcomes."},
+{"w": "poverty reduction strategy", "p": "n.", "zh": "减贫战略", "cl": "implement a poverty reduction strategy", "ex": "Donor nations required governments to submit a national <strong>poverty reduction strategy</strong> before receiving budget support."},
+{"w": "multilateral development bank", "p": "n.", "zh": "多边开发银行", "cl": "secure financing from a multilateral development bank", "ex": "The infrastructure project was financed after the country <strong>secured financing from a multilateral development bank</strong>."},
+{"w": "tied aid", "p": "n.", "zh": "附加条件援助", "cl": "phase out tied aid", "ex": "There is broad consensus that wealthy nations should <strong>phase out tied aid</strong>, which forces recipients to use donor-country suppliers."},
+{"w": "debt relief", "p": "n.", "zh": "债务减免", "cl": "provide debt relief to", "ex": "The G20 agreed to <strong>provide debt relief to</strong> the most vulnerable economies affected by successive financial shocks."},
+{"w": "capacity building", "p": "n.", "zh": "能力建设", "cl": "invest in capacity building", "ex": "Long-term development depends on donor nations <strong>investing in capacity building</strong> rather than short-term emergency aid."},
+{"w": "participatory budgeting", "p": "n.", "zh": "参与式预算", "cl": "pilot participatory budgeting", "ex": "Porto Alegre's decision to <strong>pilot participatory budgeting</strong> gave residents direct control over a portion of the city's spending."},
+{"w": "citizen assembly", "p": "n.", "zh": "公民议会", "cl": "convene a citizen assembly", "ex": "Ireland <strong>convened a citizen assembly</strong> of randomly selected citizens to deliberate on contentious constitutional issues."},
+{"w": "deliberative polling", "p": "n.", "zh": "协商民调", "cl": "conduct deliberative polling", "ex": "When authorities <strong>conducted deliberative polling</strong> on energy policy, informed citizens favoured renewables more strongly."},
+{"w": "civic tech", "p": "n.", "zh": "公民科技", "cl": "develop civic tech solutions", "ex": "Start-ups are <strong>developing civic tech solutions</strong> to allow residents to report infrastructure faults and track repairs in real time."},
+{"w": "e-voting", "p": "n.", "zh": "电子投票", "cl": "trial e-voting systems", "ex": "Estonia's decision to <strong>trial e-voting systems</strong> nationwide has made it a model for digital democracy."},
+{"w": "deliberative democracy", "p": "n.", "zh": "协商民主", "cl": "advance deliberative democracy", "ex": "Advocates of <strong>deliberative democracy</strong> argue that quality of reasoning in debate matters more than simple majority rule."},
+{"w": "mini-public", "p": "n.", "zh": "微型公众会议", "cl": "use a mini-public to", "ex": "Planners <strong>used a mini-public to</strong> test public reaction before committing to the controversial zoning change."},
+{"w": "ranked-choice voting", "p": "n.", "zh": "排序选择投票", "cl": "adopt ranked-choice voting", "ex": "Proponents claim that <strong>adopting ranked-choice voting</strong> reduces negative campaigning and rewards moderate candidates."},
+{"w": "independent electoral commission", "p": "n.", "zh": "独立选举委员会", "cl": "establish an independent electoral commission", "ex": "Democracy monitors urged the government to <strong>establish an independent electoral commission</strong> free from partisan control."},
+{"w": "compulsory voting", "p": "n.", "zh": "强制投票", "cl": "introduce compulsory voting", "ex": "Australia has <strong>introduced compulsory voting</strong>, which has produced some of the highest turnout rates in the democratic world."},
+{"w": "workfare", "p": "n.", "zh": "以工代赈", "cl": "impose workfare conditions", "ex": "Critics argue that <strong>imposing workfare conditions</strong> on benefit recipients ignores structural barriers to employment."},
+{"w": "means-testing", "p": "n.", "zh": "资产调查", "cl": "strict means-testing", "ex": "The government tightened <strong>strict means-testing</strong> criteria, reducing the number of households eligible for housing benefit."},
+{"w": "welfare cliff", "p": "n.", "zh": "福利悬崖", "cl": "fall off the welfare cliff", "ex": "Many low-income workers refuse to take higher-paying jobs because they would <strong>fall off the welfare cliff</strong> and lose benefits worth more."},
+{"w": "clawback", "p": "n.", "zh": "追回补贴", "cl": "introduce a clawback mechanism", "ex": "The programme <strong>introduced a clawback mechanism</strong> to recover overpaid benefits from higher-earning recipients."},
+{"w": "tapered benefit", "p": "n.", "zh": "递减福利", "cl": "introduce a tapered benefit", "ex": "Reformers proposed replacing the current cliff-edge system with a <strong>tapered benefit</strong> that withdraws slowly as income rises."},
+{"w": "benefit cap", "p": "n.", "zh": "福利上限", "cl": "impose a benefit cap", "ex": "The controversial decision to <strong>impose a benefit cap</strong> hit families with children hardest in high-cost cities."},
+{"w": "social insurance", "p": "n.", "zh": "社会保险", "cl": "reform the social insurance system", "ex": "An ageing population is putting mounting pressure on governments to <strong>reform the social insurance system</strong>."},
+{"w": "pension fund", "p": "n.", "zh": "养老金基金", "cl": "invest pension fund assets in", "ex": "Campaigners pressed trustees to <strong>invest pension fund assets in</strong> green infrastructure rather than fossil fuels."},
+{"w": "emissions trading scheme", "p": "n.", "zh": "排放交易计划", "cl": "expand the emissions trading scheme", "ex": "The European Commission voted to <strong>expand the emissions trading scheme</strong> to cover maritime and aviation sectors."},
+{"w": "carbon leakage", "p": "n.", "zh": "碳泄漏", "cl": "prevent carbon leakage", "ex": "A carbon border adjustment mechanism is intended to <strong>prevent carbon leakage</strong> by taxing imports from less regulated markets."},
+{"w": "environmental court", "p": "n.", "zh": "环境法院", "cl": "refer a case to an environmental court", "ex": "Pakistan established a dedicated <strong>environmental court</strong> to hear cases involving climate harm and pollution."},
+{"w": "polluter pays", "p": "n.", "zh": "污染者付费", "cl": "enforce the polluter pays principle", "ex": "Strict enforcement of the <strong>polluter pays principle</strong> creates incentives for companies to internalise environmental costs."},
+{"w": "ecocide", "p": "n.", "zh": "生态灭绝", "cl": "prosecute ecocide", "ex": "A coalition of legal scholars is lobbying for international courts to be able to <strong>prosecute ecocide</strong> as a crime."},
+{"w": "nature-positive", "p": "adj.", "zh": "自然正向的", "cl": "adopt a nature-positive approach", "ex": "The summit concluded with a pledge to <strong>adopt a nature-positive approach</strong> that restores biodiversity alongside reducing emissions."},
+{"w": "restoration order", "p": "n.", "zh": "恢复令", "cl": "issue a restoration order", "ex": "Courts can now <strong>issue a restoration order</strong> requiring companies to rehabilitate land damaged by industrial activity."},
+{"w": "prorogation", "p": "n.", "zh": "休会/解散议会", "cl": "unlawful prorogation of parliament", "ex": "The Supreme Court ruled that the <strong>unlawful prorogation of parliament</strong> had prevented MPs from scrutinising the executive."},
+{"w": "standing orders", "p": "n.", "zh": "议事规则", "cl": "amend the standing orders", "ex": "The opposition moved to <strong>amend the standing orders</strong> to allow emergency debates on the economic crisis."},
+{"w": "quango", "p": "n.", "zh": "半自治非政府机构", "cl": "abolish a quango", "ex": "The Chancellor announced plans to <strong>abolish a quango</strong> that critics had long regarded as wasteful and unaccountable."},
+{"w": "civil-society organisation", "p": "n.", "zh": "公民社会组织", "cl": "consult civil-society organisations", "ex": "The draft bill was circulated to <strong>civil-society organisations</strong> for feedback before being tabled in parliament."},
+{"w": "shadow economy", "p": "n.", "zh": "影子经济", "cl": "reduce the shadow economy", "ex": "High levels of informal work make it difficult to <strong>reduce the shadow economy</strong> without comprehensive labour market reform."},
+{"w": "tax avoidance", "p": "n.", "zh": "税务规避", "cl": "crack down on tax avoidance", "ex": "The OECD's minimum tax framework is designed to <strong>crack down on tax avoidance</strong> by multinational corporations."},
+{"w": "fiscal drag", "p": "n.", "zh": "财政拖累", "cl": "suffer from fiscal drag", "ex": "As inflation rose without corresponding tax threshold adjustments, more households began to <strong>suffer from fiscal drag</strong>."},
+{"w": "automatic stabiliser", "p": "n.", "zh": "自动稳定器", "cl": "rely on automatic stabilisers", "ex": "During recessions, governments <strong>rely on automatic stabilisers</strong> such as unemployment benefits to maintain consumer spending."},
+{"w": "precautionary principle", "p": "n.", "zh": "预防原则", "cl": "apply the precautionary principle", "ex": "Regulators <strong>applied the precautionary principle</strong> when restricting the new chemical compound until long-term studies were complete."},
+{"w": "open data", "p": "n.", "zh": "开放数据", "cl": "publish as open data", "ex": "The council agreed to <strong>publish its contract register as open data</strong> to allow journalists and citizens to scrutinise spending."},
+{"w": "lawfare", "p": "n.", "zh": "法律战", "cl": "engage in lawfare", "ex": "Activists accused the corporation of <strong>engaging in lawfare</strong> — using expensive litigation to silence critics rather than win on the merits."},
+{"w": "anti-corruption authority", "p": "n.", "zh": "反腐机构", "cl": "empower an anti-corruption authority", "ex": "The reform package included a plan to <strong>empower an anti-corruption authority</strong> with independent prosecutorial power."},
+{"w": "political finance", "p": "n.", "zh": "政治融资", "cl": "regulate political finance", "ex": "Stricter rules to <strong>regulate political finance</strong> are needed to prevent wealthy interests from capturing policymakers."},
+{"w": "dark money", "p": "n.", "zh": "暗钱", "cl": "expose dark money", "ex": "Investigative journalists worked to <strong>expose dark money</strong> flowing anonymously into campaign advertising."},
+{"w": "electoral integrity", "p": "n.", "zh": "选举完整性", "cl": "protect electoral integrity", "ex": "International observers were deployed specifically to <strong>protect electoral integrity</strong> and deter ballot tampering."},
+{"w": "proportionality test", "p": "n.", "zh": "比例性检验", "cl": "apply a proportionality test", "ex": "Courts must <strong>apply a proportionality test</strong> when deciding whether rights restrictions are justified."},
+{"w": "sunset clause", "p": "n.", "zh": "落日条款", "cl": "include a sunset clause", "ex": "The emergency powers legislation <strong>included a sunset clause</strong> so that extraordinary measures would lapse after six months."},
+{"w": "omnibus bill", "p": "n.", "zh": "综合性法案", "cl": "pass an omnibus bill", "ex": "Critics objected that <strong>passing an omnibus bill</strong> bundled together unrelated measures to limit legislative scrutiny."},
+{"w": "recall referendum", "p": "n.", "zh": "罢免公投", "cl": "trigger a recall referendum", "ex": "Citizens collected enough signatures to <strong>trigger a recall referendum</strong> against the governor over budget cuts."},
+{"w": "entrench", "p": "v.", "zh": "使巩固/确立", "cl": "entrench in legislation", "ex": "Opponents argued the provision would <strong>entrench in legislation</strong> a two-tier system of justice that favoured the wealthy."},
+{"w": "reprimand", "p": "n./v.", "zh": "训诫", "cl": "formally reprimand", "ex": "The ethics committee voted to <strong>formally reprimand</strong> the MP for failing to declare a financial interest."},
+{"w": "inquisitorial", "p": "adj.", "zh": "纠问制的", "cl": "inquisitorial system", "ex": "France operates an <strong>inquisitorial system</strong> in which a judge leads the investigation, unlike the adversarial common-law tradition."},
+{"w": "adversarial", "p": "adj.", "zh": "对抗制的", "cl": "adversarial legal system", "ex": "The UK's <strong>adversarial legal system</strong> pits prosecution against defence, with a judge as neutral referee."},
+{"w": "interlocutory", "p": "adj.", "zh": "诉讼中间期的", "cl": "interlocutory injunction", "ex": "The firm obtained an <strong>interlocutory injunction</strong> to prevent the publication of leaked documents while the main case was heard."},
+{"w": "de facto", "p": "adj./adv.", "zh": "事实上的", "cl": "de facto authority", "ex": "Though not legally recognised, the regional council exercised <strong>de facto authority</strong> over taxation and public services."},
+{"w": "de jure", "p": "adj./adv.", "zh": "法律上的", "cl": "de jure independence", "ex": "The territory declared <strong>de jure independence</strong> but received formal diplomatic recognition from only a handful of states."},
+{"w": "codify", "p": "v.", "zh": "将…编入法典", "cl": "codify existing rights", "ex": "The review panel recommended that the government <strong>codify existing rights</strong> in a single, accessible constitutional document."},
+{"w": "inviolable", "p": "adj.", "zh": "不可侵犯的", "cl": "inviolable right", "ex": "Freedom from torture is an <strong>inviolable right</strong> that cannot be suspended even during a national emergency."},
+{"w": "non-derogable", "p": "adj.", "zh": "不可克减的", "cl": "non-derogable human rights", "ex": "Under international law, certain <strong>non-derogable human rights</strong> — such as the prohibition of torture — cannot be suspended by any state."},
+{"w": "exhaustion of remedies", "p": "n.", "zh": "用尽救济原则", "cl": "principle of exhaustion of remedies", "ex": "The case was inadmissible because the applicant had not complied with the <strong>principle of exhaustion of remedies</strong> under domestic law."},
+{"w": "amicus curiae", "p": "n.", "zh": "法庭之友", "cl": "file as amicus curiae", "ex": "Several human rights NGOs were granted permission to <strong>file as amicus curiae</strong> and present arguments to the appellate court."},
+{"w": "locus standi", "p": "n.", "zh": "诉讼资格/当事人资格", "cl": "establish locus standi", "ex": "The court dismissed the petition as the applicant had failed to <strong>establish locus standi</strong> — a direct legal interest in the outcome."},
+{"w": "take stock of", "p": "phrasal v.", "zh": "评估/审视", "cl": "take stock of the situation", "ex": "After the election, the party was urged to <strong>take stock of</strong> its policy platform and reconnect with working-class voters."},
+{"w": "hold to account", "p": "phrasal v.", "zh": "追究责任", "cl": "hold officials to account", "ex": "A free press is essential to <strong>hold officials to account</strong> for decisions made in the public's name."},
+{"w": "tip the balance", "p": "phrase", "zh": "打破平衡", "cl": "tip the balance in favour of", "ex": "New evidence about the health risks of cheap processed food could <strong>tip the balance in favour of</strong> stricter advertising regulations."},
+{"w": "lay the groundwork for", "p": "phrase", "zh": "为…奠定基础", "cl": "lay the groundwork for reform", "ex": "Years of civil-society advocacy <strong>laid the groundwork for</strong> the landmark anti-corruption legislation."},
+{"w": "stack the deck against", "p": "idiom", "zh": "操控对自己不利", "cl": "stack the deck against minority parties", "ex": "Critics argued that the new electoral rules would <strong>stack the deck against</strong> smaller minority parties."},
+{"w": "in the court of public opinion", "p": "idiom", "zh": "在公众舆论中", "cl": "lose in the court of public opinion", "ex": "Even if the minister escaped legal sanction, he had already <strong>lost in the court of public opinion</strong>."},
+{"w": "drive a coach and horses through", "p": "idiom", "zh": "使…形同虚设", "cl": "drive a coach and horses through legislation", "ex": "Clever lawyers found ways to <strong>drive a coach and horses through</strong> the new tax avoidance rules."},
+{"w": "cross the Rubicon", "p": "idiom", "zh": "破釜沉舟/越过不归点", "cl": "cross the Rubicon on constitutional change", "ex": "By triggering emergency powers, the President had <strong>crossed the Rubicon on constitutional change</strong> — there was no return to the status quo."},
+{"w": "put in place", "p": "phrasal v.", "zh": "建立/落实", "cl": "put in place safeguards", "ex": "Before rushing ahead, the committee insisted that adequate oversight mechanisms be <strong>put in place</strong>."},
+{"w": "draw the line at", "p": "phrasal v.", "zh": "划定界限", "cl": "draw the line at surveillance", "ex": "Even security hawks <strong>drew the line at</strong> bulk surveillance of citizens without judicial warrants."},
+{"w": "make inroads into", "p": "phrasal v.", "zh": "取得进展", "cl": "make inroads into poverty", "ex": "Targeted cash-transfer programmes have begun to <strong>make inroads into</strong> deep-rooted rural poverty."},
+{"w": "hold the purse strings", "p": "idiom", "zh": "掌控财权", "cl": "hold the purse strings on aid", "ex": "The parliamentary finance committee effectively <strong>holds the purse strings on aid</strong>, giving legislators leverage over foreign policy."},
+{"w": "forge a consensus", "p": "phrase", "zh": "凝聚共识", "cl": "forge a consensus on reform", "ex": "The mediator's role was to <strong>forge a consensus on reform</strong> among factions with diametrically opposed positions."},
+{"w": "call to account", "p": "phrase", "zh": "要求…负责", "cl": "call ministers to account", "ex": "Parliamentary committees were granted new powers to <strong>call ministers to account</strong> without the threat of prorogation."},
+{"w": "set a precedent", "p": "phrase", "zh": "开创先例", "cl": "set a precedent for future cases", "ex": "The landmark ruling will <strong>set a precedent for future cases</strong> on the permissible scope of government surveillance."},
+{"w": "Whether X is achieved depends largely on", "p": "sentence stem", "zh": "X能否实现很大程度上取决于", "cl": "— use in conclusions —", "ex": "<strong>Whether meaningful participatory democracy is achieved depends largely on</strong> whether institutions are genuinely open to citizen input."},
+{"w": "Far from being a panacea", "p": "sentence stem", "zh": "远非灵丹妙药", "cl": "— nuance a solution —", "ex": "<strong>Far from being a panacea</strong>, citizen assemblies require sustained institutional support to translate public deliberation into actual policy change."},
+{"w": "A necessary but not sufficient condition", "p": "sentence stem", "zh": "必要但非充分条件", "cl": "— qualify a causal claim —", "ex": "Institutional capacity is <strong>a necessary but not sufficient condition</strong> for good governance; political will must accompany it."},
+{"w": "To put it in perspective", "p": "phrase", "zh": "从整体来看", "cl": "— add context in essay —", "ex": "<strong>To put it in perspective</strong>, the entire annual budget of the anti-corruption agency amounts to less than one day's uncollected tax revenue."},
+{"w": "There is no one-size-fits-all solution", "p": "sentence stem", "zh": "没有放之四海而皆准的方案", "cl": "— acknowledge complexity —", "ex": "<strong>There is no one-size-fits-all solution</strong> to electoral reform; what works in a parliamentary republic may be disastrous in a presidential system."},
+{"w": "strike at the heart of", "p": "idiom", "zh": "触及核心", "cl": "strike at the heart of democracy", "ex": "Unregulated campaign finance <strong>strikes at the heart of</strong> democracy by allowing wealth to substitute for votes."},
+{"w": "give rise to", "p": "phrasal v.", "zh": "导致/引发", "cl": "give rise to constitutional questions", "ex": "The concentration of media ownership in a single conglomerate has <strong>given rise to</strong> serious constitutional questions about pluralism."},
+{"w": "in the absence of", "p": "phrase", "zh": "在缺乏…的情况下", "cl": "in the absence of strong institutions", "ex": "<strong>In the absence of</strong> an independent judiciary, citizens have no reliable mechanism to challenge government overreach."},
+{"w": "by and large", "p": "adv.", "zh": "总体而言", "cl": "by and large effective", "ex": "The electoral commission's performance was <strong>by and large</strong> effective, though isolated irregularities were reported in three constituencies."},
+{"w": "trade-off", "p": "n.", "zh": "权衡/取舍", "cl": "the trade-off between security and liberty", "ex": "Every constitutional democracy must navigate <strong>the trade-off between security and liberty</strong> when drafting surveillance law."},
+{"w": "net positive", "p": "adj. phrase", "zh": "总体正面", "cl": "have a net positive effect", "ex": "While the reforms created short-term disruption, evidence suggests they have had a <strong>net positive</strong> effect on long-term fiscal stability."},
+{"w": "quid pro quo", "p": "n.", "zh": "交换条件", "cl": "demand a quid pro quo", "ex": "The senator was accused of <strong>demanding a quid pro quo</strong> — agreeing to vote for the bill only in exchange for a campaign donation."},
+{"w": "customs union", "p": "n.", "zh": "关税同盟", "cl": "form a customs union", "ex": "Member states agreed to <strong>form a customs union</strong> with a common external tariff on imported goods."},
+{"w": "trade dispute", "p": "n.", "zh": "贸易争端", "cl": "settle a trade dispute", "ex": "The two governments referred their <strong>trade dispute</strong> to an independent panel for resolution."},
+{"w": "dispute settlement", "p": "n.", "zh": "争端解决", "cl": "dispute settlement mechanism", "ex": "The treaty's <strong>dispute settlement</strong> body has authority to rule on contested trade practices."},
+{"w": "trade liberalisation", "p": "n.", "zh": "贸易自由化", "cl": "pursue trade liberalisation", "ex": "Critics argue that rapid <strong>trade liberalisation</strong> can expose fragile industries to overwhelming competition."},
+{"w": "free trade agreement", "p": "n.", "zh": "自由贸易协定", "cl": "sign a free trade agreement", "ex": "After years of talks, the two nations finally agreed to <strong>sign a free trade agreement</strong>."},
+{"w": "export subsidy", "p": "n.", "zh": "出口补贴", "cl": "phase out export subsidies", "ex": "Reform proposals called on governments to phase out <strong>export subsidies</strong> that distort global markets."},
+{"w": "non-tariff barrier", "p": "n.", "zh": "非关税壁垒", "cl": "dismantle non-tariff barriers", "ex": "Complex licensing rules act as a <strong>non-tariff barrier</strong> that quietly restricts foreign access."},
+{"w": "tariff schedule", "p": "n.", "zh": "关税表", "cl": "revise the tariff schedule", "ex": "Negotiators spent months trying to revise the <strong>tariff schedule</strong> covering thousands of product lines."},
+{"w": "sectoral bargaining", "p": "n.", "zh": "行业谈判", "cl": "introduce sectoral bargaining", "ex": "Some economists favour <strong>sectoral bargaining</strong>, which sets pay standards across an entire industry."},
+{"w": "unionise", "p": "v.", "zh": "组建工会", "cl": "unionise the workforce", "ex": "Warehouse staff campaigned for months to <strong>unionise</strong> their rapidly expanding workplace."},
+{"w": "picket line", "p": "n.", "zh": "纠察线", "cl": "cross a picket line", "ex": "Few drivers were willing to <strong>cross a picket line</strong> set up by striking colleagues."},
+{"w": "zero-hours contract", "p": "n.", "zh": "零时合同", "cl": "work on a zero-hours contract", "ex": "Critics say those who <strong>work on a zero-hours contract</strong> face unpredictable income from week to week."},
+{"w": "precarious employment", "p": "n.", "zh": "不稳定就业", "cl": "trapped in precarious employment", "ex": "Young graduates often find themselves trapped in <strong>precarious employment</strong> with no long-term prospects."},
+{"w": "workplace dispute", "p": "n.", "zh": "劳资纠纷", "cl": "resolve a workplace dispute", "ex": "A neutral conciliator was appointed to resolve the bitter <strong>workplace dispute</strong>."},
+{"w": "labour standard", "p": "n.", "zh": "劳工标准", "cl": "uphold labour standards", "ex": "International buyers demanded that suppliers <strong>uphold labour standards</strong> throughout their factories."},
+{"w": "constitutional amendment", "p": "n.", "zh": "宪法修正案", "cl": "propose a constitutional amendment", "ex": "Reformers tried to <strong>propose a constitutional amendment</strong> limiting the powers of the presidency."},
+{"w": "constitutional convention", "p": "n.", "zh": "宪法惯例", "cl": "observe a constitutional convention", "ex": "By long custom, ministers <strong>observe a constitutional convention</strong> requiring them to resign over serious failures."},
+{"w": "justiciable", "p": "adj.", "zh": "可裁决的", "cl": "a justiciable issue", "ex": "The court ruled that the policy was a political matter and therefore not <strong>justiciable</strong>."},
+{"w": "concessional loan", "p": "n.", "zh": "优惠贷款", "cl": "offer a concessional loan", "ex": "The bank agreed to <strong>offer a concessional loan</strong> at well below the prevailing market rate."},
+{"w": "sustainable development", "p": "n.", "zh": "可持续发展", "cl": "promote sustainable development", "ex": "The summit's goal was to <strong>promote sustainable development</strong> without harming the future."},
+{"w": "recipient country", "p": "n.", "zh": "受援国", "cl": "empower the recipient country", "ex": "Modern aid models aim to <strong>empower the recipient country</strong> to set its own priorities."},
+{"w": "statutory instrument", "p": "n.", "zh": "法定文件", "cl": "lay a statutory instrument", "ex": "The department had to <strong>lay a statutory instrument</strong> before parliament to bring the rules into force."}
+]
+
+let state = JSON.parse(localStorage.getItem("ielts_vocab_20260624") || "{}");
+let queue = CARDS.map((c, i) => ({...c, idx: i})).filter(c => !state[c.idx] || state[c.idx] === "review");
+let cur = 0;
+
+function speak(text) {
+  if (!text || !window.speechSynthesis) return;
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = "en-US"; u.rate = 0.85; u.pitch = 1;
+  const voices = speechSynthesis.getVoices();
+  const en = voices.find(v => /en-(US|GB)/.test(v.lang) && /Samantha|Daniel|Alex|Karen|Moira|Google US English|Google UK English/.test(v.name))
+          || voices.find(v => v.lang.startsWith("en"));
+  if (en) u.voice = en;
+  speechSynthesis.speak(u);
+}
+if (window.speechSynthesis) speechSynthesis.onvoiceschanged = () => {};
+
+function render() {
+  if (cur >= queue.length) return showDone();
+  const c = queue[cur];
+  document.getElementById("w").textContent = c.w;
+  document.getElementById("p").textContent = c.p;
+  document.getElementById("zh").textContent = c.zh;
+  document.getElementById("cl").textContent = c.cl;
+  document.getElementById("ex").innerHTML = c.ex;
+  document.getElementById("card").classList.remove("flipped");
+  document.getElementById("meta").textContent = `${cur+1} / ${queue.length} · Education Day 2`;
+  updateStats();
+  setTimeout(() => speak(c.w), 150);
+}
+
+function setView(v) {
+  document.getElementById("vtFlash").classList.toggle("active", v === "flash");
+  document.getElementById("vtList").classList.toggle("active", v === "list");
+  document.getElementById("deck").style.display = v === "flash" ? "" : "none";
+  document.getElementById("listView").classList.toggle("active", v === "list");
+  if (v === "list") renderList();
+}
+
+function renderList() {
+  const body = document.getElementById("listBody");
+  body.innerHTML = CARDS.map((c, i) => {
+    const mark = state[i] || "";
+    const cls = mark === "know" ? "knew" : mark === "weak" ? "weak" : "";
+    const ico = mark === "know" ? "✓" : mark === "weak" ? "○" : "·";
+    const mcls = mark === "know" ? "know" : mark === "weak" ? "weak" : "";
+    return `<div class="list-row">
+      <div class="num">${String(i+1).padStart(3,'0')}</div>
+      <div class="word"><div class="w ${cls}">${c.w} <span style="color:var(--muted);font-weight:400;font-size:0.78rem;">${c.p}</span></div><div class="zh">${c.zh}</div></div>
+      <button class="spk" onclick="speak('${c.w.replace(/'/g,"\\'")}')">🔊</button>
+      <div class="mk ${mcls}">${ico}</div>
+    </div>`;
+  }).join("");
+}
+
+function flip() { document.getElementById("card").classList.toggle("flipped"); }
+
+function mark(t) {
+  const c = queue[cur];
+  state[c.idx] = (t === "know" ? "know" : "weak");
+  localStorage.setItem("ielts_vocab_20260624", JSON.stringify(state));
+  cur++;
+  render();
+}
+
+function updateStats() {
+  const kn = Object.values(state).filter(v=>v==="know").length;
+  const wk = Object.values(state).filter(v=>v==="weak").length;
+  const lf = 150 - kn - wk;
+  document.getElementById("kn").textContent = kn;
+  document.getElementById("wk").textContent = wk;
+  document.getElementById("lf").textContent = lf;
+  document.getElementById("pg").style.width = ((kn+wk)/150*100) + "%";
+}
+
+function showDone() {
+  document.getElementById("deck").style.display = "none";
+  document.getElementById("done").classList.add("show");
+  const kn = Object.values(state).filter(v=>v==="know").length;
+  const wk = Object.values(state).filter(v=>v==="weak").length;
+  document.getElementById("doneTtl").textContent = wk > 0 ? `今日 150 词完成! 还有 ${wk} 张不熟` : "今日 150 词全掌握 🎉";
+  document.getElementById("doneSub").textContent = `知道 ${kn} · 不熟 ${wk}`;
+}
+
+function reviewWeak() {
+  queue = CARDS.map((c,i)=>({...c,idx:i})).filter(c => state[c.idx] === "weak");
+  if (queue.length === 0) { alert("没有不熟的卡!"); return; }
+  cur = 0;
+  document.getElementById("done").classList.remove("show");
+  document.getElementById("deck").style.display = "";
+  render();
+}
+
+function resetAll() {
+  if (!confirm("清空今日进度,重新开始?")) return;
+  localStorage.removeItem("ielts_vocab_20260624");
+  state = {};
+  queue = CARDS.map((c,i)=>({...c,idx:i}));
+  cur = 0;
+  document.getElementById("done").classList.remove("show");
+  document.getElementById("deck").style.display = "";
+  render();
+}
+
+render();
+</script>
+
+</body>
+</html>
