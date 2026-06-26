@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#2563eb">
+<title>测验 · 2026-06-27 · Reading T/F/NG · 自动化与工作的未来</title>
+<style>
+  :root { --bg:#fff; --fg:#1a1a1a; --muted:#6b7280; --accent:#2563eb; --ok:#059669; --err:#dc2626; --card:#f9fafb; --border:#e5e7eb; --nav-bg:rgba(255,255,255,0.92); --header-bg:linear-gradient(135deg,#2563eb 0%,#7c3aed 100%); }
+  @media (prefers-color-scheme: dark) { :root { --bg:#0f172a; --fg:#f1f5f9; --muted:#94a3b8; --accent:#60a5fa; --ok:#34d399; --err:#f87171; --card:#1e293b; --border:#334155; --nav-bg:rgba(15,23,42,0.92); --header-bg:linear-gradient(135deg,#1e40af 0%,#6b21a8 100%); } }
+  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body { margin:0; padding:0; background:var(--bg); color:var(--fg); }
+  body { font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue",sans-serif; line-height:1.6; min-height:100vh; padding-bottom:calc(64px + env(safe-area-inset-bottom,0)); }
+  .app-header { background:var(--header-bg); color:white; padding:calc(env(safe-area-inset-top,16px) + 12px) 16px 14px; position:sticky; top:0; z-index:20; display:flex; align-items:center; gap:12px; }
+  .back-btn { background:rgba(255,255,255,0.18); border:none; color:white; width:34px; height:34px; border-radius:10px; font-size:1.1rem; cursor:pointer; flex-shrink:0; text-decoration:none; display:flex; align-items:center; justify-content:center; }
+  .app-header .ttl { font-size:1rem; font-weight:700; }
+  .app-header .sub { font-size:0.72rem; opacity:0.85; margin-top:1px; letter-spacing:0.04em; text-transform:uppercase; }
+  main { max-width:720px; margin:0 auto; padding:16px; }
+  .progress { height:6px; background:var(--border); border-radius:3px; margin-bottom:16px; overflow:hidden; }
+  .progress-fill { height:100%; background:var(--accent); transition:width 0.3s ease; }
+  .passage { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:14px 16px; margin-bottom:16px; font-size:0.95rem; line-height:1.7; }
+  .passage h3 { margin:0 0 8px; font-size:0.78rem; color:var(--muted); text-transform:uppercase; letter-spacing:0.06em; }
+  .question { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:16px; margin-bottom:14px; }
+  .q-num { color:var(--muted); font-size:0.78rem; font-family:"SF Mono",Menlo,monospace; margin-bottom:6px; text-transform:uppercase; letter-spacing:0.04em; }
+  .q-text { font-size:1rem; margin-bottom:12px; font-weight:500; }
+  .options { display:flex; flex-direction:column; gap:8px; }
+  .option { background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:12px 14px; cursor:pointer; font-size:0.95rem; text-align:left; color:var(--fg); font-family:inherit; }
+  .option.selected { border-color:var(--accent); background:rgba(37,99,235,0.08); }
+  .option.correct { border-color:var(--ok); background:rgba(5,150,105,0.1); }
+  .option.wrong { border-color:var(--err); background:rgba(220,38,38,0.1); }
+  .blank-input { width:100%; background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:10px 12px; font-size:1rem; color:var(--fg); font-family:inherit; }
+  .blank-input.correct { border-color:var(--ok); }
+  .blank-input.wrong { border-color:var(--err); }
+  .explanation { margin-top:10px; padding:10px 12px; background:var(--bg); border-left:3px solid var(--accent); border-radius:4px; font-size:0.9rem; color:var(--muted); display:none; }
+  .explanation.show { display:block; }
+  .explanation .answer { color:var(--ok); font-weight:600; }
+  .actions { display:flex; gap:10px; margin-top:20px; }
+  .btn { flex:1; padding:12px; border:none; border-radius:10px; font-size:1rem; font-weight:600; cursor:pointer; font-family:inherit; }
+  .btn-primary { background:var(--accent); color:white; }
+  .btn-secondary { background:var(--card); color:var(--fg); border:1px solid var(--border); }
+  .result { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:20px; text-align:center; margin-top:20px; display:none; }
+  .result.show { display:block; }
+  .score { font-size:2.5rem; font-weight:700; color:var(--accent); }
+  .score-label { color:var(--muted); font-size:0.9rem; margin-top:4px; }
+  .tabbar { position:fixed; bottom:0; left:0; right:0; background:var(--nav-bg); backdrop-filter:saturate(180%) blur(20px); -webkit-backdrop-filter:saturate(180%) blur(20px); border-top:1px solid var(--border); display:flex; padding-bottom:env(safe-area-inset-bottom,0); z-index:30; }
+  .tab-btn { flex:1; background:transparent; border:none; padding:10px 4px 8px; color:var(--muted); font-size:0.68rem; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:3px; font-family:inherit; text-decoration:none; }
+  .tab-btn .icon { font-size:1.25rem; line-height:1; }
+  .tab-btn.active { color:var(--accent); }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <a class="back-btn" href="index.html#quizzes">&#8592;</a>
+  <div style="flex:1;min-width:0;">
+    <div class="ttl">Reading T/F/NG · 自动化与工作的未来</div>
+    <div class="sub">Day 38 · 10 题 · ~8 分钟</div>
+  </div>
+</header>
+
+<main>
+
+  <div class="progress"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+
+  <div class="passage">
+    <h3>Passage · The Automation Paradox: Jobs Lost, Jobs Transformed</h3>
+    <p>When industrial robots began rolling off assembly lines in large numbers during the 1980s, economists and trade unions alike predicted a wave of unemployment that would hollow out the manufacturing workforce. That wave arrived, but it did not arrive alone: alongside job destruction came job creation, as new industries absorbed millions of displaced workers into roles that had not existed a decade earlier. This recurring pattern — technological disruption followed by labour market adaptation — is now at the centre of an urgent and unresolved debate about artificial intelligence and the future of work.</p>
+    <p>Unlike previous waves of automation, which primarily replaced manual and routine cognitive tasks, AI systems are encroaching on activities long considered the exclusive preserve of educated professionals. Radiology algorithms now outperform junior doctors at detecting certain tumours; contract-review software can process thousands of legal documents in the time it would take a paralegal team weeks to complete. The International Labour Organisation estimates that roughly 14 percent of jobs in OECD countries face a high risk of significant automation within the next two decades, while a further 32 percent will undergo substantial changes in how tasks are performed.</p>
+    <p>Proponents of technological optimism insist that such figures are deceptive. They point to the "lump of labour" fallacy — the mistaken belief that there is a fixed amount of work to be done in an economy, so that each job lost to a machine permanently reduces employment. In practice, they argue, productivity gains lower prices, stimulate demand, and generate new categories of employment. The emergence of social media, for instance, created entirely new professions — content creator, data analyst, UX designer — that were inconceivable to workers in the 1990s.</p>
+    <p>Sceptics, however, caution that the pace of change this time may outstrip the economy's capacity to adapt. Workers displaced from routine manufacturing jobs in the twentieth century could, with moderate retraining, find equivalent roles in service industries. Retraining a middle-aged accountant whose entire career rested on skills that AI now replicates cheaply is a far more formidable challenge. There is also a distributional concern: the gains from automation tend to flow disproportionately to capital owners and highly skilled workers, widening income inequality even if aggregate employment remains stable.</p>
+    <p>Governments are responding with a patchwork of policies. Some countries are experimenting with portable skills accounts — subsidised training vouchers that workers can use at any point in their careers rather than only when between jobs. Others are exploring shorter working weeks, arguing that sharing available work more broadly is preferable to concentrating income among those who retain employment. A handful of jurisdictions have floated the idea of a robot tax — a levy on firms that replace human workers with automated systems — though critics argue this would simply push innovation offshore. What remains clear is that labour market institutions designed in the twentieth century for a world of stable, long-term employment will need fundamental redesign if they are to protect workers navigating an economy shaped by intelligent machines.</p>
+  </div>
+
+  <div id="questions">
+
+    <div class="question" data-type="mcq" data-answer="B">
+      <div class="q-num">Q01 &middot; T/F/NG</div>
+      <div class="q-text">According to the passage, economists unanimously predicted that industrial robots in the 1980s would lead to permanent and irreversible mass unemployment.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">B &middot; False</div>
+        原文: "economists and trade unions alike predicted a wave of unemployment" ——预测的是失业浪潮, 并非说"永久且不可逆"; 且原文紧接着说"alongside job destruction came job creation", 说明就业是有恢复的。"unanimously" 也是原文没有的信息, 且结果并非不可逆。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="A">
+      <div class="q-num">Q02 &middot; T/F/NG</div>
+      <div class="q-text">Unlike earlier automation waves, AI is now capable of performing tasks that were previously associated with educated professionals.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">A &middot; True</div>
+        原文: "Unlike previous waves of automation, which primarily replaced manual and routine cognitive tasks, AI systems are encroaching on activities long considered the exclusive preserve of educated professionals." 直接对应题目说法。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="A">
+      <div class="q-num">Q03 &middot; T/F/NG</div>
+      <div class="q-text">The ILO estimates that around 14% of OECD jobs face a high risk of significant automation in the next 20 years.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">A &middot; True</div>
+        原文: "The International Labour Organisation estimates that roughly 14 percent of jobs in OECD countries face a high risk of significant automation within the next two decades." 完全吻合。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="C">
+      <div class="q-num">Q04 &middot; T/F/NG</div>
+      <div class="q-text">The author personally endorses the "lump of labour" fallacy as a useful framework for understanding job losses caused by automation.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">C &middot; Not Given</div>
+        原文介绍 "lump of labour" 谬论时是从 "proponents of technological optimism" 的视角叙述的, 原文称其为 "mistaken belief"。原文没有提及作者个人对该框架的认可。文章呈现了不同观点, 并未表达作者本人立场。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="B">
+      <div class="q-num">Q05 &middot; T/F/NG</div>
+      <div class="q-text">The passage states that retraining workers displaced by automation is equally straightforward regardless of the worker's age or prior profession.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">B &middot; False</div>
+        原文明确指出 "Retraining a middle-aged accountant whose entire career rested on skills that AI now replicates cheaply is a far more formidable challenge." 说明再培训的难度因人而异, 并非同等容易。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="A">
+      <div class="q-num">Q06 &middot; T/F/NG</div>
+      <div class="q-text">Critics of the robot tax argue that such a policy could drive innovation activities to other countries.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">A &middot; True</div>
+        原文: "critics argue this would simply push innovation offshore." 与题目"drive innovation activities to other countries"意思完全一致。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="C">
+      <div class="q-num">Q07 &middot; T/F/NG</div>
+      <div class="q-text">The passage mentions that the four-day working week has already been implemented as law in the majority of OECD countries.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">C &middot; Not Given</div>
+        原文只说 "Others are exploring shorter working weeks" ——仅是探索中, 并未说已成为法律, 更没有提及"大多数 OECD 国家"。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="A">
+      <div class="q-num">Q08 &middot; T/F/NG</div>
+      <div class="q-text">The passage suggests that the financial benefits of automation tend to be distributed unevenly, favouring capital owners and highly skilled workers.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">A &middot; True</div>
+        原文: "the gains from automation tend to flow disproportionately to capital owners and highly skilled workers, widening income inequality." 与题目完全吻合。
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="portable skills accounts">
+      <div class="q-num">Q09 &middot; 词汇填空</div>
+      <div class="q-text">Some governments are experimenting with _______, which are subsidised training vouchers that workers can use at any stage of their careers.</div>
+      <input class="blank-input" id="blank9" placeholder="从原文填入关键词组...">
+      <div class="explanation">
+        <div class="answer">portable skills accounts</div>
+        原文: "Some countries are experimenting with portable skills accounts — subsidised training vouchers that workers can use at any point in their careers." 这一描述与题目完全对应。
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="distributional">
+      <div class="q-num">Q10 &middot; 词汇填空</div>
+      <div class="q-text">Beyond overall employment levels, there is a _______ concern: automation's gains flow disproportionately to a privileged few, deepening inequality.</div>
+      <input class="blank-input" id="blank10" placeholder="从原文填入关键词...">
+      <div class="explanation">
+        <div class="answer">distributional</div>
+        原文: "There is also a distributional concern: the gains from automation tend to flow disproportionately to capital owners and highly skilled workers." 题目是对这句话的释义, 关键词是 distributional (分配性的)。
+      </div>
+    </div>
+
+  </div>
+
+  <div class="actions">
+    <button class="btn btn-secondary" onclick="resetQuiz()">重置</button>
+    <button class="btn btn-primary" onclick="submitQuiz()">提交检查</button>
+  </div>
+
+  <div class="result" id="result">
+    <div class="score" id="scoreDisplay">—</div>
+    <div class="score-label" id="scoreLabel">共 10 题</div>
+    <p style="color:var(--muted);font-size:0.9rem;margin-top:12px;">查看每题下方的解析，重点复习错题。到 Mac 跑 <code style="background:var(--card);padding:1px 5px;border-radius:4px;color:var(--accent);font-family:monospace;">/ielts practice grade</code> 精批。</p>
+  </div>
+
+</main>
+
+<nav class="tabbar">
+  <a class="tab-btn" href="index.html#home"><span class="icon">&#127968;</span>概览</a>
+  <a class="tab-btn" href="index.html#materials"><span class="icon">&#128250;</span>材料</a>
+  <a class="tab-btn active" href="index.html#quizzes"><span class="icon">&#9999;&#65039;</span>测验</a>
+  <a class="tab-btn" href="index.html#plan"><span class="icon">&#128203;</span>计划</a>
+</nav>
+
+<script>
+const TOTAL = 10;
+let answered = 0;
+let score = 0;
+
+document.querySelectorAll(".question[data-type='mcq']").forEach(q => {
+  const correct = q.dataset.answer;
+  q.querySelectorAll(".option").forEach(btn => {
+    btn.addEventListener("click", () => {
+      if (q.dataset.done) return;
+      q.dataset.done = "1";
+      answered++;
+      const chosen = btn.dataset.key;
+      q.querySelectorAll(".option").forEach(b => {
+        if (b.dataset.key === correct) b.classList.add("correct");
+        if (b === btn && chosen !== correct) b.classList.add("wrong");
+      });
+      if (chosen === correct) score++;
+      q.querySelector(".explanation").classList.add("show");
+      document.getElementById("progressFill").style.width = (answered / TOTAL * 100) + "%";
+    });
+  });
+});
+
+document.querySelectorAll(".question[data-type='blank']").forEach((q, idx) => {
+  const input = q.querySelector(".blank-input");
+  const correct = q.dataset.answer.toLowerCase();
+  input.addEventListener("blur", () => {
+    if (q.dataset.done) return;
+    const val = input.value.trim().toLowerCase();
+    if (!val) return;
+    q.dataset.done = "1";
+    answered++;
+    const isCorrect = val === correct || correct.includes(val) || val.includes(correct.split(" ")[0]);
+    input.classList.add(isCorrect ? "correct" : "wrong");
+    if (isCorrect) score++;
+    q.querySelector(".explanation").classList.add("show");
+    document.getElementById("progressFill").style.width = (answered / TOTAL * 100) + "%";
+  });
+});
+
+function submitQuiz() {
+  document.querySelectorAll(".explanation").forEach(e => e.classList.add("show"));
+  const band = score >= 9 ? "Band 8-9" : score >= 7 ? "Band 7" : score >= 5 ? "Band 6" : "Band 5 以下";
+  document.getElementById("scoreDisplay").textContent = score + " / " + TOTAL;
+  document.getElementById("scoreLabel").textContent = band + " · 阅读 T/F/NG";
+  document.getElementById("result").classList.add("show");
+  document.getElementById("progressFill").style.width = "100%";
+}
+
+function resetQuiz() {
+  document.querySelectorAll(".question").forEach(q => {
+    delete q.dataset.done;
+    q.querySelectorAll(".option").forEach(b => b.classList.remove("selected","correct","wrong"));
+    q.querySelectorAll(".blank-input").forEach(i => { i.value = ""; i.classList.remove("correct","wrong"); });
+    q.querySelector(".explanation").classList.remove("show");
+  });
+  answered = 0; score = 0;
+  document.getElementById("progressFill").style.width = "0%";
+  document.getElementById("result").classList.remove("show");
+}
+</script>
+
+</body>
+</html>
