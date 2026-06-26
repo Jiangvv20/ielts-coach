@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#2563eb">
+<title>今日 150 词 · 2026-06-27 · Work &amp; Economy</title>
+<style>
+  :root {
+    --bg: #ffffff; --fg: #1a1a1a; --muted: #6b7280;
+    --accent: #2563eb; --ok: #059669; --warn: #d97706;
+    --card: #f9fafb; --border: #e5e7eb;
+    --nav-bg: rgba(255,255,255,0.92);
+    --header-bg: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f172a; --fg: #f1f5f9; --muted: #94a3b8;
+      --accent: #60a5fa; --ok: #34d399; --warn: #fbbf24;
+      --card: #1e293b; --border: #334155;
+      --nav-bg: rgba(15,23,42,0.92);
+      --header-bg: linear-gradient(135deg, #1e40af 0%, #6b21a8 100%);
+    }
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg); }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif;
+    line-height: 1.5;
+    min-height: 100vh;
+    padding-bottom: calc(64px + env(safe-area-inset-bottom, 0));
+  }
+  .app-header {
+    background: var(--header-bg); color: white;
+    padding: calc(env(safe-area-inset-top, 16px) + 12px) 16px 14px;
+    position: sticky; top: 0; z-index: 20;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .back-btn {
+    background: rgba(255,255,255,0.18); border: none; color: white;
+    width: 34px; height: 34px; border-radius: 10px;
+    font-size: 1.1rem; cursor: pointer; flex-shrink: 0;
+    text-decoration: none; display: flex; align-items: center; justify-content: center;
+  }
+  .app-header .ttl { font-size: 1rem; font-weight: 700; }
+  .app-header .sub {
+    font-size: 0.72rem; opacity: 0.85; margin-top: 1px;
+    letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  .stats {
+    background: var(--card); padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px; text-align: center;
+  }
+  .stat .num { font-size: 1.4rem; font-weight: 700; }
+  .stat .num.know { color: var(--ok); }
+  .stat .num.weak { color: var(--warn); }
+  .stat .num.left { color: var(--accent); }
+  .stat .lbl { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; margin-top: 2px; }
+  .progress-bar {
+    height: 4px; background: var(--border);
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%; background: var(--accent);
+    transition: width 0.3s;
+  }
+  .card-stage {
+    margin: 24px 16px;
+    perspective: 1000px;
+  }
+  .card-3d {
+    position: relative;
+    width: 100%; min-height: 260px;
+    transform-style: preserve-3d;
+    transition: transform 0.5s;
+    cursor: pointer;
+  }
+  .card-3d.flipped { transform: rotateY(180deg); }
+  .face {
+    position: absolute; width: 100%; height: 100%;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 24px 20px;
+    display: flex; flex-direction: column;
+    justify-content: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .face.front { text-align: center; }
+  .face.front .word {
+    font-size: 2rem; font-weight: 700;
+    color: var(--accent); margin-bottom: 8px;
+    word-break: break-word;
+  }
+  .face.front .pos {
+    color: var(--muted); font-size: 0.95rem;
+    font-style: italic;
+  }
+  .face.front .hint {
+    margin-top: 28px; color: var(--muted);
+    font-size: 0.82rem;
+  }
+  .face.back { transform: rotateY(180deg); }
+  .face.back .zh {
+    font-size: 1.3rem; font-weight: 600;
+    color: var(--accent); margin-bottom: 12px;
+  }
+  .face.back .collo {
+    background: var(--bg); padding: 8px 12px;
+    border-radius: 8px; font-size: 0.92rem;
+    color: var(--fg); margin-bottom: 10px;
+    border-left: 3px solid var(--accent);
+  }
+  .face.back .ex {
+    font-size: 0.95rem; font-style: italic;
+    color: var(--fg); line-height: 1.6;
+  }
+  .face.back .ex strong { color: var(--accent); font-style: normal; }
+  .speaker {
+    position: absolute; top: 14px; right: 14px;
+    width: 36px; height: 36px; border-radius: 50%;
+    background: var(--bg); border: 1px solid var(--border);
+    cursor: pointer; font-size: 1.1rem; padding: 0;
+    color: var(--accent);
+  }
+  .view-toggle {
+    display: flex; padding: 12px 16px 0;
+    gap: 8px;
+  }
+  .view-toggle button {
+    flex: 1; padding: 8px;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 8px; color: var(--muted);
+    font-size: 0.85rem; cursor: pointer; font-family: inherit;
+  }
+  .view-toggle button.active { background: var(--accent); color: white; border-color: var(--accent); }
+  .list-view { display: none; padding: 12px 16px 24px; }
+  .list-view.active { display: block; }
+  .list-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px; border-bottom: 1px solid var(--border);
+    background: var(--card); border-radius: 8px;
+    margin-bottom: 6px;
+  }
+  .list-row .num {
+    flex-shrink: 0; width: 28px;
+    color: var(--muted); font-size: 0.72rem;
+    font-family: "SF Mono", Menlo, monospace;
+  }
+  .list-row .word {
+    flex: 1; min-width: 0;
+  }
+  .list-row .w { font-weight: 600; font-size: 0.95rem; color: var(--fg); }
+  .list-row .w.knew { color: var(--ok); }
+  .list-row .w.weak { color: var(--warn); }
+  .list-row .zh {
+    font-size: 0.78rem; color: var(--muted); margin-top: 2px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .list-row .spk {
+    flex-shrink: 0; width: 32px; height: 32px;
+    border-radius: 50%; background: var(--bg);
+    border: 1px solid var(--border); cursor: pointer;
+    color: var(--accent); font-size: 0.9rem; padding: 0;
+  }
+  .list-row .mk {
+    flex-shrink: 0; width: 24px; text-align: center;
+    color: var(--muted);
+  }
+  .list-row .mk.know { color: var(--ok); }
+  .list-row .mk.weak { color: var(--warn); }
+  .curriculum-note {
+    margin: 16px; padding: 12px 14px;
+    background: var(--card); border-left: 3px solid var(--accent);
+    border-radius: 8px; font-size: 0.82rem;
+    color: var(--muted); line-height: 1.5;
+  }
+  .curriculum-note strong { color: var(--fg); }
+  .actions {
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px; padding: 0 16px;
+  }
+  .btn {
+    padding: 14px 8px; border: 1px solid var(--border);
+    border-radius: 12px; background: var(--card);
+    color: var(--fg); font-size: 0.95rem;
+    font-weight: 600; cursor: pointer; font-family: inherit;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .btn .ico { display: block; font-size: 1.4rem; margin-bottom: 2px; }
+  .btn.weak { color: var(--warn); }
+  .btn.weak:active { background: rgba(217,119,6,0.1); }
+  .btn.flip { color: var(--accent); }
+  .btn.flip:active { background: rgba(37,99,235,0.1); }
+  .btn.know { color: var(--ok); }
+  .btn.know:active { background: rgba(5,150,105,0.1); }
+  .meta {
+    text-align: center; color: var(--muted);
+    font-size: 0.78rem; margin-top: 20px;
+  }
+  .tabbar {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: var(--nav-bg);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    border-top: 1px solid var(--border);
+    display: flex;
+    padding-bottom: env(safe-area-inset-bottom, 0);
+    z-index: 30;
+  }
+  .tab-btn {
+    flex: 1; background: transparent; border: none;
+    padding: 10px 4px 8px; color: var(--muted); font-size: 0.68rem;
+    cursor: pointer;
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    font-family: inherit; text-decoration: none;
+  }
+  .tab-btn .icon { font-size: 1.25rem; line-height: 1; }
+  .tab-btn.active { color: var(--accent); }
+  .done-screen {
+    text-align: center; padding: 60px 24px;
+    display: none;
+  }
+  .done-screen.show { display: block; }
+  .done-screen .big { font-size: 4rem; }
+  .done-screen .ttl { font-size: 1.3rem; font-weight: 700; margin: 8px 0; }
+  .done-screen .sub { color: var(--muted); margin-bottom: 24px; }
+  .done-screen button {
+    background: var(--accent); color: white; border: none;
+    padding: 12px 24px; border-radius: 12px;
+    font-size: 0.95rem; font-weight: 600; cursor: pointer;
+    font-family: inherit; margin: 4px;
+  }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <a class="back-btn" href="index.html#home">&#8592;</a>
+  <div style="flex:1;">
+    <div class="ttl">今日 150 词 · Work &amp; Economy</div>
+    <div class="sub">2026-06-27 · Day 38</div>
+  </div>
+</header>
+
+<div class="stats">
+  <div class="stat"><div class="num know" id="kn">0</div><div class="lbl">知道</div></div>
+  <div class="stat"><div class="num weak" id="wk">0</div><div class="lbl">不熟</div></div>
+  <div class="stat"><div class="num left" id="lf">150</div><div class="lbl">剩余</div></div>
+</div>
+<div class="progress-bar"><div class="progress-fill" id="pg" style="width:0%"></div></div>
+
+<div class="view-toggle">
+  <button id="vtFlash" class="active" onclick="setView('flash')">&#128199; 卡片</button>
+  <button id="vtList" onclick="setView('list')">&#128203; 列表</button>
+</div>
+
+<div id="deck">
+  <div class="card-stage">
+    <div class="card-3d" id="card" onclick="flip()">
+      <div class="face front">
+        <button class="speaker" onclick="event.stopPropagation();speak(document.getElementById('w').textContent)">&#128266;</button>
+        <div class="word" id="w">—</div>
+        <div class="pos" id="p">—</div>
+        <div class="hint">轻触卡片 · 翻看释义</div>
+      </div>
+      <div class="face back">
+        <button class="speaker" onclick="event.stopPropagation();speak(document.getElementById('w').textContent)">&#128266;</button>
+        <div class="zh" id="zh">—</div>
+        <div class="collo" id="cl">—</div>
+        <div class="ex" id="ex">—</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="btn weak" onclick="mark('weak')"><span class="ico">&#128543;</span>不熟</button>
+    <button class="btn flip" onclick="flip()"><span class="ico">&#128260;</span>翻转</button>
+    <button class="btn know" onclick="mark('know')"><span class="ico">&#9989;</span>知道</button>
+  </div>
+
+  <div class="meta" id="meta">1 / 150 · 今日主题 Work &amp; Economy Day 3</div>
+</div>
+
+<div class="list-view" id="listView">
+  <div id="listBody"></div>
+</div>
+
+<div class="curriculum-note">
+  <strong>词汇来源</strong>: 8 天主题轮换，涵盖雅思高频话题。<br>
+  Day 1-7 <strong>Education</strong> · Day 8-14 <strong>Environment</strong> · Day 15-21 <strong>Technology</strong> · Day 22-28 <strong>Health</strong> · Day 29-35 <strong>Government &amp; Society</strong> · Day 36-42 <strong>Work &amp; Economy</strong> · Day 43-49 <strong>Family</strong> · Day 50-56 <strong>Travel &amp; Culture</strong> · 之后循环。<br>
+  词汇为 Band 7+ 难度，每条含 词性 · 中文 · 搭配 · 例句，由 IELTS 高分话题词库扩展生成。
+</div>
+
+<div class="done-screen" id="done">
+  <div class="big">&#127881;</div>
+  <div class="ttl" id="doneTtl">今日 150 词完成!</div>
+  <div class="sub" id="doneSub">知道 0 · 不熟 0</div>
+  <button onclick="resetAll()">重新开始</button>
+  <button onclick="reviewWeak()">只复习不熟</button>
+  <button onclick="location.href='index.html'">回主页</button>
+</div>
+
+<nav class="tabbar">
+  <a class="tab-btn active" href="index.html#home"><span class="icon">&#127968;</span>概览</a>
+  <a class="tab-btn" href="index.html#materials"><span class="icon">&#128250;</span>材料</a>
+  <a class="tab-btn" href="index.html#quizzes"><span class="icon">&#9999;&#65039;</span>测验</a>
+  <a class="tab-btn" href="index.html#plan"><span class="icon">&#128203;</span>计划</a>
+</nav>
+
+<script>
+const CARDS = [
+{"w":"remuneration","p":"n.","zh":"薪酬报酬","cl":"generous remuneration","ex":"The job offers generous <strong>remuneration</strong> and excellent benefits."},
+{"w":"redundancy","p":"n.","zh":"裁员 / 冗余","cl":"face redundancy","ex":"Hundreds of workers faced <strong>redundancy</strong> after the factory closed."},
+{"w":"furlough","p":"n./v.","zh":"(强制) 休假 / 临时解雇","cl":"put workers on furlough","ex":"The airline <strong>furloughed</strong> thousands of staff during the downturn."},
+{"w":"severance","p":"n.","zh":"遣散费","cl":"severance pay / package","ex":"She negotiated a generous <strong>severance</strong> package before leaving."},
+{"w":"headhunt","p":"v.","zh":"猎头 / 物色人才","cl":"be headhunted by a rival firm","ex":"She was <strong>headhunted</strong> by a rival firm and offered double her salary."},
+{"w":"recruitment","p":"n.","zh":"招聘","cl":"recruitment drive","ex":"The tech sector launched a major <strong>recruitment</strong> drive this quarter."},
+{"w":"attrition","p":"n.","zh":"自然减员 / 磨损","cl":"staff attrition rate","ex":"High <strong>attrition</strong> rates signal deeper problems in company culture."},
+{"w":"onboarding","p":"n.","zh":"入职培训","cl":"smooth onboarding process","ex":"A thorough <strong>onboarding</strong> process reduces early turnover significantly."},
+{"w":"appraisal","p":"n.","zh":"绩效评估","cl":"annual performance appraisal","ex":"The annual <strong>appraisal</strong> determines bonuses and promotions."},
+{"w":"probation","p":"n.","zh":"试用期","cl":"on probation","ex":"New employees serve three months <strong>on probation</strong>."},
+{"w":"commute","p":"n./v.","zh":"通勤","cl":"long daily commute","ex":"A long daily <strong>commute</strong> erodes work-life balance over time."},
+{"w":"telecommute","p":"v.","zh":"远程上班","cl":"telecommute full-time","ex":"More professionals now <strong>telecommute</strong> full-time from rural areas."},
+{"w":"hybrid","p":"adj.","zh":"混合办公的","cl":"hybrid work model","ex":"The company adopted a <strong>hybrid</strong> model of three days in office."},
+{"w":"white-collar","p":"adj.","zh":"白领的","cl":"white-collar worker","ex":"Automation is now threatening <strong>white-collar</strong> jobs once thought safe."},
+{"w":"blue-collar","p":"adj.","zh":"蓝领的","cl":"blue-collar workforce","ex":"Manufacturing remains the backbone of the <strong>blue-collar</strong> workforce."},
+{"w":"salaried","p":"adj.","zh":"领固定薪资的","cl":"salaried employee","ex":"Being a <strong>salaried</strong> employee offers more financial predictability than freelancing."},
+{"w":"freelance","p":"adj./v.","zh":"自由职业的","cl":"go freelance","ex":"She decided to <strong>go freelance</strong> after a decade in corporate marketing."},
+{"w":"subcontract","p":"v.","zh":"分包 / 外包","cl":"subcontract work to specialists","ex":"The firm <strong>subcontracts</strong> IT work to specialists in Eastern Europe."},
+{"w":"outsource","p":"v.","zh":"外包","cl":"outsource manufacturing","ex":"Many companies <strong>outsource</strong> manufacturing to cut labour costs."},
+{"w":"delegate","p":"v.","zh":"委派 / 授权","cl":"delegate responsibility","ex":"Effective managers know how to <strong>delegate</strong> without micromanaging."},
+{"w":"empower","p":"v.","zh":"赋权 / 赋能","cl":"empower employees","ex":"Decentralised structures <strong>empower</strong> employees to make decisions."},
+{"w":"incentivise","p":"v.","zh":"激励","cl":"incentivise performance","ex":"Profit-sharing schemes <strong>incentivise</strong> workers to boost productivity."},
+{"w":"micromanage","p":"v.","zh":"过度干预","cl":"micromanage every detail","ex":"A boss who <strong>micromanages</strong> every detail destroys trust rapidly."},
+{"w":"sabbatical","p":"n.","zh":"长期带薪假期 / 学术休假","cl":"take a sabbatical","ex":"She took a <strong>sabbatical</strong> to research sustainable business models."},
+{"w":"overtime","p":"n.","zh":"加班","cl":"work overtime","ex":"Employees who consistently work <strong>overtime</strong> risk severe burnout."},
+{"w":"minimum wage","p":"n.","zh":"最低工资","cl":"raise the minimum wage","ex":"Campaigners are pushing to raise the <strong>minimum wage</strong> to a living standard."},
+{"w":"living wage","p":"n.","zh":"生活工资 (能维持基本生活的)","cl":"pay a living wage","ex":"Many multinationals have pledged to pay a <strong>living wage</strong> across supply chains."},
+{"w":"pension","p":"n.","zh":"退休金 / 养老金","cl":"pension scheme / fund","ex":"Shrinking <strong>pension</strong> funds are a looming crisis for ageing societies."},
+{"w":"redundant","p":"adj.","zh":"被裁员的 / 多余的","cl":"made redundant","ex":"Three hundred workers were <strong>made redundant</strong> in the latest round of cuts."},
+{"w":"turnover","p":"n.","zh":"人员流动率 / 营业额","cl":"high staff turnover","ex":"High <strong>turnover</strong> is costly because recruiting and training are expensive."},
+{"w":"revenue","p":"n.","zh":"收入 / 营业额","cl":"generate revenue","ex":"The start-up struggled to <strong>generate revenue</strong> in its first two years."},
+{"w":"expenditure","p":"n.","zh":"支出 / 开支","cl":"cut expenditure","ex":"The board voted to <strong>cut expenditure</strong> by 15% across all departments."},
+{"w":"profit margin","p":"n.","zh":"利润率","cl":"narrow profit margin","ex":"Retailers operate on razor-thin <strong>profit margins</strong> in a competitive market."},
+{"w":"stakeholder","p":"n.","zh":"利益相关者","cl":"key stakeholders","ex":"The report was presented to all key <strong>stakeholders</strong> including employees and suppliers."},
+{"w":"shareholder","p":"n.","zh":"股东","cl":"shareholder value","ex":"Maximising <strong>shareholder</strong> value is not always compatible with social responsibility."},
+{"w":"subsidiary","p":"n.","zh":"子公司","cl":"wholly-owned subsidiary","ex":"The parent company operates 12 <strong>subsidiaries</strong> across Asia."},
+{"w":"merger","p":"n.","zh":"合并","cl":"corporate merger","ex":"The <strong>merger</strong> created one of the largest banks in the country."},
+{"w":"acquisition","p":"n.","zh":"收购","cl":"hostile acquisition","ex":"The tech giant completed its <strong>acquisition</strong> of the start-up for $4 billion."},
+{"w":"bankruptcy","p":"n.","zh":"破产","cl":"file for bankruptcy","ex":"The retailer filed for <strong>bankruptcy</strong> after years of declining sales."},
+{"w":"insolvency","p":"n.","zh":"资不抵债 / 无力偿还","cl":"declared insolvent","ex":"The firm was declared <strong>insolvent</strong> when its debts exceeded its assets."},
+{"w":"liquidate","p":"v.","zh":"清算 / 变现","cl":"liquidate assets","ex":"The court ordered the company to <strong>liquidate</strong> its remaining assets."},
+{"w":"venture capital","p":"n.","zh":"风险资本","cl":"attract venture capital","ex":"The biotech firm attracted $50m in <strong>venture capital</strong> in its first round."},
+{"w":"monopoly","p":"n.","zh":"垄断","cl":"hold a monopoly","ex":"Critics argue the platform holds a digital <strong>monopoly</strong> over search data."},
+{"w":"oligopoly","p":"n.","zh":"寡头垄断","cl":"an oligopoly of banks","ex":"An <strong>oligopoly</strong> of four banks dominates the retail lending market."},
+{"w":"diversify","p":"v.","zh":"多元化","cl":"diversify revenue streams","ex":"Smart businesses <strong>diversify</strong> their revenue streams to hedge against downturns."},
+{"w":"capitalise","p":"v.","zh":"利用 / 资本化","cl":"capitalise on opportunities","ex":"The brand was quick to <strong>capitalise</strong> on the surge in remote-working demand."},
+{"w":"leverage","p":"v.","zh":"充分利用 (资源)","cl":"leverage existing assets","ex":"The company <strong>leveraged</strong> its existing customer base to launch the new product."},
+{"w":"deficit","p":"n.","zh":"赤字 / 亏损","cl":"trade deficit","ex":"The country has run a persistent <strong>trade deficit</strong> for over a decade."},
+{"w":"surplus","p":"n.","zh":"盈余","cl":"budget surplus","ex":"A <strong>budget surplus</strong> gives governments more room for public investment."},
+{"w":"recession","p":"n.","zh":"经济衰退","cl":"enter a recession","ex":"Economists warned the economy could <strong>enter a recession</strong> within six months."},
+{"w":"austerity","p":"n.","zh":"紧缩政策","cl":"impose austerity","ex":"Governments that <strong>impose austerity</strong> often face public backlash."},
+{"w":"fiscal","p":"adj.","zh":"财政的","cl":"fiscal policy / discipline","ex":"Tight <strong>fiscal</strong> discipline helped the country rebuild its credit rating."},
+{"w":"inflation","p":"n.","zh":"通货膨胀","cl":"rising inflation","ex":"<strong>Rising inflation</strong> erodes the purchasing power of households."},
+{"w":"deflation","p":"n.","zh":"通货紧缩","cl":"risk of deflation","ex":"Japan battled the <strong>risk of deflation</strong> for nearly two decades."},
+{"w":"stagnation","p":"n.","zh":"停滞","cl":"economic stagnation","ex":"Long-term <strong>economic stagnation</strong> hollows out the middle class."},
+{"w":"tariff","p":"n.","zh":"关税","cl":"impose tariffs","ex":"Retaliatory <strong>tariffs</strong> can trigger a damaging trade war."},
+{"w":"protectionism","p":"n.","zh":"贸易保护主义","cl":"rise of protectionism","ex":"The <strong>rise of protectionism</strong> has disrupted supply chains globally."},
+{"w":"globalisation","p":"n.","zh":"全球化","cl":"economic globalisation","ex"><strong>Globalisation</strong> has lifted millions out of poverty but widened income gaps."},
+{"w":"deregulate","p":"v.","zh":"放松管制","cl":"deregulate the energy market","ex":"Critics warned that moves to <strong>deregulate</strong> the market would harm consumers."},
+{"w":"privatise","p":"v.","zh":"私有化","cl":"privatise state assets","ex":"The decision to <strong>privatise</strong> water utilities provoked widespread protest."},
+{"w":"nationalise","p":"v.","zh":"国有化","cl":"nationalise the railways","ex":"The government proposed to <strong>nationalise</strong> the ailing steel industry."},
+{"w":"commodity","p":"n.","zh":"大宗商品","cl":"volatile commodity prices","ex">Volatile <strong>commodity</strong> prices make long-term planning difficult for manufacturers."},
+{"w":"fluctuate","p":"v.","zh":"波动","cl":"fluctuate wildly","ex":"Currency values <strong>fluctuate wildly</strong> in response to political uncertainty."},
+{"w":"speculate","p":"v.","zh":"投机","cl":"speculate on property","ex":"Many investors began to <strong>speculate</strong> on property rather than investing in industry."},
+{"w":"portfolio","p":"n.","zh":"投资组合 / 业务组合","cl":"diversified portfolio","ex":"A <strong>diversified portfolio</strong> reduces the risk of catastrophic loss."},
+{"w":"interest rate","p":"n.","zh":"利率","cl":"raise / cut the interest rate","ex":"The central bank raised <strong>interest rates</strong> to combat inflation."},
+{"w":"monetary","p":"adj.","zh":"货币的","cl":"monetary policy","ex":"<strong>Monetary policy</strong> is the primary tool for managing inflation."},
+{"w":"quantitative easing","p":"n.","zh":"量化宽松","cl":"launch quantitative easing","ex"><strong>Quantitative easing</strong> flooded the market with cheap money during the crisis."},
+{"w":"gross domestic product","p":"n.","zh":"国内生产总值","cl":"GDP growth rate","ex"><strong>GDP</strong> growth slowed to 1.2% amid global economic headwinds."},
+{"w":"per capita","p":"adv./adj.","zh":"人均的","cl":"GDP per capita","ex"><strong>Per capita</strong> income masks severe inequality within a country."},
+{"w":"hierarchy","p":"n.","zh":"等级制度","cl":"corporate hierarchy","ex":"Flat organisations challenge traditional <strong>hierarchies</strong>."},
+{"w":"egalitarian","p":"adj.","zh":"平等主义的","cl":"an egalitarian workplace","ex":"Scandinavian firms are known for their <strong>egalitarian</strong> work culture."},
+{"w":"meritocratic","p":"adj.","zh":"精英能力主义的","cl":"a meritocratic system","ex":"A truly <strong>meritocratic</strong> system rewards skill, not connections."},
+{"w":"performance-related","p":"adj.","zh":"与绩效挂钩的","cl":"performance-related pay","ex"><strong>Performance-related</strong> pay motivates some workers while demoralising others."},
+{"w":"flex-time","p":"n.","zh":"弹性工作时间","cl":"adopt flex-time","ex"><strong>Flex-time</strong> arrangements are now standard at many progressive employers."},
+{"w":"ergonomic","p":"adj.","zh":"符合人体工程学的","cl":"ergonomic workspace","ex">An <strong>ergonomic</strong> workspace reduces repetitive strain injuries significantly."},
+{"w":"burnout","p":"n.","zh":"职业倦怠","cl":"suffer from burnout","ex":"Persistent overwork leads to <strong>burnout</strong>, reducing long-term productivity."},
+{"w":"disengaged","p":"adj.","zh":"工作投入度低的","cl":"disengaged workforce","ex">A <strong>disengaged</strong> workforce costs billions in lost productivity each year."},
+{"w":"succession","p":"n.","zh":"继承 / 接班","cl":"succession planning","ex"><strong>Succession</strong> planning ensures a smooth transfer of leadership."},
+{"w":"corporate culture","p":"n.","zh":"企业文化","cl":"toxic corporate culture","ex">A toxic <strong>corporate culture</strong> drives talent away faster than low salaries."},
+{"w":"networking","p":"n.","zh":"建立人脉","cl":"professional networking","ex"><strong>Professional networking</strong> can be as valuable as formal qualifications."},
+{"w":"quarterly","p":"adj.","zh":"季度的","cl":"quarterly earnings report","ex">The company missed its <strong>quarterly</strong> earnings target for the third consecutive time."},
+{"w":"forecast","p":"n./v.","zh":"预测","cl":"economic forecast","ex">The IMF revised its growth <strong>forecast</strong> downward amid trade tensions."},
+{"w":"benchmark","p":"n./v.","zh":"基准 / 标杆","cl":"benchmark against competitors","ex">Firms <strong>benchmark</strong> their salaries against industry standards annually."},
+{"w":"incentive","p":"n.","zh":"激励措施","cl":"tax incentive","ex"><strong>Tax incentives</strong> have encouraged investment in renewable energy sectors."},
+{"w":"subsidy","p":"n.","zh":"补贴","cl":"government subsidy","ex"><strong>Subsidies</strong> for fossil fuels distort market competition, critics argue."},
+{"w":"labour market","p":"n.","zh":"劳动力市场","cl":"tight labour market","ex">A tight <strong>labour market</strong> gives workers more bargaining power."},
+{"w":"collective bargaining","p":"n.","zh":"集体谈判","cl":"right to collective bargaining","ex"><strong>Collective bargaining</strong> has historically improved wages and conditions."},
+{"w":"trade union","p":"n.","zh":"工会","cl":"join a trade union","ex">Declining <strong>trade union</strong> membership has weakened workers' bargaining power."},
+{"w":"strike","p":"n./v.","zh":"罢工","cl":"go on strike","ex">Workers voted to <strong>go on strike</strong> over the proposed pay freeze."},
+{"w":"arbitration","p":"n.","zh":"仲裁","cl":"submit to arbitration","ex">The dispute was resolved through independent <strong>arbitration</strong>."},
+{"w":"mediation","p":"n.","zh":"调解","cl":"seek mediation","ex"><strong>Mediation</strong> is often faster and cheaper than litigation."},
+{"w":"occupational","p":"adj.","zh":"职业的","cl":"occupational hazard","ex">Stress has become the most common <strong>occupational</strong> health complaint."},
+{"w":"disposable income","p":"n.","zh":"可支配收入","cl":"rising disposable income","ex"><strong>Disposable income</strong> growth is the main driver of consumer spending."},
+{"w":"consumer spending","p":"n.","zh":"消费支出","cl":"boost consumer spending","ex">Low interest rates are intended to <strong>boost consumer spending</strong>."},
+{"w":"cost of living","p":"n.","zh":"生活成本","cl":"rising cost of living","ex">The <strong>rising cost of living</strong> has squeezed household budgets severely."},
+{"w":"gig economy","p":"n.","zh":"零工经济","cl":"thrive in the gig economy","ex">Workers in the <strong>gig economy</strong> often lack basic employment protections."},
+{"w":"remote work","p":"n.","zh":"远程办公","cl":"shift to remote work","ex">The pandemic accelerated the shift to <strong>remote work</strong> on a massive scale."},
+{"w":"work-life balance","p":"n.","zh":"工作与生活的平衡","cl":"strike a work-life balance","ex">Striking a true <strong>work-life balance</strong> requires organisational support."},
+{"w":"productivity","p":"n.","zh":"生产力","cl":"boost productivity","ex">Flexible working hours can significantly <strong>boost productivity</strong>."},
+{"w":"entrepreneurship","p":"n.","zh":"创业精神","cl":"encourage entrepreneurship","ex"><strong>Entrepreneurship</strong> drives innovation and creates jobs."},
+{"w":"livelihood","p":"n.","zh":"生计","cl":"sustain a livelihood","ex">Automation threatens the <strong>livelihoods</strong> of millions in routine occupations."},
+{"w":"upskill","p":"v.","zh":"提升技能","cl":"upskill workers","ex">Employers must <strong>upskill</strong> their workforce to keep pace with technological change."},
+{"w":"reskill","p":"v.","zh":"再培训","cl":"reskill displaced workers","ex">Government programmes aim to <strong>reskill</strong> workers displaced by automation."},
+{"w":"market share","p":"n.","zh":"市场份额","cl":"gain market share","ex">The firm doubled its <strong>market share</strong> within two years of the merger."},
+{"w":"supply chain","p":"n.","zh":"供应链","cl":"disrupt the supply chain","ex">The pandemic exposed vulnerabilities in global <strong>supply chains</strong>."},
+{"w":"economies of scale","p":"n.","zh":"规模经济","cl":"achieve economies of scale","ex">Large manufacturers achieve <strong>economies of scale</strong> unavailable to small firms."},
+{"w":"cash flow","p":"n.","zh":"现金流","cl":"manage cash flow","ex">Poor <strong>cash flow</strong> management is the leading cause of small-business failure."},
+{"w":"overheads","p":"n.","zh":"间接费用 / 经常性开支","cl":"cut overheads","ex">Moving to cloud computing dramatically reduced the firm's <strong>overheads</strong>."},
+{"w":"bottom line","p":"n.","zh":"最终利润 / 关键因素","cl":"affect the bottom line","ex">Employee wellbeing directly affects the company's <strong>bottom line</strong>."},
+{"w":"turnaround","p":"n.","zh":"转亏为盈 / 扭转局面","cl":"achieve a turnaround","ex">The new CEO engineered a remarkable financial <strong>turnaround</strong> within 18 months."},
+{"w":"outsourcing","p":"n.","zh":"外包业务","cl":"the trend of outsourcing","ex">The trend of <strong>outsourcing</strong> non-core functions has transformed employment patterns."},
+{"w":"offshoring","p":"n.","zh":"离岸外包","cl":"the practice of offshoring","ex"><strong>Offshoring</strong> has reduced costs but also triggered deindustrialisation in some regions."},
+{"w":"deindustrialisation","p":"n.","zh":"去工业化","cl":"rapid deindustrialisation","ex"><strong>Deindustrialisation</strong> left many former manufacturing towns economically depressed."},
+{"w":"protectionist","p":"adj.","zh":"保护主义的","cl":"protectionist trade policy","ex"><strong>Protectionist</strong> policies may shield domestic industry but raise consumer prices."},
+{"w":"free-market","p":"adj.","zh":"自由市场的","cl":"free-market principles","ex"><strong>Free-market</strong> advocates argue competition drives efficiency and innovation."},
+{"w":"austerity measures","p":"n.","zh":"紧缩措施","cl":"impose austerity measures","ex"><strong>Austerity measures</strong> sparked widespread protests across southern Europe."},
+{"w":"income inequality","p":"n.","zh":"收入不平等","cl":"widen income inequality","ex">Digitalisation has been linked to widening <strong>income inequality</strong>."},
+{"w":"wage stagnation","p":"n.","zh":"工资停滞","cl":"decades of wage stagnation","ex">Decades of <strong>wage stagnation</strong> have eroded the purchasing power of workers."},
+{"w":"automation displacement","p":"n.","zh":"自动化导致的就业流失","cl":"automation displacement of jobs","ex"><strong>Automation displacement</strong> is most acute in routine manufacturing tasks."},
+{"w":"precarious employment","p":"n.","zh":"不稳定就业","cl":"rise of precarious employment","ex">The <strong>rise of precarious employment</strong> has weakened social protection systems."},
+{"w":"zero-hours contract","p":"n.","zh":"零工时合同","cl":"on a zero-hours contract","ex">Critics say <strong>zero-hours contracts</strong> leave workers without financial security."},
+{"w":"glass ceiling","p":"n.","zh":"玻璃天花板 (晋升隐形障碍)","cl":"shatter the glass ceiling","ex">Women continue to bump against the <strong>glass ceiling</strong> in many industries."},
+{"w":"gender pay gap","p":"n.","zh":"性别薪酬差距","cl":"close the gender pay gap","ex">Closing the <strong>gender pay gap</strong> requires both legislative and cultural change."},
+{"w":"pay transparency","p":"n.","zh":"薪酬透明度","cl":"enforce pay transparency","ex"><strong>Pay transparency</strong> laws have helped reduce unexplained wage disparities."},
+{"w":"remote work productivity","p":"n.","zh":"远程办公生产力","cl":"measure remote work productivity","ex">Studies on <strong>remote work productivity</strong> yield conflicting results across sectors."},
+{"w":"talent acquisition","p":"n.","zh":"人才获取","cl":"talent acquisition strategy","ex"><strong>Talent acquisition</strong> has become highly competitive in the tech industry."},
+{"w":"employer branding","p":"n.","zh":"雇主品牌","cl":"invest in employer branding","ex">Firms invest in <strong>employer branding</strong> to attract top graduates."},
+{"w":"hard skills","p":"n.","zh":"硬技能 (可量化技术)","cl":"technical hard skills","ex">Coding and data analysis are valued <strong>hard skills</strong> in today's market."},
+{"w":"soft skills","p":"n.","zh":"软技能 (人际/沟通)","cl":"develop soft skills","ex"><strong>Soft skills</strong> like empathy and communication are increasingly prized by employers."},
+{"w":"burn rate","p":"n.","zh":"资金消耗速度","cl":"high burn rate","ex">The start-up's high <strong>burn rate</strong> alarmed investors as revenues lagged."},
+{"w":"scalable","p":"adj.","zh":"可扩展的","cl":"a scalable business model","ex">Investors prefer <strong>scalable</strong> business models that can grow without proportional cost increases."},
+{"w":"pivot","p":"v./n.","zh":"转型 / 战略转变","cl":"pivot to a new market","ex">The start-up was forced to <strong>pivot</strong> when its original product failed to gain traction."},
+{"w":"disruptive","p":"adj.","zh":"颠覆性的","cl":"disruptive technology","ex"><strong>Disruptive</strong> technology overturns established business models rapidly."},
+{"w":"incumbent","p":"adj./n.","zh":"现任的 / 在位企业","cl":"incumbent firms","ex"><strong>Incumbent</strong> firms often struggle to innovate as fast as new entrants."},
+{"w":"barrier to entry","p":"n.","zh":"进入壁垒","cl":"high barriers to entry","ex">High capital requirements create significant <strong>barriers to entry</strong> for new firms."},
+{"w":"monetise","p":"v.","zh":"货币化 / 变现","cl":"monetise user data","ex">The platform found it difficult to <strong>monetise</strong> its large but disengaged audience."},
+{"w":"value chain","p":"n.","zh":"价值链","cl":"optimise the value chain","ex">Companies analyse their <strong>value chain</strong> to identify cost savings."},
+{"w":"stakeholder capitalism","p":"n.","zh":"利益相关者资本主义","cl":"embrace stakeholder capitalism","ex">Proponents of <strong>stakeholder capitalism</strong> argue firms must serve society, not just shareholders."},
+{"w":"ESG","p":"n.","zh":"环境、社会与公司治理","cl":"ESG criteria","ex">Investors increasingly screen companies using <strong>ESG</strong> criteria."},
+{"w":"corporate social responsibility","p":"n.","zh":"企业社会责任","cl":"commit to CSR","ex"><strong>Corporate social responsibility</strong> programmes have evolved from optional to essential."},
+{"w":"burn the midnight oil","p":"idiom","zh":"开夜车 / 连夜工作","cl":"burn the midnight oil to meet a deadline","ex">The team had to <strong>burn the midnight oil</strong> to finalise the tender documents."},
+{"w":"the daily grind","p":"idiom","zh":"日常工作的枯燥单调","cl":"escape the daily grind","ex">Many people dream of escaping <strong>the daily grind</strong> to start their own business."},
+{"w":"climb the corporate ladder","p":"idiom","zh":"晋升 / 在职场向上爬","cl":"determined to climb the corporate ladder","ex">She is determined to <strong>climb the corporate ladder</strong> quickly."},
+{"w":"get the ball rolling","p":"idiom","zh":"启动 / 开始行动","cl":"get the ball rolling on a project","ex">The CEO's speech helped <strong>get the ball rolling</strong> on the restructuring plan."},
+{"w":"think outside the box","p":"idiom","zh":"跳出固有思维","cl":"think outside the box to solve problems","ex">Employers want staff who can <strong>think outside the box</strong> when facing challenges."},
+{"w":"cut corners","p":"idiom","zh":"偷工减料 / 走捷径","cl":"cut corners on quality","ex">Under financial pressure, some firms <strong>cut corners</strong> on safety, with tragic consequences."},
+{"w":"go the extra mile","p":"idiom","zh":"多做一份努力 / 竭尽全力","cl":"go the extra mile for clients","ex">Staff who <strong>go the extra mile</strong> for clients are more likely to be promoted."},
+{"w":"a steep learning curve","p":"idiom","zh":"需要大量快速学习","cl":"face a steep learning curve","ex">Starting a new business involves <strong>a steep learning curve</strong> in finance and marketing."},
+{"w":"move the goalposts","p":"idiom","zh":"临时改变规则 / 提高标准","cl":"clients who keep moving the goalposts","ex">It is frustrating when clients keep <strong>moving the goalposts</strong> after contracts are signed."},
+{"w":"red tape","p":"idiom","zh":"繁文缛节 / 官僚程序","cl":"cut through red tape","ex">Entrepreneurs complain that excessive <strong>red tape</strong> stifles innovation."},
+{"w":"in the pipeline","p":"idiom","zh":"正在筹划中","cl":"projects in the pipeline","ex">Several major infrastructure projects are <strong>in the pipeline</strong> for next year."},
+{"w":"touch base","p":"phrasal v.","zh":"联络 / 简短沟通","cl":"touch base with colleagues","ex">Let's <strong>touch base</strong> on Friday to discuss the project milestones."},
+{"w":"take stock","p":"phrasal v.","zh":"盘点 / 反思","cl":"take stock of the situation","ex">After a difficult quarter, the board paused to <strong>take stock</strong> of the company's direction."},
+{"w":"cash in on","p":"phrasal v.","zh":"趁机获利","cl":"cash in on a trend","ex">Many entrepreneurs are looking to <strong>cash in on</strong> the surge in demand for AI tools."},
+{"w":"scale up","p":"phrasal v.","zh":"扩大规模","cl":"scale up production","ex">The factory is <strong>scaling up</strong> production to meet growing export demand."},
+{"w":"lay off","p":"phrasal v.","zh":"解雇 / 裁员","cl":"lay off workers","ex">The tech firm announced it would <strong>lay off</strong> 2,000 employees following disappointing revenues."},
+{"w":"take on","p":"phrasal v.","zh":"承担 / 雇用","cl":"take on new staff","ex">The company plans to <strong>take on</strong> 500 new staff following the expansion."},
+{"w":"a win-win situation","p":"phrase","zh":"双赢局面","cl":"create a win-win situation","ex">The deal was structured to create <strong>a win-win situation</strong> for both suppliers and buyers."},
+{"w":"on the back burner","p":"idiom","zh":"暂时搁置","cl":"put plans on the back burner","ex">Expansion plans were put <strong>on the back burner</strong> due to rising interest rates."},
+{"w":"bottom-up","p":"adj.","zh":"自下而上的","cl":"bottom-up approach","ex">A <strong>bottom-up</strong> approach to strategy draws on insights from frontline workers."},
+{"w":"top-down","p":"adj.","zh":"自上而下的","cl":"top-down management","ex"><strong>Top-down</strong> management styles can stifle innovation in fast-moving industries."}
+];
+
+let state = JSON.parse(localStorage.getItem("ielts_vocab_20260627") || "{}");
+let queue = CARDS.map((c, i) => ({...c, idx: i})).filter(c => !state[c.idx] || state[c.idx] === "review");
+let cur = 0;
+
+function speak(text) {
+  if (!text || !window.speechSynthesis) return;
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = "en-US"; u.rate = 0.85; u.pitch = 1;
+  const voices = speechSynthesis.getVoices();
+  const en = voices.find(v => /en-(US|GB)/.test(v.lang) && /Samantha|Daniel|Alex|Karen|Moira|Google US English|Google UK English/.test(v.name))
+          || voices.find(v => v.lang.startsWith("en"));
+  if (en) u.voice = en;
+  speechSynthesis.speak(u);
+}
+if (window.speechSynthesis) speechSynthesis.onvoiceschanged = () => {};
+
+function render() {
+  if (cur >= queue.length) return showDone();
+  const c = queue[cur];
+  document.getElementById("w").textContent = c.w;
+  document.getElementById("p").textContent = c.p;
+  document.getElementById("zh").textContent = c.zh;
+  document.getElementById("cl").textContent = c.cl;
+  document.getElementById("ex").innerHTML = c.ex;
+  document.getElementById("card").classList.remove("flipped");
+  document.getElementById("meta").textContent = `${cur+1} / ${queue.length} · Work & Economy Day 3`;
+  updateStats();
+  setTimeout(() => speak(c.w), 150);
+}
+
+function setView(v) {
+  document.getElementById("vtFlash").classList.toggle("active", v === "flash");
+  document.getElementById("vtList").classList.toggle("active", v === "list");
+  document.getElementById("deck").style.display = v === "flash" ? "" : "none";
+  document.getElementById("listView").classList.toggle("active", v === "list");
+  if (v === "list") renderList();
+}
+
+function renderList() {
+  const body = document.getElementById("listBody");
+  body.innerHTML = CARDS.map((c, i) => {
+    const mark = state[i] || "";
+    const cls = mark === "know" ? "knew" : mark === "weak" ? "weak" : "";
+    const ico = mark === "know" ? "&#10003;" : mark === "weak" ? "&#9675;" : "&#183;";
+    const mcls = mark === "know" ? "know" : mark === "weak" ? "weak" : "";
+    return `<div class="list-row">
+      <div class="num">${String(i+1).padStart(3,'0')}</div>
+      <div class="word"><div class="w ${cls}">${c.w} <span style="color:var(--muted);font-weight:400;font-size:0.78rem;">${c.p}</span></div><div class="zh">${c.zh}</div></div>
+      <button class="spk" onclick="speak('${c.w.replace(/'/g,"\\'").replace(/"/g,'&quot;')}')">&#128266;</button>
+      <div class="mk ${mcls}">${ico}</div>
+    </div>`;
+  }).join("");
+}
+
+function flip() { document.getElementById("card").classList.toggle("flipped"); }
+
+function mark(t) {
+  const c = queue[cur];
+  state[c.idx] = (t === "know" ? "know" : "weak");
+  localStorage.setItem("ielts_vocab_20260627", JSON.stringify(state));
+  cur++;
+  render();
+}
+
+function updateStats() {
+  const kn = Object.values(state).filter(v=>v==="know").length;
+  const wk = Object.values(state).filter(v=>v==="weak").length;
+  const lf = CARDS.length - kn - wk;
+  document.getElementById("kn").textContent = kn;
+  document.getElementById("wk").textContent = wk;
+  document.getElementById("lf").textContent = lf;
+  document.getElementById("pg").style.width = ((kn+wk)/CARDS.length*100) + "%";
+}
+
+function showDone() {
+  document.getElementById("deck").style.display = "none";
+  document.getElementById("done").classList.add("show");
+  const kn = Object.values(state).filter(v=>v==="know").length;
+  const wk = Object.values(state).filter(v=>v==="weak").length;
+  document.getElementById("doneTtl").textContent = wk > 0 ? `今日词卡完成! 还有 ${wk} 张不熟` : `今日 ${CARDS.length} 词全掌握 🎉`;
+  document.getElementById("doneSub").textContent = `知道 ${kn} · 不熟 ${wk}`;
+}
+
+function reviewWeak() {
+  queue = CARDS.map((c,i)=>({...c,idx:i})).filter(c => state[c.idx] === "weak");
+  if (queue.length === 0) { alert("没有不熟的卡!"); return; }
+  cur = 0;
+  document.getElementById("done").classList.remove("show");
+  document.getElementById("deck").style.display = "";
+  render();
+}
+
+function resetAll() {
+  if (!confirm("清空今日进度，重新开始?")) return;
+  localStorage.removeItem("ielts_vocab_20260627");
+  state = {};
+  queue = CARDS.map((c,i)=>({...c,idx:i}));
+  cur = 0;
+  document.getElementById("done").classList.remove("show");
+  document.getElementById("deck").style.display = "";
+  render();
+}
+
+render();
+</script>
+
+</body>
+</html>
