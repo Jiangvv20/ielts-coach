@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#2563eb">
+<title>Day 43 · Reading T/F/NG · 21世纪家庭结构变迁</title>
+<style>
+  :root {
+    --bg: #ffffff; --fg: #1a1a1a; --muted: #6b7280;
+    --accent: #2563eb; --ok: #059669; --err: #dc2626;
+    --card: #f9fafb; --border: #e5e7eb;
+    --nav-bg: rgba(255,255,255,0.92);
+    --header-bg: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f172a; --fg: #f1f5f9; --muted: #94a3b8;
+      --accent: #60a5fa; --ok: #34d399; --err: #f87171;
+      --card: #1e293b; --border: #334155;
+      --nav-bg: rgba(15,23,42,0.92);
+      --header-bg: linear-gradient(135deg, #1e40af 0%, #6b21a8 100%);
+    }
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg); }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif;
+    line-height: 1.6;
+    min-height: 100vh;
+    padding-bottom: calc(64px + env(safe-area-inset-bottom, 0));
+  }
+  .app-header {
+    background: var(--header-bg); color: white;
+    padding: calc(env(safe-area-inset-top, 16px) + 12px) 16px 14px;
+    position: sticky; top: 0; z-index: 20;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .back-btn {
+    background: rgba(255,255,255,0.18); border: none; color: white;
+    width: 34px; height: 34px; border-radius: 10px;
+    font-size: 1.1rem; cursor: pointer; flex-shrink: 0;
+    text-decoration: none; display: flex; align-items: center; justify-content: center;
+  }
+  .app-header .ttl {
+    font-size: 1rem; font-weight: 700;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .app-header .sub {
+    font-size: 0.72rem; opacity: 0.85; margin-top: 1px;
+    letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  main { max-width: 720px; margin: 0 auto; padding: 16px; }
+  .progress {
+    height: 6px; background: var(--border); border-radius: 3px;
+    margin-bottom: 16px; overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%; background: var(--accent);
+    transition: width 0.3s ease;
+  }
+  .passage {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 14px 16px; margin-bottom: 16px;
+    font-size: 0.95rem; line-height: 1.7;
+  }
+  .passage h3 { margin: 0 0 8px; font-size: 0.78rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+  .question {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 16px; margin-bottom: 14px;
+  }
+  .q-num {
+    color: var(--muted); font-size: 0.78rem;
+    font-family: "SF Mono", Menlo, monospace; margin-bottom: 6px;
+    text-transform: uppercase; letter-spacing: 0.04em;
+  }
+  .q-text { font-size: 1rem; margin-bottom: 12px; font-weight: 500; }
+  .options { display: flex; flex-direction: column; gap: 8px; }
+  .option {
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 8px; padding: 12px 14px;
+    cursor: pointer; font-size: 0.95rem; text-align: left;
+    color: var(--fg); font-family: inherit;
+  }
+  .option.selected { border-color: var(--accent); background: rgba(37, 99, 235, 0.08); }
+  .option.correct { border-color: var(--ok); background: rgba(5, 150, 105, 0.1); }
+  .option.wrong { border-color: var(--err); background: rgba(220, 38, 38, 0.1); }
+  .blank-input {
+    width: 100%; background: var(--bg);
+    border: 1px solid var(--border); border-radius: 8px;
+    padding: 10px 12px; font-size: 1rem;
+    color: var(--fg); font-family: inherit;
+  }
+  .blank-input.correct { border-color: var(--ok); }
+  .blank-input.wrong { border-color: var(--err); }
+  .explanation {
+    margin-top: 10px; padding: 10px 12px;
+    background: var(--bg); border-left: 3px solid var(--accent);
+    border-radius: 4px; font-size: 0.9rem; color: var(--muted);
+    display: none;
+  }
+  .explanation.show { display: block; }
+  .explanation .answer { color: var(--ok); font-weight: 600; }
+  .actions { display: flex; gap: 10px; margin-top: 20px; }
+  .btn {
+    flex: 1; padding: 12px;
+    border: none; border-radius: 10px;
+    font-size: 1rem; font-weight: 600; cursor: pointer;
+    font-family: inherit;
+  }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-secondary { background: var(--card); color: var(--fg); border: 1px solid var(--border); }
+  .result {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 20px;
+    text-align: center; margin-top: 20px; display: none;
+  }
+  .result.show { display: block; }
+  .score { font-size: 2.5rem; font-weight: 700; color: var(--accent); }
+  .score-label { color: var(--muted); font-size: 0.9rem; margin-top: 4px; }
+  .tabbar {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: var(--nav-bg);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    border-top: 1px solid var(--border);
+    display: flex;
+    padding-bottom: env(safe-area-inset-bottom, 0);
+    z-index: 30;
+  }
+  .tab-btn {
+    flex: 1; background: transparent; border: none;
+    padding: 10px 4px 8px; color: var(--muted); font-size: 0.68rem;
+    cursor: pointer;
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    font-family: inherit; text-decoration: none;
+  }
+  .tab-btn .icon { font-size: 1.25rem; line-height: 1; }
+  .tab-btn.active { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <a class="back-btn" href="index.html#quizzes">&#8592;</a>
+  <div style="flex:1;min-width:0;">
+    <div class="ttl">Reading T/F/NG &middot; 21世纪家庭结构变迁</div>
+    <div class="sub">Day 43 &middot; 10 题 &middot; ~10 分钟</div>
+  </div>
+</header>
+
+<main>
+
+  <div class="progress"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+
+  <div class="passage">
+    <h3>Passage &middot; Changing Family Structures in the 21st Century (~620 words)</h3>
+    <p>The conventional image of the family &mdash; two married parents living with their biological children &mdash; has undergone profound transformation in recent decades. Across much of the Western world, the nuclear family has declined as the dominant household model, giving way to a far more diverse range of arrangements including cohabiting couples, single-parent households, blended families, and multigenerational living. While these shifts are most pronounced in Europe and North America, they reflect broader social, economic, and demographic changes whose full implications remain contested.</p>
+    <p>Cohabitation &mdash; the practice of couples living together without formal marriage &mdash; has risen sharply since the 1980s. In many European countries, cohabiting partnerships now account for a significant proportion of all couple-headed households. However, research consistently indicates that children raised in cohabiting households experience greater instability than those born to married parents, largely because cohabiting relationships dissolve at higher rates than marriages. This instability can disrupt children&rsquo;s educational attainment, social development, and long-term wellbeing.</p>
+    <p>The significance of family structure itself remains a matter of vigorous debate among sociologists and child development specialists. Some researchers argue that the quality of relationships within the family &mdash; the warmth, communication, and mutual support between members &mdash; is a more powerful determinant of children&rsquo;s outcomes than the legal or structural form of the household. Others, however, insist that the married two-parent family provides a uniquely stable environment that other arrangements cannot replicate, citing <em>longitudinal</em> studies that track outcomes over decades.</p>
+    <p>The rise of multigenerational households &mdash; where parents, children, and grandparents share the same roof &mdash; represents one of the most notable recent trends in housing and family organisation. Economic pressures, particularly soaring housing costs in major cities, have driven many young adults to remain in or return to the family home well into their twenties and thirties. This trend is primarily financial in nature rather than a reflection of cultural tradition: surveys consistently show that economic necessity, rather than a desire to maintain close <em>intergenerational</em> bonds, is the principal motivation. Nevertheless, the resulting proximity does generate benefits: grandparents within multigenerational households frequently provide informal childcare, enabling parents &mdash; particularly mothers &mdash; to participate in paid employment.</p>
+    <p>Digital communication technologies have transformed the way geographically dispersed family members maintain contact. Video calls, instant messaging, and social media platforms allow relatives separated by long distances to share daily life, celebrate milestones, and offer emotional support in ways that were impossible a generation ago. Yet researchers caution that digital interaction cannot fully replace face-to-face communication. The sensory richness of physical presence &mdash; shared meals, spontaneous physical affection, the reading of subtle emotional cues &mdash; cannot be transmitted through a screen, and families who rely predominantly on digital contact may find that emotional closeness gradually diminishes.</p>
+    <p>Blended families &mdash; households formed when one or both partners bring children from previous relationships &mdash; have become increasingly common as divorce rates have remained elevated and remarriage has grown more acceptable. The support networks available to children within blended families vary considerably depending on the quality of relationships between step-parents, biological parents, and siblings. Some blended families report high levels of cohesion and mutual support, while others experience ongoing conflict rooted in divided loyalties and unresolved tensions.</p>
+    <p>The diversification of family forms poses both opportunities and challenges for policymakers. Welfare systems designed around the traditional male-breadwinner model struggle to accommodate the needs of single parents, cohabiting couples, and multigenerational households. As family structures continue to evolve, social policy must adapt to ensure that all children, regardless of the household in which they are raised, have access to the stability and support they need to thrive.</p>
+  </div>
+
+  <div id="questions">
+
+    <div class="question" data-type="mcq" data-answer="C">
+      <div class="q-num">Q01 &middot; T/F/NG</div>
+      <div class="q-text">The nuclear family remains the most widely adopted family unit across all regions of the world.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#x2705; 正确答案: C (Not Given)</div>
+        原文仅指出核心家庭在<em>西方世界</em>有所下降，并未就全球范围内哪种家庭结构最为普遍作出判断。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="A">
+      <div class="q-num">Q02 &middot; T/F/NG</div>
+      <div class="q-text">According to research, children in cohabiting households tend to face more instability than children with married parents.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#x2705; 正确答案: A (True)</div>
+        原文: &ldquo;research consistently indicates that children raised in cohabiting households experience greater instability than those born to married parents&rdquo;
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="B">
+      <div class="q-num">Q03 &middot; T/F/NG</div>
+      <div class="q-text">Most sociologists agree that family structure is less important than relationship quality in determining children&rsquo;s outcomes.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#x2705; 正确答案: B (False)</div>
+        原文指出这是"vigorous debate"（激烈争论），并非共识: 另一些研究者坚持认为婚姻两亲家庭提供其他形式无法复制的稳定环境。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="B">
+      <div class="q-num">Q04 &middot; T/F/NG</div>
+      <div class="q-text">Young adults return to live with their parents in multigenerational households primarily because of cultural traditions.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#x2705; 正确答案: B (False)</div>
+        原文明确: &ldquo;This trend is primarily financial in nature rather than a reflection of cultural tradition ... economic necessity ... is the principal motivation.&rdquo;
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="A">
+      <div class="q-num">Q05 &middot; T/F/NG</div>
+      <div class="q-text">Grandparents living in multigenerational households can provide childcare that allows mothers to take up paid work.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#x2705; 正确答案: A (True)</div>
+        原文: &ldquo;grandparents within multigenerational households frequently provide informal childcare, enabling parents &mdash; particularly mothers &mdash; to participate in paid employment.&rdquo;
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="B">
+      <div class="q-num">Q06 &middot; T/F/NG</div>
+      <div class="q-text">Digital communication tools can fully replicate the emotional warmth of face-to-face family interaction.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#x2705; 正确答案: B (False)</div>
+        原文: &ldquo;researchers caution that digital interaction cannot fully replace face-to-face communication ... cannot be transmitted through a screen.&rdquo;
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="C">
+      <div class="q-num">Q07 &middot; T/F/NG</div>
+      <div class="q-text">The author argues that blended families offer less support to children than nuclear families.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#x2705; 正确答案: C (Not Given)</div>
+        原文仅指出混合家庭的支持网络"vary considerably"（差异很大），并未将其与核心家庭作比较。
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="intergenerational">
+      <div class="q-num">Q08 &middot; 词汇填空</div>
+      <div class="q-text">According to surveys, economic necessity &mdash; not the desire to maintain __________ bonds &mdash; is the main reason adults return to the family home. (中文: 代际间的)</div>
+      <input class="blank-input" placeholder="键入答案">
+      <div class="explanation">
+        <div class="answer">&#x2705; 正确答案: intergenerational</div>
+        来自原文第四段，指跨代之间的情感或社会联系。
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="dissolution">
+      <div class="q-num">Q09 &middot; 词汇填空</div>
+      <div class="q-text">Cohabiting relationships have higher rates of __________ than marriages, leading to greater instability for children. (中文: 解体/终止)</div>
+      <input class="blank-input" placeholder="键入答案">
+      <div class="explanation">
+        <div class="answer">&#x2705; 正确答案: dissolution</div>
+        来自原文第二段: &ldquo;cohabiting relationships dissolve at higher rates than marriages&rdquo;。dissolution = 关系的正式终止/解体。
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="longitudinal">
+      <div class="q-num">Q10 &middot; 词汇填空</div>
+      <div class="q-text">Some researchers support their claims by citing __________ studies that track family outcomes over decades. (中文: 纵向的/长期追踪的)</div>
+      <input class="blank-input" placeholder="键入答案">
+      <div class="explanation">
+        <div class="answer">&#x2705; 正确答案: longitudinal</div>
+        来自原文第三段，指在较长时间内对同一群体持续追踪研究的方法。
+      </div>
+    </div>
+
+  </div>
+
+  <div class="actions">
+    <button class="btn btn-secondary" onclick="resetQuiz()">重做</button>
+    <button class="btn btn-primary" onclick="submitQuiz()">提交对答</button>
+  </div>
+
+  <div class="result" id="result">
+    <div class="score" id="scoreNum">--</div>
+    <div class="score-label">正确率</div>
+    <div id="scoreDetail" style="margin-top:10px;color:var(--muted);"></div>
+  </div>
+
+</main>
+
+<nav class="tabbar">
+  <a class="tab-btn" href="index.html#home"><span class="icon">&#127968;</span>概览</a>
+  <a class="tab-btn" href="index.html#materials"><span class="icon">&#128250;</span>材料</a>
+  <a class="tab-btn active" href="index.html#quizzes"><span class="icon">&#9999;&#65039;</span>测验</a>
+  <a class="tab-btn" href="index.html#plan"><span class="icon">&#128203;</span>计划</a>
+</nav>
+
+<script>
+  document.querySelectorAll(".option").forEach(opt => {
+    opt.addEventListener("click", () => {
+      const q = opt.closest(".question");
+      q.querySelectorAll(".option").forEach(o => o.classList.remove("selected"));
+      opt.classList.add("selected");
+      q.dataset.userAnswer = opt.dataset.key;
+      updateProgress();
+    });
+  });
+
+  document.querySelectorAll(".blank-input").forEach(inp => {
+    inp.addEventListener("input", () => {
+      inp.closest(".question").dataset.userAnswer = inp.value.trim();
+      updateProgress();
+    });
+  });
+
+  function updateProgress() {
+    const total = document.querySelectorAll(".question").length;
+    const done = document.querySelectorAll(".question[data-user-answer]").length;
+    document.getElementById("progressFill").style.width = (done/total*100) + "%";
+  }
+
+  function submitQuiz() {
+    let correct = 0, total = 0;
+    document.querySelectorAll(".question").forEach(q => {
+      total++;
+      const userAns = (q.dataset.userAnswer || "").toLowerCase();
+      const correctAns = q.dataset.answer.toLowerCase();
+      const isCorrect = userAns === correctAns;
+      if (isCorrect) correct++;
+
+      if (q.dataset.type === "mcq") {
+        q.querySelectorAll(".option").forEach(o => {
+          if (o.dataset.key.toLowerCase() === correctAns) o.classList.add("correct");
+          else if (o.dataset.key.toLowerCase() === userAns && !isCorrect) o.classList.add("wrong");
+        });
+      } else if (q.dataset.type === "blank") {
+        const inp = q.querySelector(".blank-input");
+        inp.classList.add(isCorrect ? "correct" : "wrong");
+      }
+      q.querySelector(".explanation")?.classList.add("show");
+    });
+
+    const result = document.getElementById("result");
+    const pct = Math.round(correct/total*100);
+    document.getElementById("scoreNum").textContent = pct + "%";
+    document.getElementById("scoreDetail").textContent = `${correct} / ${total} 正确`;
+    result.classList.add("show");
+    result.scrollIntoView({behavior:"smooth"});
+  }
+
+  function resetQuiz() {
+    document.querySelectorAll(".question").forEach(q => {
+      delete q.dataset.userAnswer;
+      q.querySelectorAll(".option").forEach(o => o.classList.remove("selected","correct","wrong"));
+      const inp = q.querySelector(".blank-input");
+      if (inp) { inp.value = ""; inp.classList.remove("correct","wrong"); }
+      q.querySelector(".explanation")?.classList.remove("show");
+    });
+    document.getElementById("progressFill").style.width = "0%";
+    document.getElementById("result").classList.remove("show");
+  }
+</script>
+</body>
+</html>
