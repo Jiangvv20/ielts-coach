@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#2563eb">
+<title>Day 46 · Reading T/F/NG · 家庭沟通与冲突化解</title>
+<style>
+  :root {
+    --bg: #ffffff; --fg: #1a1a1a; --muted: #6b7280;
+    --accent: #2563eb; --ok: #059669; --err: #dc2626;
+    --card: #f9fafb; --border: #e5e7eb;
+    --nav-bg: rgba(255,255,255,0.92);
+    --header-bg: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f172a; --fg: #f1f5f9; --muted: #94a3b8;
+      --accent: #60a5fa; --ok: #34d399; --err: #f87171;
+      --card: #1e293b; --border: #334155;
+      --nav-bg: rgba(15,23,42,0.92);
+      --header-bg: linear-gradient(135deg, #1e40af 0%, #6b21a8 100%);
+    }
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg); }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif;
+    line-height: 1.6;
+    min-height: 100vh;
+    padding-bottom: calc(64px + env(safe-area-inset-bottom, 0));
+  }
+  .app-header {
+    background: var(--header-bg); color: white;
+    padding: calc(env(safe-area-inset-top, 16px) + 12px) 16px 14px;
+    position: sticky; top: 0; z-index: 20;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .back-btn {
+    background: rgba(255,255,255,0.18); border: none; color: white;
+    width: 34px; height: 34px; border-radius: 10px;
+    font-size: 1.1rem; cursor: pointer; flex-shrink: 0;
+    text-decoration: none; display: flex; align-items: center; justify-content: center;
+  }
+  .app-header .ttl {
+    font-size: 1rem; font-weight: 700;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .app-header .sub {
+    font-size: 0.72rem; opacity: 0.85; margin-top: 1px;
+    letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  main { max-width: 720px; margin: 0 auto; padding: 16px; }
+  .progress {
+    height: 6px; background: var(--border); border-radius: 3px;
+    margin-bottom: 16px; overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%; background: var(--accent);
+    transition: width 0.3s ease;
+  }
+  .passage {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 14px 16px; margin-bottom: 16px;
+    font-size: 0.95rem; line-height: 1.7;
+  }
+  .passage h3 { margin: 0 0 8px; font-size: 0.78rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+  .question {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 16px; margin-bottom: 14px;
+  }
+  .q-num {
+    color: var(--muted); font-size: 0.78rem;
+    font-family: "SF Mono", Menlo, monospace; margin-bottom: 6px;
+    text-transform: uppercase; letter-spacing: 0.04em;
+  }
+  .q-text { font-size: 1rem; margin-bottom: 12px; font-weight: 500; }
+  .options { display: flex; flex-direction: column; gap: 8px; }
+  .option {
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 8px; padding: 12px 14px;
+    cursor: pointer; font-size: 0.95rem; text-align: left;
+    color: var(--fg); font-family: inherit;
+  }
+  .option.selected { border-color: var(--accent); background: rgba(37, 99, 235, 0.08); }
+  .option.correct { border-color: var(--ok); background: rgba(5, 150, 105, 0.1); }
+  .option.wrong { border-color: var(--err); background: rgba(220, 38, 38, 0.1); }
+  .blank-input {
+    width: 100%; background: var(--bg);
+    border: 1px solid var(--border); border-radius: 8px;
+    padding: 10px 12px; font-size: 1rem;
+    color: var(--fg); font-family: inherit;
+  }
+  .blank-input.correct { border-color: var(--ok); }
+  .blank-input.wrong { border-color: var(--err); }
+  .explanation {
+    margin-top: 10px; padding: 10px 12px;
+    background: var(--bg); border-left: 3px solid var(--accent);
+    border-radius: 4px; font-size: 0.9rem; color: var(--muted);
+    display: none;
+  }
+  .explanation.show { display: block; }
+  .explanation .answer { color: var(--ok); font-weight: 600; }
+  .actions { display: flex; gap: 10px; margin-top: 20px; }
+  .btn {
+    flex: 1; padding: 12px;
+    border: none; border-radius: 10px;
+    font-size: 1rem; font-weight: 600; cursor: pointer;
+    font-family: inherit;
+  }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-secondary { background: var(--card); color: var(--fg); border: 1px solid var(--border); }
+  .result {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 20px;
+    text-align: center; margin-top: 20px; display: none;
+  }
+  .result.show { display: block; }
+  .score { font-size: 2.5rem; font-weight: 700; color: var(--accent); }
+  .score-label { color: var(--muted); font-size: 0.9rem; margin-top: 4px; }
+  .tabbar {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: var(--nav-bg);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    border-top: 1px solid var(--border);
+    display: flex;
+    padding-bottom: env(safe-area-inset-bottom, 0);
+    z-index: 30;
+  }
+  .tab-btn {
+    flex: 1; background: transparent; border: none;
+    padding: 10px 4px 8px; color: var(--muted); font-size: 0.68rem;
+    cursor: pointer;
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    font-family: inherit; text-decoration: none;
+  }
+  .tab-btn .icon { font-size: 1.25rem; line-height: 1; }
+  .tab-btn.active { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <a class="back-btn" href="index.html#quizzes">&#8592;</a>
+  <div style="flex:1;min-width:0;">
+    <div class="ttl">Reading T/F/NG &middot; 家庭沟通与冲突化解</div>
+    <div class="sub">Day 46 &middot; 10 题 &middot; ~10 分钟</div>
+  </div>
+</header>
+
+<main>
+
+  <div class="progress"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+
+  <div class="passage">
+    <h3>Passage &middot; Communication and Conflict Resolution in Family Relationships (~620 words)</h3>
+    <p>The quality of communication within a family is widely regarded as the single most reliable predictor of long-term family wellbeing. Researchers across the fields of psychology, sociology, and family therapy have consistently found that how family members express needs, respond to conflict, and repair ruptures matters far more than the frequency of disagreement itself. Families that communicate openly &mdash; sharing feelings, acknowledging grievances, and actively seeking mutual understanding &mdash; demonstrate significantly greater resilience in the face of adversity than those characterised by avoidance, blame, or silence.</p>
+    <p>One of the most influential frameworks in this field is the work of psychologist John Gottman, whose research identified a robust predictor of relationship dissolution: a ratio of negative to positive interactions. Gottman found that stable, satisfying relationships tend to maintain a ratio of approximately five positive interactions for every negative one. Crucially, this ratio applies not only to romantic partnerships but also to the broader dynamics of parent&ndash;child relationships. Parents who balance correction and discipline with warmth, humour, and genuine affirmation are far more likely to sustain harmonious family environments than those who prioritise authority over connection.</p>
+    <p>A central component of effective family communication is active listening &mdash; the practice of giving full, undivided attention to a speaker, acknowledging their feelings, and reflecting back what has been understood before offering a response. Research consistently demonstrates that individuals who feel genuinely heard are more likely to engage constructively in resolving disagreements. In family contexts, active listening reduces the likelihood of conflict escalation and fosters an atmosphere in which each member feels valued and respected, irrespective of age or authority within the household hierarchy.</p>
+    <p>Cultural norms exert a profound influence on family communication styles. In cultures that emphasise collectivist values &mdash; such as many East Asian, Middle Eastern, and Latin American societies &mdash; indirect communication is often preferred, with family members relying on contextual cues and shared understandings rather than explicit verbal expression. By contrast, individualistic cultures, particularly those of Northern Europe and North America, tend to prize direct, unambiguous expression of personal needs and preferences. Neither approach is inherently superior; rather, mismatches between the communication styles of spouses or of parents and their children can generate significant friction, particularly when partners come from different cultural backgrounds.</p>
+    <p>The pervasive presence of digital technology has introduced a new dimension to family communication. While smartphones and social media enable geographically dispersed families to remain in contact, research suggests that habitual device use during shared family time &mdash; mealtimes in particular &mdash; disrupts the quality of face-to-face interaction. Studies have found that the mere visible presence of a smartphone on a table reduces the depth of conversations between individuals present. Families that establish clear boundaries around technology use during communal activities report higher levels of relational satisfaction and a stronger collective sense of identity.</p>
+    <p>Unresolved conflict, if consistently avoided or suppressed, tends to accumulate and resurface in more destructive forms. Family therapists broadly agree that the goal of effective conflict resolution is not the elimination of disagreement &mdash; which is both inevitable and, in moderate measure, healthy &mdash; but rather the development of shared strategies for managing it constructively. These strategies include naming emotions without blame, separating the behaviour from the person, and committing to a period of reflection before responding to provocative statements. Families that successfully embed such practices into their daily interactions are better positioned to withstand the inevitable crises of adult life.</p>
+  </div>
+
+  <div id="questions">
+
+    <div class="question" data-type="mcq" data-answer="A">
+      <div class="q-num">Q01 &middot; T/F/NG</div>
+      <div class="q-text">According to researchers, the quality of communication in families matters more than how often family members disagree.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#x2705; 正确答案: A (True)</div>
+        原文第一段: &ldquo;how family members express needs, respond to conflict, and repair ruptures matters far more than the frequency of disagreement itself.&rdquo;
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="B">
+      <div class="q-num">Q02 &middot; T/F/NG</div>
+      <div class="q-text">Gottman&rsquo;s research suggests that the ideal ratio of positive to negative interactions in a stable relationship is equal (1:1).</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#x2705; 正确答案: B (False)</div>
+        原文第二段: &ldquo;approximately five positive interactions for every negative one&rdquo;，即 5:1，而非 1:1。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="A">
+      <div class="q-num">Q03 &middot; T/F/NG</div>
+      <div class="q-text">Gottman&rsquo;s positive-to-negative ratio applies not only to couples but also to parent&ndash;child relationships.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#x2705; 正确答案: A (True)</div>
+        原文: &ldquo;this ratio applies not only to romantic partnerships but also to the broader dynamics of parent&ndash;child relationships.&rdquo;
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="C">
+      <div class="q-num">Q04 &middot; T/F/NG</div>
+      <div class="q-text">Active listening techniques are more effective in reducing conflict between adults than between parents and teenagers.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#x2705; 正确答案: C (Not Given)</div>
+        原文第三段讨论了主动倾听的总体效果，但并未对成人之间与亲子之间的效果作比较。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="B">
+      <div class="q-num">Q05 &middot; T/F/NG</div>
+      <div class="q-text">The author believes that direct communication is universally superior to indirect communication in all cultural contexts.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#x2705; 正确答案: B (False)</div>
+        原文第四段明确: &ldquo;Neither approach is inherently superior.&rdquo; 作者并不认为直接沟通绝对优越。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="A">
+      <div class="q-num">Q06 &middot; T/F/NG</div>
+      <div class="q-text">Research has found that even just having a visible smartphone on the table can reduce the quality of face-to-face conversations.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#x2705; 正确答案: A (True)</div>
+        原文第五段: &ldquo;the mere visible presence of a smartphone on a table reduces the depth of conversations between individuals present.&rdquo;
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="C">
+      <div class="q-num">Q07 &middot; T/F/NG</div>
+      <div class="q-text">The author argues that disagreement itself is harmful and should be completely eliminated in healthy families.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#x2705; 正确答案: B (False)</div>
+        原文第六段: &ldquo;the goal of effective conflict resolution is not the elimination of disagreement &mdash; which is both inevitable and, in moderate measure, healthy.&rdquo; 作者认为适度的分歧是正常且健康的。
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="dissolution">
+      <div class="q-num">Q08 &middot; 词汇填空</div>
+      <div class="q-text">Gottman identified a robust predictor of relationship __________ — the ratio of negative to positive interactions within a partnership. (中文: 解体/终止)</div>
+      <input class="blank-input" placeholder="键入答案">
+      <div class="explanation">
+        <div class="answer">&#x2705; 正确答案: dissolution</div>
+        来自原文第二段。dissolution = 关系的正式终止或瓦解，是 "dissolve" 的名词形式。
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="affirmation">
+      <div class="q-num">Q09 &middot; 词汇填空</div>
+      <div class="q-text">Parents who balance discipline with warmth, humour, and genuine __________ are more likely to sustain harmonious family environments. (中文: 肯定/认可)</div>
+      <input class="blank-input" placeholder="键入答案">
+      <div class="explanation">
+        <div class="answer">&#x2705; 正确答案: affirmation</div>
+        来自原文第二段。affirmation = 对某人价值或行为的积极认可。
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="collectivist">
+      <div class="q-num">Q10 &middot; 词汇填空</div>
+      <div class="q-text">In cultures that emphasise __________ values, indirect communication is typically preferred over explicit verbal expression. (中文: 集体主义的)</div>
+      <input class="blank-input" placeholder="键入答案">
+      <div class="explanation">
+        <div class="answer">&#x2705; 正确答案: collectivist</div>
+        来自原文第四段: &ldquo;cultures that emphasise collectivist values.&rdquo; collectivist = 强调集体利益高于个人的。
+      </div>
+    </div>
+
+  </div>
+
+  <div class="actions">
+    <button class="btn btn-secondary" onclick="resetQuiz()">重做</button>
+    <button class="btn btn-primary" onclick="submitQuiz()">提交对答</button>
+  </div>
+
+  <div class="result" id="result">
+    <div class="score" id="scoreNum">--</div>
+    <div class="score-label">正确率</div>
+    <div id="scoreDetail" style="margin-top:10px;color:var(--muted);"></div>
+  </div>
+
+</main>
+
+<nav class="tabbar">
+  <a class="tab-btn" href="index.html#home"><span class="icon">&#127968;</span>概览</a>
+  <a class="tab-btn" href="index.html#materials"><span class="icon">&#128250;</span>材料</a>
+  <a class="tab-btn active" href="index.html#quizzes"><span class="icon">&#9999;&#65039;</span>测验</a>
+  <a class="tab-btn" href="index.html#plan"><span class="icon">&#128203;</span>计划</a>
+</nav>
+
+<script>
+  document.querySelectorAll(".option").forEach(opt => {
+    opt.addEventListener("click", () => {
+      const q = opt.closest(".question");
+      q.querySelectorAll(".option").forEach(o => o.classList.remove("selected"));
+      opt.classList.add("selected");
+      q.dataset.userAnswer = opt.dataset.key;
+      updateProgress();
+    });
+  });
+
+  document.querySelectorAll(".blank-input").forEach(inp => {
+    inp.addEventListener("input", () => {
+      inp.closest(".question").dataset.userAnswer = inp.value.trim();
+      updateProgress();
+    });
+  });
+
+  function updateProgress() {
+    const total = document.querySelectorAll(".question").length;
+    const done = document.querySelectorAll(".question[data-user-answer]").length;
+    document.getElementById("progressFill").style.width = (done/total*100) + "%";
+  }
+
+  function submitQuiz() {
+    let correct = 0, total = 0;
+    document.querySelectorAll(".question").forEach(q => {
+      total++;
+      const userAns = (q.dataset.userAnswer || "").toLowerCase();
+      const correctAns = q.dataset.answer.toLowerCase();
+      const isCorrect = userAns === correctAns;
+      if (isCorrect) correct++;
+
+      if (q.dataset.type === "mcq") {
+        q.querySelectorAll(".option").forEach(o => {
+          if (o.dataset.key.toLowerCase() === correctAns) o.classList.add("correct");
+          else if (o.dataset.key.toLowerCase() === userAns && !isCorrect) o.classList.add("wrong");
+        });
+      } else if (q.dataset.type === "blank") {
+        const inp = q.querySelector(".blank-input");
+        inp.classList.add(isCorrect ? "correct" : "wrong");
+      }
+      q.querySelector(".explanation")?.classList.add("show");
+    });
+
+    const result = document.getElementById("result");
+    const pct = Math.round(correct/total*100);
+    document.getElementById("scoreNum").textContent = pct + "%";
+    document.getElementById("scoreDetail").textContent = `${correct} / ${total} 正确`;
+    result.classList.add("show");
+    result.scrollIntoView({behavior:"smooth"});
+  }
+
+  function resetQuiz() {
+    document.querySelectorAll(".question").forEach(q => {
+      delete q.dataset.userAnswer;
+      q.querySelectorAll(".option").forEach(o => o.classList.remove("selected","correct","wrong"));
+      const inp = q.querySelector(".blank-input");
+      if (inp) { inp.value = ""; inp.classList.remove("correct","wrong"); }
+      q.querySelector(".explanation")?.classList.remove("show");
+    });
+    document.getElementById("progressFill").style.width = "0%";
+    document.getElementById("result").classList.remove("show");
+  }
+</script>
+</body>
+</html>

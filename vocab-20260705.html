@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#2563eb">
+<title>今日 150 词 · 2026-07-05 · Family &amp; Relationships</title>
+<style>
+  :root {
+    --bg: #ffffff; --fg: #1a1a1a; --muted: #6b7280;
+    --accent: #2563eb; --ok: #059669; --warn: #d97706;
+    --card: #f9fafb; --border: #e5e7eb;
+    --nav-bg: rgba(255,255,255,0.92);
+    --header-bg: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f172a; --fg: #f1f5f9; --muted: #94a3b8;
+      --accent: #60a5fa; --ok: #34d399; --warn: #fbbf24;
+      --card: #1e293b; --border: #334155;
+      --nav-bg: rgba(15,23,42,0.92);
+      --header-bg: linear-gradient(135deg, #1e40af 0%, #6b21a8 100%);
+    }
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg); }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif;
+    line-height: 1.5;
+    min-height: 100vh;
+    padding-bottom: calc(64px + env(safe-area-inset-bottom, 0));
+  }
+  .app-header {
+    background: var(--header-bg); color: white;
+    padding: calc(env(safe-area-inset-top, 16px) + 12px) 16px 14px;
+    position: sticky; top: 0; z-index: 20;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .back-btn {
+    background: rgba(255,255,255,0.18); border: none; color: white;
+    width: 34px; height: 34px; border-radius: 10px;
+    font-size: 1.1rem; cursor: pointer; flex-shrink: 0;
+    text-decoration: none; display: flex; align-items: center; justify-content: center;
+  }
+  .app-header .ttl { font-size: 1rem; font-weight: 700; }
+  .app-header .sub {
+    font-size: 0.72rem; opacity: 0.85; margin-top: 1px;
+    letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  .stats {
+    background: var(--card); padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px; text-align: center;
+  }
+  .stat .num { font-size: 1.4rem; font-weight: 700; }
+  .stat .num.know { color: var(--ok); }
+  .stat .num.weak { color: var(--warn); }
+  .stat .num.left { color: var(--accent); }
+  .stat .lbl { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; margin-top: 2px; }
+  .progress-bar { height: 4px; background: var(--border); overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--accent); transition: width 0.3s; }
+  .card-stage { margin: 24px 16px; perspective: 1000px; }
+  .card-3d {
+    position: relative; width: 100%; min-height: 260px;
+    transform-style: preserve-3d; transition: transform 0.5s; cursor: pointer;
+  }
+  .card-3d.flipped { transform: rotateY(180deg); }
+  .face {
+    position: absolute; width: 100%; height: 100%;
+    backface-visibility: hidden; -webkit-backface-visibility: hidden;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 18px; padding: 24px 20px;
+    display: flex; flex-direction: column; justify-content: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .face.front { text-align: center; }
+  .face.front .word { font-size: 2rem; font-weight: 700; color: var(--accent); margin-bottom: 8px; word-break: break-word; }
+  .face.front .pos { color: var(--muted); font-size: 0.95rem; font-style: italic; }
+  .face.front .hint { margin-top: 28px; color: var(--muted); font-size: 0.82rem; }
+  .face.back { transform: rotateY(180deg); }
+  .face.back .zh { font-size: 1.3rem; font-weight: 600; color: var(--accent); margin-bottom: 12px; }
+  .face.back .collo { background: var(--bg); padding: 8px 12px; border-radius: 8px; font-size: 0.92rem; color: var(--fg); margin-bottom: 10px; border-left: 3px solid var(--accent); }
+  .face.back .ex { font-size: 0.95rem; font-style: italic; color: var(--fg); line-height: 1.6; }
+  .face.back .ex strong { color: var(--accent); font-style: normal; }
+  .speaker { position: absolute; top: 14px; right: 14px; width: 36px; height: 36px; border-radius: 50%; background: var(--bg); border: 1px solid var(--border); cursor: pointer; font-size: 1.1rem; padding: 0; color: var(--accent); }
+  .view-toggle { display: flex; padding: 12px 16px 0; gap: 8px; }
+  .view-toggle button { flex: 1; padding: 8px; background: var(--card); border: 1px solid var(--border); border-radius: 8px; color: var(--muted); font-size: 0.85rem; cursor: pointer; font-family: inherit; }
+  .view-toggle button.active { background: var(--accent); color: white; border-color: var(--accent); }
+  .list-view { display: none; padding: 12px 16px 24px; }
+  .list-view.active { display: block; }
+  .list-row { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-bottom: 1px solid var(--border); background: var(--card); border-radius: 8px; margin-bottom: 6px; }
+  .list-row .num { flex-shrink: 0; width: 28px; color: var(--muted); font-size: 0.72rem; font-family: "SF Mono", Menlo, monospace; }
+  .list-row .word { flex: 1; min-width: 0; }
+  .list-row .w { font-weight: 600; font-size: 0.95rem; color: var(--fg); }
+  .list-row .w.knew { color: var(--ok); }
+  .list-row .w.weak { color: var(--warn); }
+  .list-row .zh { font-size: 0.78rem; color: var(--muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .list-row .spk { flex-shrink: 0; width: 32px; height: 32px; border-radius: 50%; background: var(--bg); border: 1px solid var(--border); cursor: pointer; color: var(--accent); font-size: 0.9rem; padding: 0; }
+  .list-row .mk { flex-shrink: 0; width: 24px; text-align: center; color: var(--muted); }
+  .list-row .mk.know { color: var(--ok); }
+  .list-row .mk.weak { color: var(--warn); }
+  .curriculum-note { margin: 16px; padding: 12px 14px; background: var(--card); border-left: 3px solid var(--accent); border-radius: 8px; font-size: 0.82rem; color: var(--muted); line-height: 1.5; }
+  .curriculum-note strong { color: var(--fg); }
+  .actions { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; padding: 0 16px; }
+  .btn { padding: 14px 8px; border: 1px solid var(--border); border-radius: 12px; background: var(--card); color: var(--fg); font-size: 0.95rem; font-weight: 600; cursor: pointer; font-family: inherit; -webkit-tap-highlight-color: transparent; }
+  .btn .ico { display: block; font-size: 1.4rem; margin-bottom: 2px; }
+  .btn.weak { color: var(--warn); }
+  .btn.weak:active { background: rgba(217,119,6,0.1); }
+  .btn.flip { color: var(--accent); }
+  .btn.flip:active { background: rgba(37,99,235,0.1); }
+  .btn.know { color: var(--ok); }
+  .btn.know:active { background: rgba(5,150,105,0.1); }
+  .meta { text-align: center; color: var(--muted); font-size: 0.78rem; margin-top: 20px; }
+  .tabbar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--nav-bg); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px); border-top: 1px solid var(--border); display: flex; padding-bottom: env(safe-area-inset-bottom, 0); z-index: 30; }
+  .tab-btn { flex: 1; background: transparent; border: none; padding: 10px 4px 8px; color: var(--muted); font-size: 0.68rem; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 3px; font-family: inherit; text-decoration: none; }
+  .tab-btn .icon { font-size: 1.25rem; line-height: 1; }
+  .tab-btn.active { color: var(--accent); }
+  .done-screen { text-align: center; padding: 60px 24px; display: none; }
+  .done-screen.show { display: block; }
+  .done-screen .big { font-size: 4rem; }
+  .done-screen .ttl { font-size: 1.3rem; font-weight: 700; margin: 8px 0; }
+  .done-screen .sub { color: var(--muted); margin-bottom: 24px; }
+  .done-screen button { background: var(--accent); color: white; border: none; padding: 12px 24px; border-radius: 12px; font-size: 0.95rem; font-weight: 600; cursor: pointer; font-family: inherit; margin: 4px; }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <a class="back-btn" href="index.html#home">&#8592;</a>
+  <div style="flex:1;">
+    <div class="ttl">今日 150 词 &middot; Family &amp; Relationships</div>
+    <div class="sub">2026-07-05 &middot; Day 46</div>
+  </div>
+</header>
+
+<div class="stats">
+  <div class="stat"><div class="num know" id="kn">0</div><div class="lbl">知道</div></div>
+  <div class="stat"><div class="num weak" id="wk">0</div><div class="lbl">不熟</div></div>
+  <div class="stat"><div class="num left" id="lf">150</div><div class="lbl">剩余</div></div>
+</div>
+<div class="progress-bar"><div class="progress-fill" id="pg" style="width:0%"></div></div>
+
+<div class="view-toggle">
+  <button id="vtFlash" class="active" onclick="setView('flash')">&#128199; 卡片</button>
+  <button id="vtList" onclick="setView('list')">&#128203; 列表</button>
+</div>
+
+<div id="deck">
+  <div class="card-stage">
+    <div class="card-3d" id="card" onclick="flip()">
+      <div class="face front">
+        <button class="speaker" onclick="event.stopPropagation();speak(document.getElementById('w').textContent)">&#128266;</button>
+        <div class="word" id="w">—</div>
+        <div class="pos" id="p">—</div>
+        <div class="hint">轻触卡片 · 翻看释义</div>
+      </div>
+      <div class="face back">
+        <button class="speaker" onclick="event.stopPropagation();speak(document.getElementById('w').textContent)">&#128266;</button>
+        <div class="zh" id="zh">—</div>
+        <div class="collo" id="cl">—</div>
+        <div class="ex" id="ex">—</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="btn weak" onclick="mark('weak')"><span class="ico">&#128543;</span>不熟</button>
+    <button class="btn flip" onclick="flip()"><span class="ico">&#128260;</span>翻转</button>
+    <button class="btn know" onclick="mark('know')"><span class="ico">&#9989;</span>知道</button>
+  </div>
+
+  <div class="meta" id="meta">1 / 150 &middot; 今日主题 Family &amp; Relationships</div>
+</div>
+
+<div class="list-view" id="listView">
+  <div id="listBody"></div>
+</div>
+
+<div class="curriculum-note">
+  <strong>词汇来源</strong>: 8 天主题轮换，涵盖雅思高频话题。<br>
+  Day 1-7 <strong>Education</strong> · Day 8-14 <strong>Environment</strong> · Day 15-21 <strong>Technology</strong> · Day 22-28 <strong>Health</strong> · Day 29-35 <strong>Government &amp; Society</strong> · Day 36-42 <strong>Work &amp; Economy</strong> · Day 43-49 <strong>Family &amp; Relationships</strong> · Day 50-56 <strong>Travel &amp; Culture</strong> · 之后循环。<br>
+  词汇为 Band 7+ 难度，每条含 词性 · 中文 · 搭配 · 例句，由 IELTS 高分话题词库扩展生成。
+</div>
+
+<div class="done-screen" id="done">
+  <div class="big">&#127881;</div>
+  <div class="ttl" id="doneTtl">今日 150 词完成!</div>
+  <div class="sub" id="doneSub">知道 0 · 不熟 0</div>
+  <button onclick="resetAll()">重新开始</button>
+  <button onclick="reviewWeak()">只复习不熟</button>
+  <button onclick="location.href='index.html'">回主页</button>
+</div>
+
+<nav class="tabbar">
+  <a class="tab-btn active" href="index.html#home"><span class="icon">&#127968;</span>概览</a>
+  <a class="tab-btn" href="index.html#materials"><span class="icon">&#128250;</span>材料</a>
+  <a class="tab-btn" href="index.html#quizzes"><span class="icon">&#9999;&#65039;</span>测验</a>
+  <a class="tab-btn" href="index.html#plan"><span class="icon">&#128203;</span>计划</a>
+</nav>
+
+<script>
+const CARDS = [
+{"w":"rapport","p":"n.","zh":"融洽关系","cl":"build rapport with sb.","ex":"She has a remarkable ability to build <strong>rapport</strong> with people from all walks of life."},
+{"w":"amicable","p":"adj.","zh":"友好的","cl":"an amicable settlement","ex":"Despite years of dispute, they eventually reached an <strong>amicable</strong> settlement through mediation."},
+{"w":"conciliate","p":"v.","zh":"调和/使和解","cl":"conciliate warring parties","ex":"A skilled family mediator can <strong>conciliate</strong> even the most deeply entrenched disputes."},
+{"w":"esteem","p":"n.","zh":"尊重/敬重","cl":"hold in high esteem","ex":"Children who are held in high <strong>esteem</strong> by caregivers develop a far stronger sense of self-worth."},
+{"w":"accountability","p":"n.","zh":"责任感/担责","cl":"mutual accountability","ex":"<strong>Accountability</strong> within a marriage prevents grievances from silently accumulating over time."},
+{"w":"confide","p":"v.","zh":"倾诉/吐露秘密","cl":"confide in a parent","ex":"Teenagers are far more likely to <strong>confide</strong> in a trusted adult than to seek help from a stranger."},
+{"w":"candour","p":"n.","zh":"坦诚/直率","cl":"speak with candour","ex":"The counsellor urged the couple to speak with <strong>candour</strong> about their long-term expectations."},
+{"w":"affirmation","p":"n.","zh":"肯定/认可","cl":"words of affirmation","ex":"Words of <strong>affirmation</strong> are widely cited as one of the most powerful expressions of love."},
+{"w":"solace","p":"n.","zh":"安慰/慰藉","cl":"find solace in family","ex":"Many people find profound <strong>solace</strong> in the company of close family during periods of personal hardship."},
+{"w":"reciprocal","p":"adj.","zh":"相互的/互惠的","cl":"reciprocal trust","ex":"A healthy long-term relationship is grounded in <strong>reciprocal</strong> trust and genuine mutual respect."},
+{"w":"mediator","p":"n.","zh":"调解人","cl":"act as a mediator","ex":"A family <strong>mediator</strong> can help separating couples reach agreements without the acrimony of a courtroom battle."},
+{"w":"fragile","p":"adj.","zh":"脆弱的","cl":"a fragile relationship","ex":"The peace between estranged siblings can remain <strong>fragile</strong> for several years after initial reconciliation."},
+{"w":"enduring","p":"adj.","zh":"持久的","cl":"enduring family bonds","ex":"The most <strong>enduring</strong> bonds are typically forged through shared adversity rather than shared prosperity."},
+{"w":"strained","p":"adj.","zh":"紧张的","cl":"strained relations","ex":"<strong>Strained</strong> relations between parents and adolescents often peak during the mid-teenage years."},
+{"w":"forthright","p":"adj.","zh":"直率的/坦率的","cl":"forthright communication","ex":"<strong>Forthright</strong> communication, while sometimes uncomfortable, prevents misunderstandings from festering."},
+{"w":"vindictive","p":"adj.","zh":"怀恨报复的","cl":"a vindictive ex-partner","ex":"A <strong>vindictive</strong> ex-partner may deliberately undermine the other parent's relationship with their children."},
+{"w":"venerable","p":"adj.","zh":"德高望重的","cl":"a venerable elder","ex":"The <strong>venerable</strong> family elder was consulted on all decisions of major importance."},
+{"w":"discord","p":"n.","zh":"不和/争执","cl":"sow discord","ex":"Unresolved inheritance disputes can sow profound <strong>discord</strong> within previously close family units."},
+{"w":"surrogate","p":"n./adj.","zh":"代孕的/替代的","cl":"surrogate mother","ex":"<strong>Surrogate</strong> motherhood raises complex ethical and legal questions about the nature of parenthood."},
+{"w":"alimony","p":"n.","zh":"赡养费","cl":"court-ordered alimony","ex":"Courts may order a former spouse to pay <strong>alimony</strong> to support the lower-earning partner after divorce."},
+{"w":"emancipation","p":"n.","zh":"独立/自主","cl":"adolescent emancipation","ex":"<strong>Emancipation</strong> from parental authority is a gradual developmental process central to healthy adolescence."},
+{"w":"brooding","p":"adj.","zh":"忧郁沉思的","cl":"a brooding silence","ex":"A <strong>brooding</strong> silence fell over the household whenever the sensitive subject was raised."},
+{"w":"doting","p":"adj.","zh":"溺爱的","cl":"a doting grandparent","ex":"<strong>Doting</strong> grandparents often unknowingly undermine parents' attempts to establish consistent discipline."},
+{"w":"prodigal","p":"adj./n.","zh":"挥霍的/浪子","cl":"the prodigal son","ex":"The parable of the <strong>prodigal</strong> son resonates across cultures as a story of forgiveness and unconditional parental love."},
+{"w":"stewardship","p":"n.","zh":"管理责任","cl":"family stewardship","ex":"Responsible <strong>stewardship</strong> of family wealth requires both financial wisdom and clear communication among heirs."},
+{"w":"corrosive","p":"adj.","zh":"腐蚀性的/有害的","cl":"corrosive conflict","ex":"Chronic, unresolved conflict can be <strong>corrosive</strong> to even the strongest long-standing marriage."},
+{"w":"gratitude","p":"n.","zh":"感激/感恩","cl":"express gratitude","ex":"Regularly expressing <strong>gratitude</strong> to a partner is a simple yet powerful way of reinforcing emotional bonds."},
+{"w":"disillusionment","p":"n.","zh":"幻灭/失望","cl":"marital disillusionment","ex":"<strong>Disillusionment</strong> sets in when the reality of married life fails to meet romantically idealised expectations."},
+{"w":"steadfast","p":"adj.","zh":"坚定不移的","cl":"steadfast commitment","ex":"Her <strong>steadfast</strong> commitment to the relationship, even through the darkest period, ultimately saved the marriage."},
+{"w":"indulgent","p":"adj.","zh":"纵容的/溺爱的","cl":"indulgent grandparents","ex"><strong>Indulgent</strong> grandparents who regularly override parental rules can destabilise household authority."},
+{"w":"overbearing","p":"adj.","zh":"专横的/过度干涉的","cl":"an overbearing parent","ex":"An <strong>overbearing</strong> parent who controls every aspect of a child's life can severely stifle that child's development."},
+{"w":"harmonious","p":"adj.","zh":"和谐的","cl":"a harmonious household","ex":"Maintaining a <strong>harmonious</strong> household requires constant effort, clear communication, and willingness to compromise."},
+{"w":"reciprocate","p":"v.","zh":"回报/回应","cl":"reciprocate affection","ex":"When love and care are not <strong>reciprocated</strong>, the resulting emotional imbalance can be profoundly damaging."},
+{"w":"obligation","p":"n.","zh":"义务/责任","cl":"family obligations","ex":"Many migrants feel torn between personal ambitions and deeply felt <strong>obligations</strong> to their families."},
+{"w":"neglectful","p":"adj.","zh":"疏忽的","cl":"a neglectful parent","ex":"Courts are empowered to intervene when a parent is demonstrably <strong>neglectful</strong> of a child's emotional needs."},
+{"w":"insular","p":"adj.","zh":"狭隘的/封闭的","cl":"an insular family","ex":"Overly <strong>insular</strong> families who discourage outside relationships may struggle to prepare children for adult life."},
+{"w":"assertive","p":"adj.","zh":"自信果断的","cl":"assertive communication","ex":"<strong>Assertive</strong> communication enables family members to express needs clearly without resorting to aggression."},
+{"w":"deference","p":"n.","zh":"顺从/尊重","cl":"show deference to elders","ex":"In many traditional cultures, younger generations are expected to show considerable <strong>deference</strong> to their elders."},
+{"w":"quarrel","p":"n./v.","zh":"争吵","cl":"a bitter family quarrel","ex":"A bitter <strong>quarrel</strong> over the estate divided the extended family for more than a decade."},
+{"w":"lament","p":"v./n.","zh":"哀叹/痛惜","cl":"lament the erosion of","ex":"Many sociologists <strong>lament</strong> the erosion of community networks that once provided informal support for families."},
+{"w":"persevere","p":"v.","zh":"坚持/不懈努力","cl":"persevere through hardship","ex":"Couples who <strong>persevere</strong> through early financial hardship often emerge with stronger and more resilient bonds."},
+{"w":"benevolent","p":"adj.","zh":"仁慈的/宽厚的","cl":"a benevolent patriarch","ex":"A <strong>benevolent</strong> family leader balances firmness of authority with genuine compassion for all members."},
+{"w":"volatile","p":"adj.","zh":"不稳定的/情绪多变的","cl":"a volatile relationship","ex":"A <strong>volatile</strong> relationship marked by unpredictable outbursts is deeply harmful to any children in the household."},
+{"w":"nuptial","p":"adj.","zh":"婚礼的/婚姻的","cl":"nuptial vows","ex":"<strong>Nuptial</strong> vows are a public declaration of long-term commitment that many consider sacred."},
+{"w":"custodian","p":"n.","zh":"监护人/管理者","cl":"the legal custodian","ex":"The court appointed the maternal grandmother as the legal <strong>custodian</strong> following the parents' incapacitation."},
+{"w":"tender","p":"adj.","zh":"温柔的/关怀备至的","cl":"tender care","ex":"Infants require constant, <strong>tender</strong> care to develop the secure attachment that underpins future emotional health."},
+{"w":"magnanimous","p":"adj.","zh":"宽宏大量的","cl":"a magnanimous act of forgiveness","ex":"A truly <strong>magnanimous</strong> act of forgiveness can heal decades of painful family estrangement."},
+{"w":"compassionate","p":"adj.","zh":"富有同情心的","cl":"a compassionate response","ex":"A <strong>compassionate</strong> response to a child's distress helps build deep-rooted trust that persists into adulthood."},
+{"w":"parity","p":"n.","zh":"平等/同等","cl":"gender parity in the home","ex":"Research consistently links equitable division of domestic labour to higher <strong>parity</strong> and relationship satisfaction."},
+{"w":"indifference","p":"n.","zh":"冷漠/漠然","cl":"parental indifference","ex":"Parental <strong>indifference</strong> can be as psychologically damaging to a child as active hostility."},
+{"w":"tolerance","p":"n.","zh":"包容/容忍","cl":"mutual tolerance","ex":"A lasting marriage inevitably requires a generous measure of mutual <strong>tolerance</strong> for each other's imperfections."},
+{"w":"maturation","p":"n.","zh":"成熟","cl":"emotional maturation","ex":"Emotional <strong>maturation</strong> is a gradual developmental process that extends well beyond the teenage years."},
+{"w":"irreplaceable","p":"adj.","zh":"不可替代的","cl":"an irreplaceable bond","ex":"The bond formed between caregiver and infant in the first year of life is widely regarded as truly <strong>irreplaceable</strong>."},
+{"w":"congenial","p":"adj.","zh":"宜人的/友好的","cl":"a congenial home atmosphere","ex":"A <strong>congenial</strong> home atmosphere is one of the most reliable predictors of healthy child development."},
+{"w":"temperament","p":"n.","zh":"气质/性情","cl":"an easy temperament","ex":"A child's innate <strong>temperament</strong> interacts with parenting style to produce highly individualised behavioural outcomes."},
+{"w":"attentive","p":"adj.","zh":"专心的/体贴的","cl":"attentive parenting","ex":"<strong>Attentive</strong> parenting involves responding consistently to a child's emotional signals, not just outward behaviour."},
+{"w":"cordial","p":"adj.","zh":"热情友好的","cl":"cordial relations","ex":"Despite the difficulty of their divorce, the couple maintained <strong>cordial</strong> relations for the sake of their children."},
+{"w":"arbitrate","p":"v.","zh":"仲裁/裁决","cl":"arbitrate a family dispute","ex":"A respected elder was called upon to <strong>arbitrate</strong> the long-running inheritance dispute."},
+{"w":"contention","p":"n.","zh":"争论/争议点","cl":"a point of contention","ex":"The question of childcare responsibility is often a central point of <strong>contention</strong> in marital breakdown cases."},
+{"w":"alienation","p":"n.","zh":"疏离/异化","cl":"parental alienation","ex":"<strong>Parental alienation</strong> — deliberately undermining a child's bond with the other parent — is recognised as emotional abuse."},
+{"w":"consort","p":"n.","zh":"配偶/伴侣","cl":"a trusted consort","ex":"In historical contexts, a monarch's <strong>consort</strong> wielded considerable informal political influence."},
+{"w":"forbearance","p":"n.","zh":"忍耐/克制","cl":"exercise forbearance","ex":"Sustaining a long-term relationship requires the daily exercise of considerable <strong>forbearance</strong> and restraint."},
+{"w":"tether","p":"v./n.","zh":"束缚/情感联结","cl":"emotionally tethered","ex":"Young children are naturally and profoundly <strong>tethered</strong> to their primary caregivers during the first years of life."},
+{"w":"irretrievable","p":"adj.","zh":"无可挽回的","cl":"irretrievably broken","ex":"A marriage may be legally declared <strong>irretrievably</strong> broken when both parties have wholly lost the will to continue."},
+{"w":"demeanour","p":"n.","zh":"举止/态度","cl":"a calm demeanour","ex":"Maintaining a calm <strong>demeanour</strong> during heated family conflict significantly reduces the likelihood of escalation."},
+{"w":"tenacious","p":"adj.","zh":"坚韧的/顽强的","cl":"tenacious love","ex":"Her <strong>tenacious</strong> love for her estranged daughter persisted undiminished through many years of painful silence."},
+{"w":"pragmatic","p":"adj.","zh":"务实的","cl":"a pragmatic approach to conflict","ex":"A <strong>pragmatic</strong> approach to marital conflict focuses on actionable solutions rather than apportioning blame."},
+{"w":"dissolution","p":"n.","zh":"解散/终止","cl":"the dissolution of a marriage","ex":"The rate of marital <strong>dissolution</strong> has remained persistently elevated since the social transformations of the 1970s."},
+{"w":"nourish","p":"v.","zh":"滋养/培育","cl":"nourish a relationship","ex":"Just as a plant requires regular water, a relationship must be actively <strong>nourished</strong> through shared attention."},
+{"w":"peacemaker","p":"n.","zh":"调解者","cl":"the family peacemaker","ex":"The middle child frequently assumes the unofficial role of family <strong>peacemaker</strong> in households prone to conflict."},
+{"w":"emulate","p":"v.","zh":"仿效/效仿","cl":"emulate a parent's behaviour","ex":"Children inevitably <strong>emulate</strong> the behaviours modelled by their primary caregivers, for better or for worse."},
+{"w":"friction","p":"n.","zh":"摩擦/矛盾","cl":"generate friction","ex":"Unaddressed financial disagreements generate ongoing <strong>friction</strong> that steadily erodes household stability."},
+{"w":"conscientious","p":"adj.","zh":"认真负责的","cl":"a conscientious caregiver","ex":"A <strong>conscientious</strong> caregiver attends equally to both the physical and emotional needs of those in their care."},
+{"w":"reticent","p":"adj.","zh":"沉默寡言的","cl":"reticent about feelings","ex":"Many men are socially conditioned to be <strong>reticent</strong> about expressing negative emotions within the family."},
+{"w":"acquiescence","p":"n.","zh":"默许/顺从","cl":"silent acquiescence","ex":"Prolonged silent <strong>acquiescence</strong> in an inequitable relationship invariably gives rise to deep-seated resentment."},
+{"w":"perceptive","p":"adj.","zh":"有洞察力的","cl":"a perceptive parent","ex":"A <strong>perceptive</strong> parent reads the unspoken emotional signals behind a child's challenging behaviour."},
+{"w":"susceptible","p":"adj.","zh":"易受影响的","cl":"susceptible to emotional stress","ex":"Young children are particularly <strong>susceptible</strong> to the emotional climate of the home environment."},
+{"w":"selfless","p":"adj.","zh":"无私的","cl":"selfless devotion","ex":"The <strong>selfless</strong> devotion of parents is rarely fully appreciated until their children themselves become parents."},
+{"w":"ingrained","p":"adj.","zh":"根深蒂固的","cl":"ingrained communication patterns","ex":"Dysfunctional communication patterns become deeply <strong>ingrained</strong> if not identified and addressed early."},
+{"w":"amends","p":"n.","zh":"弥补/赔偿","cl":"make amends","ex":"Making genuine <strong>amends</strong> after a serious family rupture requires sustained effort, courage, and real humility."},
+{"w":"unconventional","p":"adj.","zh":"非传统的","cl":"an unconventional family structure","ex":"<strong>Unconventional</strong> family structures increasingly earn social acceptance in more progressive societies."},
+{"w":"platonic","p":"adj.","zh":"柏拉图式的","cl":"a platonic friendship","ex":"The boundary between a deep <strong>platonic</strong> friendship and romantic love can sometimes be remarkably difficult to define."},
+{"w":"empathise","p":"v.","zh":"产生共情/感同身受","cl":"empathise with a child","ex":"Effective parents consistently <strong>empathise</strong> with their child's perspective before imposing any form of discipline."},
+{"w":"solicit","p":"v.","zh":"征求/请求","cl":"solicit advice","ex":"Young parents often <strong>solicit</strong> advice from their own parents, thereby perpetuating established generational patterns."},
+{"w":"forthcoming","p":"adj.","zh":"坦诚开放的","cl":"forthcoming with information","ex":"Parents who are <strong>forthcoming</strong> with age-appropriate information substantially reduce harmful family secrecy."},
+{"w":"possessive","p":"adj.","zh":"占有欲强的","cl":"a possessive partner","ex":"An excessively <strong>possessive</strong> attitude towards a partner is a recognised warning sign of coercive control."},
+{"w":"empowering","p":"adj.","zh":"赋能的","cl":"an empowering home environment","ex":"An <strong>empowering</strong> home environment cultivates children's confidence, independence, and personal agency."},
+{"w":"anchor","p":"n./v.","zh":"情感支柱/稳固","cl":"an emotional anchor","ex":"For many children, a devoted grandparent serves as an emotional <strong>anchor</strong> during periods of family turbulence."},
+{"w":"transient","p":"adj.","zh":"短暂的","cl":"transient relationships","ex":"Relatively <strong>transient</strong> relationships formed in childhood give way to deeper, more selective adult bonds."},
+{"w":"reciprocity","p":"n.","zh":"互惠/相互性","cl":"reciprocity in care","ex":"True partnership demands <strong>reciprocity</strong> in emotional labour as well as in practical household support."},
+{"w":"mend","p":"v.","zh":"修复/弥合","cl":"mend a broken relationship","ex":"The sincere desire to <strong>mend</strong> a fractured family relationship requires genuine vulnerability from all parties."},
+{"w":"atone","p":"v.","zh":"弥补/赎罪","cl":"atone for past wrongs","ex":"It is possible to <strong>atone</strong> for past neglect, but doing so requires sustained effort and genuine remorse."},
+{"w":"confidant","p":"n.","zh":"知己/倾诉对象","cl":"a trusted confidant","ex":"A trusted family <strong>confidant</strong> provides a safe space for emotional disclosure without fear of judgement."},
+{"w":"steadfastness","p":"n.","zh":"坚定/忠贞","cl":"marital steadfastness","ex":"The <strong>steadfastness</strong> of long-married couples in the face of adversity inspires younger generations."},
+{"w":"abusive","p":"adj.","zh":"施虐的/虐待性的","cl":"an abusive relationship","ex":"Legal frameworks have been strengthened to better protect individuals trapped in <strong>abusive</strong> domestic relationships."},
+{"w":"symbiotic","p":"adj.","zh":"共生的","cl":"a symbiotic relationship","ex":"The relationship between grandparents and grandchildren is often mutually beneficial and genuinely <strong>symbiotic</strong>."},
+{"w":"clemency","p":"n.","zh":"宽容/仁慈","cl":"show clemency","ex":"Showing <strong>clemency</strong> towards a family member who has caused hurt is an act of profound emotional maturity."},
+{"w":"vulnerable","p":"adj.","zh":"脆弱的/易受伤的","cl":"emotionally vulnerable","ex":"Emotionally <strong>vulnerable</strong> individuals often unconsciously replicate the dysfunctional relationship patterns of their parents."},
+{"w":"ardour","p":"n.","zh":"热情/激情","cl":"youthful ardour","ex":"The <strong>ardour</strong> of early romance often mellows into a steadier, deeper form of love over the years of a long marriage."},
+{"w":"open communication","p":"n.","zh":"开放式沟通","cl":"maintain open communication","ex":"<strong>Open communication</strong> between parents and teenagers is the single greatest protective factor against risky behaviour."},
+{"w":"quality time","p":"n.","zh":"高质量陪伴","cl":"spend quality time","ex":"Parents are advised to spend <strong>quality time</strong> with their children, not merely time in the same physical space."},
+{"w":"shared responsibility","p":"n.","zh":"共同责任","cl":"shoulder shared responsibility","ex":"Effective partnerships are built on <strong>shared responsibility</strong> for both domestic and financial matters."},
+{"w":"adaptive coping","p":"n.","zh":"适应性应对","cl":"develop adaptive coping","ex":"Families that develop <strong>adaptive coping</strong> strategies are better equipped to withstand periods of crisis."},
+{"w":"marital satisfaction","p":"n.","zh":"婚姻满意度","cl":"measure marital satisfaction","ex":"Research consistently links fair division of household labour to higher levels of <strong>marital satisfaction</strong>."},
+{"w":"emotional intelligence","p":"n.","zh":"情绪智力","cl":"develop emotional intelligence","ex":"Parents who model emotional regulation help their children develop genuine <strong>emotional intelligence</strong>."},
+{"w":"financial dependence","p":"n.","zh":"经济依赖","cl":"escape financial dependence","ex":"Adult children who remain in <strong>financial dependence</strong> on parents may struggle with independent identity formation."},
+{"w":"primary caregiver","p":"n.","zh":"主要照料者","cl":"be the primary caregiver","ex":"The role of <strong>primary caregiver</strong> still falls disproportionately on women in most societies worldwide."},
+{"w":"extended support network","p":"n.","zh":"扩展支持网络","cl":"rely on an extended support network","ex":"Single parents in particular benefit greatly from a robust <strong>extended support network</strong>."},
+{"w":"conflict resolution","p":"n.","zh":"冲突解决","cl":"practise conflict resolution","ex":"Schools increasingly teach <strong>conflict resolution</strong> skills to prepare children for adult relationships."},
+{"w":"social capital","p":"n.","zh":"社会资本","cl":"build social capital","ex":"Close family ties constitute a form of <strong>social capital</strong> that confers lasting social advantages."},
+{"w":"emotional regulation","p":"n.","zh":"情绪调节","cl":"model emotional regulation","ex":"Children learn <strong>emotional regulation</strong> primarily by observing the adults in their immediate environment."},
+{"w":"marital conflict","p":"n.","zh":"婚姻冲突","cl":"navigate marital conflict","ex":"Children who witness persistent <strong>marital conflict</strong> are at heightened risk of anxiety and behavioural disorders."},
+{"w":"role reversal","p":"n.","zh":"角色反转","cl":"experience role reversal","ex":"When parents age and require care, their adult children experience a significant and often challenging <strong>role reversal</strong>."},
+{"w":"peer pressure","p":"n.","zh":"同伴压力","cl":"withstand peer pressure","ex":"Parents play a critical role in equipping teenagers with the resilience to withstand <strong>peer pressure</strong>."},
+{"w":"separation anxiety","p":"n.","zh":"分离焦虑","cl":"overcome separation anxiety","ex":"<strong>Separation anxiety</strong> is a normal developmental stage that typically resolves naturally by around age five."},
+{"w":"care burden","p":"n.","zh":"护理负担","cl":"shoulder the care burden","ex":"The <strong>care burden</strong> for elderly parents falls disproportionately on the eldest or nearest child in many cultures."},
+{"w":"cultural expectations","p":"n.","zh":"文化期待","cl":"navigate cultural expectations","ex":"Second-generation immigrants must navigate competing <strong>cultural expectations</strong> at home and in wider society."},
+{"w":"sense of belonging","p":"n.","zh":"归属感","cl":"foster a sense of belonging","ex":"A strong family provides each member with a <strong>sense of belonging</strong> that is difficult to replicate elsewhere."},
+{"w":"in-laws","p":"n.","zh":"姻亲/公婆/岳父母","cl":"friction with in-laws","ex":"Friction with <strong>in-laws</strong> is frequently cited as a significant source of tension in cross-cultural partnerships."},
+{"w":"spousal support","p":"n.","zh":"配偶支持","cl":"provide spousal support","ex":"Robust <strong>spousal support</strong> is one of the strongest predictors of recovery after personal bereavement or loss."},
+{"w":"sibling rivalry","p":"n.","zh":"手足竞争","cl":"manage sibling rivalry","ex":"Parents who provide individualised attention can significantly reduce the intensity of <strong>sibling rivalry</strong>."},
+{"w":"nesting instinct","p":"n.","zh":"筑巢本能","cl":"trigger the nesting instinct","ex":"First-time expectant mothers often describe an overwhelming <strong>nesting instinct</strong> in the final weeks of pregnancy."},
+{"w":"marital fidelity","p":"n.","zh":"婚姻忠诚","cl":"uphold marital fidelity","ex":"Expectations of <strong>marital fidelity</strong> vary considerably across different cultural and religious traditions."},
+{"w":"child welfare","p":"n.","zh":"儿童福利","cl":"prioritise child welfare","ex":"Courts in family disputes are legally required to prioritise <strong>child welfare</strong> above all other considerations."},
+{"w":"family therapy","p":"n.","zh":"家庭治疗","cl":"undergo family therapy","ex":"An increasing number of families voluntarily undergo <strong>family therapy</strong> to address persistent communication breakdowns."},
+{"w":"relational trust","p":"n.","zh":"关系信任","cl":"build relational trust","ex":"<strong>Relational trust</strong> takes years to build but can be destroyed in a single moment of serious betrayal."},
+{"w":"civil partnership","p":"n.","zh":"民事结合","cl":"register a civil partnership","ex":"A <strong>civil partnership</strong> offers many of the legal rights of marriage to cohabiting couples."},
+{"w":"anniversary milestone","p":"n.","zh":"周年纪念里程碑","cl":"celebrate an anniversary milestone","ex":"Celebrating <strong>anniversary milestones</strong> together reinforces the cultural and emotional significance of long-term commitment."},
+{"w":"reach a turning point","p":"idiom","zh":"到达转折点","cl":"marriage reaches a turning point","ex":"Their relationship reached a <strong>turning point</strong> when both finally agreed to seek professional counselling."},
+{"w":"hold together","p":"phrasal v.","zh":"维持/不分裂","cl":"hold the family together","ex":"Against considerable odds, she managed to <strong>hold the family together</strong> through years of financial hardship."},
+{"w":"draw a line","p":"idiom","zh":"划定界线","cl":"draw a line with overbearing parents","ex":"It is important for adult children to <strong>draw a line</strong> with overbearing parents without severing the relationship entirely."},
+{"w":"let bygones be bygones","p":"idiom","zh":"既往不咎","cl":"let bygones be bygones","ex":"The family elder urged them to <strong>let bygones be bygones</strong> and focus on rebuilding their relationship."},
+{"w":"have a heart-to-heart","p":"idiom","zh":"推心置腹地交谈","cl":"have a heart-to-heart","ex":"They sat down and had a much-needed <strong>heart-to-heart</strong> about their expectations of the marriage."},
+{"w":"wear one's heart on one's sleeve","p":"idiom","zh":"感情外露","cl":"wear one's heart on one's sleeve","ex":"Unlike her reserved brother, she always <strong>wore her heart on her sleeve</strong> in family matters."},
+{"w":"at each other's throats","p":"idiom","zh":"争斗不休","cl":"constantly at each other's throats","ex":"The siblings were constantly <strong>at each other's throats</strong> over the management of their parents' estate."},
+{"w":"bend over backwards","p":"phrasal v.","zh":"竭尽全力帮助","cl":"bend over backwards for someone","ex":"Her parents <strong>bent over backwards</strong> to provide her with every educational opportunity they could."},
+{"w":"rise above","p":"phrasal v.","zh":"克服/超越","cl":"rise above a difficult childhood","ex":"He was determined to <strong>rise above</strong> the difficult upbringing he had experienced and build a better life."},
+{"w":"be there for someone","p":"idiom","zh":"在某人需要时给予支持","cl":"be there for your children","ex":"Simply knowing that family members will <strong>be there for</strong> them gives children a lasting sense of security."},
+{"w":"take one's toll","p":"idiom","zh":"造成损害/付出代价","cl":"take its toll on the children","ex":"The years of chronic conflict began to <strong>take their toll</strong> on the children's emotional health."},
+{"w":"sweep under the carpet","p":"idiom","zh":"掩盖/回避问题","cl":"sweep problems under the carpet","ex":"Unresolved grievances that are <strong>swept under the carpet</strong> will inevitably resurface as larger conflicts later."},
+{"w":"It is often the case that","p":"sentence stem","zh":"通常情况下","cl":"It is often the case that...","ex":"<strong>It is often the case that</strong> the most resilient individuals are those who faced early adversity yet were supported by one caring adult."},
+{"w":"There is growing evidence to suggest that","p":"sentence stem","zh":"越来越多的证据表明","cl":"growing evidence to suggest","ex":"<strong>There is growing evidence to suggest that</strong> parental involvement has a greater influence on academic outcomes than socioeconomic background alone."},
+{"w":"The extent to which","p":"sentence stem","zh":"……的程度","cl":"The extent to which... depends on...","ex":"<strong>The extent to which</strong> adult children maintain close ties with parents <strong>depends largely on</strong> the quality of communication in adolescence."},
+{"w":"weather the storm","p":"idiom","zh":"经受住风暴/共度难关","cl":"weather the storms of marriage","ex":"Only couples who genuinely respect each other are equipped to <strong>weather the storms</strong> that inevitably arise in a long-term relationship."},
+{"w":"stand by someone","p":"phrasal v.","zh":"支持/忠于某人","cl":"stand by your partner","ex":"Her parents <strong>stood by</strong> her during the most difficult period of her life, demonstrating unconditional commitment."},
+{"w":"call it quits","p":"idiom","zh":"以结束告终/放弃","cl":"call it quits after years of trying","ex":"After years of trying, they decided to <strong>call it quits</strong> and pursue an amicable separation."},
+{"w":"mend fences","p":"idiom","zh":"修复关系/弥合裂痕","cl":"mend fences with estranged siblings","ex":"It took great courage for the estranged brothers to reach out and begin <strong>mending fences</strong>."},
+{"w":"have the last word","p":"idiom","zh":"最终决定权/说最后一句话","cl":"insist on having the last word","ex":"In many traditional households, the family patriarch expected to <strong>have the last word</strong> on all significant decisions."}
+];
+
+const LS_KEY = "ielts_vocab_20260705";
+let state = JSON.parse(localStorage.getItem(LS_KEY) || "{}");
+let deck = [];
+let cur = 0;
+let flipped = false;
+
+function save() { localStorage.setItem(LS_KEY, JSON.stringify(state)); }
+
+function initDeck() {
+  deck = CARDS.map((c, i) => i).filter(i => state[i] !== 'know');
+  cur = 0;
+  render();
+}
+
+function render() {
+  let kn = Object.values(state).filter(v => v === 'know').length;
+  let wk = Object.values(state).filter(v => v === 'weak').length;
+  document.getElementById('kn').textContent = kn;
+  document.getElementById('wk').textContent = wk;
+  document.getElementById('lf').textContent = deck.length - cur;
+  document.getElementById('pg').style.width = (kn / CARDS.length * 100) + '%';
+  if (cur >= deck.length) { showDone(kn, wk); return; }
+  const c = CARDS[deck[cur]];
+  document.getElementById('w').textContent = c.w;
+  document.getElementById('p').textContent = c.p;
+  document.getElementById('zh').textContent = c.zh;
+  document.getElementById('cl').textContent = c.cl;
+  document.getElementById('ex').innerHTML = c.ex;
+  document.getElementById('meta').textContent = (cur + 1) + ' / ' + deck.length + ' · 今日主题 Family & Relationships';
+  const card = document.getElementById('card');
+  card.classList.remove('flipped');
+  flipped = false;
+}
+
+function flip() {
+  flipped = !flipped;
+  document.getElementById('card').classList.toggle('flipped', flipped);
+}
+
+function mark(type) {
+  if (cur >= deck.length) return;
+  state[deck[cur]] = type;
+  save();
+  cur++;
+  render();
+}
+
+function showDone(kn, wk) {
+  document.getElementById('deck').style.display = 'none';
+  const d = document.getElementById('done');
+  d.classList.add('show');
+  document.getElementById('doneSub').textContent = '知道 ' + kn + ' · 不熟 ' + wk;
+}
+
+function resetAll() {
+  state = {};
+  save();
+  document.getElementById('deck').style.display = '';
+  document.getElementById('done').classList.remove('show');
+  initDeck();
+}
+
+function reviewWeak() {
+  const weakIdxs = Object.keys(state).filter(k => state[k] === 'weak').map(Number);
+  deck = weakIdxs;
+  cur = 0;
+  document.getElementById('deck').style.display = '';
+  document.getElementById('done').classList.remove('show');
+  render();
+}
+
+function setView(v) {
+  const isFlash = v === 'flash';
+  document.getElementById('deck').style.display = isFlash ? '' : 'none';
+  document.getElementById('listView').classList.toggle('active', !isFlash);
+  document.getElementById('vtFlash').classList.toggle('active', isFlash);
+  document.getElementById('vtList').classList.toggle('active', !isFlash);
+  if (!isFlash) renderList();
+}
+
+function renderList() {
+  const body = document.getElementById('listBody');
+  body.innerHTML = CARDS.map((c, i) => {
+    const s = state[i] || '';
+    return `<div class="list-row">
+      <div class="num">${i+1}</div>
+      <div class="word">
+        <div class="w ${s}">${c.w}</div>
+        <div class="zh">${c.zh}</div>
+      </div>
+      <button class="spk" onclick="speak('${c.w.replace(/'/g,"\\'")}')">&#128266;</button>
+      <div class="mk ${s}">${s==='know'?'✅':s==='weak'?'😓':''}</div>
+    </div>`;
+  }).join('');
+}
+
+function speak(text) {
+  if ('speechSynthesis' in window) {
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'en-US';
+    speechSynthesis.speak(u);
+  }
+}
+
+initDeck();
+</script>
+</body>
+</html>
