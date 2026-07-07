@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#2563eb">
+<title>Day 49 · Reading T/F/NG · 育儿风格与儿童发展</title>
+<style>
+  :root {
+    --bg: #ffffff; --fg: #1a1a1a; --muted: #6b7280;
+    --accent: #2563eb; --ok: #059669; --err: #dc2626;
+    --card: #f9fafb; --border: #e5e7eb;
+    --nav-bg: rgba(255,255,255,0.92);
+    --header-bg: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f172a; --fg: #f1f5f9; --muted: #94a3b8;
+      --accent: #60a5fa; --ok: #34d399; --err: #f87171;
+      --card: #1e293b; --border: #334155;
+      --nav-bg: rgba(15,23,42,0.92);
+      --header-bg: linear-gradient(135deg, #1e40af 0%, #6b21a8 100%);
+    }
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg); }
+  body { font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif; line-height: 1.6; min-height: 100vh; padding-bottom: calc(64px + env(safe-area-inset-bottom, 0)); }
+  .app-header { background: var(--header-bg); color: white; padding: calc(env(safe-area-inset-top, 16px) + 12px) 16px 14px; position: sticky; top: 0; z-index: 20; display: flex; align-items: center; gap: 12px; }
+  .back-btn { background: rgba(255,255,255,0.18); border: none; color: white; width: 34px; height: 34px; border-radius: 10px; font-size: 1.1rem; cursor: pointer; flex-shrink: 0; text-decoration: none; display: flex; align-items: center; justify-content: center; }
+  .app-header .ttl { font-size: 1rem; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .app-header .sub { font-size: 0.72rem; opacity: 0.85; margin-top: 1px; letter-spacing: 0.04em; text-transform: uppercase; }
+  main { max-width: 720px; margin: 0 auto; padding: 16px; }
+  .progress { height: 6px; background: var(--border); border-radius: 3px; margin-bottom: 16px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--accent); transition: width 0.3s ease; }
+  .passage { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; margin-bottom: 16px; font-size: 0.95rem; line-height: 1.7; }
+  .passage h3 { margin: 0 0 8px; font-size: 0.78rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+  .question { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 14px; }
+  .q-num { color: var(--muted); font-size: 0.78rem; font-family: "SF Mono", Menlo, monospace; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.04em; }
+  .q-text { font-size: 1rem; margin-bottom: 12px; font-weight: 500; }
+  .options { display: flex; flex-direction: column; gap: 8px; }
+  .option { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; cursor: pointer; font-size: 0.95rem; text-align: left; color: var(--fg); font-family: inherit; }
+  .option.selected { border-color: var(--accent); background: rgba(37,99,235,0.08); }
+  .option.correct { border-color: var(--ok); background: rgba(5,150,105,0.1); }
+  .option.wrong { border-color: var(--err); background: rgba(220,38,38,0.1); }
+  .blank-input { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; font-size: 1rem; color: var(--fg); font-family: inherit; }
+  .blank-input.correct { border-color: var(--ok); }
+  .blank-input.wrong { border-color: var(--err); }
+  .explanation { margin-top: 10px; padding: 10px 12px; background: var(--bg); border-left: 3px solid var(--accent); border-radius: 4px; font-size: 0.9rem; color: var(--muted); display: none; }
+  .explanation.show { display: block; }
+  .explanation .answer { color: var(--ok); font-weight: 600; }
+  .actions { display: flex; gap: 10px; margin-top: 20px; }
+  .btn { flex: 1; padding: 12px; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; font-family: inherit; }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-secondary { background: var(--card); color: var(--fg); border: 1px solid var(--border); }
+  .result { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; text-align: center; margin-top: 20px; display: none; }
+  .result.show { display: block; }
+  .score { font-size: 2.5rem; font-weight: 700; color: var(--accent); }
+  .score-label { color: var(--muted); font-size: 0.9rem; margin-top: 4px; }
+  .tabbar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--nav-bg); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px); border-top: 1px solid var(--border); display: flex; padding-bottom: env(safe-area-inset-bottom, 0); z-index: 30; }
+  .tab-btn { flex: 1; background: transparent; border: none; padding: 10px 4px 8px; color: var(--muted); font-size: 0.68rem; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 3px; font-family: inherit; text-decoration: none; }
+  .tab-btn .icon { font-size: 1.25rem; line-height: 1; }
+  .tab-btn.active { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <a class="back-btn" href="index.html#quizzes">&#8592;</a>
+  <div style="flex:1;min-width:0;">
+    <div class="ttl">Reading T/F/NG &middot; 育儿风格与儿童发展</div>
+    <div class="sub">Day 49 &middot; 10 题 &middot; ~10 分钟</div>
+  </div>
+</header>
+
+<main>
+
+  <div class="progress"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+
+  <div class="passage">
+    <h3>Passage &middot; Parenting Styles and Their Impact on Child Development (~620 words)</h3>
+    <p>The systematic study of parenting styles was pioneered by the developmental psychologist Diana Baumrind in the 1960s, who originally identified three distinct approaches: authoritative, authoritarian, and permissive. A fourth style &mdash; uninvolved parenting &mdash; was later added by researchers Eleanor Maccoby and John Martin in 1983. These categories are defined along two dimensions: the degree of parental warmth and responsiveness, and the degree of demandingness and behavioural control. Baumrind&rsquo;s typology remains the most widely cited framework in developmental psychology and has been replicated across dozens of countries and cultures.</p>
+    <p>The authoritative parenting style is characterised by high levels of both warmth and demandingness. Authoritative parents set clear, consistent expectations while remaining emotionally responsive and open to dialogue. They explain the rationale behind rules, encourage independence within appropriate boundaries, and adapt their approach as the child matures. Longitudinal studies have consistently linked authoritative parenting to the most favourable outcomes across multiple domains: higher academic achievement, stronger social competence, greater emotional regulation, and lower rates of behavioural problems. This style is widely regarded as the gold standard in Western developmental research.</p>
+    <p>Authoritarian parenting, by contrast, combines high demandingness with low warmth. Authoritarian parents prioritise obedience and discipline, often issuing directives without explanation and discouraging open discussion. Research suggests that children raised in authoritarian households tend to perform adequately in academic settings but may display lower self-esteem, reduced curiosity, and difficulty making autonomous decisions. Importantly, cross-cultural research has complicated this picture: studies conducted in East Asian and African-American communities have found that high parental control in the context of strong family cohesion does not consistently produce the negative outcomes observed in predominantly white, Western samples. These findings suggest that the effectiveness of a parenting style cannot be assessed in isolation from its cultural context.</p>
+    <p>Permissive parenting is characterised by high warmth but low demandingness. Permissive parents are nurturing and emotionally available but avoid setting firm boundaries or enforcing consistent consequences. Children raised permissively often report high levels of happiness and self-esteem during childhood. However, longitudinal data indicate that permissively raised children are more likely to struggle with self-regulation in adolescence, exhibit lower academic motivation, and experience difficulty in environments that require deferred gratification. The short-term advantages of permissive parenting &mdash; a relaxed, conflict-free household &mdash; may therefore mask longer-term developmental costs.</p>
+    <p>The uninvolved parenting style, sometimes called neglectful parenting, is defined by low warmth combined with low demandingness. Uninvolved parents provide minimal supervision, engagement, or emotional support, often due to their own unresolved psychological difficulties, socioeconomic stressors, or substance dependency. Research is unambiguous on this point: uninvolved parenting is consistently associated with the most detrimental outcomes, including poor academic performance, elevated rates of delinquency, insecure attachment, and significant difficulties in forming trusting relationships in adulthood.</p>
+    <p>A growing body of literature emphasises that no parenting style operates in a vacuum. Outcomes are shaped by a complex interplay of child temperament, socioeconomic circumstances, cultural norms, and the broader social support network available to the family. Furthermore, most real-world parents do not fit neatly into a single category; instead, they adopt different approaches in different situations, and their style may shift considerably across a child&rsquo;s developmental stages. What the research ultimately underscores is not that there is a universal formula for effective parenting, but rather that consistency, emotional availability, and a genuine willingness to engage with a child&rsquo;s evolving needs are the most reliable predictors of positive outcomes.</p>
+  </div>
+
+  <div id="questions">
+
+    <div class="question" data-type="mcq" data-answer="A">
+      <div class="q-num">Q01 &middot; T/F/NG</div>
+      <div class="q-text">Diana Baumrind originally identified three parenting styles, with a fourth added later by different researchers.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#x2705; 正确答案: A (True)</div>
+        原文第一段: &ldquo;Baumrind…originally identified three distinct approaches: authoritative, authoritarian, and permissive. A fourth style &mdash; uninvolved parenting &mdash; was later added by researchers Eleanor Maccoby and John Martin in 1983.&rdquo;
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="A">
+      <div class="q-num">Q02 &middot; T/F/NG</div>
+      <div class="q-text">Research has consistently found that authoritative parenting produces the best outcomes in areas such as academic achievement and emotional regulation.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#x2705; 正确答案: A (True)</div>
+        原文第二段: &ldquo;Longitudinal studies have consistently linked authoritative parenting to the most favourable outcomes across multiple domains: higher academic achievement, stronger social competence, greater emotional regulation, and lower rates of behavioural problems.&rdquo;
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="B">
+      <div class="q-num">Q03 &middot; T/F/NG</div>
+      <div class="q-text">Cross-cultural research confirms that authoritarian parenting always produces lower self-esteem in children, regardless of cultural background.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#x2705; 正确答案: B (False)</div>
+        原文第三段指出: &ldquo;studies conducted in East Asian and African-American communities have found that high parental control…does not consistently produce the negative outcomes observed in predominantly white, Western samples&rdquo; — 文化背景对结果有重要影响，并非普世一致。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="C">
+      <div class="q-num">Q04 &middot; T/F/NG</div>
+      <div class="q-text">Permissive parenting has been shown to cause lower IQ scores in children compared to authoritative parenting.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#x2705; 正确答案: C (Not Given)</div>
+        原文提到放任型育儿与学业动机低、自我调节困难相关，但并未提及 IQ 分数或与权威型育儿的 IQ 比较。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="A">
+      <div class="q-num">Q05 &middot; T/F/NG</div>
+      <div class="q-text">Children raised permissively may experience positive outcomes in childhood but encounter greater challenges with self-regulation in adolescence.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#x2705; 正确答案: A (True)</div>
+        原文第四段: &ldquo;Children raised permissively often report high levels of happiness and self-esteem during childhood. However, longitudinal data indicate that permissively raised children are more likely to struggle with self-regulation in adolescence.&rdquo;
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="A">
+      <div class="q-num">Q06 &middot; T/F/NG</div>
+      <div class="q-text">Of the four parenting styles, uninvolved parenting is most consistently associated with harmful developmental outcomes.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#x2705; 正确答案: A (True)</div>
+        原文第五段: &ldquo;Research is unambiguous on this point: uninvolved parenting is consistently associated with the most detrimental outcomes, including poor academic performance, elevated rates of delinquency, insecure attachment…&rdquo;
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="C">
+      <div class="q-num">Q07 &middot; T/F/NG</div>
+      <div class="q-text">The author suggests that parenting classes and government-funded programmes are the most effective way to improve parenting outcomes.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#x2705; 正确答案: C (Not Given)</div>
+        原文最后一段讨论了有效育儿的关键因素(一致性、情感可及性、真正的参与)，但并未提及育儿课程或政府项目。
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="authoritative">
+      <div class="q-num">Q08 &middot; 词汇填空</div>
+      <div class="q-text">The parenting style that combines high warmth with high demandingness, and which is most consistently linked to positive developmental outcomes, is known as ______ parenting.</div>
+      <input class="blank-input" id="b1" placeholder="输入答案…" oninput="checkBlank(this,'authoritative')">
+      <div class="explanation" id="ex8">
+        <div class="answer">&#x2705; 正确答案: authoritative</div>
+        权威型育儿：高温暖 + 高要求，兼顾情感支持与明确规范，是发展研究中效果最佳的育儿方式。
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="permissive">
+      <div class="q-num">Q09 &middot; 词汇填空</div>
+      <div class="q-text">______  parents are emotionally warm and available, but rarely enforce consistent rules or consequences, potentially leaving children ill-equipped for later challenges.</div>
+      <input class="blank-input" id="b2" placeholder="输入答案…" oninput="checkBlank(this,'permissive')">
+      <div class="explanation" id="ex9">
+        <div class="answer">&#x2705; 正确答案: permissive</div>
+        放任型父母：高温暖 + 低要求，短期内孩子较快乐，但青春期后自律能力较弱。
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="sandwich">
+      <div class="q-num">Q10 &middot; 词汇填空</div>
+      <div class="q-text">Middle-aged adults who simultaneously care for dependent children and ageing parents belong to what sociologists call the ______ generation.</div>
+      <input class="blank-input" id="b3" placeholder="输入答案…" oninput="checkBlank(this,'sandwich')">
+      <div class="explanation" id="ex10">
+        <div class="answer">&#x2705; 正确答案: sandwich</div>
+        夹心世代：同时承担照顾子女与赡养父母双重责任，压力巨大，也是今日词卡重要词汇。
+      </div>
+    </div>
+
+  </div>
+
+  <div class="actions">
+    <button class="btn btn-secondary" onclick="showAll()">显示所有答案</button>
+    <button class="btn btn-primary" onclick="submitAll()">提交</button>
+  </div>
+
+  <div class="result" id="result">
+    <div class="score" id="scoreNum">—</div>
+    <div class="score-label">/ 10 · <span id="scoreMsg"></span></div>
+    <p style="color:var(--muted);font-size:0.88rem;margin-top:12px;">回到 <a href="index.html" style="color:var(--accent);">主页</a> 继续今日词卡练习</p>
+  </div>
+
+</main>
+
+<nav class="tabbar">
+  <a class="tab-btn active" href="index.html#home"><span class="icon">🏠</span>概览</a>
+  <a class="tab-btn" href="index.html#materials"><span class="icon">📺</span>材料</a>
+  <a class="tab-btn" href="index.html#quizzes"><span class="icon">✏️</span>测验</a>
+  <a class="tab-btn" href="index.html#plan"><span class="icon">📋</span>计划</a>
+</nav>
+
+<script>
+let answered=0;
+document.querySelectorAll('.question[data-type="mcq"]').forEach(q=>{
+  q.querySelectorAll('.option').forEach(btn=>{
+    btn.addEventListener('click',function(){
+      if(q.dataset.locked) return;
+      q.querySelectorAll('.option').forEach(b=>b.classList.remove('selected'));
+      this.classList.add('selected');
+      q.dataset.chosen=this.dataset.key;
+    });
+  });
+});
+function checkBlank(input,ans){
+  if(input.dataset.locked) return;
+  const v=input.value.trim().toLowerCase();
+  const correct=ans.toLowerCase();
+  input.classList.toggle('correct',v===correct);
+  input.classList.toggle('wrong',v.length>=ans.length&&v!==correct);
+  if(v===correct){
+    input.dataset.locked='1';
+    document.getElementById('ex'+(Array.from(document.querySelectorAll('.blank-input')).indexOf(input)+8)).classList.add('show');
+  }
+}
+function lockMCQ(q){
+  q.dataset.locked='1';
+  const chosen=q.dataset.chosen;
+  const ans=q.dataset.answer;
+  q.querySelectorAll('.option').forEach(btn=>{
+    if(btn.dataset.key===ans) btn.classList.add('correct');
+    else if(btn.dataset.key===chosen&&chosen!==ans) btn.classList.add('wrong');
+  });
+  q.querySelector('.explanation').classList.add('show');
+}
+function submitAll(){
+  let score=0,total=10;
+  document.querySelectorAll('.question[data-type="mcq"]').forEach(q=>{
+    if(!q.dataset.locked) lockMCQ(q);
+    if(q.dataset.chosen===q.dataset.answer) score++;
+  });
+  document.querySelectorAll('.blank-input').forEach((inp,i)=>{
+    const ansList=['authoritative','permissive','sandwich'];
+    const v=inp.value.trim().toLowerCase();
+    if(v===ansList[i].toLowerCase()) score++;
+    inp.dataset.locked='1';
+    document.getElementById('ex'+(i+8)).classList.add('show');
+  });
+  document.getElementById('scoreNum').textContent=score;
+  const msgs=['继续加油','有进步','还不错','很好','出色！Band 7+!'];
+  document.getElementById('scoreMsg').textContent=msgs[Math.min(Math.floor(score/2),msgs.length-1)];
+  document.getElementById('result').classList.add('show');
+  document.getElementById('progressFill').style.width='100%';
+  document.getElementById('result').scrollIntoView({behavior:'smooth'});
+}
+function showAll(){
+  document.querySelectorAll('.question[data-type="mcq"]').forEach(lockMCQ);
+  document.querySelectorAll('.blank-input').forEach((inp,i)=>{
+    const ansList=['authoritative','permissive','sandwich'];
+    inp.value=ansList[i];
+    inp.classList.add('correct');
+    document.getElementById('ex'+(i+8)).classList.add('show');
+  });
+}
+</script>
+</body>
+</html>
