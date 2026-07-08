@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#2563eb">
+<title>今日 150 词 · 2026-07-09 · Travel &amp; Culture</title>
+<style>
+  :root {
+    --bg: #ffffff; --fg: #1a1a1a; --muted: #6b7280;
+    --accent: #2563eb; --ok: #059669; --warn: #d97706;
+    --card: #f9fafb; --border: #e5e7eb;
+    --nav-bg: rgba(255,255,255,0.92);
+    --header-bg: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f172a; --fg: #f1f5f9; --muted: #94a3b8;
+      --accent: #60a5fa; --ok: #34d399; --warn: #fbbf24;
+      --card: #1e293b; --border: #334155;
+      --nav-bg: rgba(15,23,42,0.92);
+      --header-bg: linear-gradient(135deg, #1e40af 0%, #6b21a8 100%);
+    }
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg); }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif;
+    line-height: 1.5;
+    min-height: 100vh;
+    padding-bottom: calc(64px + env(safe-area-inset-bottom, 0));
+  }
+  .app-header {
+    background: var(--header-bg); color: white;
+    padding: calc(env(safe-area-inset-top, 16px) + 12px) 16px 14px;
+    position: sticky; top: 0; z-index: 20;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .back-btn {
+    background: rgba(255,255,255,0.18); border: none; color: white;
+    width: 34px; height: 34px; border-radius: 10px;
+    font-size: 1.1rem; cursor: pointer; flex-shrink: 0;
+    text-decoration: none; display: flex; align-items: center; justify-content: center;
+  }
+  .app-header .ttl { font-size: 1rem; font-weight: 700; }
+  .app-header .sub {
+    font-size: 0.72rem; opacity: 0.85; margin-top: 1px;
+    letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  .stats {
+    background: var(--card); padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px; text-align: center;
+  }
+  .stat .num { font-size: 1.4rem; font-weight: 700; }
+  .stat .num.know { color: var(--ok); }
+  .stat .num.weak { color: var(--warn); }
+  .stat .num.left { color: var(--accent); }
+  .stat .lbl { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; margin-top: 2px; }
+  .progress-bar {
+    height: 4px; background: var(--border);
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%; background: var(--accent);
+    transition: width 0.3s;
+  }
+  .card-stage {
+    margin: 24px 16px;
+    perspective: 1000px;
+  }
+  .card-3d {
+    position: relative;
+    width: 100%; min-height: 260px;
+    transform-style: preserve-3d;
+    transition: transform 0.5s;
+    cursor: pointer;
+  }
+  .card-3d.flipped { transform: rotateY(180deg); }
+  .face {
+    position: absolute; width: 100%; height: 100%;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 24px 20px;
+    display: flex; flex-direction: column;
+    justify-content: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .face.front { text-align: center; }
+  .face.front .word {
+    font-size: 2rem; font-weight: 700;
+    color: var(--accent); margin-bottom: 8px;
+    word-break: break-word;
+  }
+  .face.front .pos {
+    color: var(--muted); font-size: 0.95rem;
+    font-style: italic;
+  }
+  .face.front .hint {
+    margin-top: 28px; color: var(--muted);
+    font-size: 0.82rem;
+  }
+  .face.back { transform: rotateY(180deg); }
+  .face.back .zh {
+    font-size: 1.3rem; font-weight: 600;
+    color: var(--accent); margin-bottom: 12px;
+  }
+  .face.back .collo {
+    background: var(--bg); padding: 8px 12px;
+    border-radius: 8px; font-size: 0.92rem;
+    color: var(--fg); margin-bottom: 10px;
+    border-left: 3px solid var(--accent);
+  }
+  .face.back .ex {
+    font-size: 0.95rem; font-style: italic;
+    color: var(--fg); line-height: 1.6;
+  }
+  .face.back .ex strong { color: var(--accent); font-style: normal; }
+  .speaker {
+    position: absolute; top: 14px; right: 14px;
+    width: 36px; height: 36px; border-radius: 50%;
+    background: var(--bg); border: 1px solid var(--border);
+    cursor: pointer; font-size: 1.1rem; padding: 0;
+    color: var(--accent);
+  }
+  .view-toggle {
+    display: flex; padding: 12px 16px 0;
+    gap: 8px;
+  }
+  .view-toggle button {
+    flex: 1; padding: 8px;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 8px; color: var(--muted);
+    font-size: 0.85rem; cursor: pointer; font-family: inherit;
+  }
+  .view-toggle button.active { background: var(--accent); color: white; border-color: var(--accent); }
+  .list-view { display: none; padding: 12px 16px 24px; }
+  .list-view.active { display: block; }
+  .list-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px; border-bottom: 1px solid var(--border);
+    background: var(--card); border-radius: 8px;
+    margin-bottom: 6px;
+  }
+  .list-row .num {
+    flex-shrink: 0; width: 28px;
+    color: var(--muted); font-size: 0.72rem;
+    font-family: "SF Mono", Menlo, monospace;
+  }
+  .list-row .word {
+    flex: 1; min-width: 0;
+  }
+  .list-row .w { font-weight: 600; font-size: 0.95rem; color: var(--fg); }
+  .list-row .w.knew { color: var(--ok); }
+  .list-row .w.weak { color: var(--warn); }
+  .list-row .zh {
+    font-size: 0.78rem; color: var(--muted); margin-top: 2px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .list-row .spk {
+    flex-shrink: 0; width: 32px; height: 32px;
+    border-radius: 50%; background: var(--bg);
+    border: 1px solid var(--border); cursor: pointer;
+    color: var(--accent); font-size: 0.9rem; padding: 0;
+  }
+  .list-row .mk {
+    flex-shrink: 0; width: 24px; text-align: center;
+    color: var(--muted);
+  }
+  .list-row .mk.know { color: var(--ok); }
+  .list-row .mk.weak { color: var(--warn); }
+  .curriculum-note {
+    margin: 16px; padding: 12px 14px;
+    background: var(--card); border-left: 3px solid var(--accent);
+    border-radius: 8px; font-size: 0.82rem;
+    color: var(--muted); line-height: 1.5;
+  }
+  .curriculum-note strong { color: var(--fg); }
+  .actions {
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px; padding: 0 16px;
+  }
+  .btn {
+    padding: 14px 8px; border: 1px solid var(--border);
+    border-radius: 12px; background: var(--card);
+    color: var(--fg); font-size: 0.95rem;
+    font-weight: 600; cursor: pointer; font-family: inherit;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .btn .ico { display: block; font-size: 1.4rem; margin-bottom: 2px; }
+  .btn.weak { color: var(--warn); }
+  .btn.weak:active { background: rgba(217,119,6,0.1); }
+  .btn.flip { color: var(--accent); }
+  .btn.flip:active { background: rgba(37,99,235,0.1); }
+  .btn.know { color: var(--ok); }
+  .btn.know:active { background: rgba(5,150,105,0.1); }
+  .meta {
+    text-align: center; color: var(--muted);
+    font-size: 0.78rem; margin-top: 20px;
+  }
+  .tabbar {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: var(--nav-bg);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    border-top: 1px solid var(--border);
+    display: flex;
+    padding-bottom: env(safe-area-inset-bottom, 0);
+    z-index: 30;
+  }
+  .tab-btn {
+    flex: 1; background: transparent; border: none;
+    padding: 10px 4px 8px; color: var(--muted); font-size: 0.68rem;
+    cursor: pointer;
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    font-family: inherit; text-decoration: none;
+  }
+  .tab-btn .icon { font-size: 1.25rem; line-height: 1; }
+  .tab-btn.active { color: var(--accent); }
+  .done-screen {
+    text-align: center; padding: 60px 24px;
+    display: none;
+  }
+  .done-screen.show { display: block; }
+  .done-screen .big { font-size: 4rem; }
+  .done-screen .ttl { font-size: 1.3rem; font-weight: 700; margin: 8px 0; }
+  .done-screen .sub { color: var(--muted); margin-bottom: 24px; }
+  .done-screen button {
+    background: var(--accent); color: white; border: none;
+    padding: 12px 24px; border-radius: 12px;
+    font-size: 0.95rem; font-weight: 600; cursor: pointer;
+    font-family: inherit; margin: 4px;
+  }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <a class="back-btn" href="index.html#home">&#8592;</a>
+  <div style="flex:1;">
+    <div class="ttl">今日 150 词 &middot; Travel &amp; Culture</div>
+    <div class="sub">2026-07-09 &middot; Day 50</div>
+  </div>
+</header>
+
+<div class="stats">
+  <div class="stat"><div class="num know" id="kn">0</div><div class="lbl">知道</div></div>
+  <div class="stat"><div class="num weak" id="wk">0</div><div class="lbl">不熟</div></div>
+  <div class="stat"><div class="num left" id="lf">150</div><div class="lbl">剩余</div></div>
+</div>
+<div class="progress-bar"><div class="progress-fill" id="pg" style="width:0%"></div></div>
+
+<div class="view-toggle">
+  <button id="vtFlash" class="active" onclick="setView('flash')">&#128210; 卡片</button>
+  <button id="vtList" onclick="setView('list')">&#128203; 列表</button>
+</div>
+
+<div id="deck">
+  <div class="card-stage">
+    <div class="card-3d" id="card" onclick="flip()">
+      <div class="face front">
+        <button class="speaker" onclick="event.stopPropagation();speak(document.getElementById('w').textContent)">&#128266;</button>
+        <div class="word" id="w">&#8212;</div>
+        <div class="pos" id="p">&#8212;</div>
+        <div class="hint">轻触卡片 &middot; 翻看释义</div>
+      </div>
+      <div class="face back">
+        <button class="speaker" onclick="event.stopPropagation();speak(document.getElementById('w').textContent)">&#128266;</button>
+        <div class="zh" id="zh">&#8212;</div>
+        <div class="collo" id="cl">&#8212;</div>
+        <div class="ex" id="ex">&#8212;</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="btn weak" onclick="mark('weak')"><span class="ico">&#128547;</span>不熟</button>
+    <button class="btn flip" onclick="flip()"><span class="ico">&#128260;</span>翻转</button>
+    <button class="btn know" onclick="mark('know')"><span class="ico">&#9989;</span>知道</button>
+  </div>
+
+  <div class="meta" id="meta">1 / 150 &middot; 今日主题 Travel &amp; Culture</div>
+</div>
+
+<div class="list-view" id="listView">
+  <div id="listBody"></div>
+</div>
+
+<div class="curriculum-note">
+  <strong>词汇来源</strong>: 8 天主题轮换，涵盖雅思高频话题。<br>
+  Day 1-7 <strong>Education</strong> &middot; Day 8-14 <strong>Environment</strong> &middot; Day 15-21 <strong>Technology</strong> &middot; Day 22-28 <strong>Health</strong> &middot; Day 29-35 <strong>Government &amp; Society</strong> &middot; Day 36-42 <strong>Work &amp; Economy</strong> &middot; Day 43-49 <strong>Family</strong> &middot; Day 50-56 <strong>Travel &amp; Culture</strong> &middot; 之后循环。<br>
+  词汇为 Band 7+ 难度，每条含 词性 &middot; 中文 &middot; 搭配 &middot; 例句，由 IELTS 高分话题词库扩展生成。
+</div>
+
+<div class="done-screen" id="done">
+  <div class="big">&#127881;</div>
+  <div class="ttl" id="doneTtl">今日 150 词完成!</div>
+  <div class="sub" id="doneSub">知道 0 &middot; 不熟 0</div>
+  <button onclick="resetAll()">重新开始</button>
+  <button onclick="reviewWeak()">只复习不熟</button>
+  <button onclick="location.href='index.html'">回主页</button>
+</div>
+
+<nav class="tabbar">
+  <a class="tab-btn active" href="index.html#home"><span class="icon">&#127968;</span>概览</a>
+  <a class="tab-btn" href="index.html#materials"><span class="icon">&#128250;</span>材料</a>
+  <a class="tab-btn" href="index.html#quizzes"><span class="icon">&#9999;&#65039;</span>测验</a>
+  <a class="tab-btn" href="index.html#plan"><span class="icon">&#128203;</span>计划</a>
+</nav>
+
+<script>
+const CARDS = [
+{"w":"itinerary","p":"n.","zh":"行程计划","cl":"draw up an itinerary","ex":"She drew up a detailed <strong>itinerary</strong> for the two-week trip."},
+{"w":"sojourn","p":"n.","zh":"短暂逗留","cl":"a brief sojourn abroad","ex":"His three-month <strong>sojourn</strong> in Kyoto transformed his perspective on life."},
+{"w":"excursion","p":"n.","zh":"短途旅游/远足","cl":"a day excursion to the coast","ex":"The guided <strong>excursion</strong> to the ancient ruins lasted five hours."},
+{"w":"expedition","p":"n.","zh":"探险/远征","cl":"mount an expedition","ex":"The polar <strong>expedition</strong> required months of meticulous planning."},
+{"w":"pilgrimage","p":"n.","zh":"朝圣之旅","cl":"make a pilgrimage","ex":"Millions make the annual <strong>pilgrimage</strong> to Mecca each year."},
+{"w":"odyssey","p":"n.","zh":"漫长历程","cl":"an epic odyssey","ex":"The solo sailor's Atlantic crossing became a personal <strong>odyssey</strong>."},
+{"w":"nomad","p":"n.","zh":"游牧者/漂泊者","cl":"a digital nomad","ex":"As a <strong>nomad</strong>, he worked remotely from a different city each month."},
+{"w":"diaspora","p":"n.","zh":"散居海外的族裔","cl":"the Chinese diaspora","ex":"The Irish <strong>diaspora</strong> has shaped cultures from Boston to Buenos Aires."},
+{"w":"heritage","p":"n.","zh":"文化遗产","cl":"preserve cultural heritage","ex":"UNESCO works to protect intangible cultural <strong>heritage</strong> worldwide."},
+{"w":"artefact","p":"n.","zh":"文物/手工艺品","cl":"ancient artefacts","ex":"The museum's <strong>artefacts</strong> span three millennia of human civilisation."},
+{"w":"relic","p":"n.","zh":"遗迹/文物","cl":"a historical relic","ex":"The temple is a <strong>relic</strong> of a once-flourishing civilisation."},
+{"w":"folklore","p":"n.","zh":"民间传说/传统","cl":"local folklore","ex":"Rich <strong>folklore</strong> surrounds the mountain, which locals regard as sacred."},
+{"w":"ritual","p":"n.","zh":"仪式","cl":"a sacred ritual","ex":"The harvest <strong>ritual</strong> has been performed for over five hundred years."},
+{"w":"gastronomy","p":"n.","zh":"美食学","cl":"local gastronomy","ex":"The region's <strong>gastronomy</strong> draws food lovers from around the world."},
+{"w":"cuisine","p":"n.","zh":"菜肴/烹饪风格","cl":"authentic local cuisine","ex":"Exploring <strong>cuisine</strong> is one of the most accessible ways to understand a culture."},
+{"w":"delicacy","p":"n.","zh":"珍馐/美食","cl":"a local delicacy","ex":"Fried insects are considered a <strong>delicacy</strong> in parts of Southeast Asia."},
+{"w":"hospitality","p":"n.","zh":"热情招待","cl":"legendary hospitality","ex":"The village is renowned for the <strong>hospitality</strong> of its residents."},
+{"w":"immersion","p":"n.","zh":"沉浸(体验)","cl":"cultural immersion","ex":"Full <strong>immersion</strong> in the local community accelerates language learning."},
+{"w":"landmark","p":"n.","zh":"地标","cl":"a famous landmark","ex":"The Eiffel Tower remains Paris's most recognisable <strong>landmark</strong>."},
+{"w":"monument","p":"n.","zh":"纪念碑/名胜古迹","cl":"a UNESCO monument","ex":"The ancient <strong>monument</strong> attracted over three million visitors last year."},
+{"w":"sanctuary","p":"n.","zh":"圣地/避难所","cl":"a wildlife sanctuary","ex":"The temple served as a <strong>sanctuary</strong> for persecuted minorities."},
+{"w":"terrain","p":"n.","zh":"地形/地貌","cl":"rugged terrain","ex":"The expedition crossed some of the most hostile <strong>terrain</strong> on Earth."},
+{"w":"landscape","p":"n.","zh":"风景/景观","cl":"dramatic landscape","ex":"The volcanic <strong>landscape</strong> of Iceland attracts millions of visitors annually."},
+{"w":"panorama","p":"n.","zh":"全景","cl":"a breathtaking panorama","ex":"From the summit, the <strong>panorama</strong> stretched for hundreds of kilometres."},
+{"w":"migration","p":"n.","zh":"迁移","cl":"mass migration","ex":"The twentieth century saw unprecedented <strong>migration</strong> from rural to urban areas."},
+{"w":"expatriate","p":"n.","zh":"海外侨民","cl":"an expatriate community","ex":"A thriving <strong>expatriate</strong> community has formed in the city's old quarter."},
+{"w":"ecotourism","p":"n.","zh":"生态旅游","cl":"promote ecotourism","ex":"Costa Rica has positioned itself as a world leader in <strong>ecotourism</strong>."},
+{"w":"overtourism","p":"n.","zh":"过度旅游","cl":"suffer from overtourism","ex":"Venice is a cautionary tale of the damage <strong>overtourism</strong> can cause."},
+{"w":"archaeology","p":"n.","zh":"考古学","cl":"underwater archaeology","ex":"<strong>Archaeology</strong> has reshaped our understanding of prehistoric societies."},
+{"w":"civilisation","p":"n.","zh":"文明","cl":"ancient civilisation","ex":"The Mesopotamian <strong>civilisation</strong> gave the world its earliest writing systems."},
+{"w":"dynasty","p":"n.","zh":"朝代","cl":"an imperial dynasty","ex":"The Tang <strong>dynasty</strong> is widely regarded as a golden age of Chinese culture."},
+{"w":"mythology","p":"n.","zh":"神话体系","cl":"Greek mythology","ex":"Temples and shrines embody the <strong>mythology</strong> of the civilisations that built them."},
+{"w":"anthropology","p":"n.","zh":"人类学","cl":"cultural anthropology","ex":"<strong>Anthropology</strong> teaches us that human societies are astonishingly diverse."},
+{"w":"colonialism","p":"n.","zh":"殖民主义","cl":"the legacy of colonialism","ex":"The country's borders reflect the arbitrary decisions of <strong>colonialism</strong>."},
+{"w":"globalisation","p":"n.","zh":"全球化","cl":"cultural globalisation","ex":"Critics argue that <strong>globalisation</strong> erodes cultural distinctiveness."},
+{"w":"dialect","p":"n.","zh":"方言","cl":"a regional dialect","ex":"The island's <strong>dialect</strong> is so distinct that mainlanders struggle to understand it."},
+{"w":"vernacular","p":"n./adj.","zh":"方言/本土的","cl":"vernacular architecture","ex":"The region's <strong>vernacular</strong> architecture uses only locally sourced stone."},
+{"w":"souvenir","p":"n.","zh":"纪念品","cl":"pick up a souvenir","ex":"Mass-produced <strong>souvenirs</strong> rarely capture a destination's true character."},
+{"w":"visa","p":"n.","zh":"签证","cl":"apply for a visa","ex":"Obtaining a <strong>visa</strong> remains a significant barrier for many travellers."},
+{"w":"backpacker","p":"n.","zh":"背包客","cl":"a seasoned backpacker","ex":"The <strong>backpacker</strong> trail through Southeast Asia attracts millions each year."},
+{"w":"archipelago","p":"n.","zh":"群岛","cl":"a tropical archipelago","ex":"The Philippine <strong>archipelago</strong> consists of over seven thousand islands."},
+{"w":"peninsula","p":"n.","zh":"半岛","cl":"the Iberian Peninsula","ex":"The <strong>peninsula</strong> juts into the sea, offering views on three sides."},
+{"w":"altitude","p":"n.","zh":"海拔高度","cl":"high altitude","ex":"At this <strong>altitude</strong>, every step requires considerable effort."},
+{"w":"vista","p":"n.","zh":"美景/远景","cl":"a stunning vista","ex":"The cable car revealed a <strong>vista</strong> of snow-capped peaks."},
+{"w":"travelogue","p":"n.","zh":"游记","cl":"write a travelogue","ex":"Her <strong>travelogue</strong> about cycling across Central Asia became a bestseller."},
+{"w":"cosmopolitanism","p":"n.","zh":"世界主义","cl":"embrace cosmopolitanism","ex":"The city's <strong>cosmopolitanism</strong> is reflected in its dozens of languages and cuisines."},
+{"w":"acculturation","p":"n.","zh":"文化适应","cl":"the process of acculturation","ex":"<strong>Acculturation</strong> involves adapting to a new culture while retaining one's own identity."},
+{"w":"stereotype","p":"n./v.","zh":"刻板印象","cl":"challenge stereotypes","ex":"Travel often challenges the <strong>stereotypes</strong> we absorb from media."},
+{"w":"prejudice","p":"n.","zh":"偏见","cl":"combat prejudice","ex":"Exposure to different cultures is one of the best antidotes to <strong>prejudice</strong>."},
+{"w":"xenophobia","p":"n.","zh":"排外情绪","cl":"fuel xenophobia","ex":"Misinformation about immigrants can fuel <strong>xenophobia</strong>."},
+{"w":"traverse","p":"v.","zh":"横越/穿越","cl":"traverse a mountain range","ex":"The route <strong>traverses</strong> some of the world's most dramatic highland scenery."},
+{"w":"wander","p":"v.","zh":"漫游/徜徉","cl":"wander through narrow streets","ex":"She spent the afternoon <strong>wandering</strong> through the medieval old town."},
+{"w":"roam","p":"v.","zh":"漫游/到处游荡","cl":"roam freely","ex":"Nomadic tribes once <strong>roamed</strong> this vast steppe for centuries."},
+{"w":"venture","p":"v.","zh":"冒险前往","cl":"venture off the beaten track","ex":"Few tourists <strong>venture</strong> beyond the well-known coastal resorts."},
+{"w":"embark","p":"v.","zh":"出发/着手","cl":"embark on a journey","ex":"He <strong>embarked</strong> on a year-long voyage across the Pacific."},
+{"w":"immerse","p":"v.","zh":"使沉浸","cl":"immerse oneself in a culture","ex":"Travel allows us to <strong>immerse</strong> ourselves in unfamiliar ways of life."},
+{"w":"assimilate","p":"v.","zh":"融入/同化","cl":"assimilate into a new culture","ex":"Immigrants often feel pressure to <strong>assimilate</strong> rapidly into the host society."},
+{"w":"preserve","p":"v.","zh":"保护/保存","cl":"preserve cultural heritage","ex":"Local craftspeople work tirelessly to <strong>preserve</strong> traditional skills."},
+{"w":"erode","p":"v.","zh":"侵蚀/腐蚀","cl":"erode cultural identity","ex":"Rapid urbanisation can <strong>erode</strong> long-established traditions."},
+{"w":"revitalise","p":"v.","zh":"使重焕活力","cl":"revitalise a dying tradition","ex":"Government grants have helped <strong>revitalise</strong> endangered folk music."},
+{"w":"transcend","p":"v.","zh":"超越","cl":"transcend cultural boundaries","ex":"Great music <strong>transcends</strong> cultural and linguistic barriers."},
+{"w":"commercialise","p":"v.","zh":"使商业化","cl":"commercialise a festival","ex":"Critics argue that the carnival has been <strong>commercialised</strong> beyond recognition."},
+{"w":"commodify","p":"v.","zh":"使商品化","cl":"commodify culture","ex":"Tourism risks <strong>commodifying</strong> sacred rituals for entertainment."},
+{"w":"decolonise","p":"v.","zh":"去殖民化","cl":"decolonise the museum","ex":"The movement to <strong>decolonise</strong> museum collections has gained momentum."},
+{"w":"repatriate","p":"v.","zh":"遣返/归还","cl":"repatriate stolen artefacts","ex":"Countries are increasingly demanding that museums <strong>repatriate</strong> stolen artefacts."},
+{"w":"document","p":"v.","zh":"记录","cl":"document a vanishing culture","ex":"Ethnographers race to <strong>document</strong> disappearing languages and customs."},
+{"w":"safeguard","p":"v.","zh":"保护","cl":"safeguard intangible heritage","ex":"UNESCO works to <strong>safeguard</strong> the world's cultural diversity."},
+{"w":"navigate","p":"v.","zh":"导航/驾驭","cl":"navigate cultural differences","ex":"Learning to <strong>navigate</strong> cultural differences is a key skill for diplomats."},
+{"w":"encounter","p":"v.","zh":"邂逅/遭遇","cl":"encounter a different worldview","ex":"The traveller <strong>encountered</strong> a way of life utterly unlike his own."},
+{"w":"broaden","p":"v.","zh":"开阔(视野)","cl":"broaden one's horizons","ex":"Extended travel <strong>broadens</strong> one's perspective on what constitutes a normal life."},
+{"w":"relocate","p":"v.","zh":"搬迁/移居","cl":"relocate abroad","ex":"An increasing number of retirees choose to <strong>relocate</strong> to warmer climates."},
+{"w":"migrate","p":"v.","zh":"迁移","cl":"migrate for economic reasons","ex":"Thousands <strong>migrated</strong> from the countryside to the capital in search of work."},
+{"w":"popularise","p":"v.","zh":"使普及/使流行","cl":"popularise a destination","ex":"Social media has <strong>popularised</strong> destinations that were once barely known."},
+{"w":"sustain","p":"v.","zh":"维持/支撑","cl":"sustain local livelihoods","ex":"Tourism <strong>sustains</strong> the livelihoods of millions in developing nations."},
+{"w":"deplete","p":"v.","zh":"耗尽/减少","cl":"deplete natural resources","ex":"Uncontrolled tourism can <strong>deplete</strong> fragile ecosystems."},
+{"w":"interconnect","p":"v.","zh":"互相联结","cl":"interconnect cultures","ex":"Trade routes have <strong>interconnected</strong> cultures since antiquity."},
+{"w":"galvanise","p":"v.","zh":"激励/激起","cl":"galvanise interest in a region","ex":"The documentary <strong>galvanised</strong> interest in visiting the remote island."},
+{"w":"hospitality","p":"n.","zh":"好客/款待","cl":"show warm hospitality","ex":"The family's <strong>hospitality</strong> made the travellers feel completely at home."},
+{"w":"hospitable","p":"adj.","zh":"热情好客的","cl":"a hospitable host","ex":"The locals were extraordinarily <strong>hospitable</strong>, inviting strangers to share their meals."},
+{"w":"picturesque","p":"adj.","zh":"风景如画的","cl":"a picturesque village","ex":"The <strong>picturesque</strong> hilltop town appears on countless travel magazine covers."},
+{"w":"secluded","p":"adj.","zh":"僻静的","cl":"a secluded beach","ex":"We discovered a <strong>secluded</strong> cove accessible only by boat."},
+{"w":"remote","p":"adj.","zh":"偏远的","cl":"a remote region","ex":"The <strong>remote</strong> island has no electricity or running water."},
+{"w":"vibrant","p":"adj.","zh":"充满活力的","cl":"a vibrant culture","ex":"Marrakech's souks are a <strong>vibrant</strong> assault on the senses."},
+{"w":"quaint","p":"adj.","zh":"古色古香的","cl":"a quaint fishing village","ex":"The <strong>quaint</strong> cobbled streets attract visitors seeking an escape from modernity."},
+{"w":"breathtaking","p":"adj.","zh":"令人叹为观止的","cl":"breathtaking scenery","ex":"The view from the clifftop was simply <strong>breathtaking</strong>."},
+{"w":"awe-inspiring","p":"adj.","zh":"令人敬畏的","cl":"an awe-inspiring landscape","ex":"The Grand Canyon is an <strong>awe-inspiring</strong> reminder of geological time."},
+{"w":"unspoilt","p":"adj.","zh":"未被破坏的","cl":"unspoilt wilderness","ex":"The peninsula remains one of Europe's last truly <strong>unspoilt</strong> coastlines."},
+{"w":"bustling","p":"adj.","zh":"熙来攘往的","cl":"a bustling market","ex":"The <strong>bustling</strong> night market was alive with music, food, and colour."},
+{"w":"tranquil","p":"adj.","zh":"宁静的","cl":"a tranquil retreat","ex":"The monastery offered a <strong>tranquil</strong> retreat from city life."},
+{"w":"multicultural","p":"adj.","zh":"多元文化的","cl":"a multicultural society","ex":"Toronto's <strong>multicultural</strong> character is one of its greatest strengths."},
+{"w":"nomadic","p":"adj.","zh":"游牧的","cl":"a nomadic lifestyle","ex":"The <strong>nomadic</strong> tribes of Central Asia follow ancient seasonal routes."},
+{"w":"colonial","p":"adj.","zh":"殖民地时期的","cl":"colonial architecture","ex":"The city's <strong>colonial</strong> architecture reflects its complex history."},
+{"w":"ethical","p":"adj.","zh":"合乎道德的","cl":"ethical tourism","ex":"<strong>Ethical</strong> tourism avoids exploiting local communities for profit."},
+{"w":"indigenous","p":"adj.","zh":"土著的/当地的","cl":"indigenous communities","ex":"The government finally recognised the land rights of <strong>indigenous</strong> peoples."},
+{"w":"cosmopolitan","p":"adj.","zh":"国际化的","cl":"a cosmopolitan city","ex":"London is one of the most <strong>cosmopolitan</strong> cities on Earth."},
+{"w":"multilingual","p":"adj.","zh":"多语言的","cl":"a multilingual environment","ex":"Singapore's <strong>multilingual</strong> population communicates in four official languages."},
+{"w":"intercultural","p":"adj.","zh":"跨文化的","cl":"intercultural dialogue","ex":"<strong>Intercultural</strong> dialogue is essential for reducing global misunderstanding."},
+{"w":"arid","p":"adj.","zh":"干旱的","cl":"arid landscapes","ex":"The <strong>arid</strong> landscape of the Sahara holds a stark, austere beauty."},
+{"w":"lush","p":"adj.","zh":"葱郁的/茂盛的","cl":"lush rainforest","ex":"The island's interior is covered in <strong>lush</strong> tropical vegetation."},
+{"w":"accessible","p":"adj.","zh":"可到达的","cl":"make travel accessible","ex":"Budget airlines have made international travel <strong>accessible</strong> to millions."},
+{"w":"culturally sensitive","p":"adj.","zh":"文化上敏感体察的","cl":"be culturally sensitive","ex":"Visitors must be <strong>culturally sensitive</strong> about dress codes at religious sites."},
+{"w":"cultural immersion","p":"n.","zh":"文化沉浸体验","cl":"seek cultural immersion","ex":"Living with a host family is the ultimate <strong>cultural immersion</strong> experience."},
+{"w":"sustainable tourism","p":"n.","zh":"可持续旅游","cl":"promote sustainable tourism","ex":"<strong>Sustainable tourism</strong> balances economic benefits with environmental responsibility."},
+{"w":"cultural exchange","p":"n.","zh":"文化交流","cl":"foster cultural exchange","ex":"Student exchange programmes are a powerful vehicle for <strong>cultural exchange</strong>."},
+{"w":"local customs","p":"n.","zh":"当地风俗","cl":"respect local customs","ex":"Travellers should research and respect <strong>local customs</strong> before visiting."},
+{"w":"tourist trap","p":"n.","zh":"宰客景点","cl":"avoid tourist traps","ex":"The restaurant in the main square turned out to be a typical <strong>tourist trap</strong>."},
+{"w":"hidden gem","p":"n.","zh":"隐藏宝地","cl":"discover a hidden gem","ex":"The guidebook revealed a <strong>hidden gem</strong> far from the crowded promenades."},
+{"w":"cultural heritage site","p":"n.","zh":"文化遗产地","cl":"a UNESCO cultural heritage site","ex":"The ruins were designated a UNESCO <strong>cultural heritage site</strong> in 1987."},
+{"w":"language barrier","p":"n.","zh":"语言障碍","cl":"overcome a language barrier","ex":"Hand gestures and patience can help overcome the <strong>language barrier</strong>."},
+{"w":"bucket list","p":"n.","zh":"愿望清单","cl":"cross something off the bucket list","ex":"Seeing the aurora borealis was the top item on her <strong>bucket list</strong>."},
+{"w":"mass tourism","p":"n.","zh":"大众旅游","cl":"the downsides of mass tourism","ex":"<strong>Mass tourism</strong> has irrevocably altered the character of many coastal towns."},
+{"w":"cultural appropriation","p":"n.","zh":"文化挪用","cl":"accused of cultural appropriation","ex":"Wearing sacred clothing as a festival costume is considered <strong>cultural appropriation</strong>."},
+{"w":"responsible travel","p":"n.","zh":"负责任的旅行","cl":"practise responsible travel","ex":"<strong>Responsible travel</strong> means minimising harm to the places and people we visit."},
+{"w":"world heritage","p":"n.","zh":"世界遗产","cl":"world heritage status","ex":"The site was granted <strong>world heritage</strong> status to protect it from development."},
+{"w":"cultural diversity","p":"n.","zh":"文化多样性","cl":"celebrate cultural diversity","ex":"Cities like New York <strong>celebrate cultural diversity</strong> through year-round festivals."},
+{"w":"cross-cultural understanding","p":"n.","zh":"跨文化理解","cl":"promote cross-cultural understanding","ex":"><strong>Cross-cultural understanding</strong> is the foundation of effective international cooperation."},
+{"w":"culture shock","p":"n.","zh":"文化冲击","cl":"experience culture shock","ex":"She suffered severe <strong>culture shock</strong> during her first month living abroad."},
+{"w":"indigenous rights","p":"n.","zh":"原住民权利","cl":"fight for indigenous rights","ex":"The protest drew attention to the long-neglected <strong>indigenous rights</strong> of the region."},
+{"w":"eco-friendly","p":"adj.","zh":"环保的","cl":"eco-friendly accommodation","ex":"<strong>Eco-friendly</strong> guesthouses generate their own solar energy."},
+{"w":"expatriate community","p":"n.","zh":"侨民社区","cl":"join an expatriate community","ex":"He quickly found support from the <strong>expatriate community</strong> in Bangkok."},
+{"w":"overrun by tourists","p":"phrase","zh":"被游客挤满","cl":"a city overrun by tourists","ex":"In summer, the old town is completely <strong>overrun by tourists</strong>."},
+{"w":"blend in","p":"phrasal v.","zh":"融入","cl":"blend in with the locals","ex":"She dressed modestly to <strong>blend in</strong> with the local community."},
+{"w":"set foot in","p":"phrase","zh":"踏入","cl":"set foot in a country for the first time","ex":"He had never <strong>set foot in</strong> Asia before his fortieth birthday."},
+{"w":"live like a local","p":"phrase","zh":"像当地人一样生活","cl":"try to live like a local","ex":"The best way to understand a city is to <strong>live like a local</strong>."},
+{"w":"go off the beaten track","p":"idiom","zh":"避开旅游热点","cl":"go off the beaten track","ex":"Those who <strong>go off the beaten track</strong> often discover the most memorable experiences."},
+{"w":"see the world","p":"phrase","zh":"见识世界","cl":"aspire to see the world","ex":"Her lifelong ambition was to <strong>see the world</strong> before turning thirty."},
+{"w":"broaden one's horizons","p":"idiom","zh":"开阔眼界","cl":"travel to broaden one's horizons","ex":"A gap year is an ideal opportunity to <strong>broaden one's horizons</strong>."},
+{"w":"pack one's bags","p":"idiom","zh":"整装待发","cl":"time to pack one's bags","ex":"After receiving the redundancy notice, she decided it was time to <strong>pack her bags</strong>."},
+{"w":"hit the road","p":"idiom","zh":"出发上路","cl":"ready to hit the road","ex":"At dawn, the couple <strong>hit the road</strong> for a cross-country drive."},
+{"w":"on the go","p":"idiom","zh":"不停奔忙/旅途中","cl":"always on the go","ex":"Digital nomads are constantly <strong>on the go</strong>, working from airports and cafés."},
+{"w":"a home away from home","p":"idiom","zh":"他乡似故乡","cl":"find a home away from home","ex":"The coastal village became <strong>a home away from home</strong> for the expat family."},
+{"w":"a culture vulture","p":"idiom","zh":"文化爱好者","cl":"a passionate culture vulture","ex":"As a <strong>culture vulture</strong>, she spent every free hour in museums and galleries."},
+{"w":"in the middle of nowhere","p":"idiom","zh":"在荒无人烟之处","cl":"stranded in the middle of nowhere","ex":"The car broke down <strong>in the middle of nowhere</strong>, hours from the nearest town."},
+{"w":"lost in translation","p":"idiom","zh":"在翻译中迷失","cl":"something gets lost in translation","ex":"Much of the poem's subtlety is <strong>lost in translation</strong>."},
+{"w":"tread lightly","p":"phrase","zh":"轻声细步/减少影响","cl":"tread lightly on the environment","ex":"Responsible tourists <strong>tread lightly</strong>, leaving no trace behind."},
+{"w":"when in Rome","p":"idiom","zh":"入乡随俗","cl":"when in Rome, do as the Romans do","ex":"&ldquo;<strong>When in Rome</strong>&rdquo; is sound advice — adapting to local customs shows respect."},
+{"w":"a window onto the world","p":"phrase","zh":"了解世界的窗口","cl":"travel as a window onto the world","ex":"Literature and travel alike act as <strong>a window onto the world</strong>."},
+{"w":"steeped in history","p":"phrase","zh":"历史底蕴深厚","cl":"a city steeped in history","ex":"Athens is a city <strong>steeped in history</strong>, with monuments on every corner."},
+{"w":"a melting pot","p":"idiom","zh":"文化大熔炉","cl":"a melting pot of cultures","ex":"New York has long been celebrated as <strong>a melting pot</strong> of cultures and ideas."},
+{"w":"travel broadens the mind","p":"idiom","zh":"读万卷书不如行万里路","cl":"it is said that travel broadens the mind","ex":"As the proverb holds, <strong>travel broadens the mind</strong> — and the evidence bears this out."},
+{"w":"a taste of local life","p":"phrase","zh":"体验当地生活","cl":"get a taste of local life","ex":"Staying in a family-run guesthouse gives visitors <strong>a taste of local life</strong>."},
+{"w":"footprint","p":"n.","zh":"(碳/生态)足迹","cl":"minimise one's environmental footprint","ex":"Eco-conscious travellers take care to minimise their <strong>footprint</strong>."},
+{"w":"off the beaten track","p":"idiom","zh":"偏僻的/不寻常的","cl":"venture off the beaten track","ex":"She prefers <strong>off the beaten track</strong> destinations to crowded popular resorts."},
+{"w":"carbon offset","p":"n.","zh":"碳补偿","cl":"purchase a carbon offset","ex":"Many airlines now allow passengers to purchase a <strong>carbon offset</strong> when booking."},
+{"w":"overtourism","p":"n.","zh":"过度旅游(重点)","cl":"address overtourism","ex":"Governments must address <strong>overtourism</strong> before irreversible damage is done."}
+];
+
+let state = JSON.parse(localStorage.getItem("ielts_vocab_20260709") || "{}");
+let queue = CARDS.map((c, i) => ({...c, idx: i})).filter(c => !state[c.idx] || state[c.idx] === "review");
+let cur = 0;
+
+function speak(text) {
+  if (!text || !window.speechSynthesis) return;
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = "en-US"; u.rate = 0.85; u.pitch = 1;
+  const voices = speechSynthesis.getVoices();
+  const en = voices.find(v => /en-(US|GB)/.test(v.lang) && /Samantha|Daniel|Alex|Karen|Moira|Google US English|Google UK English/.test(v.name))
+          || voices.find(v => v.lang.startsWith("en"));
+  if (en) u.voice = en;
+  speechSynthesis.speak(u);
+}
+if (window.speechSynthesis) speechSynthesis.onvoiceschanged = () => {};
+
+function render() {
+  if (cur >= queue.length) return showDone();
+  const c = queue[cur];
+  document.getElementById("w").textContent = c.w;
+  document.getElementById("p").textContent = c.p;
+  document.getElementById("zh").textContent = c.zh;
+  document.getElementById("cl").textContent = c.cl;
+  document.getElementById("ex").innerHTML = c.ex;
+  document.getElementById("card").classList.remove("flipped");
+  document.getElementById("meta").textContent = `${cur+1} / ${queue.length} · Travel & Culture Day 1`;
+  updateStats();
+  setTimeout(() => speak(c.w), 150);
+}
+
+function setView(v) {
+  document.getElementById("vtFlash").classList.toggle("active", v === "flash");
+  document.getElementById("vtList").classList.toggle("active", v === "list");
+  document.getElementById("deck").style.display = v === "flash" ? "" : "none";
+  document.getElementById("listView").classList.toggle("active", v === "list");
+  if (v === "list") renderList();
+}
+
+function renderList() {
+  const body = document.getElementById("listBody");
+  body.innerHTML = CARDS.map((c, i) => {
+    const mark = state[i] || "";
+    const cls = mark === "know" ? "knew" : mark === "weak" ? "weak" : "";
+    const ico = mark === "know" ? "✓" : mark === "weak" ? "○" : "·";
+    const mcls = mark === "know" ? "know" : mark === "weak" ? "weak" : "";
+    return `<div class="list-row">
+      <div class="num">${String(i+1).padStart(3,'0')}</div>
+      <div class="word"><div class="w ${cls}">${c.w} <span style="color:var(--muted);font-weight:400;font-size:0.78rem;">${c.p}</span></div><div class="zh">${c.zh}</div></div>
+      <button class="spk" onclick="speak('${c.w.replace(/'/g,"\\'")}')">&#128266;</button>
+      <div class="mk ${mcls}">${ico}</div>
+    </div>`;
+  }).join("");
+}
+
+function flip() { document.getElementById("card").classList.toggle("flipped"); }
+
+function mark(t) {
+  const c = queue[cur];
+  state[c.idx] = (t === "know" ? "know" : "weak");
+  localStorage.setItem("ielts_vocab_20260709", JSON.stringify(state));
+  cur++;
+  render();
+}
+
+function updateStats() {
+  const kn = Object.values(state).filter(v=>v==="know").length;
+  const wk = Object.values(state).filter(v=>v==="weak").length;
+  const lf = 150 - kn - wk;
+  document.getElementById("kn").textContent = kn;
+  document.getElementById("wk").textContent = wk;
+  document.getElementById("lf").textContent = lf;
+  document.getElementById("pg").style.width = ((kn+wk)/150*100) + "%";
+}
+
+function showDone() {
+  document.getElementById("deck").style.display = "none";
+  document.getElementById("done").classList.add("show");
+  const kn = Object.values(state).filter(v=>v==="know").length;
+  const wk = Object.values(state).filter(v=>v==="weak").length;
+  document.getElementById("doneTtl").textContent = wk > 0 ? `今日 150 词完成! 还有 ${wk} 张不熟` : "今日 150 词全掌握 🎉";
+  document.getElementById("doneSub").textContent = `知道 ${kn} · 不熟 ${wk}`;
+}
+
+function reviewWeak() {
+  queue = CARDS.map((c,i)=>({...c,idx:i})).filter(c => state[c.idx] === "weak");
+  if (queue.length === 0) { alert("没有不熟的卡!"); return; }
+  cur = 0;
+  document.getElementById("done").classList.remove("show");
+  document.getElementById("deck").style.display = "";
+  render();
+}
+
+function resetAll() {
+  if (!confirm("清空今日进度,重新开始?")) return;
+  localStorage.removeItem("ielts_vocab_20260709");
+  state = {};
+  queue = CARDS.map((c,i)=>({...c,idx:i}));
+  cur = 0;
+  document.getElementById("done").classList.remove("show");
+  document.getElementById("deck").style.display = "";
+  render();
+}
+
+render();
+</script>
+
+</body>
+</html>

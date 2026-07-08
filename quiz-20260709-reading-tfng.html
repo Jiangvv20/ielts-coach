@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#2563eb">
+<title>Day 50 &middot; Reading T/F/NG &middot; 大众旅游的代价</title>
+<style>
+  :root {
+    --bg: #ffffff; --fg: #1a1a1a; --muted: #6b7280;
+    --accent: #2563eb; --ok: #059669; --err: #dc2626;
+    --card: #f9fafb; --border: #e5e7eb;
+    --nav-bg: rgba(255,255,255,0.92);
+    --header-bg: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f172a; --fg: #f1f5f9; --muted: #94a3b8;
+      --accent: #60a5fa; --ok: #34d399; --err: #f87171;
+      --card: #1e293b; --border: #334155;
+      --nav-bg: rgba(15,23,42,0.92);
+      --header-bg: linear-gradient(135deg, #1e40af 0%, #6b21a8 100%);
+    }
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg); }
+  body { font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif; line-height: 1.6; min-height: 100vh; padding-bottom: calc(64px + env(safe-area-inset-bottom, 0)); }
+  .app-header { background: var(--header-bg); color: white; padding: calc(env(safe-area-inset-top, 16px) + 12px) 16px 14px; position: sticky; top: 0; z-index: 20; display: flex; align-items: center; gap: 12px; }
+  .back-btn { background: rgba(255,255,255,0.18); border: none; color: white; width: 34px; height: 34px; border-radius: 10px; font-size: 1.1rem; cursor: pointer; flex-shrink: 0; text-decoration: none; display: flex; align-items: center; justify-content: center; }
+  .app-header .ttl { font-size: 1rem; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .app-header .sub { font-size: 0.72rem; opacity: 0.85; margin-top: 1px; letter-spacing: 0.04em; text-transform: uppercase; }
+  main { max-width: 720px; margin: 0 auto; padding: 16px; }
+  .progress { height: 6px; background: var(--border); border-radius: 3px; margin-bottom: 16px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--accent); transition: width 0.3s ease; }
+  .passage { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; margin-bottom: 16px; font-size: 0.95rem; line-height: 1.75; }
+  .passage h3 { margin: 0 0 8px; font-size: 0.78rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+  .question { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 14px; }
+  .q-num { color: var(--muted); font-size: 0.78rem; font-family: "SF Mono", Menlo, monospace; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.04em; }
+  .q-text { font-size: 1rem; margin-bottom: 12px; font-weight: 500; }
+  .options { display: flex; flex-direction: column; gap: 8px; }
+  .option { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; cursor: pointer; font-size: 0.95rem; text-align: left; color: var(--fg); font-family: inherit; }
+  .option.selected { border-color: var(--accent); background: rgba(37,99,235,0.08); }
+  .option.correct { border-color: var(--ok); background: rgba(5,150,105,0.1); }
+  .option.wrong { border-color: var(--err); background: rgba(220,38,38,0.1); }
+  .blank-input { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; font-size: 1rem; color: var(--fg); font-family: inherit; }
+  .blank-input.correct { border-color: var(--ok); }
+  .blank-input.wrong { border-color: var(--err); }
+  .explanation { margin-top: 10px; padding: 10px 12px; background: var(--bg); border-left: 3px solid var(--accent); border-radius: 4px; font-size: 0.9rem; color: var(--muted); display: none; }
+  .explanation.show { display: block; }
+  .explanation .answer { color: var(--ok); font-weight: 600; }
+  .actions { display: flex; gap: 10px; margin-top: 20px; }
+  .btn { flex: 1; padding: 12px; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; font-family: inherit; }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-secondary { background: var(--card); color: var(--fg); border: 1px solid var(--border); }
+  .result { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; text-align: center; margin-top: 20px; display: none; }
+  .result.show { display: block; }
+  .score { font-size: 2.5rem; font-weight: 700; color: var(--accent); }
+  .score-label { color: var(--muted); font-size: 0.9rem; margin-top: 4px; }
+  .tabbar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--nav-bg); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px); border-top: 1px solid var(--border); display: flex; padding-bottom: env(safe-area-inset-bottom, 0); z-index: 30; }
+  .tab-btn { flex: 1; background: transparent; border: none; padding: 10px 4px 8px; color: var(--muted); font-size: 0.68rem; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 3px; font-family: inherit; text-decoration: none; }
+  .tab-btn .icon { font-size: 1.25rem; line-height: 1; }
+  .tab-btn.active { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <a class="back-btn" href="index.html#quizzes">&#8592;</a>
+  <div style="flex:1;min-width:0;">
+    <div class="ttl">Reading T/F/NG &middot; 大众旅游的代价</div>
+    <div class="sub">Day 50 &middot; 10 题 &middot; ~10 分钟</div>
+  </div>
+</header>
+
+<main>
+
+  <div class="progress"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+
+  <div class="passage">
+    <h3>Passage &middot; The Paradox of Mass Tourism (~640 words)</h3>
+    <p>The twentieth century witnessed a seismic transformation in human mobility. International tourist arrivals, which numbered a modest 25 million in 1950, soared to approximately 1.5 billion by 2019, before the COVID-19 pandemic temporarily halted this exponential growth. By 2025, arrivals had rebounded strongly, exceeding pre-pandemic records and reigniting debates that had been temporarily shelved: how much tourism is too much, and who ultimately bears the cost?</p>
+    <p>The environmental consequences of mass tourism have become increasingly difficult to ignore. Commercial aviation alone accounts for approximately 2.5% of global carbon dioxide emissions &mdash; a figure widely regarded as an underestimate because it does not capture the full warming effect of contrails and other altitude-specific phenomena. Beyond carbon, the physical infrastructure demanded by tourism &mdash; hotels, roads, airports, and marinas &mdash; transforms and frequently destroys the habitats that first attracted visitors. Coral reefs off the coasts of Thailand and the Caribbean have been irreparably damaged by anchors, sunscreen chemicals, and the sheer volume of recreational divers. Several marine biologists have warned that popular dive sites may become ecologically inert within two decades if current visitor numbers are maintained.</p>
+    <p>The cultural costs are equally contested. Proponents of tourism argue that global travel fosters cross-cultural understanding and finances the preservation of monuments, museums, and traditions that would otherwise decay through neglect. They point to the renovation of Angkor Wat in Cambodia and the restoration of historic Dubrovnik as evidence that tourist revenue, when properly managed, can resurrect the past. Critics, however, contend that the line between cultural appreciation and cultural commodification is crossed when a sacred ceremony becomes a ticketed show, or when artisans abandon their traditional crafts to produce cheap replicas for souvenir stalls. In such cases, tourism does not transmit culture so much as hollow it out.</p>
+    <p>The communities that host tourists tell a more nuanced story. Residents of cities such as Barcelona, Amsterdam, and Kyoto have organised civic movements &mdash; and in some cases outright protests &mdash; against the hollowing out of residential neighbourhoods by short-term rental platforms. A 2023 survey of Venice residents found that over 70% believed the city had exceeded a sustainable level of visitors, yet the same residents acknowledged that tourism underpinned more than half of all local employment. This tension between economic dependency and quality-of-life concerns has no easy resolution.</p>
+    <p>Sustainable tourism, the proposed antidote, means different things to different people. At its best, it describes travel that respects ecological carrying capacities, channels revenue into local economies rather than multinational hotel chains, and involves genuine collaboration with host communities in defining the terms of engagement. Several small nations &mdash; Bhutan, Palau, and Slovenia among them &mdash; have demonstrated that visitor caps and environmental levies can coexist with thriving tourism industries. Bhutan&rsquo;s famous &ldquo;high-value, low-impact&rdquo; model restricts visitor numbers through mandatory spending requirements, ensuring that revenue is substantial while environmental and cultural pressures remain manageable.</p>
+    <p>The fundamental tension that mass tourism exposes is between two legitimate human aspirations: the freedom to move, explore, and connect across cultures, and the right of communities to determine the pace and character of their own transformation. Whether that tension can be resolved through regulation, education, and the adoption of genuinely sustainable practices &mdash; or whether the industry&rsquo;s growth will simply outpace every corrective measure &mdash; remains, as yet, unanswered.</p>
+  </div>
+
+  <div id="questions">
+
+    <div class="question" data-type="mcq" data-answer="A">
+      <div class="q-num">Q01 &middot; T/F/NG</div>
+      <div class="q-text">International tourist arrivals reached approximately 1.5 billion in 2019 before the COVID-19 pandemic caused a significant decline.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#x2705; 正确答案: A (True)</div>
+        原文第一段: &ldquo;International tourist arrivals…soared to approximately 1.5 billion by 2019, before the COVID-19 pandemic temporarily halted this exponential growth.&rdquo; 与题目表述完全吻合。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="B">
+      <div class="q-num">Q02 &middot; T/F/NG</div>
+      <div class="q-text">The passage states that the 2.5% aviation figure fully captures commercial aviation's total contribution to climate change.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#x2705; 正确答案: B (False)</div>
+        原文明确指出该数字 &ldquo;widely regarded as an underestimate because it does not capture the full warming effect of contrails and other altitude-specific phenomena&rdquo; — 该数字被认为是低估，并未反映全部影响。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="A">
+      <div class="q-num">Q03 &middot; T/F/NG</div>
+      <div class="q-text">Coral reefs in Thailand and the Caribbean have suffered irreversible damage partly as a result of tourist diving activities.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#x2705; 正确答案: A (True)</div>
+        原文: &ldquo;Coral reefs off the coasts of Thailand and the Caribbean have been <em>irreparably</em> damaged by anchors, sunscreen chemicals, and the sheer volume of recreational divers.&rdquo; &ldquo;Irreparably&rdquo; = irreversible; diving is explicitly listed as a cause.
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="B">
+      <div class="q-num">Q04 &middot; T/F/NG</div>
+      <div class="q-text">The examples of Angkor Wat and Dubrovnik are used in the passage to argue that tourism invariably harms local cultures.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#x2705; 正确答案: B (False)</div>
+        原文恰恰相反：这两个例子被 <em>proponents of tourism</em>（支持者）引用，作为旅游业能够 &ldquo;resurrect the past&rdquo;（保护文化遗产）的正面证据。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="A">
+      <div class="q-num">Q05 &middot; T/F/NG</div>
+      <div class="q-text">A 2023 survey showed that more than 70% of Venice residents felt the city had surpassed a sustainable number of visitors.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#x2705; 正确答案: A (True)</div>
+        原文: &ldquo;A 2023 survey of Venice residents found that over 70% believed the city had exceeded a sustainable level of visitors.&rdquo; 与题目一致。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="C">
+      <div class="q-num">Q06 &middot; T/F/NG</div>
+      <div class="q-text">Venice residents who opposed mass tourism had generally found alternative sources of income outside the tourism sector.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#x2705; 正确答案: C (Not Given)</div>
+        原文只说威尼斯居民承认旅游业支撑了逾半数就业，并未提及反对过度旅游的居民是否有其他收入来源。题目内容在文章中找不到对应信息。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="C">
+      <div class="q-num">Q07 &middot; T/F/NG</div>
+      <div class="q-text">The author suggests that Bhutan's high-value, low-impact tourism model has now been officially adopted by the majority of South-East Asian nations.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#x2705; 正确答案: C (Not Given)</div>
+        原文仅提到不丹、帕劳和斯洛文尼亚为可持续旅游的范例，并未提及其他东南亚国家是否采纳了不丹模式。此为典型"找不到"题型。
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="commodification">
+      <div class="q-num">Q08 &middot; 词汇填空</div>
+      <div class="q-text">According to critics, tourism crosses a dangerous line when cultural appreciation becomes cultural ______ — for example, when sacred ceremonies are turned into ticketed shows for visitors.</div>
+      <input class="blank-input" id="b1" placeholder="输入单词…" oninput="checkBlank(this,'commodification')">
+      <div class="explanation" id="ex8">
+        <div class="answer">&#x2705; 正确答案: commodification</div>
+        原文第三段: &ldquo;the line between cultural appreciation and cultural <strong>commodification</strong> is crossed when a sacred ceremony becomes a ticketed show.&rdquo; 商品化 (commodification) 是本段核心概念。
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="impact">
+      <div class="q-num">Q09 &middot; 词汇填空</div>
+      <div class="q-text">Bhutan's tourism philosophy is described as &ldquo;high-value, low-______&rdquo;, prioritising significant revenue while keeping environmental and cultural pressures to a minimum.</div>
+      <input class="blank-input" id="b2" placeholder="输入单词…" oninput="checkBlank(this,'impact')">
+      <div class="explanation" id="ex9">
+        <div class="answer">&#x2705; 正确答案: impact</div>
+        原文第五段: &ldquo;Bhutan's famous &lsquo;high-value, low-<strong>impact</strong>&rsquo; model restricts visitor numbers through mandatory spending requirements.&rdquo; 这是不丹模式的核心表述。
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="aspirations">
+      <div class="q-num">Q10 &middot; 词汇填空</div>
+      <div class="q-text">The author frames the central dilemma of mass tourism as a clash between two legitimate human ______: the freedom to explore and connect with other cultures, and the right of local communities to shape their own future.</div>
+      <input class="blank-input" id="b3" placeholder="输入单词…" oninput="checkBlank(this,'aspirations')">
+      <div class="explanation" id="ex10">
+        <div class="answer">&#x2705; 正确答案: aspirations</div>
+        原文最后一段: &ldquo;the fundamental tension…is between two legitimate human <strong>aspirations</strong>: the freedom to move, explore, and connect across cultures, and the right of communities to determine…their own transformation.&rdquo;
+      </div>
+    </div>
+
+  </div>
+
+  <div class="actions">
+    <button class="btn btn-secondary" onclick="showAll()">显示所有答案</button>
+    <button class="btn btn-primary" onclick="submitAll()">提交</button>
+  </div>
+
+  <div class="result" id="result">
+    <div class="score" id="scoreNum">&#8212;</div>
+    <div class="score-label">/ 10 &middot; <span id="scoreMsg"></span></div>
+    <p style="color:var(--muted);font-size:0.88rem;margin-top:12px;">回到 <a href="index.html" style="color:var(--accent);">主页</a> 继续今日词卡练习</p>
+  </div>
+
+</main>
+
+<nav class="tabbar">
+  <a class="tab-btn active" href="index.html#home"><span class="icon">&#127968;</span>概览</a>
+  <a class="tab-btn" href="index.html#materials"><span class="icon">&#128250;</span>材料</a>
+  <a class="tab-btn" href="index.html#quizzes"><span class="icon">&#9999;&#65039;</span>测验</a>
+  <a class="tab-btn" href="index.html#plan"><span class="icon">&#128203;</span>计划</a>
+</nav>
+
+<script>
+let answered=0;
+document.querySelectorAll('.question[data-type="mcq"]').forEach(q=>{
+  q.querySelectorAll('.option').forEach(btn=>{
+    btn.addEventListener('click',function(){
+      if(q.dataset.locked) return;
+      q.querySelectorAll('.option').forEach(b=>b.classList.remove('selected'));
+      this.classList.add('selected');
+      q.dataset.chosen=this.dataset.key;
+    });
+  });
+});
+function checkBlank(input,ans){
+  if(input.dataset.locked) return;
+  const v=input.value.trim().toLowerCase();
+  const correct=ans.toLowerCase();
+  input.classList.toggle('correct',v===correct);
+  input.classList.toggle('wrong',v.length>=ans.length&&v!==correct);
+  if(v===correct){
+    input.dataset.locked='1';
+    const idx=Array.from(document.querySelectorAll('.blank-input')).indexOf(input);
+    document.getElementById('ex'+(idx+8)).classList.add('show');
+  }
+}
+function lockMCQ(q){
+  q.dataset.locked='1';
+  const chosen=q.dataset.chosen;
+  const ans=q.dataset.answer;
+  q.querySelectorAll('.option').forEach(btn=>{
+    if(btn.dataset.key===ans) btn.classList.add('correct');
+    else if(btn.dataset.key===chosen&&chosen!==ans) btn.classList.add('wrong');
+  });
+  q.querySelector('.explanation').classList.add('show');
+}
+function submitAll(){
+  let score=0,total=10;
+  document.querySelectorAll('.question[data-type="mcq"]').forEach(q=>{
+    if(!q.dataset.locked) lockMCQ(q);
+    if(q.dataset.chosen===q.dataset.answer) score++;
+  });
+  const ansList=['commodification','impact','aspirations'];
+  document.querySelectorAll('.blank-input').forEach((inp,i)=>{
+    const v=inp.value.trim().toLowerCase();
+    if(v===ansList[i].toLowerCase()) score++;
+    inp.dataset.locked='1';
+    document.getElementById('ex'+(i+8)).classList.add('show');
+  });
+  document.getElementById('scoreNum').textContent=score;
+  const msgs=['继续加油','有进步','还不错','很好','出色！Band 7+!'];
+  document.getElementById('scoreMsg').textContent=msgs[Math.min(Math.floor(score/2),msgs.length-1)];
+  document.getElementById('result').classList.add('show');
+  document.getElementById('progressFill').style.width='100%';
+  document.getElementById('result').scrollIntoView({behavior:'smooth'});
+}
+function showAll(){
+  document.querySelectorAll('.question[data-type="mcq"]').forEach(lockMCQ);
+  const ansList=['commodification','impact','aspirations'];
+  document.querySelectorAll('.blank-input').forEach((inp,i)=>{
+    inp.value=ansList[i];
+    inp.classList.add('correct');
+    document.getElementById('ex'+(i+8)).classList.add('show');
+  });
+}
+</script>
+</body>
+</html>
