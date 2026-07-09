@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#2563eb">
+<title>Day 51 &middot; Reading T/F/NG &middot; 慢旅行的兴起</title>
+<style>
+  :root {
+    --bg: #ffffff; --fg: #1a1a1a; --muted: #6b7280;
+    --accent: #2563eb; --ok: #059669; --err: #dc2626;
+    --card: #f9fafb; --border: #e5e7eb;
+    --nav-bg: rgba(255,255,255,0.92);
+    --header-bg: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f172a; --fg: #f1f5f9; --muted: #94a3b8;
+      --accent: #60a5fa; --ok: #34d399; --err: #f87171;
+      --card: #1e293b; --border: #334155;
+      --nav-bg: rgba(15,23,42,0.92);
+      --header-bg: linear-gradient(135deg, #1e40af 0%, #6b21a8 100%);
+    }
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg); }
+  body { font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif; line-height: 1.6; min-height: 100vh; padding-bottom: calc(64px + env(safe-area-inset-bottom, 0)); }
+  .app-header { background: var(--header-bg); color: white; padding: calc(env(safe-area-inset-top, 16px) + 12px) 16px 14px; position: sticky; top: 0; z-index: 20; display: flex; align-items: center; gap: 12px; }
+  .back-btn { background: rgba(255,255,255,0.18); border: none; color: white; width: 34px; height: 34px; border-radius: 10px; font-size: 1.1rem; cursor: pointer; flex-shrink: 0; text-decoration: none; display: flex; align-items: center; justify-content: center; }
+  .app-header .ttl { font-size: 1rem; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .app-header .sub { font-size: 0.72rem; opacity: 0.85; margin-top: 1px; letter-spacing: 0.04em; text-transform: uppercase; }
+  main { max-width: 720px; margin: 0 auto; padding: 16px; }
+  .progress { height: 6px; background: var(--border); border-radius: 3px; margin-bottom: 16px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--accent); transition: width 0.3s ease; }
+  .passage { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; margin-bottom: 16px; font-size: 0.95rem; line-height: 1.75; }
+  .passage h3 { margin: 0 0 8px; font-size: 0.78rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+  .question { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 14px; }
+  .q-num { color: var(--muted); font-size: 0.78rem; font-family: "SF Mono", Menlo, monospace; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.04em; }
+  .q-text { font-size: 1rem; margin-bottom: 12px; font-weight: 500; }
+  .options { display: flex; flex-direction: column; gap: 8px; }
+  .option { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; cursor: pointer; font-size: 0.95rem; text-align: left; color: var(--fg); font-family: inherit; }
+  .option.selected { border-color: var(--accent); background: rgba(37,99,235,0.08); }
+  .option.correct { border-color: var(--ok); background: rgba(5,150,105,0.1); }
+  .option.wrong { border-color: var(--err); background: rgba(220,38,38,0.1); }
+  .blank-input { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; font-size: 1rem; color: var(--fg); font-family: inherit; }
+  .blank-input.correct { border-color: var(--ok); }
+  .blank-input.wrong { border-color: var(--err); }
+  .explanation { margin-top: 10px; padding: 10px 12px; background: var(--bg); border-left: 3px solid var(--accent); border-radius: 4px; font-size: 0.9rem; color: var(--muted); display: none; }
+  .explanation.show { display: block; }
+  .explanation .answer { color: var(--ok); font-weight: 600; }
+  .actions { display: flex; gap: 10px; margin-top: 20px; }
+  .btn { flex: 1; padding: 12px; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; font-family: inherit; }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-secondary { background: var(--card); color: var(--fg); border: 1px solid var(--border); }
+  .result { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; text-align: center; margin-top: 20px; display: none; }
+  .result.show { display: block; }
+  .score { font-size: 2.5rem; font-weight: 700; color: var(--accent); }
+  .score-label { color: var(--muted); font-size: 0.9rem; margin-top: 4px; }
+  .tabbar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--nav-bg); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px); border-top: 1px solid var(--border); display: flex; padding-bottom: env(safe-area-inset-bottom, 0); z-index: 30; }
+  .tab-btn { flex: 1; background: transparent; border: none; padding: 10px 4px 8px; color: var(--muted); font-size: 0.68rem; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 3px; font-family: inherit; text-decoration: none; }
+  .tab-btn .icon { font-size: 1.25rem; line-height: 1; }
+  .tab-btn.active { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <a class="back-btn" href="index.html#quizzes">&#8592;</a>
+  <div style="flex:1;min-width:0;">
+    <div class="ttl">Reading T/F/NG &middot; 慢旅行的兴起</div>
+    <div class="sub">Day 51 &middot; 11 题 &middot; ~12 分钟</div>
+  </div>
+</header>
+
+<main>
+
+  <div class="progress"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+
+  <div class="passage">
+    <h3>Passage &middot; The Rise of Slow Travel (~610 words)</h3>
+    <p>The rise of slow travel as a philosophy and practice represents one of the most significant counter-trends to emerge from the age of budget airlines and frenetic package tourism. Rather than ticking destinations off a bucket list, slow travellers seek sustained immersion in a single place &mdash; staying for weeks or months rather than days, learning phrases of the local language, shopping in neighbourhood markets, and becoming, if only temporarily, a resident rather than a spectator.</p>
+    <p>The term &ldquo;slow travel&rdquo; draws from the broader Slow Movement, which originated in Italy in the late 1980s as a protest against the opening of a fast-food chain near the Spanish Steps in Rome. While philosopher and travel writer Alain de Botton has written extensively on the psychology of place and the quality of attention we bring to travel, the formal articulation of slow travel as a distinct category was largely the work of community-based tourism advocates in the early 2000s.</p>
+    <p>The environmental case for slow travel is compelling. A 2024 analysis published in the journal <em>Nature Climate Change</em> found that slow travellers &mdash; defined as those spending more than three weeks at a single destination &mdash; produced on average 40% fewer greenhouse gas emissions per day of travel than conventional tourists. The principal reason is the dramatic reduction in long-haul flights, which generate the greatest carbon footprint per kilometre of any mode of transport. A slow traveller who takes the train across Europe and stays for a month in one city can achieve a carbon footprint several orders of magnitude smaller than a fortnight of frequent long-haul flights between unconnected destinations.</p>
+    <p>Yet slow travel is not without its critics. The most persistent objection is one of privilege: the ability to spend weeks or months in a foreign country presupposes both financial security and the flexibility of remote work or extended leave. Scholars of tourism equity have argued that slow travel, despite its progressive credentials, is in practice accessible only to a narrow demographic &mdash; the educated, the globally mobile, and the financially comfortable.</p>
+    <p>The economic implications for host communities are, however, broadly positive. Slow travellers, by virtue of their extended stays, tend to spend more money in local establishments &mdash; family-run guesthouses, neighbourhood restaurants, and artisan workshops &mdash; rather than the large international chains that characterise resort tourism. A 2025 UNESCO report on regenerative tourism found that destinations in Portugal and Japan that had adopted slow tourism frameworks reported increased revenue for small local businesses and improved relationships between residents and visitors compared to pre-framework baselines.</p>
+    <p>There are psychological dividends too. Research by social psychologist Adam Galinsky has suggested that extended exposure to a foreign culture cultivates what he calls &ldquo;integrative complexity&rdquo; &mdash; the cognitive ability to hold multiple, sometimes contradictory perspectives simultaneously. Galinsky found that travellers who spent significant time living abroad, as opposed to simply visiting, scored higher on measures of creative thinking and cross-cultural empathy.</p>
+    <p>The movement faces structural obstacles. Modern working patterns, dominated by short annual leave entitlements and the digital always-on culture, make extended travel difficult for most workers. Even as remote working has freed some from geographic constraints, the cultural expectation of constant availability continues to erode the quality of attention that slow travel demands. Whether slow travel can transition from a niche practice of the privileged few to a mainstream alternative will depend as much on changes in workplace culture as on individual consumer choices.</p>
+  </div>
+
+  <div id="questions">
+
+    <div class="question" data-type="mcq" data-answer="B">
+      <div class="q-num">Q01 &middot; T/F/NG</div>
+      <div class="q-text">Slow travellers typically aim to visit as many different destinations as possible within a short period of time.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#x2705; 正确答案: B (False)</div>
+        原文第一段: &ldquo;Rather than ticking destinations off a bucket list, slow travellers seek <em>sustained immersion in a single place</em>&rdquo; — 慢旅行者追求的是在一处深度停留，与题目描述（尽量多访景点）完全相反。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="A">
+      <div class="q-num">Q02 &middot; T/F/NG</div>
+      <div class="q-text">According to a 2024 study, slow travellers produce fewer greenhouse gas emissions per day of travel compared with conventional tourists.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#x2705; 正确答案: A (True)</div>
+        原文第三段: &ldquo;slow travellers…produced on average 40% fewer greenhouse gas emissions per day of travel than conventional tourists.&rdquo; 与题目完全吻合。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="C">
+      <div class="q-num">Q03 &middot; T/F/NG</div>
+      <div class="q-text">Alain de Botton formally developed the concept of slow travel as a distinct category of tourism in the early 2000s.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#x2705; 正确答案: C (Not Given)</div>
+        原文第二段提到德波顿写过大量关于旅行心理的文章，但正式将慢旅行系统化的是 &ldquo;community-based tourism advocates in the early 2000s&rdquo;（社区旅游倡导者），并非德波顿本人。题目将两者混为一谈，原文未明确说明此点。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="A">
+      <div class="q-num">Q04 &middot; T/F/NG</div>
+      <div class="q-text">Critics argue that slow travel is in practice available mainly to people who are financially secure and have flexible working conditions.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#x2705; 正确答案: A (True)</div>
+        原文第四段: &ldquo;the ability to spend weeks or months in a foreign country presupposes both financial security and the flexibility of remote work or extended leave…accessible only to a narrow demographic — the educated, the globally mobile, and the financially comfortable.&rdquo; 与题目一致。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="A">
+      <div class="q-num">Q05 &middot; T/F/NG</div>
+      <div class="q-text">Communities that adopt slow tourism frameworks tend to see economic benefits flow more to local small businesses than to large international chains.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#x2705; 正确答案: A (True)</div>
+        原文第五段: 慢旅行者倾向于在 &ldquo;family-run guesthouses, neighbourhood restaurants, and artisan workshops&rdquo; 消费，而非大型国际连锁，且 UNESCO 2025 年报告也证实慢旅游框架带来了小型企业收入的增长。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="B">
+      <div class="q-num">Q06 &middot; T/F/NG</div>
+      <div class="q-text">The 2025 UNESCO report found that slow tourism frameworks had a negative impact on visitor relationships in Portugal and Japan.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#x2705; 正确答案: B (False)</div>
+        原文第五段: UNESCO 报告发现葡萄牙和日本目的地 &ldquo;reported increased revenue for small local businesses and <em>improved</em> relationships between residents and visitors&rdquo; — 结果是正面的，与题目所述负面影响相反。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="A">
+      <div class="q-num">Q07 &middot; T/F/NG</div>
+      <div class="q-text">According to Galinsky's research, travellers who lived abroad for an extended period scored higher on measures of creative thinking than those who merely visited.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#x2705; 正确答案: A (True)</div>
+        原文第六段: &ldquo;Galinsky found that travellers who spent significant time <em>living</em> abroad, as opposed to simply visiting, scored higher on measures of creative thinking and cross-cultural empathy.&rdquo; 与题目完全对应。
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="frenetic">
+      <div class="q-num">Q08 &middot; 词汇填空</div>
+      <div class="q-text">Slow travel emerged as a counter-trend to the ______ pace of modern package tourism, which prioritises the quantity of destinations visited over the depth of experience in any single place.</div>
+      <input class="blank-input" id="b1" placeholder="输入单词…" oninput="checkBlank(this,'frenetic',8)">
+      <div class="explanation" id="ex8">
+        <div class="answer">&#x2705; 正确答案: frenetic</div>
+        原文第一段: &ldquo;the age of budget airlines and <strong>frenetic</strong> package tourism.&rdquo; Frenetic = 狂乱的、疯狂紧张的，形容现代套票旅游的节奏。
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="family-run">
+      <div class="q-num">Q09 &middot; 词汇填空</div>
+      <div class="q-text">Slow travellers prefer to stay in ______ guesthouses and eat at neighbourhood restaurants rather than large international hotel chains.</div>
+      <input class="blank-input" id="b2" placeholder="输入单词（可含连字符）…" oninput="checkBlank(this,'family-run',9)">
+      <div class="explanation" id="ex9">
+        <div class="answer">&#x2705; 正确答案: family-run</div>
+        原文第五段: &ldquo;<strong>family-run</strong> guesthouses, neighbourhood restaurants, and artisan workshops&rdquo; — 慢旅行者选择家庭经营的住宿，而非国际连锁。
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="integrative">
+      <div class="q-num">Q10 &middot; 词汇填空</div>
+      <div class="q-text">Adam Galinsky coined the term &ldquo;______ complexity&rdquo; to describe the cognitive ability to hold multiple, sometimes contradictory perspectives simultaneously.</div>
+      <input class="blank-input" id="b3" placeholder="输入单词…" oninput="checkBlank(this,'integrative',10)">
+      <div class="explanation" id="ex10">
+        <div class="answer">&#x2705; 正确答案: integrative</div>
+        原文第六段: &ldquo;what he calls &lsquo;<strong>integrative</strong> complexity&rsquo; &mdash; the cognitive ability to hold multiple, sometimes contradictory perspectives simultaneously.&rdquo;
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="long-haul">
+      <div class="q-num">Q11 &middot; 词汇填空</div>
+      <div class="q-text">Slow travel reduces emissions primarily by eliminating frequent ______ flights, which generate the greatest carbon footprint per kilometre of any mode of transport.</div>
+      <input class="blank-input" id="b4" placeholder="输入单词（可含连字符）…" oninput="checkBlank(this,'long-haul',11)">
+      <div class="explanation" id="ex11">
+        <div class="answer">&#x2705; 正确答案: long-haul</div>
+        原文第三段: &ldquo;a fortnight of frequent <strong>long-haul</strong> flights between unconnected destinations&rdquo; — 频繁的长途飞行是碳排放的主要来源。
+      </div>
+    </div>
+
+  </div>
+
+  <div class="actions">
+    <button class="btn btn-secondary" onclick="showAll()">显示所有答案</button>
+    <button class="btn btn-primary" onclick="submitAll()">提交</button>
+  </div>
+
+  <div class="result" id="result">
+    <div class="score" id="scoreNum">&#8212;</div>
+    <div class="score-label">/ 11 &middot; <span id="scoreMsg"></span></div>
+    <p style="color:var(--muted);font-size:0.88rem;margin-top:12px;">回到 <a href="index.html" style="color:var(--accent);">主页</a> 继续今日词卡练习</p>
+  </div>
+
+</main>
+
+<nav class="tabbar">
+  <a class="tab-btn active" href="index.html#home"><span class="icon">&#127968;</span>概览</a>
+  <a class="tab-btn" href="index.html#materials"><span class="icon">&#128250;</span>材料</a>
+  <a class="tab-btn" href="index.html#quizzes"><span class="icon">&#9999;&#65039;</span>测验</a>
+  <a class="tab-btn" href="index.html#plan"><span class="icon">&#128203;</span>计划</a>
+</nav>
+
+<script>
+const BLANK_ANS = ['frenetic','family-run','integrative','long-haul'];
+document.querySelectorAll('.question[data-type="mcq"]').forEach(q=>{
+  q.querySelectorAll('.option').forEach(btn=>{
+    btn.addEventListener('click',function(){
+      if(q.dataset.locked) return;
+      q.querySelectorAll('.option').forEach(b=>b.classList.remove('selected'));
+      this.classList.add('selected');
+      q.dataset.chosen=this.dataset.key;
+    });
+  });
+});
+function checkBlank(input,ans,qnum){
+  if(input.dataset.locked) return;
+  const v=input.value.trim().toLowerCase();
+  const correct=ans.toLowerCase();
+  input.classList.toggle('correct',v===correct);
+  input.classList.toggle('wrong',v.length>=ans.length&&v!==correct);
+  if(v===correct){
+    input.dataset.locked='1';
+    document.getElementById('ex'+qnum).classList.add('show');
+  }
+}
+function lockMCQ(q){
+  q.dataset.locked='1';
+  const chosen=q.dataset.chosen;
+  const ans=q.dataset.answer;
+  q.querySelectorAll('.option').forEach(btn=>{
+    if(btn.dataset.key===ans) btn.classList.add('correct');
+    else if(btn.dataset.key===chosen&&chosen!==ans) btn.classList.add('wrong');
+  });
+  q.querySelector('.explanation').classList.add('show');
+}
+function submitAll(){
+  let score=0,total=11;
+  document.querySelectorAll('.question[data-type="mcq"]').forEach(q=>{
+    if(!q.dataset.locked) lockMCQ(q);
+    if(q.dataset.chosen===q.dataset.answer) score++;
+  });
+  const inputs=document.querySelectorAll('.blank-input');
+  inputs.forEach((inp,i)=>{
+    const v=inp.value.trim().toLowerCase();
+    if(v===BLANK_ANS[i].toLowerCase()) score++;
+    inp.dataset.locked='1';
+    document.getElementById('ex'+(i+8)).classList.add('show');
+  });
+  document.getElementById('scoreNum').textContent=score;
+  const pct=score/total;
+  const msgs=['继续加油','有进步','还不错','很好','出色！Band 7+!'];
+  document.getElementById('scoreMsg').textContent=msgs[Math.min(Math.floor(pct*4.99),msgs.length-1)];
+  document.getElementById('result').classList.add('show');
+  document.getElementById('progressFill').style.width='100%';
+  document.getElementById('result').scrollIntoView({behavior:'smooth'});
+}
+function showAll(){
+  document.querySelectorAll('.question[data-type="mcq"]').forEach(lockMCQ);
+  const inputs=document.querySelectorAll('.blank-input');
+  inputs.forEach((inp,i)=>{
+    inp.dataset.locked='1';
+    document.getElementById('ex'+(i+8)).classList.add('show');
+  });
+}
+</script>
+</body>
+</html>
