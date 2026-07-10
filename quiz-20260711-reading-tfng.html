@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#2563eb">
+<title>Day 52 &middot; Reading T/F/NG &middot; 美食旅游与文化认同</title>
+<style>
+  :root {
+    --bg: #ffffff; --fg: #1a1a1a; --muted: #6b7280;
+    --accent: #2563eb; --ok: #059669; --err: #dc2626;
+    --card: #f9fafb; --border: #e5e7eb;
+    --nav-bg: rgba(255,255,255,0.92);
+    --header-bg: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f172a; --fg: #f1f5f9; --muted: #94a3b8;
+      --accent: #60a5fa; --ok: #34d399; --err: #f87171;
+      --card: #1e293b; --border: #334155;
+      --nav-bg: rgba(15,23,42,0.92);
+      --header-bg: linear-gradient(135deg, #1e40af 0%, #6b21a8 100%);
+    }
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg); }
+  body { font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif; line-height: 1.6; min-height: 100vh; padding-bottom: calc(64px + env(safe-area-inset-bottom, 0)); }
+  .app-header { background: var(--header-bg); color: white; padding: calc(env(safe-area-inset-top, 16px) + 12px) 16px 14px; position: sticky; top: 0; z-index: 20; display: flex; align-items: center; gap: 12px; }
+  .back-btn { background: rgba(255,255,255,0.18); border: none; color: white; width: 34px; height: 34px; border-radius: 10px; font-size: 1.1rem; cursor: pointer; flex-shrink: 0; text-decoration: none; display: flex; align-items: center; justify-content: center; }
+  .app-header .ttl { font-size: 1rem; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .app-header .sub { font-size: 0.72rem; opacity: 0.85; margin-top: 1px; letter-spacing: 0.04em; text-transform: uppercase; }
+  main { max-width: 720px; margin: 0 auto; padding: 16px; }
+  .progress { height: 6px; background: var(--border); border-radius: 3px; margin-bottom: 16px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--accent); transition: width 0.3s ease; }
+  .passage { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; margin-bottom: 16px; font-size: 0.95rem; line-height: 1.75; }
+  .passage h3 { margin: 0 0 8px; font-size: 0.78rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+  .question { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 14px; }
+  .q-num { color: var(--muted); font-size: 0.78rem; font-family: "SF Mono", Menlo, monospace; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.04em; }
+  .q-text { font-size: 1rem; margin-bottom: 12px; font-weight: 500; }
+  .options { display: flex; flex-direction: column; gap: 8px; }
+  .option { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; cursor: pointer; font-size: 0.95rem; text-align: left; color: var(--fg); font-family: inherit; }
+  .option.selected { border-color: var(--accent); background: rgba(37,99,235,0.08); }
+  .option.correct { border-color: var(--ok); background: rgba(5,150,105,0.1); }
+  .option.wrong { border-color: var(--err); background: rgba(220,38,38,0.1); }
+  .blank-input { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; font-size: 1rem; color: var(--fg); font-family: inherit; }
+  .blank-input.correct { border-color: var(--ok); }
+  .blank-input.wrong { border-color: var(--err); }
+  .explanation { margin-top: 10px; padding: 10px 12px; background: var(--bg); border-left: 3px solid var(--accent); border-radius: 4px; font-size: 0.9rem; color: var(--muted); display: none; }
+  .explanation.show { display: block; }
+  .explanation .answer { color: var(--ok); font-weight: 600; }
+  .actions { display: flex; gap: 10px; margin-top: 20px; }
+  .btn { flex: 1; padding: 12px; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; font-family: inherit; }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-secondary { background: var(--card); color: var(--fg); border: 1px solid var(--border); }
+  .result { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; text-align: center; margin-top: 20px; display: none; }
+  .result.show { display: block; }
+  .score { font-size: 2.5rem; font-weight: 700; color: var(--accent); }
+  .score-label { color: var(--muted); font-size: 0.9rem; margin-top: 4px; }
+  .tabbar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--nav-bg); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px); border-top: 1px solid var(--border); display: flex; padding-bottom: env(safe-area-inset-bottom, 0); z-index: 30; }
+  .tab-btn { flex: 1; background: transparent; border: none; padding: 10px 4px 8px; color: var(--muted); font-size: 0.68rem; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 3px; font-family: inherit; text-decoration: none; }
+  .tab-btn .icon { font-size: 1.25rem; line-height: 1; }
+  .tab-btn.active { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <a class="back-btn" href="index.html#quizzes">&#8592;</a>
+  <div style="flex:1;min-width:0;">
+    <div class="ttl">Reading T/F/NG &middot; 美食旅游与文化认同</div>
+    <div class="sub">Day 52 &middot; 11 题 &middot; ~12 分钟</div>
+  </div>
+</header>
+
+<main>
+
+  <div class="progress"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+
+  <div class="passage">
+    <h3>Passage &middot; Culinary Tourism and the Politics of Authenticity (~620 words)</h3>
+    <p>The global rise of culinary tourism &mdash; travel motivated primarily by the desire to experience local food cultures &mdash; represents one of the most significant transformations in the contemporary travel industry. A 2025 report by the World Food Travel Association estimated that food-related experiences now account for approximately 35% of all tourism expenditure worldwide, a figure that has more than doubled since 2010. Unlike conventional sightseeing, which treats attractions as discrete spectacles to be consumed and departed, culinary tourism places eating at the centre of cultural engagement, positioning local cuisine as the most direct route to understanding a society&rsquo;s history, geography, and values.</p>
+    <p>The relationship between food and cultural identity is both profound and contested. Anthropologists have long argued that the recipes, ingredients, and dining rituals of a community constitute a form of living heritage: a set of practices that encode collective memory and transmit cultural knowledge across generations. It was partly in recognition of this that UNESCO, in 2010, established a new category of Intangible Cultural Heritage specifically for culinary traditions, adding entries such as the Gastronomic Meal of the French and the traditional Mexican cuisine of the community culture of Micho&aacute;can.</p>
+    <p>Yet the growing commercialisation of food culture for tourist consumption has generated a parallel anxiety: that the dishes served in tourist-facing restaurants increasingly diverge from authentic local practices. Scholars of food culture have documented a phenomenon they call the &ldquo;tourist menu effect&rdquo; &mdash; the systematic adaptation of local dishes to conform to the perceived preferences of international visitors. Spices are reduced; textures are altered; presentation is standardised. The result is a sanitised version of a cuisine that pleases tourists but alienates locals who recognise little of their own culinary tradition in what is served.</p>
+    <p>The economic geography of culinary tourism adds further complexity. As food districts in cities such as Lisbon, Oaxaca, and Penang become internationally celebrated for their cuisine, the resulting surge in tourist footfall frequently triggers a process of gentrification that displaces the very vendors and family restaurants that made the area attractive. Property values rise; rents increase; the small, family-run eateries that originally defined the neighbourhood&rsquo;s culinary character are replaced by commercial operations better positioned to absorb the costs of prime urban real estate. Paradoxically, the success of authentic culinary tourism often destroys the authenticity it sought to celebrate.</p>
+    <p>A more optimistic reading focuses on the creative potential of cultural contact through food. Food historians point to the emergence of what they term &ldquo;third-culture cuisines&rdquo; &mdash; distinctive culinary traditions that develop in diaspora communities and constitute a genuine synthesis of home and host cultures. Japanese-Brazilian sushi, Peruvian-Chinese chifa, and the British Indian curry tradition are examples of hybrid cuisines that, far from representing cultural dilution, embody a dynamic cultural creativity that enriches both source and host societies.</p>
+    <p>The future trajectory of culinary tourism will likely depend on the choices made by individual travellers. Research published in the journal <em>Food, Culture &amp; Society</em> in 2024 found that tourists who made deliberate efforts to eat in locally-owned restaurants, attend food markets, and participate in cooking workshops reported higher levels of cultural immersion and personal satisfaction than those who relied on hotel restaurants or international food chains. Destination management organisations in countries including Japan and Peru have begun introducing &ldquo;culinary authenticity pledges&rdquo; that encourage visitors to seek out locally owned and operated food businesses, partly as an economic measure and partly as a strategy to slow the pace of gentrification.</p>
+  </div>
+
+  <div id="questions">
+
+    <div class="question" data-type="mcq" data-answer="A">
+      <div class="q-num">Q01 &middot; T/F/NG</div>
+      <div class="q-text">According to a 2025 report, food-related tourism spending has grown to more than twice its 2010 share of global tourism expenditure.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#x2705; 正确答案: A (True)</div>
+        原文第一段: &ldquo;a figure that has <em>more than doubled</em> since 2010.&rdquo; 题目说 &ldquo;grown to more than twice its 2010 share&rdquo;，与原文同义替换完全吻合。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="A">
+      <div class="q-num">Q02 &middot; T/F/NG</div>
+      <div class="q-text">UNESCO introduced a distinct Intangible Cultural Heritage category for culinary traditions in 2010.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#x2705; 正确答案: A (True)</div>
+        原文第二段: &ldquo;UNESCO, <em>in 2010</em>, established a new category of Intangible Cultural Heritage <em>specifically</em> for culinary traditions.&rdquo; 与题目完全一致。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="B">
+      <div class="q-num">Q03 &middot; T/F/NG</div>
+      <div class="q-text">The &ldquo;tourist menu effect&rdquo; refers to the practice of making local dishes more complex and spicier to impress international visitors.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#x2705; 正确答案: B (False)</div>
+        原文第三段: &ldquo;Spices are <em>reduced</em>; textures are <em>altered</em>; presentation is <em>standardised</em>.&rdquo; 效果是简化/降低刺激性，与题目所说"更复杂更辛辣"完全相反。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="B">
+      <div class="q-num">Q04 &middot; T/F/NG</div>
+      <div class="q-text">The gentrification of food districts tends to benefit the small family-run restaurants that originally attracted tourists to those areas.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#x2705; 正确答案: B (False)</div>
+        原文第四段: 绅士化过程 &ldquo;<em>displaces</em> the very vendors and family restaurants&rdquo; — 小餐馆被替换而非从中获益。题目与原文直接矛盾。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="B">
+      <div class="q-num">Q05 &middot; T/F/NG</div>
+      <div class="q-text">Food historians regard the development of hybrid cuisines such as Japanese-Brazilian sushi as evidence of cultural dilution rather than creativity.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#x2705; 正确答案: B (False)</div>
+        原文第五段: &ldquo;<em>far from representing cultural dilution</em>, embody a <em>dynamic cultural creativity</em>&rdquo; — 食物历史学家认为这是创造力的表现，与"文化稀释"相反。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="A">
+      <div class="q-num">Q06 &middot; T/F/NG</div>
+      <div class="q-text">Tourists who dined in locally-owned establishments reported greater cultural immersion than those who used hotel restaurants, according to 2024 research.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#x2705; 正确答案: A (True)</div>
+        原文最后一段: &ldquo;tourists who made deliberate efforts to eat in <em>locally-owned restaurants</em>…reported <em>higher levels of cultural immersion</em> and personal satisfaction than those who relied on <em>hotel restaurants</em>.&rdquo; 与题目完全一致。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="C">
+      <div class="q-num">Q07 &middot; T/F/NG</div>
+      <div class="q-text">The World Food Travel Association's 2025 report recommended that governments introduce taxes on international food chains operating in culturally sensitive areas.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#x2705; 正确答案: C (Not Given)</div>
+        原文仅提到该报告的数据统计结果（美食旅游占比 35%），未提及任何关于向国际连锁征税的建议。题目内容在文章中没有任何对应信息。
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="intangible">
+      <div class="q-num">Q08 &middot; 词汇填空</div>
+      <div class="q-text">UNESCO works to protect culinary traditions by listing them as ______ Cultural Heritage, recognising food practices as a form of living cultural knowledge.</div>
+      <input class="blank-input" id="b1" placeholder="输入单词…" oninput="checkBlank(this,'intangible',8)">
+      <div class="explanation" id="ex8">
+        <div class="answer">&#x2705; 正确答案: intangible</div>
+        原文第二段: &ldquo;UNESCO…established a new category of <strong>Intangible</strong> Cultural Heritage specifically for culinary traditions.&rdquo; Intangible = 无形的，指非物质文化遗产。
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="sanitised">
+      <div class="q-num">Q09 &middot; 词汇填空</div>
+      <div class="q-text">When spices are reduced and textures are altered to meet tourist expectations, scholars argue that the result is a ______ version of the original cuisine.</div>
+      <input class="blank-input" id="b2" placeholder="输入单词…" oninput="checkBlank(this,'sanitised',9)">
+      <div class="explanation" id="ex9">
+        <div class="answer">&#x2705; 正确答案: sanitised</div>
+        原文第三段: &ldquo;The result is a <strong>sanitised</strong> version of a cuisine that pleases tourists but alienates locals.&rdquo; Sanitised = 经过净化/处理的，此处指被削去地方特色的版本。
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="gentrification">
+      <div class="q-num">Q10 &middot; 词汇填空</div>
+      <div class="q-text">When tourism makes a food neighbourhood famous, rising property values and rents often trigger a process of ______ that forces out the original local vendors.</div>
+      <input class="blank-input" id="b3" placeholder="输入单词…" oninput="checkBlank(this,'gentrification',10)">
+      <div class="explanation" id="ex10">
+        <div class="answer">&#x2705; 正确答案: gentrification</div>
+        原文第四段: &ldquo;the resulting surge in tourist footfall frequently triggers a process of <strong>gentrification</strong> that displaces the very vendors.&rdquo; Gentrification = 绅士化/高档化，指社区因地产升值而排挤原住民或小商户。
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="third">
+      <div class="q-num">Q11 &middot; 词汇填空</div>
+      <div class="q-text">Food historians use the term &ldquo;______ -culture cuisines&rdquo; to describe hybrid culinary traditions that emerge when diaspora communities blend elements of their home and host cultures.</div>
+      <input class="blank-input" id="b4" placeholder="输入单词…" oninput="checkBlank(this,'third',11)">
+      <div class="explanation" id="ex11">
+        <div class="answer">&#x2705; 正确答案: third</div>
+        原文第五段: &ldquo;the emergence of what they term &lsquo;<strong>third</strong>-culture cuisines&rsquo; &mdash; distinctive culinary traditions that develop in diaspora communities.&rdquo;
+      </div>
+    </div>
+
+  </div>
+
+  <div class="actions">
+    <button class="btn btn-secondary" onclick="showAll()">显示所有答案</button>
+    <button class="btn btn-primary" onclick="submitAll()">提交</button>
+  </div>
+
+  <div class="result" id="result">
+    <div class="score" id="scoreNum">&#8212;</div>
+    <div class="score-label">/ 11 &middot; <span id="scoreMsg"></span></div>
+    <p style="color:var(--muted);font-size:0.88rem;margin-top:12px;">回到 <a href="index.html" style="color:var(--accent);">主页</a> 继续今日词卡练习</p>
+  </div>
+
+</main>
+
+<nav class="tabbar">
+  <a class="tab-btn active" href="index.html#home"><span class="icon">&#127968;</span>概览</a>
+  <a class="tab-btn" href="index.html#materials"><span class="icon">&#128250;</span>材料</a>
+  <a class="tab-btn" href="index.html#quizzes"><span class="icon">&#9999;&#65039;</span>测验</a>
+  <a class="tab-btn" href="index.html#plan"><span class="icon">&#128203;</span>计划</a>
+</nav>
+
+<script>
+const BLANK_ANS = ['intangible','sanitised','gentrification','third'];
+document.querySelectorAll('.question[data-type="mcq"]').forEach(q=>{
+  q.querySelectorAll('.option').forEach(btn=>{
+    btn.addEventListener('click',function(){
+      if(q.dataset.locked) return;
+      q.querySelectorAll('.option').forEach(b=>b.classList.remove('selected'));
+      this.classList.add('selected');
+      q.dataset.chosen=this.dataset.key;
+    });
+  });
+});
+function checkBlank(input,ans,qnum){
+  if(input.dataset.locked) return;
+  const v=input.value.trim().toLowerCase();
+  const correct=ans.toLowerCase();
+  input.classList.toggle('correct',v===correct);
+  input.classList.toggle('wrong',v.length>=ans.length&&v!==correct);
+  if(v===correct){
+    input.dataset.locked='1';
+    document.getElementById('ex'+qnum).classList.add('show');
+  }
+}
+function lockMCQ(q){
+  q.dataset.locked='1';
+  const chosen=q.dataset.chosen;
+  const ans=q.dataset.answer;
+  q.querySelectorAll('.option').forEach(btn=>{
+    if(btn.dataset.key===ans) btn.classList.add('correct');
+    else if(btn.dataset.key===chosen&&chosen!==ans) btn.classList.add('wrong');
+  });
+  q.querySelector('.explanation').classList.add('show');
+}
+function submitAll(){
+  let score=0,total=11;
+  document.querySelectorAll('.question[data-type="mcq"]').forEach(q=>{
+    if(!q.dataset.locked) lockMCQ(q);
+    if(q.dataset.chosen===q.dataset.answer) score++;
+  });
+  const inputs=document.querySelectorAll('.blank-input');
+  inputs.forEach((inp,i)=>{
+    const v=inp.value.trim().toLowerCase();
+    if(v===BLANK_ANS[i].toLowerCase()) score++;
+    inp.dataset.locked='1';
+    document.getElementById('ex'+(i+8)).classList.add('show');
+  });
+  document.getElementById('scoreNum').textContent=score;
+  const pct=score/total;
+  const msgs=['继续加油','有进步','还不错','很好','出色！Band 7+!'];
+  document.getElementById('scoreMsg').textContent=msgs[Math.min(Math.floor(pct*4.99),msgs.length-1)];
+  document.getElementById('result').classList.add('show');
+  document.getElementById('progressFill').style.width='100%';
+  document.getElementById('result').scrollIntoView({behavior:'smooth'});
+}
+function showAll(){
+  document.querySelectorAll('.question[data-type="mcq"]').forEach(lockMCQ);
+  const inputs=document.querySelectorAll('.blank-input');
+  inputs.forEach((inp,i)=>{
+    inp.dataset.locked='1';
+    document.getElementById('ex'+(i+8)).classList.add('show');
+  });
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#2563eb">
+<title>今日 150 词 · 2026-07-11 · Travel &amp; Culture</title>
+<style>
+  :root {
+    --bg: #ffffff; --fg: #1a1a1a; --muted: #6b7280;
+    --accent: #2563eb; --ok: #059669; --warn: #d97706;
+    --card: #f9fafb; --border: #e5e7eb;
+    --nav-bg: rgba(255,255,255,0.92);
+    --header-bg: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f172a; --fg: #f1f5f9; --muted: #94a3b8;
+      --accent: #60a5fa; --ok: #34d399; --warn: #fbbf24;
+      --card: #1e293b; --border: #334155;
+      --nav-bg: rgba(15,23,42,0.92);
+      --header-bg: linear-gradient(135deg, #1e40af 0%, #6b21a8 100%);
+    }
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg); }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif;
+    line-height: 1.5;
+    min-height: 100vh;
+    padding-bottom: calc(64px + env(safe-area-inset-bottom, 0));
+  }
+  .app-header {
+    background: var(--header-bg); color: white;
+    padding: calc(env(safe-area-inset-top, 16px) + 12px) 16px 14px;
+    position: sticky; top: 0; z-index: 20;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .back-btn {
+    background: rgba(255,255,255,0.18); border: none; color: white;
+    width: 34px; height: 34px; border-radius: 10px;
+    font-size: 1.1rem; cursor: pointer; flex-shrink: 0;
+    text-decoration: none; display: flex; align-items: center; justify-content: center;
+  }
+  .app-header .ttl { font-size: 1rem; font-weight: 700; }
+  .app-header .sub {
+    font-size: 0.72rem; opacity: 0.85; margin-top: 1px;
+    letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  .stats {
+    background: var(--card); padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px; text-align: center;
+  }
+  .stat .num { font-size: 1.4rem; font-weight: 700; }
+  .stat .num.know { color: var(--ok); }
+  .stat .num.weak { color: var(--warn); }
+  .stat .num.left { color: var(--accent); }
+  .stat .lbl { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; margin-top: 2px; }
+  .progress-bar { height: 4px; background: var(--border); overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--accent); transition: width 0.3s; }
+  .card-stage { margin: 24px 16px; perspective: 1000px; }
+  .card-3d {
+    position: relative; width: 100%; min-height: 260px;
+    transform-style: preserve-3d; transition: transform 0.5s; cursor: pointer;
+  }
+  .card-3d.flipped { transform: rotateY(180deg); }
+  .face {
+    position: absolute; width: 100%; height: 100%;
+    backface-visibility: hidden; -webkit-backface-visibility: hidden;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 18px; padding: 24px 20px;
+    display: flex; flex-direction: column; justify-content: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .face.front { text-align: center; }
+  .face.front .word { font-size: 2rem; font-weight: 700; color: var(--accent); margin-bottom: 8px; word-break: break-word; }
+  .face.front .pos { color: var(--muted); font-size: 0.95rem; font-style: italic; }
+  .face.front .hint { margin-top: 28px; color: var(--muted); font-size: 0.82rem; }
+  .face.back { transform: rotateY(180deg); }
+  .face.back .zh { font-size: 1.3rem; font-weight: 600; color: var(--accent); margin-bottom: 12px; }
+  .face.back .collo { background: var(--bg); padding: 8px 12px; border-radius: 8px; font-size: 0.92rem; color: var(--fg); margin-bottom: 10px; border-left: 3px solid var(--accent); }
+  .face.back .ex { font-size: 0.95rem; font-style: italic; color: var(--fg); line-height: 1.6; }
+  .face.back .ex strong { color: var(--accent); font-style: normal; }
+  .speaker {
+    position: absolute; top: 14px; right: 14px;
+    width: 36px; height: 36px; border-radius: 50%;
+    background: var(--bg); border: 1px solid var(--border);
+    cursor: pointer; font-size: 1.1rem; padding: 0; color: var(--accent);
+  }
+  .view-toggle { display: flex; padding: 12px 16px 0; gap: 8px; }
+  .view-toggle button { flex: 1; padding: 8px; background: var(--card); border: 1px solid var(--border); border-radius: 8px; color: var(--muted); font-size: 0.85rem; cursor: pointer; font-family: inherit; }
+  .view-toggle button.active { background: var(--accent); color: white; border-color: var(--accent); }
+  .list-view { display: none; padding: 12px 16px 24px; }
+  .list-view.active { display: block; }
+  .list-row { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-bottom: 1px solid var(--border); background: var(--card); border-radius: 8px; margin-bottom: 6px; }
+  .list-row .num { flex-shrink: 0; width: 28px; color: var(--muted); font-size: 0.72rem; font-family: "SF Mono", Menlo, monospace; }
+  .list-row .word { flex: 1; min-width: 0; }
+  .list-row .w { font-weight: 600; font-size: 0.95rem; color: var(--fg); }
+  .list-row .w.knew { color: var(--ok); }
+  .list-row .w.weak { color: var(--warn); }
+  .list-row .zh { font-size: 0.78rem; color: var(--muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .list-row .spk { flex-shrink: 0; width: 32px; height: 32px; border-radius: 50%; background: var(--bg); border: 1px solid var(--border); cursor: pointer; color: var(--accent); font-size: 0.9rem; padding: 0; }
+  .list-row .mk { flex-shrink: 0; width: 24px; text-align: center; color: var(--muted); }
+  .list-row .mk.know { color: var(--ok); }
+  .list-row .mk.weak { color: var(--warn); }
+  .curriculum-note { margin: 16px; padding: 12px 14px; background: var(--card); border-left: 3px solid var(--accent); border-radius: 8px; font-size: 0.82rem; color: var(--muted); line-height: 1.5; }
+  .curriculum-note strong { color: var(--fg); }
+  .actions { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; padding: 0 16px; }
+  .btn { padding: 14px 8px; border: 1px solid var(--border); border-radius: 12px; background: var(--card); color: var(--fg); font-size: 0.95rem; font-weight: 600; cursor: pointer; font-family: inherit; -webkit-tap-highlight-color: transparent; }
+  .btn .ico { display: block; font-size: 1.4rem; margin-bottom: 2px; }
+  .btn.weak { color: var(--warn); }
+  .btn.weak:active { background: rgba(217,119,6,0.1); }
+  .btn.flip { color: var(--accent); }
+  .btn.flip:active { background: rgba(37,99,235,0.1); }
+  .btn.know { color: var(--ok); }
+  .btn.know:active { background: rgba(5,150,105,0.1); }
+  .meta { text-align: center; color: var(--muted); font-size: 0.78rem; margin-top: 20px; }
+  .tabbar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--nav-bg); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px); border-top: 1px solid var(--border); display: flex; padding-bottom: env(safe-area-inset-bottom, 0); z-index: 30; }
+  .tab-btn { flex: 1; background: transparent; border: none; padding: 10px 4px 8px; color: var(--muted); font-size: 0.68rem; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 3px; font-family: inherit; text-decoration: none; }
+  .tab-btn .icon { font-size: 1.25rem; line-height: 1; }
+  .tab-btn.active { color: var(--accent); }
+  .done-screen { text-align: center; padding: 60px 24px; display: none; }
+  .done-screen.show { display: block; }
+  .done-screen .big { font-size: 4rem; }
+  .done-screen .ttl { font-size: 1.3rem; font-weight: 700; margin: 8px 0; }
+  .done-screen .sub { color: var(--muted); margin-bottom: 24px; }
+  .done-screen button { background: var(--accent); color: white; border: none; padding: 12px 24px; border-radius: 12px; font-size: 0.95rem; font-weight: 600; cursor: pointer; font-family: inherit; margin: 4px; }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <a class="back-btn" href="index.html#home">&#8592;</a>
+  <div style="flex:1;">
+    <div class="ttl">今日 150 词 &middot; Travel &amp; Culture</div>
+    <div class="sub">2026-07-11 &middot; Day 52</div>
+  </div>
+</header>
+
+<div class="stats">
+  <div class="stat"><div class="num know" id="kn">0</div><div class="lbl">知道</div></div>
+  <div class="stat"><div class="num weak" id="wk">0</div><div class="lbl">不熟</div></div>
+  <div class="stat"><div class="num left" id="lf">150</div><div class="lbl">剩余</div></div>
+</div>
+<div class="progress-bar"><div class="progress-fill" id="pg" style="width:0%"></div></div>
+
+<div class="view-toggle">
+  <button id="vtFlash" class="active" onclick="setView('flash')">&#128199; 卡片</button>
+  <button id="vtList" onclick="setView('list')">&#128203; 列表</button>
+</div>
+
+<div id="deck">
+  <div class="card-stage">
+    <div class="card-3d" id="card" onclick="flip()">
+      <div class="face front">
+        <button class="speaker" onclick="event.stopPropagation();speak(document.getElementById('w').textContent)">&#128266;</button>
+        <div class="word" id="w">—</div>
+        <div class="pos" id="p">—</div>
+        <div class="hint">轻触卡片 · 翻看释义</div>
+      </div>
+      <div class="face back">
+        <button class="speaker" onclick="event.stopPropagation();speak(document.getElementById('w').textContent)">&#128266;</button>
+        <div class="zh" id="zh">—</div>
+        <div class="collo" id="cl">—</div>
+        <div class="ex" id="ex">—</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="btn weak" onclick="mark('weak')"><span class="ico">&#128543;</span>不熟</button>
+    <button class="btn flip" onclick="flip()"><span class="ico">&#128260;</span>翻转</button>
+    <button class="btn know" onclick="mark('know')"><span class="ico">&#9989;</span>知道</button>
+  </div>
+
+  <div class="meta" id="meta">1 / 150 &middot; 今日主题 Travel &amp; Culture Day 3</div>
+</div>
+
+<div class="list-view" id="listView">
+  <div id="listBody"></div>
+</div>
+
+<div class="curriculum-note">
+  <strong>词汇来源</strong>: 8 天主题轮换，涵盖雅思高频话题。<br>
+  Day 1-7 <strong>Education</strong> &middot; Day 8-14 <strong>Environment</strong> &middot; Day 15-21 <strong>Technology</strong> &middot; Day 22-28 <strong>Health</strong> &middot; Day 29-35 <strong>Government &amp; Society</strong> &middot; Day 36-42 <strong>Work &amp; Economy</strong> &middot; Day 43-49 <strong>Family</strong> &middot; Day 50-56 <strong>Travel &amp; Culture</strong> &middot; 之后循环。<br>
+  词汇为 Band 7+ 难度，每条含 词性 &middot; 中文 &middot; 搭配 &middot; 例句，由 IELTS 高分话题词库扩展生成。
+</div>
+
+<div class="done-screen" id="done">
+  <div class="big">&#127881;</div>
+  <div class="ttl" id="doneTtl">今日 150 词完成!</div>
+  <div class="sub" id="doneSub">知道 0 &middot; 不熟 0</div>
+  <button onclick="resetAll()">重新开始</button>
+  <button onclick="reviewWeak()">只复习不熟</button>
+  <button onclick="location.href='index.html'">回主页</button>
+</div>
+
+<nav class="tabbar">
+  <a class="tab-btn active" href="index.html#home"><span class="icon">&#127968;</span>概览</a>
+  <a class="tab-btn" href="index.html#materials"><span class="icon">&#128250;</span>材料</a>
+  <a class="tab-btn" href="index.html#quizzes"><span class="icon">&#9999;&#65039;</span>测验</a>
+  <a class="tab-btn" href="index.html#plan"><span class="icon">&#128203;</span>计划</a>
+</nav>
+
+<script>
+const CARDS = [
+{"w":"gastronomy","p":"n.","zh":"美食学","cl":"explore the gastronomy of","ex":"Travellers increasingly explore the <strong>gastronomy</strong> of their destination."},
+{"w":"culinary","p":"adj.","zh":"烹饪的","cl":"culinary tradition","ex":"The region boasts a rich <strong>culinary</strong> tradition spanning centuries."},
+{"w":"delicacy","p":"n.","zh":"珍馐/特色菜","cl":"local delicacy","ex":"Street stalls offer the city's most beloved local <strong>delicacy</strong>."},
+{"w":"connoisseur","p":"n.","zh":"鉴赏家/美食家","cl":"food connoisseur","ex":"A true food <strong>connoisseur</strong> seeks out hole-in-the-wall establishments."},
+{"w":"palate","p":"n.","zh":"味觉/口味","cl":"suit every palate","ex":"The menu is designed to suit every <strong>palate</strong>."},
+{"w":"savour","p":"v.","zh":"细细品味","cl":"savour every bite","ex":"She paused to <strong>savour</strong> every bite of the street food."},
+{"w":"artisanal","p":"adj.","zh":"手工的/精制的","cl":"artisanal cheese","ex":"The market sells <strong>artisanal</strong> cheese made by local farmers."},
+{"w":"fermented","p":"adj.","zh":"发酵的","cl":"fermented beverages","ex":"Fermented beverages like kombucha have gained global popularity."},
+{"w":"staple","p":"n.","zh":"主食/基本食材","cl":"a dietary staple","ex":"Rice is a dietary <strong>staple</strong> across much of Southeast Asia."},
+{"w":"forage","p":"v.","zh":"觅食/采集野物","cl":"forage for ingredients","ex":"Chefs now <strong>forage</strong> for wild ingredients in nearby forests."},
+{"w":"banquet","p":"n.","zh":"宴席/盛宴","cl":"a formal banquet","ex":"A formal <strong>banquet</strong> marked the end of the diplomatic visit."},
+{"w":"indulge","p":"v.","zh":"纵情享受","cl":"indulge in local food","ex":"Travellers love to <strong>indulge</strong> in the local street food."},
+{"w":"palatable","p":"adj.","zh":"可口的/可接受的","cl":"more palatable to tourists","ex":"Chefs often adapt dishes to make them more <strong>palatable</strong> to tourists."},
+{"w":"delectable","p":"adj.","zh":"美味的","cl":"a delectable spread","ex":"The buffet offered a <strong>delectable</strong> spread of regional specialties."},
+{"w":"umami","p":"n.","zh":"鲜味","cl":"rich in umami","ex":"Japanese cuisine is celebrated for its rich <strong>umami</strong> flavour."},
+{"w":"diplomacy","p":"n.","zh":"外交","cl":"cultural diplomacy","ex":"Food has long served as a tool of cultural <strong>diplomacy</strong>."},
+{"w":"ambassador","p":"n.","zh":"大使/代表","cl":"a culinary ambassador","ex":"She became an unofficial culinary <strong>ambassador</strong> for her country."},
+{"w":"intercultural","p":"adj.","zh":"跨文化的","cl":"intercultural dialogue","ex":"Shared cuisine promotes <strong>intercultural</strong> dialogue between nations."},
+{"w":"bilateral","p":"adj.","zh":"双边的","cl":"bilateral cultural ties","ex":"Food festivals strengthen <strong>bilateral</strong> cultural ties."},
+{"w":"rapport","p":"n.","zh":"融洽关系","cl":"build rapport","ex":"Sharing a meal is one of the quickest ways to build <strong>rapport</strong>."},
+{"w":"solidarity","p":"n.","zh":"团结","cl":"cultural solidarity","ex":"Community festivals foster cultural <strong>solidarity</strong>."},
+{"w":"reconciliation","p":"n.","zh":"和解","cl":"cultural reconciliation","ex":"The shared kitchen project aimed at cultural <strong>reconciliation</strong>."},
+{"w":"goodwill","p":"n.","zh":"友好/善意","cl":"gesture of goodwill","ex":"Sharing traditional food is often a gesture of <strong>goodwill</strong>."},
+{"w":"foster","p":"v.","zh":"培育/促进","cl":"foster mutual understanding","ex":"Cultural immersion <strong>fosters</strong> genuine mutual understanding."},
+{"w":"showcase","p":"v.","zh":"展示","cl":"showcase heritage","ex":"The event was designed to <strong>showcase</strong> traditional heritage."},
+{"w":"carnival","p":"n.","zh":"狂欢节","cl":"the annual carnival","ex":"The annual <strong>carnival</strong> draws millions of visitors each year."},
+{"w":"festivity","p":"n.","zh":"节庆活动","cl":"join in the festivity","ex":"Visitors are warmly encouraged to join in the <strong>festivity</strong>."},
+{"w":"procession","p":"n.","zh":"游行/行列","cl":"ceremonial procession","ex":"A ceremonial <strong>procession</strong> wound through the cobblestone streets."},
+{"w":"solstice","p":"n.","zh":"至日(冬/夏至)","cl":"summer solstice","ex":"Thousands gather at Stonehenge to mark the summer <strong>solstice</strong>."},
+{"w":"commemorate","p":"v.","zh":"纪念","cl":"commemorate a tradition","ex":"Locals <strong>commemorate</strong> a rich harvest with a week-long festival."},
+{"w":"revelry","p":"n.","zh":"狂欢","cl":"sounds of revelry","ex":"The sounds of <strong>revelry</strong> filled the streets late into the night."},
+{"w":"pageant","p":"n.","zh":"盛会/壮观表演","cl":"a colourful pageant","ex":"A colourful <strong>pageant</strong> celebrated the town's 500-year history."},
+{"w":"jubilee","p":"n.","zh":"周年大庆","cl":"a golden jubilee","ex":"The country marked its golden <strong>jubilee</strong> with city-wide celebrations."},
+{"w":"ceremonial","p":"adj.","zh":"仪式性的","cl":"ceremonial attire","ex":"Participants wore <strong>ceremonial</strong> attire specific to their village."},
+{"w":"pilgrimage","p":"n.","zh":"朝圣/圣地之旅","cl":"go on a pilgrimage","ex":"Millions of devotees go on <strong>pilgrimage</strong> to the holy city each year."},
+{"w":"shrine","p":"n.","zh":"圣祠/圣地","cl":"a sacred shrine","ex":"The <strong>shrine</strong> attracts both devout pilgrims and curious tourists."},
+{"w":"ritual","p":"n.","zh":"仪式","cl":"ancient ritual","ex":"The ancient <strong>ritual</strong> involves three days of communal feasting."},
+{"w":"observance","p":"n.","zh":"遵守/纪念仪式","cl":"religious observance","ex":"During religious <strong>observances</strong>, shops close and families gather at home."},
+{"w":"taboo","p":"n.","zh":"禁忌","cl":"cultural taboo","ex":"Travellers should be aware of local cultural <strong>taboos</strong>."},
+{"w":"hospitality","p":"n.","zh":"热情款待/好客","cl":"renowned for hospitality","ex":"The region is world-renowned for its warm <strong>hospitality</strong>."},
+{"w":"amenity","p":"n.","zh":"设施/便利","cl":"hotel amenities","ex":"Hotel <strong>amenities</strong> have improved dramatically in recent decades."},
+{"w":"concierge","p":"n.","zh":"礼宾员","cl":"ask the concierge","ex":"Ask the <strong>concierge</strong> for personalised restaurant recommendations."},
+{"w":"lodging","p":"n.","zh":"住宿","cl":"affordable lodging","ex":"Affordable <strong>lodging</strong> becomes scarce in the peak tourist season."},
+{"w":"bespoke","p":"adj.","zh":"定制的/量身的","cl":"bespoke travel experience","ex":"The agency offered a <strong>bespoke</strong> travel experience tailored to each guest."},
+{"w":"boutique","p":"adj.","zh":"精品的","cl":"boutique hotel","ex":"She preferred intimate <strong>boutique</strong> hotels over large international chains."},
+{"w":"proprietor","p":"n.","zh":"业主/店主","cl":"the proprietor of","ex":"The <strong>proprietor</strong> of the guesthouse told stories until midnight."},
+{"w":"immersive","p":"adj.","zh":"沉浸式的","cl":"immersive travel","ex":"Demand for <strong>immersive</strong> travel experiences now outstrips demand for sightseeing."},
+{"w":"patronage","p":"n.","zh":"惠顾/资助","cl":"local patronage","ex":"The traditional tea house survived thanks to steady local <strong>patronage</strong>."},
+{"w":"multilingual","p":"adj.","zh":"多语言的","cl":"multilingual guide","ex":"A <strong>multilingual</strong> guide is indispensable in culturally diverse cities."},
+{"w":"linguistic","p":"adj.","zh":"语言学的","cl":"linguistic diversity","ex":"The archipelago has remarkable <strong>linguistic</strong> diversity across its islands."},
+{"w":"vernacular","p":"n./adj.","zh":"方言/地方语言","cl":"the local vernacular","ex":"Mastering the local <strong>vernacular</strong> opens doors that standard phrases never could."},
+{"w":"colloquial","p":"adj.","zh":"口语的/非正式的","cl":"colloquial expressions","ex":"Travellers who learn <strong>colloquial</strong> expressions earn far more trust from locals."},
+{"w":"nuance","p":"n.","zh":"细微差别","cl":"cultural nuance","ex":"Missing a cultural <strong>nuance</strong> can lead to unintentional offence."},
+{"w":"eloquent","p":"adj.","zh":"雄辩的/有口才的","cl":"an eloquent speaker","ex":"The village elder was an <strong>eloquent</strong> speaker of three languages."},
+{"w":"decode","p":"v.","zh":"解读/破译","cl":"decode customs","ex":"Learning to <strong>decode</strong> local customs enriches any travel experience."},
+{"w":"gesture","p":"n.","zh":"手势/姿态","cl":"cultural gesture","ex":"The same <strong>gesture</strong> can convey entirely different meanings in different cultures."},
+{"w":"bilingual","p":"adj.","zh":"双语的","cl":"bilingual community","ex":"The border town is a thriving <strong>bilingual</strong> community."},
+{"w":"interpret","p":"v.","zh":"翻译/诠释","cl":"interpret cultural signs","ex":"Travel teaches us to <strong>interpret</strong> cultural signs with greater sensitivity."},
+{"w":"diaspora","p":"n.","zh":"离散社群","cl":"the Chinese diaspora","ex":"The Chinese <strong>diaspora</strong> has profoundly shaped cuisine on every continent."},
+{"w":"expatriate","p":"n.","zh":"海外侨民","cl":"a long-term expatriate","ex":"As a long-term <strong>expatriate</strong>, she felt at home in two very different cultures."},
+{"w":"acculturation","p":"n.","zh":"文化适应过程","cl":"gradual acculturation","ex":"The process of <strong>acculturation</strong> is gradual, complex, and rarely linear."},
+{"w":"integration","p":"n.","zh":"融合/整合","cl":"cultural integration","ex":"Genuine cultural <strong>integration</strong> requires sustained effort from both sides."},
+{"w":"nostalgia","p":"n.","zh":"怀旧/思乡","cl":"a wave of nostalgia","ex":"Eating a homeland dish abroad can trigger a sudden wave of <strong>nostalgia</strong>."},
+{"w":"hybrid","p":"adj.","zh":"混合的/杂糅的","cl":"hybrid culture","ex":"A dynamic <strong>hybrid</strong> culture emerges where communities coexist over generations."},
+{"w":"fusion","p":"n.","zh":"融合","cl":"fusion cuisine","ex":"<strong>Fusion</strong> cuisine reflects the creativity born of diaspora experience."},
+{"w":"cosmopolitan","p":"adj.","zh":"国际化的/见多识广的","cl":"a cosmopolitan city","ex":"London is among the most <strong>cosmopolitan</strong> cities on the planet."},
+{"w":"assimilation","p":"n.","zh":"文化同化","cl":"cultural assimilation","ex":"Cultural <strong>assimilation</strong> is a gradual and often contested process."},
+{"w":"homeland","p":"n.","zh":"故乡/祖国","cl":"connect with the homeland","ex":"Food connects diaspora communities with their distant <strong>homeland</strong>."},
+{"w":"gentrification","p":"n.","zh":"中产化/高档化","cl":"urban gentrification","ex":"Urban <strong>gentrification</strong> has displaced many of the traditional food vendors."},
+{"w":"revenue","p":"n.","zh":"收入/收益","cl":"tourism revenue","ex":"<strong>Revenue</strong> from culinary tourism sustains many island economies."},
+{"w":"expenditure","p":"n.","zh":"消费/支出","cl":"tourist expenditure","ex":"Tourist <strong>expenditure</strong> on food experiences has risen sharply."},
+{"w":"footfall","p":"n.","zh":"客流量","cl":"heavy tourist footfall","ex":"Heavy tourist <strong>footfall</strong> can overwhelm local infrastructure overnight."},
+{"w":"displacement","p":"n.","zh":"搬迁/排挤","cl":"community displacement","ex":"Rising rents lead to community <strong>displacement</strong> in popular food districts."},
+{"w":"commodification","p":"n.","zh":"商品化","cl":"commodification of culture","ex":"Critics warn against the <strong>commodification</strong> of sacred cultural practices."},
+{"w":"stakeholder","p":"n.","zh":"利益相关方","cl":"local stakeholders","ex":"Local <strong>stakeholders</strong> must be consulted in all tourism planning decisions."},
+{"w":"anthropology","p":"n.","zh":"人类学","cl":"cultural anthropology","ex":"Cultural <strong>anthropology</strong> examines how societies organise meaning and identity."},
+{"w":"ethnography","p":"n.","zh":"民族志","cl":"ethnographic study","ex":"An <strong>ethnographic</strong> study reveals the texture of daily life in rural communities."},
+{"w":"artefact","p":"n.","zh":"文物/手工艺品","cl":"a rare artefact","ex":"The museum houses a rare <strong>artefact</strong> from the twelfth century."},
+{"w":"relic","p":"n.","zh":"遗物/遗迹","cl":"a cultural relic","ex":"The ancient ruin is classified as a protected cultural <strong>relic</strong>."},
+{"w":"mythology","p":"n.","zh":"神话体系","cl":"local mythology","ex":"Local <strong>mythology</strong> permeates both festivals and traditional cuisine."},
+{"w":"folklore","p":"n.","zh":"民俗/民间传说","cl":"regional folklore","ex":"Regional <strong>folklore</strong> is embedded in everything from song to street festivals."},
+{"w":"intangible","p":"adj.","zh":"无形的/非物质的","cl":"intangible heritage","ex":"UNESCO works to protect <strong>intangible</strong> cultural heritage worldwide."},
+{"w":"custodian","p":"n.","zh":"守护者","cl":"custodian of culture","ex":"Village elders are the guardians and <strong>custodians</strong> of oral tradition."},
+{"w":"preservation","p":"n.","zh":"保护/保存","cl":"cultural preservation","ex":"Cultural <strong>preservation</strong> requires sustained community investment."},
+{"w":"revitalise","p":"v.","zh":"使复兴","cl":"revitalise a tradition","ex":"Young chefs are working to <strong>revitalise</strong> lost culinary traditions."},
+{"w":"souvenir","p":"n.","zh":"纪念品","cl":"buy a souvenir","ex":"She bought a handmade <strong>souvenir</strong> directly from the village artisan."},
+{"w":"itinerary","p":"n.","zh":"行程安排","cl":"a flexible itinerary","ex":"A flexible <strong>itinerary</strong> allows for spontaneous cultural discoveries."},
+{"w":"nomad","p":"n.","zh":"游牧者/流浪者","cl":"a digital nomad","ex":"She is a digital <strong>nomad</strong> who works remotely from a different country each month."},
+{"w":"globetrotter","p":"n.","zh":"环球旅行者","cl":"a seasoned globetrotter","ex":"As a seasoned <strong>globetrotter</strong>, he found comfort in the world's diversity."},
+{"w":"excursion","p":"n.","zh":"短途旅行","cl":"a day excursion","ex":"The hotel arranged a day <strong>excursion</strong> to a nearby traditional village."},
+{"w":"trek","p":"v./n.","zh":"徒步/跋涉","cl":"a multi-day trek","ex":"A multi-day <strong>trek</strong> through the mountains revealed hidden village communities."},
+{"w":"traverse","p":"v.","zh":"穿越/横跨","cl":"traverse a continent","ex":"She chose to <strong>traverse</strong> Central Asia by train rather than by air."},
+{"w":"vibrant","p":"adj.","zh":"充满活力的","cl":"a vibrant food scene","ex":"The city is known for its <strong>vibrant</strong> food scene and night markets."},
+{"w":"quaint","p":"adj.","zh":"古朴迷人的","cl":"a quaint village","ex":"The <strong>quaint</strong> fishing village had changed little in two centuries."},
+{"w":"bustling","p":"adj.","zh":"热闹喧嚣的","cl":"a bustling market","ex":"The <strong>bustling</strong> spice market assaulted the senses in the best possible way."},
+{"w":"picturesque","p":"adj.","zh":"如画的","cl":"a picturesque harbour","ex":"The <strong>picturesque</strong> harbour town attracts painters from around the world."},
+{"w":"serene","p":"adj.","zh":"宁静的","cl":"a serene temple","ex":"The <strong>serene</strong> temple courtyard offered refuge from the city's noise."},
+{"w":"panoramic","p":"adj.","zh":"全景的","cl":"a panoramic view","ex":"The hilltop restaurant offers a <strong>panoramic</strong> view of the entire valley."},
+{"w":"secluded","p":"adj.","zh":"幽静的/偏僻的","cl":"a secluded cove","ex":"The <strong>secluded</strong> cove is accessible only by a narrow footpath."},
+{"w":"regenerative","p":"adj.","zh":"再生的","cl":"regenerative travel","ex"><strong>Regenerative</strong> travel aims to leave destinations better than found."},
+{"w":"culinary diplomacy","p":"n.","zh":"美食外交","cl":"practise culinary diplomacy","ex":"Nations increasingly practise <strong>culinary diplomacy</strong> at state banquets."},
+{"w":"cultural immersion","p":"n.","zh":"文化浸入","cl":"seek cultural immersion","ex":"Modern travellers seek deep <strong>cultural immersion</strong> over mere sightseeing."},
+{"w":"food tourism","p":"n.","zh":"美食旅游","cl":"the growth of food tourism","ex":"The growth of <strong>food tourism</strong> has reshaped the global travel industry."},
+{"w":"gastronomic capital","p":"n.","zh":"美食之都","cl":"the gastronomic capital of","ex":"Lyon is widely regarded as the <strong>gastronomic capital</strong> of France."},
+{"w":"culinary heritage","p":"n.","zh":"烹饪遗产","cl":"preserve culinary heritage","ex":"Communities invest heavily to preserve their <strong>culinary heritage</strong>."},
+{"w":"street food","p":"n.","zh":"街头食品","cl":"sample street food","ex":"Sampling <strong>street food</strong> is the most direct way to know a city."},
+{"w":"food market","p":"n.","zh":"食品市场","cl":"browse a food market","ex":"Browsing a local <strong>food market</strong> offers unscripted insight into daily life."},
+{"w":"tourist trap","p":"n.","zh":"专宰游客的地方","cl":"avoid tourist traps","ex":"Savvy travellers research in advance to avoid obvious <strong>tourist traps</strong>."},
+{"w":"off-season travel","p":"n.","zh":"淡季旅行","cl":"embrace off-season travel","ex"><strong>Off-season travel</strong> often delivers the most authentic cultural encounters."},
+{"w":"cultural exchange","p":"n.","zh":"文化交流","cl":"promote cultural exchange","ex":"Student exchange programmes are powerful vehicles for <strong>cultural exchange</strong>."},
+{"w":"intangible heritage","p":"n.","zh":"非物质文化遗产","cl":"protect intangible heritage","ex":"UNESCO works tirelessly to protect <strong>intangible heritage</strong> worldwide."},
+{"w":"home-stay","p":"n.","zh":"寄宿家庭","cl":"do a home-stay","ex":"A <strong>home-stay</strong> offers cultural insight that no hotel can replicate."},
+{"w":"travel writing","p":"n.","zh":"旅行文学","cl":"the art of travel writing","ex":"The art of <strong>travel writing</strong> has experienced a digital renaissance."},
+{"w":"cultural sensitivity","p":"n.","zh":"文化敏感性","cl":"develop cultural sensitivity","ex":"Travellers should develop <strong>cultural sensitivity</strong> before visiting unfamiliar regions."},
+{"w":"gastronomic tour","p":"n.","zh":"美食游","cl":"organise a gastronomic tour","ex":"The agency organises bespoke <strong>gastronomic tours</strong> of each region."},
+{"w":"food pilgrimage","p":"n.","zh":"美食朝圣","cl":"undertake a food pilgrimage","ex":"Serious foodies undertake <strong>food pilgrimages</strong> to remote villages."},
+{"w":"artisan market","p":"n.","zh":"手工市集","cl":"browse an artisan market","ex":"Browsing an <strong>artisan market</strong> channels spending directly to producers."},
+{"w":"heritage trail","p":"n.","zh":"遗产游径","cl":"walk a heritage trail","ex":"The <strong>heritage trail</strong> winds through the historic fishing quarter."},
+{"w":"cultural festival","p":"n.","zh":"文化节","cl":"host a cultural festival","ex":"The annual <strong>cultural festival</strong> attracts both locals and international visitors."},
+{"w":"local cuisine","p":"n.","zh":"当地菜肴","cl":"sample local cuisine","ex":"The best reason to travel slowly is to sample authentic <strong>local cuisine</strong>."},
+{"w":"dining etiquette","p":"n.","zh":"餐桌礼仪","cl":"observe dining etiquette","ex":"Understanding <strong>dining etiquette</strong> prevents embarrassing cultural mistakes."},
+{"w":"flavour profile","p":"n.","zh":"风味特征","cl":"a complex flavour profile","ex":"The dish has a complex <strong>flavour profile</strong> balancing spice, acid, and sweetness."},
+{"w":"hospitality industry","p":"n.","zh":"接待业/酒店业","cl":"work in the hospitality industry","ex":"She built a distinguished career in the global <strong>hospitality industry</strong>."},
+{"w":"food culture","p":"n.","zh":"饮食文化","cl":"explore food culture","ex":"Exploring <strong>food culture</strong> reveals a nation's history and deepest values."},
+{"w":"broaden one's horizons","p":"idiom","zh":"拓宽视野","cl":"travel broadens one's horizons","ex":"<strong>Broadening one's horizons</strong> through travel is irreplaceable."},
+{"w":"go off the beaten track","p":"idiom","zh":"另辟蹊径/走冷僻路线","cl":"venture off the beaten track","ex":"True adventurers are willing to venture <strong>off the beaten track</strong>."},
+{"w":"when in Rome","p":"idiom","zh":"入乡随俗","cl":"when in Rome, do as the Romans do","ex":"He adopted all the local customs, living by &ldquo;<strong>when in Rome</strong>, do as the Romans do.&rdquo;"},
+{"w":"a taste of home","p":"phrase","zh":"家的味道","cl":"a taste of home abroad","ex":"Finding <strong>a taste of home</strong> abroad can be unexpectedly comforting."},
+{"w":"get under the skin of","p":"phrasal v.","zh":"深入了解","cl":"get under the skin of a culture","ex":"The best travellers make a point of <strong>getting under the skin of</strong> a culture."},
+{"w":"blend in","p":"phrasal v.","zh":"融入/不显眼","cl":"blend in with locals","ex":"She made every effort to <strong>blend in</strong> with the local community."},
+{"w":"pick up a language","p":"phrasal v.","zh":"学会一门语言","cl":"pick up the local language","ex":"She quickly <strong>picked up</strong> enough of the local language to navigate the markets."},
+{"w":"eat one's way through","p":"phrasal v.","zh":"边走边吃遍","cl":"eat one's way through a city","ex":"They <strong>ate their way through</strong> every street-food market in Bangkok."},
+{"w":"turn up one's nose at","p":"phrasal v.","zh":"嗤之以鼻/拒绝尝试","cl":"turn up your nose at","ex":"Adventurous eaters never <strong>turn up their nose at</strong> unfamiliar dishes."},
+{"w":"find one's feet","p":"phrasal v.","zh":"逐渐适应","cl":"find one's feet abroad","ex":"It took her three months to <strong>find her feet</strong> in a new country and culture."},
+{"w":"lose oneself in","p":"phrasal v.","zh":"沉浸于","cl":"lose oneself in a city","ex":"She loved to <strong>lose herself</strong> in the narrow lanes of the old quarter."},
+{"w":"a home away from home","p":"phrase","zh":"第二故乡","cl":"become a home away from home","ex":"Over the years, the small guesthouse had become <strong>a home away from home</strong>."},
+{"w":"put something on the map","p":"idiom","zh":"使出名","cl":"put X on the culinary map","ex":"A single food documentary <strong>put the village on the culinary map</strong>."},
+{"w":"cut across cultures","p":"phrase","zh":"跨越文化差异","cl":"this cuts across cultures","ex":"The joy of sharing food <strong>cuts across cultures</strong> and generations."},
+{"w":"It goes without saying that","p":"sentence stem","zh":"不言而喻的是","cl":"It goes without saying that","ex":"<strong>It goes without saying that</strong> food is one of the most powerful cultural bridges."},
+{"w":"What sets X apart from Y is","p":"sentence stem","zh":"使X与Y区别的是","cl":"What sets this dish apart","ex":"<strong>What sets this dish apart</strong> is its centuries-old preparation method."},
+{"w":"Far from being X, Y is in fact Z","p":"sentence stem","zh":"远非X，实则Z","cl":"Far from being inauthentic","ex":"<strong>Far from being</strong> inauthentic, fusion cuisine reflects genuine cultural creativity."},
+{"w":"There is no denying that","p":"sentence stem","zh":"不可否认的是","cl":"There is no denying that","ex":"<strong>There is no denying that</strong> culinary tourism has transformed global travel."},
+{"w":"emissary","p":"n.","zh":"使者/特使","cl":"a cultural emissary","ex":"The chef toured abroad as an unofficial cultural <strong>emissary</strong>."},
+{"w":"outreach","p":"n.","zh":"外展活动","cl":"cultural outreach","ex":"The government launched a <strong>outreach</strong> programme to share its culinary heritage."},
+{"w":"reciprocal","p":"adj.","zh":"互惠的","cl":"reciprocal exchange","ex":"A <strong>reciprocal</strong> exchange of student chefs helps both cultures grow."},
+{"w":"sanctity","p":"n.","zh":"神圣性","cl":"the sanctity of a site","ex":"Visitors are asked to respect the <strong>sanctity</strong> of the sacred site."},
+{"w":"venerate","p":"v.","zh":"崇敬","cl":"venerate an ancestor","ex":"Communities gather annually to <strong>venerate</strong> their ancestors through ritual feast."},
+{"w":"devout","p":"adj.","zh":"虔诚的","cl":"a devout pilgrim","ex":"The <strong>devout</strong> pilgrims walked three hundred kilometres to reach the shrine."},
+{"w":"sanctuary","p":"n.","zh":"避难所/圣所","cl":"a spiritual sanctuary","ex":"For many travellers, the monastery serves as a spiritual <strong>sanctuary</strong>."},
+{"w":"savoury","p":"adj.","zh":"咸香的/可口的","cl":"savoury pastries","ex":"The bakery was famous throughout the province for its <strong>savoury</strong> pastries."},
+{"w":"harvest","p":"n./v.","zh":"丰收/采集","cl":"harvest season","ex":"The <strong>harvest</strong> season draws thousands of agritourists to the wine region."},
+{"w":"provision","p":"n.","zh":"食物供给","cl":"local provisions","ex":"The expedition relied entirely on local <strong>provisions</strong> gathered en route."}
+];
+
+let state = JSON.parse(localStorage.getItem("ielts_vocab_20260711") || "{}");
+let queue = CARDS.map((c, i) => ({...c, idx: i})).filter(c => !state[c.idx] || state[c.idx] === "review");
+let cur = 0;
+
+function speak(text) {
+  if (!text || !window.speechSynthesis) return;
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = "en-US"; u.rate = 0.85; u.pitch = 1;
+  const voices = speechSynthesis.getVoices();
+  const en = voices.find(v => /en-(US|GB)/.test(v.lang) && /Samantha|Daniel|Alex|Karen|Moira|Google US English|Google UK English/.test(v.name))
+          || voices.find(v => v.lang.startsWith("en"));
+  if (en) u.voice = en;
+  speechSynthesis.speak(u);
+}
+if (window.speechSynthesis) speechSynthesis.onvoiceschanged = () => {};
+
+function render() {
+  if (cur >= queue.length) return showDone();
+  const c = queue[cur];
+  document.getElementById("w").textContent = c.w;
+  document.getElementById("p").textContent = c.p;
+  document.getElementById("zh").textContent = c.zh;
+  document.getElementById("cl").textContent = c.cl;
+  document.getElementById("ex").innerHTML = c.ex;
+  document.getElementById("card").classList.remove("flipped");
+  document.getElementById("meta").textContent = `${cur+1} / ${queue.length} · Travel & Culture Day 3`;
+  updateStats();
+  setTimeout(() => speak(c.w), 150);
+}
+
+function setView(v) {
+  document.getElementById("vtFlash").classList.toggle("active", v === "flash");
+  document.getElementById("vtList").classList.toggle("active", v === "list");
+  document.getElementById("deck").style.display = v === "flash" ? "" : "none";
+  document.getElementById("listView").classList.toggle("active", v === "list");
+  if (v === "list") renderList();
+}
+
+function renderList() {
+  const body = document.getElementById("listBody");
+  body.innerHTML = CARDS.map((c, i) => {
+    const mark = state[i] || "";
+    const cls = mark === "know" ? "knew" : mark === "weak" ? "weak" : "";
+    const ico = mark === "know" ? "✓" : mark === "weak" ? "○" : "·";
+    const mcls = mark === "know" ? "know" : mark === "weak" ? "weak" : "";
+    return `<div class="list-row">
+      <div class="num">${String(i+1).padStart(3,'0')}</div>
+      <div class="word"><div class="w ${cls}">${c.w} <span style="color:var(--muted);font-weight:400;font-size:0.78rem;">${c.p}</span></div><div class="zh">${c.zh}</div></div>
+      <button class="spk" onclick="speak('${c.w.replace(/'/g,"\\'").replace(/"/g,"&quot;")}')">&#128266;</button>
+      <div class="mk ${mcls}">${ico}</div>
+    </div>`;
+  }).join("");
+}
+
+function flip() { document.getElementById("card").classList.toggle("flipped"); }
+
+function mark(t) {
+  const c = queue[cur];
+  state[c.idx] = (t === "know" ? "know" : "weak");
+  localStorage.setItem("ielts_vocab_20260711", JSON.stringify(state));
+  cur++;
+  render();
+}
+
+function updateStats() {
+  const kn = Object.values(state).filter(v=>v==="know").length;
+  const wk = Object.values(state).filter(v=>v==="weak").length;
+  const lf = queue.length - cur;
+  document.getElementById("kn").textContent = kn;
+  document.getElementById("wk").textContent = wk;
+  document.getElementById("lf").textContent = Math.max(0, lf);
+  document.getElementById("pg").style.width = (cur / Math.max(1, queue.length) * 100) + "%";
+}
+
+function showDone() {
+  document.getElementById("deck").style.display = "none";
+  document.getElementById("done").classList.add("show");
+  const kn = Object.values(state).filter(v=>v==="know").length;
+  const wk = Object.values(state).filter(v=>v==="weak").length;
+  document.getElementById("doneSub").textContent = `知道 ${kn} · 不熟 ${wk}`;
+}
+
+function resetAll() {
+  state = {}; cur = 0;
+  queue = CARDS.map((c,i)=>({...c,idx:i}));
+  localStorage.removeItem("ielts_vocab_20260711");
+  document.getElementById("done").classList.remove("show");
+  document.getElementById("deck").style.display = "";
+  setView("flash");
+  render();
+}
+
+function reviewWeak() {
+  queue = CARDS.map((c,i)=>({...c,idx:i})).filter(c=>state[c.idx]==="weak");
+  cur = 0;
+  document.getElementById("done").classList.remove("show");
+  document.getElementById("deck").style.display = "";
+  setView("flash");
+  render();
+}
+
+render();
+</script>
+</body>
+</html>
