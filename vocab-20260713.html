@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#2563eb">
+<title>今日 150 词 · 2026-07-13 · Travel &amp; Culture</title>
+<style>
+  :root {
+    --bg: #ffffff; --fg: #1a1a1a; --muted: #6b7280;
+    --accent: #2563eb; --ok: #059669; --warn: #d97706;
+    --card: #f9fafb; --border: #e5e7eb;
+    --nav-bg: rgba(255,255,255,0.92);
+    --header-bg: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f172a; --fg: #f1f5f9; --muted: #94a3b8;
+      --accent: #60a5fa; --ok: #34d399; --warn: #fbbf24;
+      --card: #1e293b; --border: #334155;
+      --nav-bg: rgba(15,23,42,0.92);
+      --header-bg: linear-gradient(135deg, #1e40af 0%, #6b21a8 100%);
+    }
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg); }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif;
+    line-height: 1.5;
+    min-height: 100vh;
+    padding-bottom: calc(64px + env(safe-area-inset-bottom, 0));
+  }
+  .app-header {
+    background: var(--header-bg); color: white;
+    padding: calc(env(safe-area-inset-top, 16px) + 12px) 16px 14px;
+    position: sticky; top: 0; z-index: 20;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .back-btn {
+    background: rgba(255,255,255,0.18); border: none; color: white;
+    width: 34px; height: 34px; border-radius: 10px;
+    font-size: 1.1rem; cursor: pointer; flex-shrink: 0;
+    text-decoration: none; display: flex; align-items: center; justify-content: center;
+  }
+  .app-header .ttl { font-size: 1rem; font-weight: 700; }
+  .app-header .sub {
+    font-size: 0.72rem; opacity: 0.85; margin-top: 1px;
+    letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  .stats {
+    background: var(--card); padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px; text-align: center;
+  }
+  .stat .num { font-size: 1.4rem; font-weight: 700; }
+  .stat .num.know { color: var(--ok); }
+  .stat .num.weak { color: var(--warn); }
+  .stat .num.left { color: var(--accent); }
+  .stat .lbl { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; margin-top: 2px; }
+  .progress-bar { height: 4px; background: var(--border); overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--accent); transition: width 0.3s; }
+  .card-stage { margin: 24px 16px; perspective: 1000px; }
+  .card-3d {
+    position: relative; width: 100%; min-height: 260px;
+    transform-style: preserve-3d; transition: transform 0.5s; cursor: pointer;
+  }
+  .card-3d.flipped { transform: rotateY(180deg); }
+  .face {
+    position: absolute; width: 100%; height: 100%;
+    backface-visibility: hidden; -webkit-backface-visibility: hidden;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 18px; padding: 24px 20px;
+    display: flex; flex-direction: column; justify-content: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .face.front { text-align: center; }
+  .face.front .word { font-size: 2rem; font-weight: 700; color: var(--accent); margin-bottom: 8px; word-break: break-word; }
+  .face.front .pos { color: var(--muted); font-size: 0.95rem; font-style: italic; }
+  .face.front .hint { margin-top: 28px; color: var(--muted); font-size: 0.82rem; }
+  .face.back { transform: rotateY(180deg); }
+  .face.back .zh { font-size: 1.3rem; font-weight: 600; color: var(--accent); margin-bottom: 12px; }
+  .face.back .collo { background: var(--bg); padding: 8px 12px; border-radius: 8px; font-size: 0.92rem; color: var(--fg); margin-bottom: 10px; border-left: 3px solid var(--accent); }
+  .face.back .ex { font-size: 0.95rem; font-style: italic; color: var(--fg); line-height: 1.6; }
+  .face.back .ex strong { color: var(--accent); font-style: normal; }
+  .speaker {
+    position: absolute; top: 14px; right: 14px;
+    width: 36px; height: 36px; border-radius: 50%;
+    background: var(--bg); border: 1px solid var(--border);
+    cursor: pointer; font-size: 1.1rem; padding: 0; color: var(--accent);
+  }
+  .view-toggle { display: flex; padding: 12px 16px 0; gap: 8px; }
+  .view-toggle button { flex: 1; padding: 8px; background: var(--card); border: 1px solid var(--border); border-radius: 8px; color: var(--muted); font-size: 0.85rem; cursor: pointer; font-family: inherit; }
+  .view-toggle button.active { background: var(--accent); color: white; border-color: var(--accent); }
+  .list-view { display: none; padding: 12px 16px 24px; }
+  .list-view.active { display: block; }
+  .list-row { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-bottom: 1px solid var(--border); background: var(--card); border-radius: 8px; margin-bottom: 6px; }
+  .list-row .num { flex-shrink: 0; width: 28px; color: var(--muted); font-size: 0.72rem; font-family: "SF Mono", Menlo, monospace; }
+  .list-row .word { flex: 1; min-width: 0; }
+  .list-row .w { font-weight: 600; font-size: 0.95rem; color: var(--fg); }
+  .list-row .w.knew { color: var(--ok); }
+  .list-row .w.weak { color: var(--warn); }
+  .list-row .zh { font-size: 0.78rem; color: var(--muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .list-row .spk { flex-shrink: 0; width: 32px; height: 32px; border-radius: 50%; background: var(--bg); border: 1px solid var(--border); cursor: pointer; color: var(--accent); font-size: 0.9rem; padding: 0; }
+  .list-row .mk { flex-shrink: 0; width: 24px; text-align: center; color: var(--muted); }
+  .list-row .mk.know { color: var(--ok); }
+  .list-row .mk.weak { color: var(--warn); }
+  .curriculum-note { margin: 16px; padding: 12px 14px; background: var(--card); border-left: 3px solid var(--accent); border-radius: 8px; font-size: 0.82rem; color: var(--muted); line-height: 1.5; }
+  .curriculum-note strong { color: var(--fg); }
+  .actions { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; padding: 0 16px; }
+  .btn { padding: 14px 8px; border: 1px solid var(--border); border-radius: 12px; background: var(--card); color: var(--fg); font-size: 0.95rem; font-weight: 600; cursor: pointer; font-family: inherit; -webkit-tap-highlight-color: transparent; }
+  .btn .ico { display: block; font-size: 1.4rem; margin-bottom: 2px; }
+  .btn.weak { color: var(--warn); }
+  .btn.weak:active { background: rgba(217,119,6,0.1); }
+  .btn.flip { color: var(--accent); }
+  .btn.flip:active { background: rgba(37,99,235,0.1); }
+  .btn.know { color: var(--ok); }
+  .btn.know:active { background: rgba(5,150,105,0.1); }
+  .meta { text-align: center; color: var(--muted); font-size: 0.78rem; margin-top: 20px; }
+  .tabbar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--nav-bg); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px); border-top: 1px solid var(--border); display: flex; padding-bottom: env(safe-area-inset-bottom, 0); z-index: 30; }
+  .tab-btn { flex: 1; background: transparent; border: none; padding: 10px 4px 8px; color: var(--muted); font-size: 0.68rem; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 3px; font-family: inherit; text-decoration: none; }
+  .tab-btn .icon { font-size: 1.25rem; line-height: 1; }
+  .tab-btn.active { color: var(--accent); }
+  .done-screen { text-align: center; padding: 60px 24px; display: none; }
+  .done-screen.show { display: block; }
+  .done-screen .big { font-size: 4rem; }
+  .done-screen .ttl { font-size: 1.3rem; font-weight: 700; margin: 8px 0; }
+  .done-screen .sub { color: var(--muted); margin-bottom: 24px; }
+  .done-screen button { background: var(--accent); color: white; border: none; padding: 12px 24px; border-radius: 12px; font-size: 0.95rem; font-weight: 600; cursor: pointer; font-family: inherit; margin: 4px; }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <a class="back-btn" href="index.html#home">&#8592;</a>
+  <div style="flex:1;">
+    <div class="ttl">今日 150 词 &middot; Travel &amp; Culture</div>
+    <div class="sub">2026-07-13 &middot; Day 53</div>
+  </div>
+</header>
+
+<div class="stats">
+  <div class="stat"><div class="num know" id="kn">0</div><div class="lbl">知道</div></div>
+  <div class="stat"><div class="num weak" id="wk">0</div><div class="lbl">不熟</div></div>
+  <div class="stat"><div class="num left" id="lf">150</div><div class="lbl">剩余</div></div>
+</div>
+<div class="progress-bar"><div class="progress-fill" id="pg" style="width:0%"></div></div>
+
+<div class="view-toggle">
+  <button id="vtFlash" class="active" onclick="setView('flash')">&#128199; 卡片</button>
+  <button id="vtList" onclick="setView('list')">&#128203; 列表</button>
+</div>
+
+<div id="deck">
+  <div class="card-stage">
+    <div class="card-3d" id="card" onclick="flip()">
+      <div class="face front">
+        <button class="speaker" onclick="event.stopPropagation();speak(document.getElementById('w').textContent)">&#128266;</button>
+        <div class="word" id="w">—</div>
+        <div class="pos" id="p">—</div>
+        <div class="hint">轻触卡片 · 翻看释义</div>
+      </div>
+      <div class="face back">
+        <button class="speaker" onclick="event.stopPropagation();speak(document.getElementById('w').textContent)">&#128266;</button>
+        <div class="zh" id="zh">—</div>
+        <div class="collo" id="cl">—</div>
+        <div class="ex" id="ex">—</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="btn weak" onclick="mark('weak')"><span class="ico">&#128543;</span>不熟</button>
+    <button class="btn flip" onclick="flip()"><span class="ico">&#128260;</span>翻转</button>
+    <button class="btn know" onclick="mark('know')"><span class="ico">&#9989;</span>知道</button>
+  </div>
+
+  <div class="meta" id="meta">1 / 150 &middot; 今日主题 Travel &amp; Culture Day 4</div>
+</div>
+
+<div class="list-view" id="listView">
+  <div id="listBody"></div>
+</div>
+
+<div class="curriculum-note">
+  <strong>词汇来源</strong>: 8 天主题轮换，涵盖雅思高频话题。<br>
+  Day 1-7 <strong>Education</strong> &middot; Day 8-14 <strong>Environment</strong> &middot; Day 15-21 <strong>Technology</strong> &middot; Day 22-28 <strong>Health</strong> &middot; Day 29-35 <strong>Government &amp; Society</strong> &middot; Day 36-42 <strong>Work &amp; Economy</strong> &middot; Day 43-49 <strong>Family</strong> &middot; Day 50-56 <strong>Travel &amp; Culture</strong> &middot; 之后循环。<br>
+  词汇为 Band 7+ 难度，每条含 词性 &middot; 中文 &middot; 搭配 &middot; 例句，由 IELTS 高分话题词库扩展生成。
+</div>
+
+<div class="done-screen" id="done">
+  <div class="big">&#127881;</div>
+  <div class="ttl" id="doneTtl">今日 150 词完成!</div>
+  <div class="sub" id="doneSub">知道 0 &middot; 不熟 0</div>
+  <button onclick="resetAll()">重新开始</button>
+  <button onclick="reviewWeak()">只复习不熟</button>
+  <button onclick="location.href='index.html'">回主页</button>
+</div>
+
+<nav class="tabbar">
+  <a class="tab-btn active" href="index.html#home"><span class="icon">&#127968;</span>概览</a>
+  <a class="tab-btn" href="index.html#materials"><span class="icon">&#128250;</span>材料</a>
+  <a class="tab-btn" href="index.html#quizzes"><span class="icon">&#9999;&#65039;</span>测验</a>
+  <a class="tab-btn" href="index.html#plan"><span class="icon">&#128203;</span>计划</a>
+</nav>
+
+<script>
+const CARDS = [
+{"w":"minaret","p":"n.","zh":"宣礼塔","cl":"a soaring minaret","ex":"The mosque's <strong>minaret</strong> dominated the old city's skyline for nine centuries."},
+{"w":"campanile","p":"n.","zh":"钟楼","cl":"a medieval campanile","ex":"The leaning <strong>campanile</strong> of Pisa draws millions of visitors despite its precarious tilt."},
+{"w":"colonnade","p":"n.","zh":"柱廊","cl":"a grand colonnade","ex":"The <strong>colonnade</strong> of white marble columns led pilgrims toward the inner sanctum."},
+{"w":"cloister","p":"n.","zh":"修道院回廊","cl":"a monastic cloister","ex":"Students of medieval history wandered the <strong>cloister</strong>, tracing its centuries of quiet scholarship."},
+{"w":"fresco","p":"n.","zh":"壁画(湿灰泥画)","cl":"a Renaissance fresco","ex":"The <strong>fresco</strong> covering the chapel ceiling had survived five centuries of dust and restoration."},
+{"w":"mosaic","p":"n.","zh":"镶嵌画/马赛克","cl":"a Byzantine mosaic","ex":"The golden <strong>mosaic</strong> floor depicted the founding myths of the empire in vivid tesserae."},
+{"w":"bas-relief","p":"n.","zh":"浅浮雕","cl":"intricate bas-relief carvings","ex":"Every surface of the temple bore <strong>bas-relief</strong> carvings of extraordinary narrative depth."},
+{"w":"arabesque","p":"n.","zh":"阿拉伯式花纹","cl":"geometric arabesque","ex":"The palace dome was decorated with geometric <strong>arabesque</strong> patterns of breathtaking precision."},
+{"w":"pagoda","p":"n.","zh":"宝塔","cl":"a tiered pagoda","ex":"The five-tiered <strong>pagoda</strong> rose above the valley, visible from roads three villages away."},
+{"w":"portico","p":"n.","zh":"门廊(柱子支撑)","cl":"a Doric portico","ex":"Visitors entered the museum through an imposing <strong>portico</strong> of grey stone columns."},
+{"w":"stupa","p":"n.","zh":"佛塔","cl":"a gilded stupa","ex":"Pilgrims circumambulated the <strong>stupa</strong> clockwise, spinning prayer wheels as dusk fell."},
+{"w":"amphitheatre","p":"n.","zh":"圆形露天剧场","cl":"a Roman amphitheatre","ex":"The ancient <strong>amphitheatre</strong>, still used for performances, links the ancient world to the present."},
+{"w":"nave","p":"n.","zh":"(教堂)中殿","cl":"a cathedral nave","ex":"The soaring <strong>nave</strong> of the Gothic cathedral induced a profound sense of awe in its visitors."},
+{"w":"vault","p":"n.","zh":"拱顶/地下室","cl":"a ribbed vault","ex":"The ribbed <strong>vault</strong> of the chapter house was an early experiment in Gothic structural engineering."},
+{"w":"turret","p":"n.","zh":"角楼/小塔","cl":"a stone turret","ex":"Each <strong>turret</strong> of the fortified castle offered a commanding view of the valley and river below."},
+{"w":"spire","p":"n.","zh":"尖顶/塔尖","cl":"a Gothic spire","ex":"The cathedral's <strong>spire</strong> soared above the medieval city as a symbol of faith and civic pride."},
+{"w":"buttress","p":"n.","zh":"扶壁","cl":"a flying buttress","ex":"The <strong>buttress</strong> transferred the weight of the roof outward, allowing thinner walls and large windows."},
+{"w":"atrium","p":"n.","zh":"中庭","cl":"a sunlit atrium","ex":"The museum's glass-roofed <strong>atrium</strong> flooded the space with natural light and created a communal hub."},
+{"w":"facade","p":"n.","zh":"立面/外观","cl":"an ornate facade","ex":"The <strong>facade</strong> was encrusted with carvings that preserved the iconography of the founding dynasty."},
+{"w":"rampart","p":"n.","zh":"城墙/防御墙","cl":"ancient ramparts","ex":"Visitors walked along the medieval <strong>ramparts</strong> as evening light fell across the river valley."},
+{"w":"mural","p":"n.","zh":"壁画(泛指)","cl":"a vivid mural","ex":"A giant <strong>mural</strong> covered the entire gable wall of the traditional guesthouse."},
+{"w":"effigy","p":"n.","zh":"雕像/人像","cl":"a stone effigy","ex":"A stone <strong>effigy</strong> of the founder lay atop the marble tomb in the cathedral crypt."},
+{"w":"cenotaph","p":"n.","zh":"纪念碑(无遗体)","cl":"a national cenotaph","ex":"Visitors laid wreaths at the <strong>cenotaph</strong> to honour those who died in the region's earliest conflicts."},
+{"w":"mausoleum","p":"n.","zh":"陵墓","cl":"an elaborate mausoleum","ex":"The <strong>mausoleum</strong> is considered one of the supreme achievements of Mughal architecture worldwide."},
+{"w":"antiquity","p":"n.","zh":"古代/古物","cl":"a piece of antiquity","ex":"The museum's collection spans the full sweep of human <strong>antiquity</strong>, from the Neolithic to the Renaissance."},
+{"w":"lacquerware","p":"n.","zh":"漆器","cl":"traditional lacquerware","ex":"Shoppers browsed <strong>lacquerware</strong> boxes whose techniques had not changed in three hundred years."},
+{"w":"batik","p":"n.","zh":"蜡染布","cl":"hand-dyed batik","ex":"The artisan used wax-resist dyeing to produce vivid <strong>batik</strong> textiles with intricate floral motifs."},
+{"w":"calligraphy","p":"n.","zh":"书法","cl":"Arabic calligraphy","ex":"The mosque's interior was covered in flowing <strong>calligraphy</strong> that served simultaneously as art and scripture."},
+{"w":"ceramics","p":"n.","zh":"陶瓷","cl":"traditional ceramics","ex":"The town was famous for its <strong>ceramics</strong>, fired in wood-burning kilns by the same family for generations."},
+{"w":"kiln","p":"n.","zh":"窑","cl":"a wood-fired kiln","ex":"Each vessel emerged from the <strong>kiln</strong> with a unique glaze determined by the fire's temperature and duration."},
+{"w":"tapestry","p":"n.","zh":"挂毯/织锦","cl":"a medieval tapestry","ex":"The castle's great hall was hung with a <strong>tapestry</strong> depicting the decisive battle of 1415."},
+{"w":"textile","p":"n.","zh":"织物","cl":"handwoven textile","ex":"The region's handwoven <strong>textiles</strong> are produced on backstrap looms using natural plant dyes."},
+{"w":"embroidery","p":"n.","zh":"刺绣","cl":"intricate embroidery","ex":"The ceremonial robe required six months of <strong>embroidery</strong> by three skilled craftswomen working in tandem."},
+{"w":"terracotta","p":"n.","zh":"陶土/赤陶","cl":"terracotta figures","ex":"The museum housed thousands of <strong>terracotta</strong> warriors excavated from the emperor's vast burial complex."},
+{"w":"glaze","p":"n./v.","zh":"釉/上釉","cl":"a deep blue glaze","ex":"The tiles were renowned for their deep blue <strong>glaze</strong>, a technique mastered by Persian craftsmen centuries ago."},
+{"w":"gilded","p":"adj.","zh":"镀金的","cl":"a gilded ceiling","ex":"The <strong>gilded</strong> ceiling of the baroque hall was designed to overwhelm visitors with imperial splendour."},
+{"w":"motif","p":"n.","zh":"主题图案/装饰图样","cl":"a recurring motif","ex":"The lotus <strong>motif</strong> recurs throughout the temple's carvings, symbolising purity and enlightenment."},
+{"w":"iconography","p":"n.","zh":"图像志/象征图案体系","cl":"religious iconography","ex":"Understanding the <strong>iconography</strong> of a Buddhist shrine enriches the visitor's experience immeasurably."},
+{"w":"totem","p":"n.","zh":"图腾","cl":"a carved totem","ex":"The carved <strong>totem</strong> pole at the village entrance recorded the community's genealogy in symbolic form."},
+{"w":"marquetry","p":"n.","zh":"木质镶嵌工艺","cl":"exquisite marquetry","ex":"The cabinet was inlaid with <strong>marquetry</strong> of rare tropical woods arranged in geometric patterns."},
+{"w":"gondola","p":"n.","zh":"贡多拉/缆车车厢","cl":"a Venetian gondola","ex":"The <strong>gondola</strong> glided silently through the canal, an iconic image recognised across the world."},
+{"w":"catamaran","p":"n.","zh":"双体船","cl":"a sailing catamaran","ex":"Day-trippers boarded the <strong>catamaran</strong> at dawn for a snorkelling excursion to the outer reef."},
+{"w":"locomotive","p":"n.","zh":"机车/火车头","cl":"a steam locomotive","ex":"The heritage railway's vintage <strong>locomotive</strong> hauled open carriages through the scenic highland valley."},
+{"w":"berth","p":"n.","zh":"铺位/泊位","cl":"an overnight berth","ex":"She requested an upper <strong>berth</strong> on the overnight train to watch the moonlit landscape pass by."},
+{"w":"terminus","p":"n.","zh":"终点站","cl":"a grand terminus","ex":"The restored Victorian <strong>terminus</strong> serves simultaneously as a heritage attraction and a working transport hub."},
+{"w":"waypoint","p":"n.","zh":"途经点","cl":"a navigation waypoint","ex":"The pilgrimage route was marked at each <strong>waypoint</strong> by a hand-carved stone cairn."},
+{"w":"portage","p":"n.","zh":"陆路运输(绕过障碍)","cl":"a river portage","ex":"The canoeists made a short <strong>portage</strong> around the waterfall before resuming their downstream journey."},
+{"w":"stowaway","p":"n.","zh":"偷乘者","cl":"a desperate stowaway","ex":"The discovery of a <strong>stowaway</strong> aboard the cargo vessel underscored the desperation of economic migrants."},
+{"w":"gangplank","p":"n.","zh":"跳板","cl":"a narrow gangplank","ex":"Passengers crossed the narrow <strong>gangplank</strong> in single file to board the island ferry at high tide."},
+{"w":"circumnavigate","p":"v.","zh":"环球航行/绕行","cl":"circumnavigate the globe","ex":"The crew became the first to <strong>circumnavigate</strong> the globe in a hydrogen-powered sailing vessel."},
+{"w":"rickshaw","p":"n.","zh":"人力车","cl":"an electric rickshaw","ex":"Electric <strong>rickshaws</strong> have largely replaced their pedal-powered predecessors on the narrow lanes of the old city."},
+{"w":"embarkation","p":"n.","zh":"登船/出发","cl":"embarkation point","ex":"The <strong>embarkation</strong> point for the canal cruise was a five-minute walk from the old city gate."},
+{"w":"waylay","p":"v.","zh":"拦截/埋伏等候","cl":"be waylaid by vendors","ex":"Tourists were often <strong>waylaid</strong> by persistent street vendors at the entrance to the monument."},
+{"w":"geotag","p":"v./n.","zh":"地理标记","cl":"geotag a photo","ex":"Travellers who <strong>geotag</strong> photos of hidden locations risk overwhelming fragile ecosystems with sudden footfall."},
+{"w":"vlog","p":"n.","zh":"视频博客","cl":"a travel vlog","ex":"Her <strong>vlog</strong> documenting a solo cycling journey across Central Asia attracted over two million subscribers."},
+{"w":"influencer","p":"n.","zh":"网红/影响者","cl":"a travel influencer","ex":"A single post by a prominent <strong>influencer</strong> caused a small coastal village to be overrun within days."},
+{"w":"digital nomad","p":"n.","zh":"数字游民","cl":"a location-independent digital nomad","ex":"The rise of the <strong>digital nomad</strong> has created a new category of long-stay tourist with distinct economic patterns."},
+{"w":"workation","p":"n.","zh":"工作假期","cl":"a productive workation","ex":"The <strong>workation</strong> trend accelerated once remote working was normalised across much of the professional world."},
+{"w":"viral","p":"adj.","zh":"病毒式传播的","cl":"go viral","ex":"When the photograph of the hidden waterfall went <strong>viral</strong>, the trail was permanently altered by tourist pressure."},
+{"w":"bleisure","p":"n.","zh":"商旅休闲结合","cl":"a bleisure trip","ex":"The concept of <strong>bleisure</strong> — blending business travel with leisure — has reshaped hotel marketing strategies globally."},
+{"w":"staycation","p":"n.","zh":"宅旅/本地度假","cl":"a budget staycation","ex":"With airfares soaring, many families opted for a <strong>staycation</strong> and discovered destinations on their own doorstep."},
+{"w":"livestreaming","p":"n.","zh":"直播","cl":"livestreaming from the site","ex":"The museum began <strong>livestreaming</strong> guided tours to reach global audiences who could not travel in person."},
+{"w":"algorithm","p":"n.","zh":"算法","cl":"a recommendation algorithm","ex":"The travel platform's <strong>algorithm</strong> amplified certain destinations to viral status while leaving others completely undiscovered."},
+{"w":"photogrammetry","p":"n.","zh":"摄影测量法","cl":"use photogrammetry to model","ex":"<strong>Photogrammetry</strong> enables archaeologists to create precise three-dimensional models of fragile sites without physical contact."},
+{"w":"drone","p":"n.","zh":"无人机","cl":"aerial drone survey","ex":"An aerial <strong>drone</strong> survey revealed structural damage invisible to ground-level inspectors at the ancient fortress."},
+{"w":"subsidy","p":"n.","zh":"补贴","cl":"a government subsidy","ex":"A direct <strong>subsidy</strong> from the national tourism board enabled the airline to open the new regional route."},
+{"w":"tariff","p":"n.","zh":"关税/收费表","cl":"a dual tariff system","ex":"The dual <strong>tariff</strong> system, charging higher admission to foreign visitors than to locals, sparked debate about equity."},
+{"w":"levy","p":"n./v.","zh":"征税/征收","cl":"a tourism levy","ex":"The city introduced a nightly <strong>levy</strong> on hotel guests to fund monument conservation and waste management."},
+{"w":"dividend","p":"n.","zh":"红利/收益","cl":"an economic dividend","ex":"Sustainable tourism generated a long-term <strong>dividend</strong> far exceeding the short-term gains from mass arrivals."},
+{"w":"premium","p":"n./adj.","zh":"溢价/高档","cl":"command a premium","ex":"Heritage hotels in restored listed buildings command a significant <strong>premium</strong> over standard chain accommodation."},
+{"w":"concession","p":"n.","zh":"特许经营权","cl":"a tourism concession","ex":"The government awarded a <strong>concession</strong> to operate boat tours through the protected limestone gorge."},
+{"w":"deregulate","p":"v.","zh":"取消管制","cl":"deregulate the aviation sector","ex":"Moves to <strong>deregulate</strong> the aviation sector increased competition but also multiplied the environmental cost of flying."},
+{"w":"monetise","p":"v.","zh":"将…转化为盈利","cl":"monetise cultural heritage","ex":"Destinations that successfully <strong>monetise</strong> cultural heritage invest the proceeds back into conservation."},
+{"w":"proliferate","p":"v.","zh":"激增/大量涌现","cl":"budget airlines proliferate","ex":"As budget airlines <strong>proliferated</strong>, cities once considered remote became accessible to millions of new visitors."},
+{"w":"consortium","p":"n.","zh":"联合体/财团","cl":"a heritage consortium","ex":"A <strong>consortium</strong> of national museums pooled resources to fund the joint digitisation project."},
+{"w":"stewardship","p":"n.","zh":"管理职责/保护责任","cl":"responsible stewardship","ex":"The community took its role of <strong>stewardship</strong> of the ancient site seriously, limiting access during breeding season."},
+{"w":"rewilding","p":"n.","zh":"野化/生态恢复","cl":"ecological rewilding","ex":"<strong>Rewilding</strong> of degraded coastal land enhanced both biodiversity and the appeal of nature-based tourism."},
+{"w":"biosphere","p":"n.","zh":"生物圈","cl":"biosphere reserve","ex":"The UNESCO <strong>biosphere</strong> reserve model reconciles conservation goals with the livelihoods of local communities."},
+{"w":"watershed","p":"n.","zh":"分水岭/流域","cl":"a protected watershed","ex":"Protecting the <strong>watershed</strong> upstream preserved the water quality that sustained the region's ecotourism appeal."},
+{"w":"afforestation","p":"n.","zh":"造林","cl":"coastal afforestation","ex":"<strong>Afforestation</strong> along the dune system stabilised the coastline and restored habitats lost to development pressure."},
+{"w":"ornithology","p":"n.","zh":"鸟类学","cl":"amateur ornithology","ex":"The wetland reserve became a mecca for <strong>ornithology</strong> enthusiasts drawn by over 200 migratory bird species."},
+{"w":"ecotourist","p":"n.","zh":"生态旅游者","cl":"a responsible ecotourist","ex":"The responsible <strong>ecotourist</strong> insists on locally guided walks, zero-waste accommodation, and direct community spending."},
+{"w":"isthmus","p":"n.","zh":"地峡","cl":"a narrow isthmus","ex":"The narrow <strong>isthmus</strong> connecting the two landmasses became the most strategic point on the ancient trade route."},
+{"w":"atoll","p":"n.","zh":"环礁","cl":"a coral atoll","ex":"The <strong>atoll</strong>'s pristine lagoon attracted divers from across the world, but also threatened it with overtourism."},
+{"w":"lagoon","p":"n.","zh":"泻湖","cl":"a coastal lagoon","ex":"The shallow <strong>lagoon</strong> sheltered by sand bars offered a tranquil haven for migratory birds and kayakers."},
+{"w":"caldera","p":"n.","zh":"破火山口","cl":"a volcanic caldera","ex":"The ancient <strong>caldera</strong>, now filled with a crater lake, is the centrepiece of the national park."},
+{"w":"tributary","p":"n.","zh":"支流","cl":"a river tributary","ex":"Each <strong>tributary</strong> of the delta system supports distinct wetland communities and rare bird species."},
+{"w":"mangrove","p":"n.","zh":"红树林","cl":"mangrove forest","ex":"The dense <strong>mangrove</strong> forest along the estuary serves as a vital nursery for marine fish and crustaceans."},
+{"w":"steppe","p":"n.","zh":"草原/大草原","cl":"the Central Asian steppe","ex":"The vast Central Asian <strong>steppe</strong> was once the highway of nomadic empires along the ancient Silk Road."},
+{"w":"excavation","p":"n.","zh":"考古发掘","cl":"an archaeological excavation","ex":"Each summer's <strong>excavation</strong> at the site yielded new artefacts that rewrote the city's early history."},
+{"w":"antiquarian","p":"n./adj.","zh":"古物研究者/古物的","cl":"an antiquarian curiosity","ex":"The town's <strong>antiquarian</strong> bookshop attracted collectors of rare maps and early travel narratives from across Europe."},
+{"w":"inscription","p":"n.","zh":"铭文/题词","cl":"an ancient inscription","ex":"The <strong>inscription</strong> above the gate had been worn smooth by two millennia of wind and rainfall."},
+{"w":"stratum","p":"n.","zh":"地层/阶层","cl":"a cultural stratum","ex":"Each <strong>stratum</strong> of the dig revealed a distinct historical period, from Bronze Age to Roman occupation."},
+{"w":"manuscript","p":"n.","zh":"手稿","cl":"an illuminated manuscript","ex":"The monastery's library held an <strong>illuminated manuscript</strong> produced by monks in the fourteenth century."},
+{"w":"provenance","p":"n.","zh":"出处/来源","cl":"prove provenance","ex":"Art dealers were required to prove the <strong>provenance</strong> of any object claimed to originate from a heritage site."},
+{"w":"repatriation","p":"n.","zh":"归还(文物)/遣返","cl":"cultural repatriation","ex":"The debate over <strong>repatriation</strong> of artefacts looted during colonial rule remains fiercely contested internationally."},
+{"w":"necropolis","p":"n.","zh":"大墓地/古代墓城","cl":"an ancient necropolis","ex":"The <strong>necropolis</strong> on the city outskirts contained tombs spanning eight centuries of continuous occupation."},
+{"w":"reliquary","p":"n.","zh":"圣物箱","cl":"a jewelled reliquary","ex":"The jewelled <strong>reliquary</strong> containing fragments of the saint's bones drew pilgrims from three continents."},
+{"w":"restitution","p":"n.","zh":"归还/赔偿","cl":"demand restitution","ex":"Campaigners demanded <strong>restitution</strong> of the bronzes removed during the 19th-century colonial expedition."},
+{"w":"sommelier","p":"n.","zh":"侍酒师","cl":"a skilled sommelier","ex":"The hotel's <strong>sommelier</strong> guided guests through a curated selection of regional wines from the adjacent valley."},
+{"w":"aperitif","p":"n.","zh":"餐前酒","cl":"a traditional aperitif","ex":"The <strong>aperitif</strong> hour in a Parisian café is as much a cultural ritual as it is a refreshment."},
+{"w":"villa","p":"n.","zh":"别墅","cl":"a hillside villa","ex":"The family rented a <strong>villa</strong> on the Tuscan hillside, surrounded by vineyards and ancient olive groves."},
+{"w":"chalet","p":"n.","zh":"小木屋","cl":"a mountain chalet","ex":"The ski resort's traditional <strong>chalet</strong> accommodations blended rustic warmth with modern Alpine comfort."},
+{"w":"ryokan","p":"n.","zh":"日式旅馆","cl":"a traditional ryokan","ex":"Guests at the <strong>ryokan</strong> slept on futons, bathed in the communal hot spring, and wore provided yukata."},
+{"w":"pension","p":"n.","zh":"家庭旅馆","cl":"a family-run pension","ex":"The modest <strong>pension</strong> offered what larger hotels cannot: home-cooked meals and genuine personal conversation."},
+{"w":"resort","p":"n.","zh":"度假村","cl":"an all-inclusive resort","ex":"Critics argue that the all-inclusive <strong>resort</strong> model creates an insulated bubble that isolates tourists from local communities."},
+{"w":"couchsurfing","p":"n.","zh":"沙发旅行","cl":"practise couchsurfing","ex":"Through <strong>couchsurfing</strong>, she stayed with local families and experienced daily life that no guidebook could convey."},
+{"w":"world heritage site","p":"n.","zh":"世界遗产地","cl":"a UNESCO world heritage site","ex":"The site was inscribed as a <strong>world heritage site</strong> in recognition of its outstanding universal value."},
+{"w":"carrying capacity","p":"n.","zh":"承载力/环境容量","cl":"exceed the carrying capacity","ex":"Once visitor numbers exceed a site's <strong>carrying capacity</strong>, irreversible degradation begins."},
+{"w":"cultural landscape","p":"n.","zh":"文化景观","cl":"a living cultural landscape","ex":"The terraced rice fields constitute a <strong>cultural landscape</strong> that is both agricultural and architectural."},
+{"w":"adaptive reuse","p":"n.","zh":"适应性再利用","cl":"adaptive reuse of buildings","ex":"<strong>Adaptive reuse</strong> transforms redundant industrial buildings into hotels, galleries, and vibrant cultural spaces."},
+{"w":"conservation area","p":"n.","zh":"保护区","cl":"a designated conservation area","ex":"Development within the <strong>conservation area</strong> is strictly regulated to preserve the historic streetscape."},
+{"w":"listed building","p":"n.","zh":"列级建筑物","cl":"a Grade I listed building","ex":"The Victorian hotel is a <strong>listed building</strong>, meaning alterations require planning consent from authorities."},
+{"w":"built environment","p":"n.","zh":"建成环境","cl":"the historic built environment","ex":"Protecting the <strong>built environment</strong> from insensitive development requires both robust regulation and community will."},
+{"w":"dark tourism","p":"n.","zh":"黑色旅游","cl":"the ethics of dark tourism","ex":"The growth of <strong>dark tourism</strong> — visits to sites of tragedy — raises ethical questions about profiting from suffering."},
+{"w":"open-air museum","p":"n.","zh":"露天博物馆","cl":"a living open-air museum","ex":"The medieval village was preserved as an <strong>open-air museum</strong> where craftspeople demonstrate traditional techniques."},
+{"w":"cultural tourism","p":"n.","zh":"文化旅游","cl":"cultural tourism development","ex":"<strong>Cultural tourism</strong> accounts for approximately 40% of international arrivals in Europe, according to recent estimates."},
+{"w":"tourist infrastructure","p":"n.","zh":"旅游基础设施","cl":"inadequate tourist infrastructure","ex":"Inadequate <strong>tourist infrastructure</strong> in rural areas limits the economic spillover from nearby heritage sites."},
+{"w":"grand tour","p":"n.","zh":"壮游","cl":"the 18th-century grand tour","ex":"The 18th-century <strong>grand tour</strong> of Europe by wealthy young Britons laid the foundation for modern heritage tourism."},
+{"w":"site management","p":"n.","zh":"遗址管理","cl":"effective site management","ex":"Effective <strong>site management</strong> distributes visitor footfall across a broader area rather than concentrating it."},
+{"w":"buffer zone","p":"n.","zh":"缓冲带","cl":"a protective buffer zone","ex":"A <strong>buffer zone</strong> around the inscribed area prevents incompatible development from encroaching on the site."},
+{"w":"guided tour","p":"n.","zh":"导游游览","cl":"a specialist guided tour","ex":"A <strong>guided tour</strong> by a specialist archaeologist transformed what might have been a casual visit into a revelation."},
+{"w":"pilgrimage route","p":"n.","zh":"朝圣路线","cl":"a medieval pilgrimage route","ex":"The <strong>pilgrimage route</strong>, revived as a walking trail, drew thousands of secular hikers alongside religious devotees."},
+{"w":"citadel","p":"n.","zh":"要塞/城堡","cl":"an ancient citadel","ex":"The <strong>citadel</strong> that once housed the ruler's court now serves as an open-air concert venue each summer."},
+{"w":"restoration project","p":"n.","zh":"修复工程","cl":"a major restoration project","ex":"The <strong>restoration project</strong> employed over two hundred local craftspeople and took a decade to complete."},
+{"w":"visitor management","p":"n.","zh":"游客管理","cl":"effective visitor management","ex":"Effective <strong>visitor management</strong> involves timed entry, fixed pathways, and strict limits on group sizes."},
+{"w":"craft workshop","p":"n.","zh":"工艺坊","cl":"a hands-on craft workshop","ex":"<strong>Craft workshops</strong> allow tourists to learn traditional techniques from master artisans in the community."},
+{"w":"night market","p":"n.","zh":"夜市","cl":"a bustling night market","ex":"The <strong>night market</strong> sprang up each evening beneath the ancient city wall, blending commerce and culture."},
+{"w":"admission fee","p":"n.","zh":"门票/入场费","cl":"a tiered admission fee","ex":"A tiered <strong>admission fee</strong> allows students and residents to access heritage sites at a reduced rate."},
+{"w":"scenic route","p":"n.","zh":"景观道路","cl":"a designated scenic route","ex":"Motorists were encouraged to take the designated <strong>scenic route</strong> along the cliff-top coastal road."},
+{"w":"interpretation centre","p":"n.","zh":"解说中心","cl":"a heritage interpretation centre","ex":"The <strong>interpretation centre</strong> contextualised the site's history before visitors stepped inside the monument itself."},
+{"w":"leave no trace","p":"phrase","zh":"不留痕迹","cl":"the leave no trace principle","ex":"Responsible hikers commit to the principle of <strong>leave no trace</strong> in every natural environment they visit."},
+{"w":"off the grid","p":"adj.phrase","zh":"脱离网络/不接电网","cl":"live off the grid","ex":"The remote eco-lodge was entirely <strong>off the grid</strong>, powered by solar panels and rainwater collection systems."},
+{"w":"stand the test of time","p":"idiom","zh":"经受时间考验","cl":"stand the test of time","ex":"Only the most resilient architectural traditions <strong>stand the test of time</strong> across changing empires and cultures."},
+{"w":"in ruins","p":"adj.phrase","zh":"成废墟/残破","cl":"lie in ruins","ex":"The once-grand temple <strong>lay in ruins</strong>, but even its fragments conveyed an extraordinary beauty and power."},
+{"w":"bridge the gap","p":"phrasal v.","zh":"弥合差距","cl":"bridge the cultural gap","ex":"Shared artistic traditions can <strong>bridge the gap</strong> between communities divided by language and history."},
+{"w":"bring to life","p":"phrasal v.","zh":"使栩栩如生/还原","cl":"bring history to life","ex":"Virtual reality technology can <strong>bring to life</strong> monuments that have been reduced to rubble for centuries."},
+{"w":"bear witness to","p":"idiom","zh":"见证","cl":"bear witness to centuries of history","ex":"Every cobbled lane of the old city <strong>bears witness to</strong> sieges, plagues, and the passage of dynasties."},
+{"w":"set in stone","p":"idiom","zh":"一成不变/不可更改","cl":"nothing is set in stone","ex":"Heritage designation does not mean that the future use of a building is <strong>set in stone</strong> forever."},
+{"w":"rise from the ashes","p":"idiom","zh":"浴火重生","cl":"rise from the ashes","ex":"The bombed-out cathedral was painstakingly rebuilt to <strong>rise from the ashes</strong> as a symbol of reconciliation."},
+{"w":"a stone's throw from","p":"phrase","zh":"近在咫尺","cl":"a stone's throw from the site","ex":"The guesthouse was <strong>a stone's throw from</strong> the main archaeological museum and the old city walls."},
+{"w":"capture the imagination","p":"idiom","zh":"激发想象力","cl":"capture the imagination of visitors","ex":"No site in the ancient world continues to <strong>capture the imagination</strong> quite like the Great Pyramid of Giza."},
+{"w":"a sense of place","p":"phrase","zh":"地方感","cl":"create a strong sense of place","ex":"What distinguishes great architecture from mere construction is the capacity to create a powerful <strong>sense of place</strong>."},
+{"w":"time capsule","p":"n.","zh":"时间胶囊/历史见证","cl":"function as a time capsule","ex":"The untouched tomb functioned as a <strong>time capsule</strong>, preserving everyday objects from the third century BCE."},
+{"w":"in the wake of","p":"phrase","zh":"在…之后/随着…而来","cl":"in the wake of the disaster","ex":"<strong>In the wake of</strong> the earthquake, emergency scaffolding was erected to save the leaning campanile."},
+{"w":"a window onto the past","p":"phrase","zh":"了解过去的窗口","cl":"a window onto the past","ex":"The excavated street is <strong>a window onto the past</strong>, offering insight into daily life two thousand years ago."},
+{"w":"be steeped in tradition","p":"phrasal v.","zh":"充满传统/深浸其中","cl":"be steeped in centuries of tradition","ex":"Every cobblestone and doorway of the old quarter is <strong>steeped in</strong> centuries of unwritten tradition."},
+{"w":"make a pilgrimage to","p":"phrasal v.","zh":"专程前往/朝圣","cl":"make a pilgrimage to a site","ex":"Architecture enthusiasts <strong>make a pilgrimage to</strong> Barcelona to experience Gaudí's visionary masterpieces firsthand."},
+{"w":"the tip of the iceberg","p":"idiom","zh":"冰山一角","cl":"just the tip of the iceberg","ex":"The visible ruins represent just <strong>the tip of the iceberg</strong> — most of the ancient city remains buried underground."},
+{"w":"well-preserved","p":"adj.","zh":"保存良好的","cl":"a well-preserved site","ex":"The <strong>well-preserved</strong> Roman villa offered scholars a rare opportunity to study intact mosaic floor coverings."},
+{"w":"lay eyes on","p":"phrasal v.","zh":"亲眼看到","cl":"lay eyes on for the first time","ex":"No photograph prepares you for the scale you experience the first time you <strong>lay eyes on</strong> the Colosseum."},
+{"w":"It bears noting that","p":"sentence stem","zh":"值得注意的是","cl":"It bears noting that","ex":"<strong>It bears noting that</strong> many of the world's most visited heritage sites are also among the most endangered."},
+{"w":"One cannot overstate the significance of","p":"sentence stem","zh":"怎么强调…的意义都不为过","cl":"One cannot overstate the significance of","ex":"<strong>One cannot overstate the significance of</strong> community consent in any heritage tourism development plan."},
+{"w":"Far from undermining X, Y in fact","p":"sentence stem","zh":"非但没有削弱X，Y实际上","cl":"Far from undermining heritage, tourism","ex":"<strong>Far from undermining</strong> cultural heritage, responsible tourism in fact provides the economic engine for its survival."}
+];
+
+let state = JSON.parse(localStorage.getItem("ielts_vocab_20260713") || "{}");
+let queue = CARDS.map((c, i) => ({...c, idx: i})).filter(c => !state[c.idx] || state[c.idx] === "review");
+let cur = 0;
+
+function speak(text) {
+  if (!text || !window.speechSynthesis) return;
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = "en-US"; u.rate = 0.85; u.pitch = 1;
+  const voices = speechSynthesis.getVoices();
+  const en = voices.find(v => /en-(US|GB)/.test(v.lang) && /Samantha|Daniel|Alex|Karen|Moira|Google US English|Google UK English/.test(v.name))
+          || voices.find(v => v.lang.startsWith("en"));
+  if (en) u.voice = en;
+  speechSynthesis.speak(u);
+}
+if (window.speechSynthesis) speechSynthesis.onvoiceschanged = () => {};
+
+function render() {
+  if (cur >= queue.length) return showDone();
+  const c = queue[cur];
+  document.getElementById("w").textContent = c.w;
+  document.getElementById("p").textContent = c.p;
+  document.getElementById("zh").textContent = c.zh;
+  document.getElementById("cl").textContent = c.cl;
+  document.getElementById("ex").innerHTML = c.ex;
+  document.getElementById("card").classList.remove("flipped");
+  document.getElementById("meta").textContent = `${cur+1} / ${queue.length} · Travel & Culture Day 4`;
+  updateStats();
+  setTimeout(() => speak(c.w), 150);
+}
+
+function setView(v) {
+  document.getElementById("vtFlash").classList.toggle("active", v === "flash");
+  document.getElementById("vtList").classList.toggle("active", v === "list");
+  document.getElementById("deck").style.display = v === "flash" ? "" : "none";
+  document.getElementById("listView").classList.toggle("active", v === "list");
+  if (v === "list") renderList();
+}
+
+function renderList() {
+  const body = document.getElementById("listBody");
+  body.innerHTML = CARDS.map((c, i) => {
+    const mark = state[i] || "";
+    const cls = mark === "know" ? "knew" : mark === "weak" ? "weak" : "";
+    const ico = mark === "know" ? "✓" : mark === "weak" ? "○" : "·";
+    const mcls = mark === "know" ? "know" : mark === "weak" ? "weak" : "";
+    return `<div class="list-row">
+      <div class="num">${String(i+1).padStart(3,'0')}</div>
+      <div class="word"><div class="w ${cls}">${c.w} <span style="color:var(--muted);font-weight:400;font-size:0.78rem;">${c.p}</span></div><div class="zh">${c.zh}</div></div>
+      <button class="spk" onclick="speak('${c.w.replace(/'/g,"\\'").replace(/"/g,"&quot;")}')">&#128266;</button>
+      <div class="mk ${mcls}">${ico}</div>
+    </div>`;
+  }).join("");
+}
+
+function flip() { document.getElementById("card").classList.toggle("flipped"); }
+
+function mark(t) {
+  const c = queue[cur];
+  state[c.idx] = (t === "know" ? "know" : "weak");
+  localStorage.setItem("ielts_vocab_20260713", JSON.stringify(state));
+  cur++;
+  render();
+}
+
+function updateStats() {
+  const kn = Object.values(state).filter(v=>v==="know").length;
+  const wk = Object.values(state).filter(v=>v==="weak").length;
+  const lf = queue.length - cur;
+  document.getElementById("kn").textContent = kn;
+  document.getElementById("wk").textContent = wk;
+  document.getElementById("lf").textContent = Math.max(0, lf);
+  document.getElementById("pg").style.width = (cur / Math.max(1, queue.length) * 100) + "%";
+}
+
+function showDone() {
+  document.getElementById("deck").style.display = "none";
+  document.getElementById("done").classList.add("show");
+  const kn = Object.values(state).filter(v=>v==="know").length;
+  const wk = Object.values(state).filter(v=>v==="weak").length;
+  document.getElementById("doneSub").textContent = `知道 ${kn} · 不熟 ${wk}`;
+}
+
+function resetAll() {
+  state = {}; cur = 0;
+  queue = CARDS.map((c,i)=>({...c,idx:i}));
+  localStorage.removeItem("ielts_vocab_20260713");
+  document.getElementById("done").classList.remove("show");
+  document.getElementById("deck").style.display = "";
+  setView("flash");
+  render();
+}
+
+function reviewWeak() {
+  queue = CARDS.map((c,i)=>({...c,idx:i})).filter(c=>state[c.idx]==="weak");
+  cur = 0;
+  document.getElementById("done").classList.remove("show");
+  document.getElementById("deck").style.display = "";
+  setView("flash");
+  render();
+}
+
+render();
+</script>
+</body>
+</html>

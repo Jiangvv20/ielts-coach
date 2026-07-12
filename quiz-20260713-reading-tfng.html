@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#2563eb">
+<title>Day 53 &middot; Reading T/F/NG &middot; 遗产建筑与可持续旅游</title>
+<style>
+  :root {
+    --bg: #ffffff; --fg: #1a1a1a; --muted: #6b7280;
+    --accent: #2563eb; --ok: #059669; --err: #dc2626;
+    --card: #f9fafb; --border: #e5e7eb;
+    --nav-bg: rgba(255,255,255,0.92);
+    --header-bg: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f172a; --fg: #f1f5f9; --muted: #94a3b8;
+      --accent: #60a5fa; --ok: #34d399; --err: #f87171;
+      --card: #1e293b; --border: #334155;
+      --nav-bg: rgba(15,23,42,0.92);
+      --header-bg: linear-gradient(135deg, #1e40af 0%, #6b21a8 100%);
+    }
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg); }
+  body { font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif; line-height: 1.6; min-height: 100vh; padding-bottom: calc(64px + env(safe-area-inset-bottom, 0)); }
+  .app-header { background: var(--header-bg); color: white; padding: calc(env(safe-area-inset-top, 16px) + 12px) 16px 14px; position: sticky; top: 0; z-index: 20; display: flex; align-items: center; gap: 12px; }
+  .back-btn { background: rgba(255,255,255,0.18); border: none; color: white; width: 34px; height: 34px; border-radius: 10px; font-size: 1.1rem; cursor: pointer; flex-shrink: 0; text-decoration: none; display: flex; align-items: center; justify-content: center; }
+  .app-header .ttl { font-size: 1rem; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .app-header .sub { font-size: 0.72rem; opacity: 0.85; margin-top: 1px; letter-spacing: 0.04em; text-transform: uppercase; }
+  main { max-width: 720px; margin: 0 auto; padding: 16px; }
+  .progress { height: 6px; background: var(--border); border-radius: 3px; margin-bottom: 16px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--accent); transition: width 0.3s ease; }
+  .passage { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; margin-bottom: 16px; font-size: 0.95rem; line-height: 1.75; }
+  .passage h3 { margin: 0 0 8px; font-size: 0.78rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+  .question { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 14px; }
+  .q-num { color: var(--muted); font-size: 0.78rem; font-family: "SF Mono", Menlo, monospace; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.04em; }
+  .q-text { font-size: 1rem; margin-bottom: 12px; font-weight: 500; }
+  .options { display: flex; flex-direction: column; gap: 8px; }
+  .option { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; cursor: pointer; font-size: 0.95rem; text-align: left; color: var(--fg); font-family: inherit; }
+  .option.selected { border-color: var(--accent); background: rgba(37,99,235,0.08); }
+  .option.correct { border-color: var(--ok); background: rgba(5,150,105,0.1); }
+  .option.wrong { border-color: var(--err); background: rgba(220,38,38,0.1); }
+  .blank-input { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; font-size: 1rem; color: var(--fg); font-family: inherit; }
+  .blank-input.correct { border-color: var(--ok); }
+  .blank-input.wrong { border-color: var(--err); }
+  .explanation { margin-top: 10px; padding: 10px 12px; background: var(--bg); border-left: 3px solid var(--accent); border-radius: 4px; font-size: 0.9rem; color: var(--muted); display: none; }
+  .explanation.show { display: block; }
+  .explanation .answer { color: var(--ok); font-weight: 600; }
+  .actions { display: flex; gap: 10px; margin-top: 20px; }
+  .btn { flex: 1; padding: 12px; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; font-family: inherit; }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-secondary { background: var(--card); color: var(--fg); border: 1px solid var(--border); }
+  .result { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; text-align: center; margin-top: 20px; display: none; }
+  .result.show { display: block; }
+  .score { font-size: 2.5rem; font-weight: 700; color: var(--accent); }
+  .score-label { color: var(--muted); font-size: 0.9rem; margin-top: 4px; }
+  .tabbar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--nav-bg); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px); border-top: 1px solid var(--border); display: flex; padding-bottom: env(safe-area-inset-bottom, 0); z-index: 30; }
+  .tab-btn { flex: 1; background: transparent; border: none; padding: 10px 4px 8px; color: var(--muted); font-size: 0.68rem; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 3px; font-family: inherit; text-decoration: none; }
+  .tab-btn .icon { font-size: 1.25rem; line-height: 1; }
+  .tab-btn.active { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <a class="back-btn" href="index.html#quizzes">&#8592;</a>
+  <div style="flex:1;min-width:0;">
+    <div class="ttl">Reading T/F/NG &middot; 遗产建筑与可持续旅游</div>
+    <div class="sub">Day 53 &middot; 11 题 &middot; ~12 分钟</div>
+  </div>
+</header>
+
+<main>
+
+  <div class="progress"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+
+  <div class="passage">
+    <h3>Passage &middot; Heritage Architecture and the Sustainability of World Tourism (~630 words)</h3>
+    <p>Heritage architecture &mdash; the collective term for historically significant buildings, monuments, and urban streetscapes &mdash; has emerged as one of the primary drivers of international tourism. A 2024 survey by the World Tourism Organization found that approximately 40% of all international tourist arrivals were motivated at least in part by built heritage, making it the single largest category of cultural tourism. The economic contribution of heritage destinations is correspondingly substantial: UNESCO estimates that World Heritage Sites collectively generate over $100 billion in tourism revenue each year, supporting millions of jobs in hospitality, transport, and the arts.</p>
+    <p>The relationship between heritage and tourism is, however, deeply ambivalent. While visitor income provides essential funding for the maintenance and conservation of historic structures, the physical presence of large numbers of tourists exerts measurable damage on the very fabric of the buildings they come to admire. Footfall vibration weakens ancient foundations; humidity from human breath accelerates the deterioration of interior frescoes; and the erosion of stone surfaces by millions of touching hands is now well documented at sites including the Parthenon, Angkor Wat, and the medieval cathedral quarter of Santiago de Compostela. Conservationists have coined the term &ldquo;visitor impact&rdquo; to describe this cluster of physical, chemical, and biological harms that intensive tourism inflicts on built heritage.</p>
+    <p>The UNESCO World Heritage List, established under the 1972 Convention Concerning the Protection of the World Cultural and Natural Heritage, was designed primarily as a tool of international recognition rather than as a management instrument. Inscription on the list confers enormous prestige and typically produces an immediate and sustained increase in visitor numbers &mdash; a phenomenon that has come to be known as the &ldquo;UNESCO effect.&rdquo; Studies of sites inscribed between 2000 and 2020 found that annual visitor numbers rose by an average of 31% in the three years following inscription, irrespective of the site&rsquo;s existing infrastructure or conservation capacity. Critics argue that this incentive structure effectively rewards states for listing their heritage while providing no mechanism to manage the consequences.</p>
+    <p>In response to the mounting problem of overtourism at iconic sites, heritage managers have increasingly turned to the concept of carrying capacity &mdash; the maximum number of visitors a site can accommodate without incurring unacceptable deterioration to its physical fabric or visitor experience. Implementations vary widely: the Lascaux Cave complex in France has been closed to public entry since 1963 and replaced by a purpose-built replica; Machu Picchu currently operates a timed-ticket system that limits daily entries to 4,500 visitors; and Venice has recently introduced entry fees and advance booking requirements for day visitors during peak periods. Proponents of carrying-capacity management argue that restricting access is the only scientifically defensible approach to reconciling conservation with access.</p>
+    <p>An alternative perspective emphasises the importance of <em>vernacular</em> architecture &mdash; the ordinary, traditional buildings of everyday life, built from local materials using inherited techniques &mdash; as a complement to the grand monuments that dominate tourism itineraries. Unlike listed monuments, vernacular structures rarely attract the volume of visitors that triggers conservation crises, yet they encode local building traditions, climatic adaptations, and social practices that are arguably as historically significant as any cathedral or palace. Advocates argue that dispersing tourism towards vernacular districts not only reduces pressure on flagship sites but also brings economic benefits to communities that have historically been bypassed by heritage tourism flows.</p>
+    <p>The long-term sustainability of heritage tourism ultimately depends on a fundamental reorientation: from the <em>commodification</em> of heritage as a backdrop for consumption to a genuine commitment to <em>safeguarding</em> it as a public good. This requires that national governments, international bodies, and the tourism industry accept that some degree of restricted access is the price of preservation, and that future generations have an equal claim on these irreplaceable structures as the visitors of today.</p>
+  </div>
+
+  <div id="questions">
+
+    <div class="question" data-type="mcq" data-answer="A">
+      <div class="q-num">Q01 &middot; T/F/NG</div>
+      <div class="q-text">According to the World Tourism Organization, built heritage is the most significant single motivator of international tourist travel.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#x2705; 正确答案: A (True)</div>
+        原文第一段: &ldquo;making it the <em>single largest category</em> of cultural tourism.&rdquo; 题目将 &ldquo;most significant single motivator&rdquo; 与 &ldquo;single largest category&rdquo; 做同义替换，表述一致。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="B">
+      <div class="q-num">Q02 &middot; T/F/NG</div>
+      <div class="q-text">The physical damage caused by tourists to heritage buildings is restricted to the erosion of exterior stone surfaces by contact.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#x2705; 正确答案: B (False)</div>
+        原文第二段列举了多种损害: 振动破坏地基、湿度破坏壁画、石面磨损。题目说 &ldquo;restricted to exterior stone erosion&rdquo;（仅限外部石面侵蚀），与原文中多种损害类型直接矛盾。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="A">
+      <div class="q-num">Q03 &middot; T/F/NG</div>
+      <div class="q-text">Research shows that being added to the UNESCO World Heritage List typically results in a significant rise in visitor numbers within a few years of inscription.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#x2705; 正确答案: A (True)</div>
+        原文第三段: &ldquo;annual visitor numbers rose by an average of 31% in the <em>three years</em> following inscription.&rdquo; 题目的 &ldquo;significant rise&rdquo; 与 &ldquo;31% increase&rdquo; 吻合，&ldquo;within a few years&rdquo; 对应 &ldquo;three years&rdquo;。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="C">
+      <div class="q-num">Q04 &middot; T/F/NG</div>
+      <div class="q-text">The UNESCO World Heritage Committee has proposed a formal financial penalty for states whose listed sites suffer damage caused by excessive visitor numbers.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#x2705; 正确答案: C (Not Given)</div>
+        原文第三段只批评 UNESCO 的激励机制 &ldquo;provides no mechanism to manage the consequences&rdquo;，并未提及任何处罚方案。题目内容在文中找不到对应信息。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="A">
+      <div class="q-num">Q05 &middot; T/F/NG</div>
+      <div class="q-text">The Lascaux Cave has not been open to the general public for more than sixty years, with a replica provided for visitors instead.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#x2705; 正确答案: A (True)</div>
+        原文第四段: &ldquo;the Lascaux Cave complex in France has been <em>closed to public entry since 1963</em> and replaced by a <em>purpose-built replica</em>.&rdquo; 1963 至 2026 年已超过 60 年，与题目完全吻合。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="B">
+      <div class="q-num">Q06 &middot; T/F/NG</div>
+      <div class="q-text">Vernacular architecture typically draws the same volume of tourists as major listed monuments and therefore faces the same conservation pressures.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#x2705; 正确答案: B (False)</div>
+        原文第五段明确指出: &ldquo;vernacular structures <em>rarely attract the volume of visitors</em> that triggers conservation crises.&rdquo; 题目声称两者游客量相同，与原文直接矛盾。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="C">
+      <div class="q-num">Q07 &middot; T/F/NG</div>
+      <div class="q-text">Digital virtual tours of heritage sites have been shown to reduce on-site visitor numbers by directing tourists to online experiences instead.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#x2705; 正确答案: C (Not Given)</div>
+        文章全篇未提及数字虚拟游览或线上体验。题目内容在原文中没有任何对应段落。
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="vernacular">
+      <div class="q-num">Q08 &middot; 词汇填空</div>
+      <div class="q-text">Advocates suggest that promoting ______ architecture &mdash; traditional everyday buildings made from local materials &mdash; can relieve pressure on famous monuments by spreading tourist flows more widely.</div>
+      <input class="blank-input" id="b1" placeholder="输入单词…" oninput="checkBlank(this,'vernacular',8)">
+      <div class="explanation" id="ex8">
+        <div class="answer">&#x2705; 正确答案: vernacular</div>
+        原文第五段: &ldquo;<strong>vernacular</strong> architecture &mdash; the ordinary, traditional buildings of everyday life, built from local materials.&rdquo; Vernacular = 乡土的、本地化的，指使用本地材料和传统工艺建造的日常建筑。
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="overtourism">
+      <div class="q-num">Q09 &middot; 词汇填空</div>
+      <div class="q-text">Heritage managers have turned to carrying-capacity systems in response to the mounting problem of ______ at iconic sites, where visitor numbers exceed what buildings and communities can sustainably absorb.</div>
+      <input class="blank-input" id="b2" placeholder="输入单词…" oninput="checkBlank(this,'overtourism',9)">
+      <div class="explanation" id="ex9">
+        <div class="answer">&#x2705; 正确答案: overtourism</div>
+        原文第四段: &ldquo;the mounting problem of <strong>overtourism</strong> at iconic sites.&rdquo; Overtourism = 过度旅游，指游客数量超出目的地可承受范围的现象。
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="commodification">
+      <div class="q-num">Q10 &middot; 词汇填空</div>
+      <div class="q-text">The author argues that sustainable heritage tourism requires moving away from the ______ of historic sites as consumer products, towards treating them as a public good to be preserved for future generations.</div>
+      <input class="blank-input" id="b3" placeholder="输入单词…" oninput="checkBlank(this,'commodification',10)">
+      <div class="explanation" id="ex10">
+        <div class="answer">&#x2705; 正确答案: commodification</div>
+        原文最后一段: &ldquo;from the <strong>commodification</strong> of heritage as a backdrop for consumption to a genuine commitment to safeguarding it as a public good.&rdquo; Commodification = 商品化，指将文化遗产当作消费品加以利用的做法。
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="safeguarding">
+      <div class="q-num">Q11 &middot; 词汇填空</div>
+      <div class="q-text">The final paragraph calls for a genuine commitment to ______ heritage as a public good, implying that access must sometimes be restricted in order to protect irreplaceable structures for the future.</div>
+      <input class="blank-input" id="b4" placeholder="输入单词…" oninput="checkBlank(this,'safeguarding',11)">
+      <div class="explanation" id="ex11">
+        <div class="answer">&#x2705; 正确答案: safeguarding</div>
+        原文最后一段: &ldquo;a genuine commitment to <strong>safeguarding</strong> it as a public good.&rdquo; Safeguarding = 保护、维护，是遗产保护领域的核心术语（UNESCO 官方用词）。
+      </div>
+    </div>
+
+  </div>
+
+  <div class="actions">
+    <button class="btn btn-secondary" onclick="showAll()">显示所有答案</button>
+    <button class="btn btn-primary" onclick="submitAll()">提交</button>
+  </div>
+
+  <div class="result" id="result">
+    <div class="score" id="scoreNum">&#8212;</div>
+    <div class="score-label">/ 11 &middot; <span id="scoreMsg"></span></div>
+    <p style="color:var(--muted);font-size:0.88rem;margin-top:12px;">回到 <a href="index.html" style="color:var(--accent);">主页</a> 继续今日词卡练习</p>
+  </div>
+
+</main>
+
+<nav class="tabbar">
+  <a class="tab-btn active" href="index.html#home"><span class="icon">&#127968;</span>概览</a>
+  <a class="tab-btn" href="index.html#materials"><span class="icon">&#128250;</span>材料</a>
+  <a class="tab-btn" href="index.html#quizzes"><span class="icon">&#9999;&#65039;</span>测验</a>
+  <a class="tab-btn" href="index.html#plan"><span class="icon">&#128203;</span>计划</a>
+</nav>
+
+<script>
+const BLANK_ANS = ['vernacular','overtourism','commodification','safeguarding'];
+document.querySelectorAll('.question[data-type="mcq"]').forEach(q=>{
+  q.querySelectorAll('.option').forEach(btn=>{
+    btn.addEventListener('click',function(){
+      if(q.dataset.locked) return;
+      q.querySelectorAll('.option').forEach(b=>b.classList.remove('selected'));
+      this.classList.add('selected');
+      q.dataset.chosen=this.dataset.key;
+    });
+  });
+});
+function checkBlank(input,ans,qnum){
+  if(input.dataset.locked) return;
+  const v=input.value.trim().toLowerCase();
+  const correct=ans.toLowerCase();
+  input.classList.toggle('correct',v===correct);
+  input.classList.toggle('wrong',v.length>=ans.length&&v!==correct);
+  if(v===correct){
+    input.dataset.locked='1';
+    document.getElementById('ex'+qnum).classList.add('show');
+  }
+}
+function lockMCQ(q){
+  q.dataset.locked='1';
+  const chosen=q.dataset.chosen;
+  const ans=q.dataset.answer;
+  q.querySelectorAll('.option').forEach(btn=>{
+    if(btn.dataset.key===ans) btn.classList.add('correct');
+    else if(btn.dataset.key===chosen&&chosen!==ans) btn.classList.add('wrong');
+  });
+  q.querySelector('.explanation').classList.add('show');
+}
+function submitAll(){
+  let score=0,total=11;
+  document.querySelectorAll('.question[data-type="mcq"]').forEach(q=>{
+    if(!q.dataset.locked) lockMCQ(q);
+    if(q.dataset.chosen===q.dataset.answer) score++;
+  });
+  const inputs=document.querySelectorAll('.blank-input');
+  inputs.forEach((inp,i)=>{
+    const v=inp.value.trim().toLowerCase();
+    if(v===BLANK_ANS[i].toLowerCase()) score++;
+    inp.dataset.locked='1';
+    document.getElementById('ex'+(i+8)).classList.add('show');
+  });
+  document.getElementById('scoreNum').textContent=score;
+  const pct=score/total;
+  const msgs=['继续加油','有进步','还不错','很好','出色！Band 7+!'];
+  document.getElementById('scoreMsg').textContent=msgs[Math.min(Math.floor(pct*4.99),msgs.length-1)];
+  document.getElementById('result').classList.add('show');
+  document.getElementById('progressFill').style.width='100%';
+  document.getElementById('result').scrollIntoView({behavior:'smooth'});
+}
+function showAll(){
+  document.querySelectorAll('.question[data-type="mcq"]').forEach(lockMCQ);
+  const inputs=document.querySelectorAll('.blank-input');
+  inputs.forEach((inp,i)=>{
+    inp.dataset.locked='1';
+    document.getElementById('ex'+(i+8)).classList.add('show');
+  });
+}
+</script>
+</body>
+</html>
