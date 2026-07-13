@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#2563eb">
+<title>Day 55 &middot; Reading T/F/NG &middot; 都市探索与跨文化交流</title>
+<style>
+  :root {
+    --bg: #ffffff; --fg: #1a1a1a; --muted: #6b7280;
+    --accent: #2563eb; --ok: #059669; --err: #dc2626;
+    --card: #f9fafb; --border: #e5e7eb;
+    --nav-bg: rgba(255,255,255,0.92);
+    --header-bg: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f172a; --fg: #f1f5f9; --muted: #94a3b8;
+      --accent: #60a5fa; --ok: #34d399; --err: #f87171;
+      --card: #1e293b; --border: #334155;
+      --nav-bg: rgba(15,23,42,0.92);
+      --header-bg: linear-gradient(135deg, #1e40af 0%, #6b21a8 100%);
+    }
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg); }
+  body { font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif; line-height: 1.6; min-height: 100vh; padding-bottom: calc(64px + env(safe-area-inset-bottom, 0)); }
+  .app-header { background: var(--header-bg); color: white; padding: calc(env(safe-area-inset-top, 16px) + 12px) 16px 14px; position: sticky; top: 0; z-index: 20; display: flex; align-items: center; gap: 12px; }
+  .back-btn { background: rgba(255,255,255,0.18); border: none; color: white; width: 34px; height: 34px; border-radius: 10px; font-size: 1.1rem; cursor: pointer; flex-shrink: 0; text-decoration: none; display: flex; align-items: center; justify-content: center; }
+  .app-header .ttl { font-size: 1rem; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .app-header .sub { font-size: 0.72rem; opacity: 0.85; margin-top: 1px; letter-spacing: 0.04em; text-transform: uppercase; }
+  main { max-width: 720px; margin: 0 auto; padding: 16px; }
+  .progress { height: 6px; background: var(--border); border-radius: 3px; margin-bottom: 16px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--accent); transition: width 0.3s ease; }
+  .passage { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; margin-bottom: 16px; font-size: 0.95rem; line-height: 1.75; }
+  .passage h3 { margin: 0 0 8px; font-size: 0.78rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+  .question { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 14px; }
+  .q-num { color: var(--muted); font-size: 0.78rem; font-family: "SF Mono", Menlo, monospace; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.04em; }
+  .q-text { font-size: 1rem; margin-bottom: 12px; font-weight: 500; }
+  .options { display: flex; flex-direction: column; gap: 8px; }
+  .option { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; cursor: pointer; font-size: 0.95rem; text-align: left; color: var(--fg); font-family: inherit; }
+  .option.selected { border-color: var(--accent); background: rgba(37,99,235,0.08); }
+  .option.correct { border-color: var(--ok); background: rgba(5,150,105,0.1); }
+  .option.wrong { border-color: var(--err); background: rgba(220,38,38,0.1); }
+  .blank-input { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; font-size: 1rem; color: var(--fg); font-family: inherit; }
+  .blank-input.correct { border-color: var(--ok); }
+  .blank-input.wrong { border-color: var(--err); }
+  .explanation { margin-top: 10px; padding: 10px 12px; background: var(--bg); border-left: 3px solid var(--accent); border-radius: 4px; font-size: 0.9rem; color: var(--muted); display: none; }
+  .explanation.show { display: block; }
+  .explanation .answer { color: var(--ok); font-weight: 600; }
+  .actions { display: flex; gap: 10px; margin-top: 20px; }
+  .btn { flex: 1; padding: 12px; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; font-family: inherit; }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-secondary { background: var(--card); color: var(--fg); border: 1px solid var(--border); }
+  .result { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; text-align: center; margin-top: 20px; display: none; }
+  .result.show { display: block; }
+  .score { font-size: 2.5rem; font-weight: 700; color: var(--accent); }
+  .score-label { color: var(--muted); font-size: 0.9rem; margin-top: 4px; }
+  .tabbar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--nav-bg); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px); border-top: 1px solid var(--border); display: flex; padding-bottom: env(safe-area-inset-bottom, 0); z-index: 30; }
+  .tab-btn { flex: 1; background: transparent; border: none; padding: 10px 4px 8px; color: var(--muted); font-size: 0.68rem; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 3px; font-family: inherit; text-decoration: none; }
+  .tab-btn .icon { font-size: 1.25rem; line-height: 1; }
+  .tab-btn.active { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <a class="back-btn" href="index.html#quizzes">&#8592;</a>
+  <div style="flex:1;min-width:0;">
+    <div class="ttl">Reading T/F/NG &middot; 都市探索与跨文化交流</div>
+    <div class="sub">Day 55 &middot; 11 题 &middot; ~12 分钟</div>
+  </div>
+</header>
+
+<main>
+
+  <div class="progress"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+
+  <div class="passage">
+    <h3>Passage &middot; Urban Exploration and Cross-Cultural Exchange in the Modern City (~620 words)</h3>
+    <p>The contemporary city has become the world&rsquo;s most complex laboratory for cross-cultural exchange. Unlike previous generations, when international encounters were largely confined to formal diplomatic settings or colonial contact zones, today&rsquo;s urban traveller moves fluidly between neighbourhoods, cuisines, languages, and social norms, often within the span of a single afternoon. A 2025 survey by the UNWTO found that <em>cosmopolitan</em> city destinations now account for 62% of all international overnight stays, with travellers citing cultural diversity as the primary draw in 43% of cases.</p>
+    <p>Much of this exchange is concentrated in what urban geographers call &ldquo;creative quarters&rdquo; &mdash; districts that were once industrial or working-class, subsequently colonised by artists and young professionals, and eventually transformed by rising property values and boutique commerce. Sociologists describe this process as <em>gentrification</em>: the displacement of lower-income residents and businesses by wealthier incomers, typically following a pattern of aesthetic renovation that increases the cultural cachet and economic value of an area. While gentrification attracts tourism by producing the distinctive streetscapes, independent caf&eacute;s, and art galleries that travellers find appealing, it simultaneously erases the lived cultural diversity it is marketed on.</p>
+    <p>Navigating urban cultural exchange also demands attention to <em>etiquette</em>: the unspoken rules that govern appropriate behaviour in public and semi-public spaces. The same act &mdash; photographing a stranger, bargaining in a shop, or sitting uninvited at a table already occupied &mdash; may be considered entirely normal in one culture and deeply offensive in another. Travel writers and sociologists have long emphasised that respectful cross-cultural interaction begins not with language acquisition but with observation: watching how local people greet each other, how they queue, and how they treat service workers provides more reliable social intelligence than any guidebook.</p>
+    <p>Cities that successfully host cultural exchange tend to foster a sense of <em>camaraderie</em> among visitors and residents alike &mdash; a spirit of shared urban experience that transcends national boundaries. Studies of long-term expatriate communities in cities such as Singapore, Dubai, and Amsterdam suggest that this sense of belonging develops most readily in spaces designed for informal encounter: public markets, community gardens, libraries, and pedestrian-friendly streets. Conversely, urban environments characterised by gated communities, car dependency, and privatised public space tend to produce social atomisation rather than cultural integration.</p>
+    <p>The arts play an increasingly prominent role in facilitating cross-cultural urban experiences. Municipal investment in street art, public sculpture, and cultural festivals has been shown in multiple studies to increase footfall in previously neglected districts, generate economic multipliers across hospitality and retail, and measurably improve residents&rsquo; sense of civic identity. The Tate Modern in London, the Guggenheim Bilbao in Spain, and the MASP in S&atilde;o Paulo are frequently cited as landmark examples of cultural institutions that have catalysed broader urban regeneration &mdash; though critics note that such &ldquo;flagship&rdquo; cultural projects often primarily benefit higher-income visitors rather than the local communities they nominally serve.</p>
+    <p>The challenge for 21st-century cities is therefore to design urban environments that enable genuine cultural encounter rather than merely curating cultural difference for tourist consumption. This requires policies that protect socioeconomic diversity &mdash; through affordable housing, small-business grants, and inclusive public space &mdash; while simultaneously celebrating the architectural layering, multilingual street life, and artistic vitality that make cities magnets for international visitors. A city that prices out its artists and working-class communities in the pursuit of a sanitised &ldquo;global&rdquo; appeal may find that it has destroyed the authentic cultural texture that attracted visitors in the first place.</p>
+  </div>
+
+  <div id="questions">
+
+    <div class="question" data-type="mcq" data-answer="A">
+      <div class="q-num">Q01 &middot; T/F/NG</div>
+      <div class="q-text">According to the 2025 UNWTO survey, cosmopolitan city destinations account for more than half of all international overnight stays.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#x2705; 正确答案: A (True)</div>
+        原文第一段: &ldquo;cosmopolitan city destinations now account for <em>62%</em> of all international overnight stays.&rdquo; 62% 超过一半，与题目 &ldquo;more than half&rdquo; 完全吻合。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="B">
+      <div class="q-num">Q02 &middot; T/F/NG</div>
+      <div class="q-text">The gentrification of urban districts typically begins when wealthy investors deliberately purchase properties to displace existing low-income residents.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#x2705; 正确答案: B (False)</div>
+        原文第二段描述的顺序是: 先由艺术家和年轻专业人士入驻，然后才因房价上涨而排挤低收入居民。题目称 &ldquo;begins when wealthy investors deliberately purchase properties&rdquo;，与原文的 &ldquo;colonised by artists and young professionals&rdquo; 直接矛盾。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="A">
+      <div class="q-num">Q03 &middot; T/F/NG</div>
+      <div class="q-text">The passage suggests that observing how local residents behave in public is a more effective way to understand a culture than reading travel guides.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#x2705; 正确答案: A (True)</div>
+        原文第三段: &ldquo;watching how local people greet each other... provides more <em>reliable social intelligence</em> than any guidebook.&rdquo; 题目中的 &ldquo;travel guides&rdquo; 即对应 &ldquo;any guidebook&rdquo;，表述一致。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="C">
+      <div class="q-num">Q04 &middot; T/F/NG</div>
+      <div class="q-text">The UNWTO survey identified Singapore as the city with the highest level of cross-cultural integration among expatriate communities.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#x2705; 正确答案: C (Not Given)</div>
+        原文第四段提到 Singapore、Dubai 和 Amsterdam 作为研究对象，但并未对比各城市的排名，也未将任何发现归于 UNWTO 调查。题目内容在原文中无从查证。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="A">
+      <div class="q-num">Q05 &middot; T/F/NG</div>
+      <div class="q-text">Public spaces designed for informal interaction, such as markets and pedestrian streets, are associated with stronger cross-cultural community bonds.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#x2705; 正确答案: A (True)</div>
+        原文第四段: &ldquo;this sense of belonging develops most readily in spaces designed for <em>informal encounter</em>: public markets... and pedestrian-friendly streets.&rdquo; 与题目高度吻合。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="B">
+      <div class="q-num">Q06 &middot; T/F/NG</div>
+      <div class="q-text">Cultural flagship institutions such as the Tate Modern and Guggenheim Bilbao have been proven to benefit local working-class communities more than wealthy visitors.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#x2705; 正确答案: B (False)</div>
+        原文第五段: &ldquo;critics note that such &lsquo;flagship&rsquo; cultural projects often primarily benefit <em>higher-income visitors</em> rather than the local communities.&rdquo; 题目的说法与原文直接矛盾。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="C">
+      <div class="q-num">Q07 &middot; T/F/NG</div>
+      <div class="q-text">Several cities have introduced legal quotas requiring a fixed percentage of new residential developments to be allocated as affordable housing for artists and low-income residents.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#x2705; 正确答案: C (Not Given)</div>
+        原文最后一段提到 &ldquo;affordable housing&rdquo; 作为政策方向，但并未提到任何城市已通过相关立法或实施具体配额制度。题目内容在原文中找不到对应信息。
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="cosmopolitan">
+      <div class="q-num">Q08 &middot; 词汇填空</div>
+      <div class="q-text">A 2025 UNWTO survey found that ______ city destinations &mdash; celebrated for their cultural diversity and multilingual street life &mdash; now account for 62% of all international overnight stays.</div>
+      <input class="blank-input" id="b1" placeholder="输入单词…" oninput="checkBlank(this,'cosmopolitan',8)">
+      <div class="explanation" id="ex8">
+        <div class="answer">&#x2705; 正确答案: cosmopolitan</div>
+        原文第一段: &ldquo;<strong>cosmopolitan</strong> city destinations now account for 62% of all international overnight stays.&rdquo; Cosmopolitan = 国际化的、兼容并蓄的，形容城市具有来自世界各地的多元文化特质。
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="gentrification">
+      <div class="q-num">Q09 &middot; 词汇填空</div>
+      <div class="q-text">The process by which rising property values and wealthier incomers gradually displace lower-income residents from formerly working-class urban districts is known as ______.</div>
+      <input class="blank-input" id="b2" placeholder="输入单词…" oninput="checkBlank(this,'gentrification',9)">
+      <div class="explanation" id="ex9">
+        <div class="answer">&#x2705; 正确答案: gentrification</div>
+        原文第二段: &ldquo;Sociologists describe this process as <strong>gentrification</strong>: the displacement of lower-income residents and businesses by wealthier incomers.&rdquo; Gentrification = 中产阶级化/绅士化，指高收入群体涌入导致原有低收入社区被取代的现象。
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="etiquette">
+      <div class="q-num">Q10 &middot; 词汇填空</div>
+      <div class="q-text">The author argues that understanding local ______ &mdash; the unspoken rules governing appropriate behaviour in public spaces &mdash; is as important as language skills for respectful cross-cultural interaction.</div>
+      <input class="blank-input" id="b3" placeholder="输入单词…" oninput="checkBlank(this,'etiquette',10)">
+      <div class="explanation" id="ex10">
+        <div class="answer">&#x2705; 正确答案: etiquette</div>
+        原文第三段: &ldquo;Navigating urban cultural exchange also demands attention to <strong>etiquette</strong>: the unspoken rules that govern appropriate behaviour in public and semi-public spaces.&rdquo; Etiquette = 礼仪、行为规范，尤指特定社会或场合中约定俗成的行为准则。
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="camaraderie">
+      <div class="q-num">Q11 &middot; 词汇填空</div>
+      <div class="q-text">Successful multicultural cities tend to foster a sense of ______ among both residents and visitors, a spirit of shared urban experience that transcends national or cultural boundaries.</div>
+      <input class="blank-input" id="b4" placeholder="输入单词…" oninput="checkBlank(this,'camaraderie',11)">
+      <div class="explanation" id="ex11">
+        <div class="answer">&#x2705; 正确答案: camaraderie</div>
+        原文第四段: &ldquo;Cities that successfully host cultural exchange tend to foster a sense of <strong>camaraderie</strong> among visitors and residents alike &mdash; a spirit of shared urban experience that transcends national boundaries.&rdquo; Camaraderie = 友情、同伴情谊，指因共同经历而产生的亲密感与归属感。
+      </div>
+    </div>
+
+  </div>
+
+  <div class="actions">
+    <button class="btn btn-secondary" onclick="showAll()">显示所有答案</button>
+    <button class="btn btn-primary" onclick="submitAll()">提交</button>
+  </div>
+
+  <div class="result" id="result">
+    <div class="score" id="scoreNum">&#8212;</div>
+    <div class="score-label">/ 11 &middot; <span id="scoreMsg"></span></div>
+    <p style="color:var(--muted);font-size:0.88rem;margin-top:12px;">回到 <a href="index.html" style="color:var(--accent);">主页</a> 继续今日词卡练习</p>
+  </div>
+
+</main>
+
+<nav class="tabbar">
+  <a class="tab-btn active" href="index.html#home"><span class="icon">&#127968;</span>概览</a>
+  <a class="tab-btn" href="index.html#materials"><span class="icon">&#128250;</span>材料</a>
+  <a class="tab-btn" href="index.html#quizzes"><span class="icon">&#9999;&#65039;</span>测验</a>
+  <a class="tab-btn" href="index.html#plan"><span class="icon">&#128203;</span>计划</a>
+</nav>
+
+<script>
+const BLANK_ANS = ['cosmopolitan','gentrification','etiquette','camaraderie'];
+document.querySelectorAll('.question[data-type="mcq"]').forEach(q=>{
+  q.querySelectorAll('.option').forEach(btn=>{
+    btn.addEventListener('click',function(){
+      if(q.dataset.locked) return;
+      q.querySelectorAll('.option').forEach(b=>b.classList.remove('selected'));
+      this.classList.add('selected');
+      q.dataset.chosen=this.dataset.key;
+    });
+  });
+});
+function checkBlank(input,ans,qnum){
+  if(input.dataset.locked) return;
+  const v=input.value.trim().toLowerCase();
+  const correct=ans.toLowerCase();
+  input.classList.toggle('correct',v===correct);
+  input.classList.toggle('wrong',v.length>=ans.length&&v!==correct);
+  if(v===correct){
+    input.dataset.locked='1';
+    document.getElementById('ex'+qnum).classList.add('show');
+  }
+}
+function lockMCQ(q){
+  q.dataset.locked='1';
+  const chosen=q.dataset.chosen;
+  const ans=q.dataset.answer;
+  q.querySelectorAll('.option').forEach(btn=>{
+    if(btn.dataset.key===ans) btn.classList.add('correct');
+    else if(btn.dataset.key===chosen&&chosen!==ans) btn.classList.add('wrong');
+  });
+  q.querySelector('.explanation').classList.add('show');
+}
+function submitAll(){
+  let score=0,total=11;
+  document.querySelectorAll('.question[data-type="mcq"]').forEach(q=>{
+    if(!q.dataset.locked) lockMCQ(q);
+    if(q.dataset.chosen===q.dataset.answer) score++;
+  });
+  const inputs=document.querySelectorAll('.blank-input');
+  inputs.forEach((inp,i)=>{
+    const v=inp.value.trim().toLowerCase();
+    if(v===BLANK_ANS[i].toLowerCase()) score++;
+    inp.dataset.locked='1';
+    document.getElementById('ex'+(i+8)).classList.add('show');
+  });
+  document.getElementById('scoreNum').textContent=score;
+  const pct=score/total;
+  const msgs=['继续加油','有进步','还不错','很好','出色！Band 7+!'];
+  document.getElementById('scoreMsg').textContent=msgs[Math.min(Math.floor(pct*4.99),msgs.length-1)];
+  document.getElementById('result').classList.add('show');
+  document.getElementById('progressFill').style.width='100%';
+  document.getElementById('result').scrollIntoView({behavior:'smooth'});
+}
+function showAll(){
+  document.querySelectorAll('.question[data-type="mcq"]').forEach(lockMCQ);
+  const inputs=document.querySelectorAll('.blank-input');
+  inputs.forEach((inp,i)=>{
+    inp.dataset.locked='1';
+    document.getElementById('ex'+(i+8)).classList.add('show');
+  });
+}
+</script>
+</body>
+</html>
