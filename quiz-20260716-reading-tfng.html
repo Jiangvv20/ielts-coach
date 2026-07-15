@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#2563eb">
+<title>Day 57 &middot; Reading T/F/NG &middot; 国际教育排名与教育改革政治</title>
+<style>
+  :root {
+    --bg: #ffffff; --fg: #1a1a1a; --muted: #6b7280;
+    --accent: #2563eb; --ok: #059669; --err: #dc2626;
+    --card: #f9fafb; --border: #e5e7eb;
+    --nav-bg: rgba(255,255,255,0.92);
+    --header-bg: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f172a; --fg: #f1f5f9; --muted: #94a3b8;
+      --accent: #60a5fa; --ok: #34d399; --err: #f87171;
+      --card: #1e293b; --border: #334155;
+      --nav-bg: rgba(15,23,42,0.92);
+      --header-bg: linear-gradient(135deg, #1e40af 0%, #6b21a8 100%);
+    }
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg); }
+  body { font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif; line-height: 1.6; min-height: 100vh; padding-bottom: calc(64px + env(safe-area-inset-bottom, 0)); }
+  .app-header { background: var(--header-bg); color: white; padding: calc(env(safe-area-inset-top, 16px) + 12px) 16px 14px; position: sticky; top: 0; z-index: 20; display: flex; align-items: center; gap: 12px; }
+  .back-btn { background: rgba(255,255,255,0.18); border: none; color: white; width: 34px; height: 34px; border-radius: 10px; font-size: 1.1rem; cursor: pointer; flex-shrink: 0; text-decoration: none; display: flex; align-items: center; justify-content: center; }
+  .app-header .ttl { font-size: 1rem; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .app-header .sub { font-size: 0.72rem; opacity: 0.85; margin-top: 1px; letter-spacing: 0.04em; text-transform: uppercase; }
+  main { max-width: 720px; margin: 0 auto; padding: 16px; }
+  .progress { height: 6px; background: var(--border); border-radius: 3px; margin-bottom: 16px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--accent); transition: width 0.3s ease; }
+  .passage { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; margin-bottom: 16px; font-size: 0.95rem; line-height: 1.75; }
+  .passage h3 { margin: 0 0 8px; font-size: 0.78rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+  .question { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 14px; }
+  .q-num { color: var(--muted); font-size: 0.78rem; font-family: "SF Mono", Menlo, monospace; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.04em; }
+  .q-text { font-size: 1rem; margin-bottom: 12px; font-weight: 500; }
+  .options { display: flex; flex-direction: column; gap: 8px; }
+  .option { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; cursor: pointer; font-size: 0.95rem; text-align: left; color: var(--fg); font-family: inherit; }
+  .option.selected { border-color: var(--accent); background: rgba(37,99,235,0.08); }
+  .option.correct { border-color: var(--ok); background: rgba(5,150,105,0.1); }
+  .option.wrong { border-color: var(--err); background: rgba(220,38,38,0.1); }
+  .blank-input { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; font-size: 1rem; color: var(--fg); font-family: inherit; }
+  .blank-input:focus { outline: none; border-color: var(--accent); }
+  .blank-input.correct { border-color: var(--ok); }
+  .blank-input.wrong { border-color: var(--err); }
+  .explanation { margin-top: 10px; padding: 10px 12px; background: var(--bg); border-left: 3px solid var(--accent); border-radius: 4px; font-size: 0.9rem; color: var(--muted); display: none; }
+  .explanation.show { display: block; }
+  .explanation .answer { color: var(--ok); font-weight: 600; }
+  .actions { display: flex; gap: 10px; margin-top: 20px; }
+  .btn { flex: 1; padding: 12px; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; font-family: inherit; }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-secondary { background: var(--card); color: var(--fg); border: 1px solid var(--border); }
+  .result { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; text-align: center; margin-top: 20px; display: none; }
+  .result.show { display: block; }
+  .score { font-size: 2.5rem; font-weight: 700; color: var(--accent); }
+  .score-label { color: var(--muted); font-size: 0.9rem; margin-top: 4px; }
+  .tabbar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--nav-bg); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px); border-top: 1px solid var(--border); display: flex; padding-bottom: env(safe-area-inset-bottom, 0); z-index: 30; }
+  .tab-btn { flex: 1; background: transparent; border: none; padding: 10px 4px 8px; color: var(--muted); font-size: 0.68rem; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 3px; font-family: inherit; text-decoration: none; }
+  .tab-btn .icon { font-size: 1.25rem; line-height: 1; }
+  .tab-btn.active { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <a class="back-btn" href="index.html#quizzes">&#8592;</a>
+  <div style="flex:1;min-width:0;">
+    <div class="ttl">Reading T/F/NG &middot; 国际教育排名与教育改革政治</div>
+    <div class="sub">Day 57 &middot; 11 题 &middot; ~13 分钟</div>
+  </div>
+</header>
+
+<main>
+
+  <div class="progress"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+
+  <div class="passage">
+    <h3>Passage &middot; International Education Rankings and the Politics of Educational Reform (~620 words)</h3>
+    <p>The PISA (Programme for International Student Assessment) test, administered by the Organisation for Economic Co-operation and Development (OECD) every three years, has become one of the most influential forces in contemporary education policy. Since its inaugural cycle in 2000, PISA has assessed the reading, mathematics, and science competencies of fifteen-year-old students in more than eighty countries, producing league tables that governments, media, and the public have come to treat as authoritative measures of national educational quality.</p>
+    <p>The publication of PISA results regularly triggers what academics have termed &ldquo;PISA shock&rdquo; &mdash; a period of political anxiety and policy turbulence in countries that perform below expectations. Germany&rsquo;s poor showing in the 2001 results, for instance, prompted a sweeping national debate about the quality of its schooling system and led directly to significant investment in early childhood education and all-day schooling. Similarly, Finland&rsquo;s consistent top-tier performance across the 2000s attracted a flood of education ministers and researchers seeking to identify the &ldquo;Finnish educational miracle&rdquo; &mdash; an approach characterised by highly qualified teachers, minimal standardised testing, and a late start to formal schooling at age seven.</p>
+    <p>Critics, however, argue that the influence of PISA has been disproportionate and at times harmful. The assessment measures only a narrow range of cognitive competencies in three domains, leaving aside creativity, civic responsibility, emotional intelligence, and the arts &mdash; qualities that many educators consider central to a well-rounded education. Because PISA scores are politically sensitive, governments in lower-ranked countries often redirect curriculum priorities towards testable knowledge, a phenomenon researchers describe as the <em>washback effect</em>. This can result in the crowding out of subjects such as physical education, music, and history, which are unlikely to influence a country&rsquo;s PISA score but widely regarded as essential to holistic development.</p>
+    <p>The ethical implications of cross-national ranking are equally contested. Comparative education scholars point out that PISA results are heavily confounded by socioeconomic factors: countries with lower rates of child poverty, more equitable income distribution, and better-funded schools tend to perform better, suggesting that the rankings reflect social inequality as much as educational effectiveness. A country that achieves modest average scores but serves all children equitably may arguably be delivering a more socially just form of education than a high-scoring country whose results are driven by an elite minority.</p>
+    <p>Despite these criticisms, PISA has generated undeniable benefits. The programme has created a shared global dataset enabling researchers to identify evidence-based correlations between pedagogical practices and student outcomes. Studies using PISA data have demonstrated, for example, that countries where teachers enjoy high social status and sustained professional development consistently outperform those where teaching is poorly remunerated and under-resourced. PISA has also documented the persistent <em>attainment gap</em> between students with and without a migration background &mdash; a finding that has prompted targeted policy interventions in several European countries.</p>
+    <p>The broader debate around international rankings ultimately reflects a deeper tension in education: the question of what schools are fundamentally for. If the primary purpose of education is to develop measurable cognitive competencies that fuel economic productivity, then rankings such as PISA serve a legitimate function as efficiency benchmarks. If, however, education is understood as the cultivation of curiosity, moral reasoning, creativity, and democratic citizenship, then the metrics that dominate current policy discourse may be capturing only a fraction of what matters most.</p>
+  </div>
+
+  <div id="questions">
+
+    <div class="question" data-type="mcq" data-answer="A">
+      <div class="q-num">Q01 &middot; T/F/NG</div>
+      <div class="q-text">PISA has assessed fifteen-year-old students in more than eighty countries since its first cycle in 2000.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <span class="answer">Answer: TRUE</span> &mdash; The passage states PISA has "assessed the reading, mathematics, and science competencies of fifteen-year-old students in more than eighty countries" since its "inaugural cycle in 2000."
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="A">
+      <div class="q-num">Q02 &middot; T/F/NG</div>
+      <div class="q-text">Germany's poor performance in the 2001 PISA results led to increased investment in early childhood education.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <span class="answer">Answer: TRUE</span> &mdash; The passage directly states that Germany's poor PISA showing "led directly to significant investment in early childhood education and all-day schooling."
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="B">
+      <div class="q-num">Q03 &middot; T/F/NG</div>
+      <div class="q-text">Finland's educational success was characterised by intensive standardised testing and an early start to formal schooling.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <span class="answer">Answer: FALSE</span> &mdash; The passage explicitly states the Finnish approach was characterised by "<em>minimal</em> standardised testing" and a <em>late</em> start to formal schooling at age seven, the opposite of what the statement claims.
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="B">
+      <div class="q-num">Q04 &middot; T/F/NG</div>
+      <div class="q-text">PISA assessments cover a broad range of skills including creativity, emotional intelligence, and the arts.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <span class="answer">Answer: FALSE</span> &mdash; The passage states that PISA "measures only a narrow range of cognitive competencies in three domains, <em>leaving aside</em> creativity, civic responsibility, emotional intelligence, and the arts."
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="A">
+      <div class="q-num">Q05 &middot; T/F/NG</div>
+      <div class="q-text">According to the passage, countries with lower rates of child poverty tend to achieve higher PISA scores.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <span class="answer">Answer: TRUE</span> &mdash; Paragraph 4 states: "countries with lower rates of child poverty, more equitable income distribution, and better-funded schools tend to perform better."
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="C">
+      <div class="q-num">Q06 &middot; T/F/NG</div>
+      <div class="q-text">The Finnish government has publicly credited PISA rankings as the primary motivation for its education reforms.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <span class="answer">Answer: NOT GIVEN</span> &mdash; The passage mentions Finland's high PISA performance but does not discuss the Finnish government's own stated motivations for its education policies.
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="A">
+      <div class="q-num">Q07 &middot; T/F/NG</div>
+      <div class="q-text">PISA data has been used to identify an achievement gap between students with and without a migration background.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <span class="answer">Answer: TRUE</span> &mdash; The passage states: "PISA has also documented the persistent attainment gap between students with and without a migration background."
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="washback">
+      <div class="q-num">Q08 &middot; 词汇填空</div>
+      <div class="q-text">The passage refers to the phenomenon where PISA pressure causes governments to narrow the curriculum as the "__________ effect." (Fill in <em>one word</em>)</div>
+      <input class="blank-input" type="text" placeholder="Type your answer..." autocapitalize="off">
+      <div class="explanation">
+        <span class="answer">Answer: washback</span> &mdash; Paragraph 3: "a phenomenon researchers describe as the <em>washback effect</em>" — the way that high-stakes tests reshape what teachers teach and students prioritise.
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="crowding">
+      <div class="q-num">Q09 &middot; 词汇填空</div>
+      <div class="q-text">According to paragraph 3, an over-emphasis on PISA results can lead to the "__________ out" of subjects like music and physical education. (Fill in <em>one word</em>)</div>
+      <input class="blank-input" type="text" placeholder="Type your answer..." autocapitalize="off">
+      <div class="explanation">
+        <span class="answer">Answer: crowding</span> &mdash; "This can result in the <em>crowding out</em> of subjects such as physical education, music, and history." The phrase "crowding out" means pushing something aside by competing for resources or attention.
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="confounded">
+      <div class="q-num">Q10 &middot; 词汇填空</div>
+      <div class="q-text">The passage argues that PISA results are heavily "__________ by socioeconomic factors," meaning the rankings are distorted by inequality as much as by actual school quality. (Fill in <em>one word</em>)</div>
+      <input class="blank-input" type="text" placeholder="Type your answer..." autocapitalize="off">
+      <div class="explanation">
+        <span class="answer">Answer: confounded</span> &mdash; "PISA results are heavily <em>confounded</em> by socioeconomic factors." In research, "confounded" means that a variable is entangled with another factor, making it hard to attribute outcomes to education quality alone.
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="benchmarks">
+      <div class="q-num">Q11 &middot; 词汇填空</div>
+      <div class="q-text">In the final paragraph, the author suggests PISA could serve as an "efficiency __________" if the primary purpose of education is economic productivity. (Fill in <em>one word</em>)</div>
+      <input class="blank-input" type="text" placeholder="Type your answer..." autocapitalize="off">
+      <div class="explanation">
+        <span class="answer">Answer: benchmarks</span> &mdash; "rankings such as PISA serve a legitimate function as efficiency <em>benchmarks</em>." A benchmark is a reference point against which performance can be measured and compared.
+      </div>
+    </div>
+
+  </div>
+
+  <div class="actions">
+    <button class="btn btn-secondary" onclick="resetQuiz()">重置</button>
+    <button class="btn btn-primary" onclick="submitQuiz()">提交评分</button>
+  </div>
+
+  <div class="result" id="result">
+    <div class="score" id="scoreText">—</div>
+    <div class="score-label" id="scoreLabel">得分</div>
+    <div style="margin-top:16px;color:var(--muted);font-size:0.88rem;" id="scoreDetail"></div>
+    <button onclick="resetQuiz()" style="margin-top:16px;padding:10px 20px;background:var(--accent);color:white;border:none;border-radius:8px;font-size:0.92rem;font-weight:600;cursor:pointer;font-family:inherit;">再来一次</button>
+    <a href="index.html" style="display:block;margin-top:8px;font-size:0.88rem;color:var(--muted);text-align:center;">回主页</a>
+  </div>
+
+</main>
+
+<nav class="tabbar">
+  <a class="tab-btn" href="index.html#home"><span class="icon">&#127968;</span>概览</a>
+  <a class="tab-btn" href="index.html#materials"><span class="icon">&#128250;</span>材料</a>
+  <a class="tab-btn active" href="index.html#quizzes"><span class="icon">&#9999;&#65039;</span>测验</a>
+  <a class="tab-btn" href="index.html#plan"><span class="icon">&#128203;</span>计划</a>
+</nav>
+
+<script>
+const ANSWERS = {
+  mcq: { 0:"A", 1:"A", 2:"B", 3:"B", 4:"A", 5:"C", 6:"A" },
+  blank: { 7:"washback", 8:"crowding", 9:"confounded", 10:"benchmarks" }
+};
+const userMCQ = {};
+const TOTAL = 11;
+
+document.querySelectorAll('.question[data-type="mcq"]').forEach((q, qi) => {
+  q.querySelectorAll('.option').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (q.classList.contains('answered')) return;
+      userMCQ[qi] = btn.dataset.key;
+      q.querySelectorAll('.option').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      updateProgress();
+    });
+  });
+});
+
+function updateProgress() {
+  const mcqDone = Object.keys(userMCQ).length;
+  const blankDone = document.querySelectorAll('.blank-input').length > 0
+    ? Array.from(document.querySelectorAll('.blank-input')).filter(i => i.value.trim().length > 0).length
+    : 0;
+  const done = mcqDone + blankDone;
+  document.getElementById('progressFill').style.width = (done / TOTAL * 100) + '%';
+}
+
+document.querySelectorAll('.blank-input').forEach(inp => {
+  inp.addEventListener('input', updateProgress);
+});
+
+function submitQuiz() {
+  let correct = 0;
+  document.querySelectorAll('.question[data-type="mcq"]').forEach((q, qi) => {
+    const correct_ans = q.dataset.answer;
+    const user_ans = userMCQ[qi];
+    q.classList.add('answered');
+    q.querySelectorAll('.option').forEach(btn => {
+      if (btn.dataset.key === correct_ans) btn.classList.add('correct');
+      else if (btn.dataset.key === user_ans && user_ans !== correct_ans) btn.classList.add('wrong');
+    });
+    q.querySelector('.explanation').classList.add('show');
+    if (user_ans === correct_ans) correct++;
+  });
+
+  const blanks = document.querySelectorAll('.question[data-type="blank"]');
+  blanks.forEach((q, bqi) => {
+    const inp = q.querySelector('.blank-input');
+    const ans = ANSWERS.blank[bqi + 7];
+    const user = (inp.value || '').trim().toLowerCase();
+    const isCorrect = user === ans.toLowerCase();
+    inp.classList.add(isCorrect ? 'correct' : 'wrong');
+    inp.disabled = true;
+    q.querySelector('.explanation').classList.add('show');
+    if (isCorrect) correct++;
+  });
+
+  document.getElementById('progressFill').style.width = '100%';
+  const pct = Math.round(correct / TOTAL * 100);
+  const band = pct >= 90 ? 'Band 7+' : pct >= 70 ? 'Band 6' : pct >= 50 ? 'Band 5' : 'Band 4';
+  document.getElementById('scoreText').textContent = correct + ' / ' + TOTAL;
+  document.getElementById('scoreLabel').textContent = pct + '% &mdash; ' + band;
+  document.getElementById('scoreLabel').innerHTML = pct + '% &mdash; ' + band;
+  document.getElementById('scoreDetail').textContent = 'T/F/NG 7 题 + 词汇填空 4 题。目标 Band 7 = 正确 ≥ 10 题。';
+  document.getElementById('result').classList.add('show');
+  document.getElementById('result').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function resetQuiz() {
+  Object.keys(userMCQ).forEach(k => delete userMCQ[k]);
+  document.querySelectorAll('.question').forEach(q => {
+    q.classList.remove('answered');
+    q.querySelectorAll('.option').forEach(b => b.classList.remove('selected','correct','wrong'));
+    q.querySelector('.explanation').classList.remove('show');
+  });
+  document.querySelectorAll('.blank-input').forEach(inp => {
+    inp.value = '';
+    inp.disabled = false;
+    inp.classList.remove('correct','wrong');
+  });
+  document.getElementById('result').classList.remove('show');
+  document.getElementById('progressFill').style.width = '0%';
+  window.scrollTo({ top: 0, behavior: 'instant' });
+}
+</script>
+
+</body>
+</html>

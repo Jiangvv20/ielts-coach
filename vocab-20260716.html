@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#2563eb">
+<title>今日 150 词 · 2026-07-16 · Education</title>
+<style>
+  :root {
+    --bg: #ffffff; --fg: #1a1a1a; --muted: #6b7280;
+    --accent: #2563eb; --ok: #059669; --warn: #d97706;
+    --card: #f9fafb; --border: #e5e7eb;
+    --nav-bg: rgba(255,255,255,0.92);
+    --header-bg: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f172a; --fg: #f1f5f9; --muted: #94a3b8;
+      --accent: #60a5fa; --ok: #34d399; --warn: #fbbf24;
+      --card: #1e293b; --border: #334155;
+      --nav-bg: rgba(15,23,42,0.92);
+      --header-bg: linear-gradient(135deg, #1e40af 0%, #6b21a8 100%);
+    }
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg); }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif;
+    line-height: 1.5;
+    min-height: 100vh;
+    padding-bottom: calc(64px + env(safe-area-inset-bottom, 0));
+  }
+  .app-header {
+    background: var(--header-bg); color: white;
+    padding: calc(env(safe-area-inset-top, 16px) + 12px) 16px 14px;
+    position: sticky; top: 0; z-index: 20;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .back-btn {
+    background: rgba(255,255,255,0.18); border: none; color: white;
+    width: 34px; height: 34px; border-radius: 10px;
+    font-size: 1.1rem; cursor: pointer; flex-shrink: 0;
+    text-decoration: none; display: flex; align-items: center; justify-content: center;
+  }
+  .app-header .ttl { font-size: 1rem; font-weight: 700; }
+  .app-header .sub {
+    font-size: 0.72rem; opacity: 0.85; margin-top: 1px;
+    letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  .stats {
+    background: var(--card); padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px; text-align: center;
+  }
+  .stat .num { font-size: 1.4rem; font-weight: 700; }
+  .stat .num.know { color: var(--ok); }
+  .stat .num.weak { color: var(--warn); }
+  .stat .num.left { color: var(--accent); }
+  .stat .lbl { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; margin-top: 2px; }
+  .progress-bar {
+    height: 4px; background: var(--border);
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%; background: var(--accent);
+    transition: width 0.3s;
+  }
+  .card-stage {
+    margin: 24px 16px;
+    perspective: 1000px;
+  }
+  .card-3d {
+    position: relative;
+    width: 100%; min-height: 260px;
+    transform-style: preserve-3d;
+    transition: transform 0.5s;
+    cursor: pointer;
+  }
+  .card-3d.flipped { transform: rotateY(180deg); }
+  .face {
+    position: absolute; width: 100%; height: 100%;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 24px 20px;
+    display: flex; flex-direction: column;
+    justify-content: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .face.front { text-align: center; }
+  .face.front .word {
+    font-size: 2rem; font-weight: 700;
+    color: var(--accent); margin-bottom: 8px;
+    word-break: break-word;
+  }
+  .face.front .pos {
+    color: var(--muted); font-size: 0.95rem;
+    font-style: italic;
+  }
+  .face.front .hint {
+    margin-top: 28px; color: var(--muted);
+    font-size: 0.82rem;
+  }
+  .face.back { transform: rotateY(180deg); }
+  .face.back .zh {
+    font-size: 1.3rem; font-weight: 600;
+    color: var(--accent); margin-bottom: 12px;
+  }
+  .face.back .collo {
+    background: var(--bg); padding: 8px 12px;
+    border-radius: 8px; font-size: 0.92rem;
+    color: var(--fg); margin-bottom: 10px;
+    border-left: 3px solid var(--accent);
+  }
+  .face.back .ex {
+    font-size: 0.95rem; font-style: italic;
+    color: var(--fg); line-height: 1.6;
+  }
+  .face.back .ex strong { color: var(--accent); font-style: normal; }
+  .speaker {
+    position: absolute; top: 14px; right: 14px;
+    width: 36px; height: 36px; border-radius: 50%;
+    background: var(--bg); border: 1px solid var(--border);
+    cursor: pointer; font-size: 1.1rem; padding: 0;
+    color: var(--accent);
+  }
+  .view-toggle {
+    display: flex; padding: 12px 16px 0;
+    gap: 8px;
+  }
+  .view-toggle button {
+    flex: 1; padding: 8px;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 8px; color: var(--muted);
+    font-size: 0.85rem; cursor: pointer; font-family: inherit;
+  }
+  .view-toggle button.active { background: var(--accent); color: white; border-color: var(--accent); }
+  .list-view { display: none; padding: 12px 16px 24px; }
+  .list-view.active { display: block; }
+  .list-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px; border-bottom: 1px solid var(--border);
+    background: var(--card); border-radius: 8px;
+    margin-bottom: 6px;
+  }
+  .list-row .num {
+    flex-shrink: 0; width: 28px;
+    color: var(--muted); font-size: 0.72rem;
+    font-family: "SF Mono", Menlo, monospace;
+  }
+  .list-row .word {
+    flex: 1; min-width: 0;
+  }
+  .list-row .w { font-weight: 600; font-size: 0.95rem; color: var(--fg); }
+  .list-row .w.knew { color: var(--ok); }
+  .list-row .w.weak { color: var(--warn); }
+  .list-row .zh {
+    font-size: 0.78rem; color: var(--muted); margin-top: 2px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .list-row .spk {
+    flex-shrink: 0; width: 32px; height: 32px;
+    border-radius: 50%; background: var(--bg);
+    border: 1px solid var(--border); cursor: pointer;
+    color: var(--accent); font-size: 0.9rem; padding: 0;
+  }
+  .list-row .mk {
+    flex-shrink: 0; width: 24px; text-align: center;
+    color: var(--muted);
+  }
+  .list-row .mk.know { color: var(--ok); }
+  .list-row .mk.weak { color: var(--warn); }
+  .curriculum-note {
+    margin: 16px; padding: 12px 14px;
+    background: var(--card); border-left: 3px solid var(--accent);
+    border-radius: 8px; font-size: 0.82rem;
+    color: var(--muted); line-height: 1.5;
+  }
+  .curriculum-note strong { color: var(--fg); }
+  .actions {
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px; padding: 0 16px;
+  }
+  .btn {
+    padding: 14px 8px; border: 1px solid var(--border);
+    border-radius: 12px; background: var(--card);
+    color: var(--fg); font-size: 0.95rem;
+    font-weight: 600; cursor: pointer; font-family: inherit;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .btn .ico { display: block; font-size: 1.4rem; margin-bottom: 2px; }
+  .btn.weak { color: var(--warn); }
+  .btn.weak:active { background: rgba(217,119,6,0.1); }
+  .btn.flip { color: var(--accent); }
+  .btn.flip:active { background: rgba(37,99,235,0.1); }
+  .btn.know { color: var(--ok); }
+  .btn.know:active { background: rgba(5,150,105,0.1); }
+  .meta {
+    text-align: center; color: var(--muted);
+    font-size: 0.78rem; margin-top: 20px;
+  }
+  .tabbar {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: var(--nav-bg);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    border-top: 1px solid var(--border);
+    display: flex;
+    padding-bottom: env(safe-area-inset-bottom, 0);
+    z-index: 30;
+  }
+  .tab-btn {
+    flex: 1; background: transparent; border: none;
+    padding: 10px 4px 8px; color: var(--muted); font-size: 0.68rem;
+    cursor: pointer;
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    font-family: inherit; text-decoration: none;
+  }
+  .tab-btn .icon { font-size: 1.25rem; line-height: 1; }
+  .tab-btn.active { color: var(--accent); }
+  .done-screen {
+    text-align: center; padding: 60px 24px;
+    display: none;
+  }
+  .done-screen.show { display: block; }
+  .done-screen .big { font-size: 4rem; }
+  .done-screen .ttl { font-size: 1.3rem; font-weight: 700; margin: 8px 0; }
+  .done-screen .sub { color: var(--muted); margin-bottom: 24px; }
+  .done-screen button {
+    background: var(--accent); color: white; border: none;
+    padding: 12px 24px; border-radius: 12px;
+    font-size: 0.95rem; font-weight: 600; cursor: pointer;
+    font-family: inherit; margin: 4px;
+  }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <a class="back-btn" href="index.html#home">&#8592;</a>
+  <div style="flex:1;">
+    <div class="ttl">今日 150 词 &middot; Education</div>
+    <div class="sub">2026-07-16 &middot; Day 57</div>
+  </div>
+</header>
+
+<div class="stats">
+  <div class="stat"><div class="num know" id="kn">0</div><div class="lbl">知道</div></div>
+  <div class="stat"><div class="num weak" id="wk">0</div><div class="lbl">不熟</div></div>
+  <div class="stat"><div class="num left" id="lf">150</div><div class="lbl">剩余</div></div>
+</div>
+<div class="progress-bar"><div class="progress-fill" id="pg" style="width:0%"></div></div>
+
+<div class="view-toggle">
+  <button id="vtFlash" class="active" onclick="setView('flash')">&#128204; 卡片</button>
+  <button id="vtList" onclick="setView('list')">&#128203; 列表</button>
+</div>
+
+<div id="deck">
+  <div class="card-stage">
+    <div class="card-3d" id="card" onclick="flip()">
+      <div class="face front">
+        <button class="speaker" onclick="event.stopPropagation();speak(document.getElementById('w').textContent)">&#128266;</button>
+        <div class="word" id="w">—</div>
+        <div class="pos" id="p">—</div>
+        <div class="hint">轻触卡片 · 翻看释义</div>
+      </div>
+      <div class="face back">
+        <button class="speaker" onclick="event.stopPropagation();speak(document.getElementById('w').textContent)">&#128266;</button>
+        <div class="zh" id="zh">—</div>
+        <div class="collo" id="cl">—</div>
+        <div class="ex" id="ex">—</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="btn weak" onclick="mark('weak')"><span class="ico">&#128543;</span>不熟</button>
+    <button class="btn flip" onclick="flip()"><span class="ico">&#128260;</span>翻转</button>
+    <button class="btn know" onclick="mark('know')"><span class="ico">&#9989;</span>知道</button>
+  </div>
+
+  <div class="meta" id="meta">1 / 150 &middot; Education Day 57 (Cycle 2)</div>
+</div>
+
+<div class="list-view" id="listView">
+  <div id="listBody"></div>
+</div>
+
+<div class="curriculum-note">
+  <strong>词汇来源</strong>: 8 大话题轮换，每 7 天一个话题。<br>
+  Day 57-63 <strong>Education (Cycle 2)</strong> &middot; 本周聚焦: 学习神经科学 / 测评理论 / 教育哲学 / 融合教育 / 教师发展 / EdTech<br>
+  词汇为 Band 7+ 难度，每条含词性 · 中文 · 搭配 · 例句，与前 56 天所有词汇无重叠。
+</div>
+
+<div class="done-screen" id="done">
+  <div class="big">&#127881;</div>
+  <div class="ttl" id="doneTtl">今日 150 词完成!</div>
+  <div class="sub" id="doneSub">知道 0 &middot; 不熟 0</div>
+  <button onclick="resetAll()">重新开始</button>
+  <button onclick="reviewWeak()">只复习不熟</button>
+  <button onclick="location.href='index.html'">回主页</button>
+</div>
+
+<nav class="tabbar">
+  <a class="tab-btn active" href="index.html#home"><span class="icon">&#127968;</span>概览</a>
+  <a class="tab-btn" href="index.html#materials"><span class="icon">&#128250;</span>材料</a>
+  <a class="tab-btn" href="index.html#quizzes"><span class="icon">&#9999;&#65039;</span>测验</a>
+  <a class="tab-btn" href="index.html#plan"><span class="icon">&#128203;</span>计划</a>
+</nav>
+
+<script>
+const CARDS = [
+{"w":"neuroplasticity","p":"n.","zh":"神经可塑性","cl":"demonstrate neuroplasticity","ex":"The brain&rsquo;s capacity for <strong>neuroplasticity</strong> means it can be rewired through deliberate practice."},
+{"w":"cognitive load","p":"n.","zh":"认知负荷","cl":"reduce cognitive load","ex":"Skilled teachers reduce <strong>cognitive load</strong> by breaking complex tasks into manageable steps."},
+{"w":"executive function","p":"n.","zh":"执行功能","cl":"develop executive function","ex":"Strong <strong>executive function</strong> enables students to plan, prioritise, and self-regulate their learning."},
+{"w":"retrieval practice","p":"n.","zh":"提取练习","cl":"implement retrieval practice","ex":"Research confirms that <strong>retrieval practice</strong> strengthens long-term memory far more than re-reading."},
+{"w":"spacing effect","p":"n.","zh":"间隔效应","cl":"leverage the spacing effect","ex":"Learners who exploit the <strong>spacing effect</strong> distribute revision over days rather than cramming the night before."},
+{"w":"interleaving","p":"n.","zh":"交错练习","cl":"practise via interleaving","ex":"Studying maths topics via <strong>interleaving</strong> produces stronger retention than blocked repetition of one topic."},
+{"w":"desirable difficulty","p":"n.","zh":"适当难度","cl":"introduce desirable difficulty","ex":"Teachers who introduce <strong>desirable difficulty</strong> challenge students just enough to deepen understanding."},
+{"w":"consolidation","p":"n.","zh":"记忆巩固","cl":"aid memory consolidation","ex":"Memory <strong>consolidation</strong> occurs primarily during slow-wave sleep, not during active study."},
+{"w":"synaptic pruning","p":"n.","zh":"突触修剪","cl":"undergo synaptic pruning","ex":"The adolescent brain undergoes intensive <strong>synaptic pruning</strong>, strengthening frequently used pathways."},
+{"w":"myelination","p":"n.","zh":"髓鞘化","cl":"accelerate myelination","ex":"Repeated practice accelerates <strong>myelination</strong> of neural pathways, making skills increasingly automatic."},
+{"w":"schema","p":"n.","zh":"认知图式","cl":"activate prior schema","ex":"Teachers activate prior <strong>schema</strong> to connect new knowledge to what students already understand."},
+{"w":"dual coding","p":"n.","zh":"双重编码","cl":"apply dual coding","ex":"Combining verbal and visual information, known as <strong>dual coding</strong>, significantly enhances retention."},
+{"w":"embodied cognition","p":"n.","zh":"具身认知","cl":"draw on embodied cognition","ex":"Research on <strong>embodied cognition</strong> shows that physical movement can enhance mathematical reasoning."},
+{"w":"neurogenesis","p":"n.","zh":"神经元新生","cl":"promote neurogenesis","ex":"Regular aerobic exercise promotes <strong>neurogenesis</strong> in the hippocampus, directly supporting new learning."},
+{"w":"hippocampal","p":"adj.","zh":"海马体的","cl":"hippocampal activation","ex":"<strong>Hippocampal</strong> activation is central to the formation of new long-term episodic memories."},
+{"w":"prefrontal","p":"adj.","zh":"前额叶的","cl":"prefrontal maturation","ex":"<strong>Prefrontal</strong> maturation continues well into a person's mid-twenties, affecting decision-making and impulse control."},
+{"w":"spaced repetition","p":"n.","zh":"间隔重复","cl":"use spaced repetition","ex":"Language learners who use <strong>spaced repetition</strong> software consistently outperform those who do not."},
+{"w":"retrieval cue","p":"n.","zh":"提取线索","cl":"trigger a retrieval cue","ex":"A familiar smell or location can trigger a powerful <strong>retrieval cue</strong> for associated memories."},
+{"w":"elaborative interrogation","p":"n.","zh":"精细追问法","cl":"practise elaborative interrogation","ex":"Students who use <strong>elaborative interrogation</strong> ask &ldquo;why&rdquo; and &ldquo;how&rdquo; to build richer conceptual understanding."},
+{"w":"prior knowledge","p":"n.","zh":"先验知识","cl":"activate prior knowledge","ex":"Effective lessons begin by activating <strong>prior knowledge</strong> to scaffold the introduction of new concepts."},
+{"w":"transfer of learning","p":"n.","zh":"学习迁移","cl":"facilitate transfer of learning","ex":"Open-ended tasks facilitate the <strong>transfer of learning</strong> to novel real-world situations beyond the classroom."},
+{"w":"metacognitive","p":"adj.","zh":"元认知的","cl":"metacognitive awareness","ex":"Students with strong <strong>metacognitive</strong> awareness can accurately assess their own knowledge gaps and learning needs."},
+{"w":"inhibitory control","p":"n.","zh":"抑制控制","cl":"strengthen inhibitory control","ex":"Activities that strengthen <strong>inhibitory control</strong> help children resist distraction and stay focused in class."},
+{"w":"chunking","p":"n.","zh":"组块记忆","cl":"rely on chunking","ex":"Experts rely on <strong>chunking</strong> to process complex information as single meaningful units, reducing cognitive load."},
+{"w":"attentional","p":"adj.","zh":"注意力相关的","cl":"attentional resources","ex":"Young children have limited <strong>attentional</strong> resources and benefit from brief, varied learning tasks."},
+{"w":"formative assessment","p":"n.","zh":"形成性评估","cl":"conduct formative assessment","ex":"Regular <strong>formative assessment</strong> gives teachers real-time insight into student progress and learning gaps."},
+{"w":"summative assessment","p":"n.","zh":"终结性评估","cl":"rely on summative assessment","ex":"Schools that rely solely on <strong>summative assessment</strong> may overlook persistent learning difficulties between exams."},
+{"w":"criterion-referenced","p":"adj.","zh":"标准参照的","cl":"a criterion-referenced test","ex":"A <strong>criterion-referenced</strong> test evaluates each student against a fixed standard, not against the class average."},
+{"w":"norm-referenced","p":"adj.","zh":"常模参照的","cl":"a norm-referenced exam","ex":"A <strong>norm-referenced</strong> exam ranks students relative to their peers rather than against set performance criteria."},
+{"w":"rubric","p":"n.","zh":"评分标准","cl":"design a rubric","ex":"A detailed <strong>rubric</strong> helps students understand exactly what is required to achieve each grade boundary."},
+{"w":"high-stakes testing","p":"n.","zh":"高风险测试","cl":"criticise high-stakes testing","ex":"Critics argue that <strong>high-stakes testing</strong> narrows the curriculum to only what can be efficiently measured."},
+{"w":"washback effect","p":"n.","zh":"反拨效应","cl":"describe the washback effect","ex":"The <strong>washback effect</strong> refers to how examination formats shape what teachers prioritise and students learn."},
+{"w":"construct validity","p":"n.","zh":"构念效度","cl":"establish construct validity","ex":"A test must establish <strong>construct validity</strong> to confirm it genuinely measures the intended underlying skill."},
+{"w":"consequential validity","p":"n.","zh":"后果效度","cl":"consider consequential validity","ex":"<strong>Consequential validity</strong> asks whether the use of a test leads to fair and educationally beneficial outcomes."},
+{"w":"portfolio assessment","p":"n.","zh":"档案袋评估","cl":"implement portfolio assessment","ex":"<strong>Portfolio assessment</strong> captures the full range and depth of a learner's work across an entire academic year."},
+{"w":"diagnostic","p":"adj.","zh":"诊断性的","cl":"a diagnostic assessment","ex":"A <strong>diagnostic</strong> assessment administered at the start of year reveals specific literacy or numeracy gaps."},
+{"w":"benchmark","p":"n.","zh":"基准/标杆","cl":"set a national benchmark","ex":"National examinations set a <strong>benchmark</strong> against which individual school performance can be measured and compared."},
+{"w":"psychometrics","p":"n.","zh":"心理测量学","cl":"apply psychometrics","ex":"<strong>Psychometrics</strong> provides statistical methods for designing, scoring, and interpreting educational assessments."},
+{"w":"item analysis","p":"n.","zh":"题目分析","cl":"conduct item analysis","ex":"<strong>Item analysis</strong> identifies questions that fail to discriminate adequately between stronger and weaker candidates."},
+{"w":"standardised","p":"adj.","zh":"标准化的","cl":"standardised testing","ex":"Critics warn that over-reliance on <strong>standardised</strong> testing disadvantages students from under-resourced schools."},
+{"w":"test bias","p":"n.","zh":"测试偏差","cl":"detect test bias","ex":"Researchers analyse response patterns to detect potential <strong>test bias</strong> against minority or disadvantaged groups."},
+{"w":"assessment literacy","p":"n.","zh":"评估素养","cl":"improve assessment literacy","ex":"Teachers with strong <strong>assessment literacy</strong> can design tasks that align assessment with clear learning intentions."},
+{"w":"self-assessment","p":"n.","zh":"自我评估","cl":"promote self-assessment","ex":"<strong>Self-assessment</strong> encourages learners to take ownership of and responsibility for monitoring their own progress."},
+{"w":"peer assessment","p":"n.","zh":"同伴互评","cl":"adopt peer assessment","ex":"<strong>Peer assessment</strong> develops evaluative thinking and deepens students' understanding of the criteria for quality work."},
+{"w":"ipsative assessment","p":"n.","zh":"自比评估","cl":"use ipsative assessment","ex":"<strong>Ipsative assessment</strong> measures growth by comparing a student's current work with their own previous performance."},
+{"w":"constructivism","p":"n.","zh":"建构主义","cl":"rooted in constructivism","ex":"Rooted in <strong>constructivism</strong>, discovery-based learning holds that students build knowledge through active experience."},
+{"w":"progressivism","p":"n.","zh":"进步主义教育","cl":"influenced by progressivism","ex":"Influenced by <strong>progressivism</strong>, this school places student interests and experiential learning at the centre of the curriculum."},
+{"w":"behaviourism","p":"n.","zh":"行为主义","cl":"challenge behaviourism","ex":"Modern cognitive science has fundamentally challenged <strong>behaviourism</strong>'s view of learning as conditioned stimulus-response."},
+{"w":"essentialism","p":"n.","zh":"要素主义","cl":"advocate essentialism","ex":"Proponents of <strong>essentialism</strong> maintain that all students should master a shared body of foundational cultural knowledge."},
+{"w":"critical pedagogy","p":"n.","zh":"批判教育学","cl":"embrace critical pedagogy","ex":"<strong>Critical pedagogy</strong>, pioneered by Paulo Freire, invites students to question inequity and challenge social structures."},
+{"w":"Socratic seminar","p":"n.","zh":"苏格拉底研讨","cl":"conduct a Socratic seminar","ex":"A <strong>Socratic seminar</strong> uses structured questioning to help students collaboratively construct understanding."},
+{"w":"Montessori","p":"adj.","zh":"蒙台梭利的","cl":"a Montessori approach","ex":"The <strong>Montessori</strong> approach gives children agency to choose their own learning materials, pace, and sequence."},
+{"w":"Reggio Emilia","p":"n.","zh":"瑞吉欧教育体系","cl":"inspired by Reggio Emilia","ex":"The <strong>Reggio Emilia</strong> approach views the environment as a &ldquo;third teacher,&rdquo; alongside peers and adults."},
+{"w":"Deweyian","p":"adj.","zh":"杜威式的","cl":"a Deweyian philosophy","ex":"A <strong>Deweyian</strong> philosophy holds that genuine education should be grounded in democratic participation and real experience."},
+{"w":"epistemology","p":"n.","zh":"认识论","cl":"educational epistemology","ex":"<strong>Epistemology</strong> in education examines the nature of knowledge and how learners come to understand the world."},
+{"w":"ontology","p":"n.","zh":"本体论","cl":"question ontology","ex":"Postmodern educators question <strong>ontology</strong>, challenging the notion that there is a fixed body of truth to be transmitted."},
+{"w":"praxis","p":"n.","zh":"实践 (行动与反思)","cl":"transform theory into praxis","ex":"Critical educators advocate transforming theory into <strong>praxis</strong> through iterative cycles of reflective action."},
+{"w":"emancipatory","p":"adj.","zh":"解放性的","cl":"emancipatory education","ex":"<strong>Emancipatory</strong> education aims to liberate learners from oppressive social structures that limit their potential."},
+{"w":"indoctrination","p":"n.","zh":"思想灌输","cl":"avoid indoctrination","ex":"Educators must carefully distinguish between instilling shared values and <strong>indoctrination</strong>."},
+{"w":"liberal education","p":"n.","zh":"通识教育","cl":"advocate liberal education","ex":"Advocates of <strong>liberal education</strong> argue that breadth of knowledge cultivates better citizens than narrow specialisation."},
+{"w":"civic education","p":"n.","zh":"公民教育","cl":"strengthen civic education","ex":"Stronger <strong>civic education</strong> equips young people with the knowledge and disposition to participate in democratic life."},
+{"w":"pluralism","p":"n.","zh":"多元主义","cl":"value educational pluralism","ex":"Educational <strong>pluralism</strong> recognises and accommodates diverse learning traditions and philosophical frameworks."},
+{"w":"dialectical","p":"adj.","zh":"辩证的","cl":"a dialectical approach","ex":"A <strong>dialectical</strong> approach to classroom discussion encourages students to argue, counter-argue, and synthesise."},
+{"w":"phenomenology","p":"n.","zh":"现象学","cl":"apply phenomenology in education","ex":"<strong>Phenomenology</strong> foregrounds the lived experience of teachers and learners rather than detached abstract theory."},
+{"w":"antiracist pedagogy","p":"n.","zh":"反种族主义教育学","cl":"implement antiracist pedagogy","ex":"<strong>Antiracist pedagogy</strong> actively dismantles racial bias embedded in curriculum materials and classroom practice."},
+{"w":"PISA","p":"n.","zh":"国际学生评估项目","cl":"perform well on PISA","ex":"Nations that consistently perform well on <strong>PISA</strong> tend to invest heavily in teacher training and professional autonomy."},
+{"w":"TIMSS","p":"n.","zh":"国际数学和科学趋势研究","cl":"the TIMSS rankings","ex":"The <strong>TIMSS</strong> rankings reveal significant disparities in maths achievement between countries with different teaching traditions."},
+{"w":"cross-national","p":"adj.","zh":"跨国的","cl":"cross-national comparisons","ex":"<strong>Cross-national</strong> comparisons in education must account for cultural, linguistic, and socioeconomic differences."},
+{"w":"decentralisation","p":"n.","zh":"权力下放","cl":"pursue educational decentralisation","ex":"Finland's decision to pursue <strong>decentralisation</strong> gave individual schools and teachers considerable professional freedom."},
+{"w":"school autonomy","p":"n.","zh":"学校自主权","cl":"grant school autonomy","ex":"Granting schools greater <strong>autonomy</strong> over curriculum and staffing can foster innovation but may widen quality gaps."},
+{"w":"marketisation","p":"n.","zh":"市场化","cl":"the marketisation of education","ex":"The <strong>marketisation</strong> of higher education has transformed universities into providers competing for student consumers."},
+{"w":"privatisation","p":"n.","zh":"私有化","cl":"debate privatisation of schools","ex":"The <strong>privatisation</strong> of state schools remains deeply controversial in many OECD countries."},
+{"w":"UNESCO","p":"n.","zh":"联合国教科文组织","cl":"UNESCO frameworks","ex":"<strong>UNESCO</strong> frameworks emphasise every child's fundamental right to inclusive, equitable, and quality education."},
+{"w":"SDG 4","p":"n.","zh":"可持续发展目标4","cl":"commit to SDG 4","ex":"Governments that commit to <strong>SDG 4</strong> pledge to ensure inclusive and equitable quality education for all by 2030."},
+{"w":"multilingual education","p":"n.","zh":"多语言教育","cl":"implement multilingual education","ex":"Research shows that <strong>multilingual education</strong> programmes deliver strong literacy outcomes for minority-language children."},
+{"w":"transnational","p":"adj.","zh":"跨国的","cl":"transnational education","ex":"<strong>Transnational</strong> education allows students to earn foreign qualifications without relocating to another country."},
+{"w":"brain drain","p":"n.","zh":"人才流失","cl":"suffer from brain drain","ex":"Developing nations suffer from <strong>brain drain</strong> when their most highly educated graduates seek opportunities abroad."},
+{"w":"capacity building","p":"n.","zh":"能力建设","cl":"invest in capacity building","ex":"International development agencies invest in <strong>capacity building</strong> to strengthen education systems in low-income countries."},
+{"w":"educational equity","p":"n.","zh":"教育公平","cl":"advance educational equity","ex":"Closing the funding gap between affluent and disadvantaged schools is central to advancing <strong>educational equity</strong>."},
+{"w":"attainment gap","p":"n.","zh":"成就差距","cl":"close the attainment gap","ex":"Targeted early intervention programmes aim to close the <strong>attainment gap</strong> between different socioeconomic groups."},
+{"w":"inclusion","p":"n.","zh":"融合教育","cl":"champion inclusion","ex":"Many educators champion <strong>inclusion</strong>, integrating students with disabilities into mainstream classrooms with appropriate support."},
+{"w":"SEND","p":"n.","zh":"特殊教育需求与残疾","cl":"support students with SEND","ex":"Teachers must adapt their lessons to ensure students with <strong>SEND</strong> can access and participate fully in learning."},
+{"w":"IEP","p":"n.","zh":"个别化教育计划","cl":"draft an IEP","ex":"Every child with a learning disability should have a personalised <strong>IEP</strong> developed with parents and specialists."},
+{"w":"Universal Design for Learning","p":"n.","zh":"通用学习设计","cl":"adopt Universal Design for Learning","ex":"<strong>Universal Design for Learning</strong> removes barriers by offering multiple means of engagement, representation, and expression."},
+{"w":"dyslexia","p":"n.","zh":"阅读障碍","cl":"identify dyslexia early","ex":"Early identification of <strong>dyslexia</strong> allows schools to provide targeted phonics-based literacy support at the right stage."},
+{"w":"dyscalculia","p":"n.","zh":"数学学习障碍","cl":"assess for dyscalculia","ex":"<strong>Dyscalculia</strong> affects a learner's ability to understand number concepts and perform arithmetic reliably."},
+{"w":"ADHD","p":"n.","zh":"注意力缺陷多动障碍","cl":"support students with ADHD","ex":"Teachers who understand <strong>ADHD</strong> can redesign tasks to harness students' energy rather than merely suppress it."},
+{"w":"autism spectrum","p":"n.","zh":"自闭症谱系","cl":"students on the autism spectrum","ex":"Students on the <strong>autism spectrum</strong> often benefit from clearly structured routines and explicit social-skills instruction."},
+{"w":"assistive technology","p":"n.","zh":"辅助技术","cl":"deploy assistive technology","ex":"<strong>Assistive technology</strong> such as text-to-speech software dramatically expands curriculum access for learners with disabilities."},
+{"w":"reasonable adjustment","p":"n.","zh":"合理便利安排","cl":"make a reasonable adjustment","ex":"Examination boards are legally required to make <strong>reasonable adjustments</strong> for candidates with documented disabilities."},
+{"w":"stigma","p":"n.","zh":"偏见/污名化","cl":"reduce stigma","ex":"Reducing the <strong>stigma</strong> surrounding learning differences encourages students to disclose difficulties and seek help."},
+{"w":"deficit model","p":"n.","zh":"缺陷模型","cl":"reject the deficit model","ex":"Inclusive educators reject the <strong>deficit model</strong>, which defines learners by what they cannot do rather than what they can."},
+{"w":"strengths-based","p":"adj.","zh":"优势导向的","cl":"a strengths-based approach","ex":"A <strong>strengths-based</strong> approach identifies and builds on learners' existing capabilities, interests, and talents."},
+{"w":"differentiated instruction","p":"n.","zh":"差异化教学","cl":"provide differentiated instruction","ex":"<strong>Differentiated instruction</strong> tailors content, process, and assessment to meet the diverse needs within one class."},
+{"w":"co-teaching","p":"n.","zh":"协同教学","cl":"implement co-teaching","ex":"<strong>Co-teaching</strong> pairs a subject specialist with a SEND expert to jointly serve all learners in the same classroom."},
+{"w":"professional learning community","p":"n.","zh":"专业学习社群","cl":"build a professional learning community","ex":"A strong <strong>professional learning community</strong> sustains a school-wide culture of collaborative inquiry and shared responsibility."},
+{"w":"reflective practice","p":"n.","zh":"反思性实践","cl":"cultivate reflective practice","ex":"Mentor teachers encourage trainees to cultivate <strong>reflective practice</strong> through systematic lesson journaling and self-evaluation."},
+{"w":"instructional leadership","p":"n.","zh":"教学领导力","cl":"exercise instructional leadership","ex":"Principals who exercise <strong>instructional leadership</strong> spend significant time observing classes and coaching teachers on pedagogy."},
+{"w":"distributed leadership","p":"n.","zh":"分布式领导","cl":"embrace distributed leadership","ex":"Schools that embrace <strong>distributed leadership</strong> empower heads of department and senior pupils to drive improvement."},
+{"w":"pedagogical content knowledge","p":"n.","zh":"学科教学知识","cl":"develop pedagogical content knowledge","ex":"<strong>Pedagogical content knowledge</strong> blends subject-matter expertise with deep understanding of how to teach it effectively."},
+{"w":"mentorship","p":"n.","zh":"导师制","cl":"formalise mentorship","ex":"Formalised <strong>mentorship</strong> programmes have been shown to significantly reduce early-career teacher attrition."},
+{"w":"teacher efficacy","p":"n.","zh":"教师效能感","cl":"boost teacher efficacy","ex":"Supportive school leadership and collaborative planning significantly boost <strong>teacher efficacy</strong> and job satisfaction."},
+{"w":"attrition","p":"n.","zh":"人员流失","cl":"reduce teacher attrition","ex":"Competitive pay, professional respect, and manageable workloads are essential to reducing <strong>attrition</strong> from the profession."},
+{"w":"instructional coaching","p":"n.","zh":"教学辅导","cl":"provide instructional coaching","ex":"<strong>Instructional coaching</strong> by an experienced peer is consistently found to be more effective than one-off training workshops."},
+{"w":"appraisal","p":"n.","zh":"绩效评估","cl":"conduct a fair appraisal","ex":"Annual <strong>appraisals</strong> should be developmental conversations, not merely punitive measurements of past performance."},
+{"w":"induction","p":"n.","zh":"入职培训","cl":"design an induction programme","ex":"A well-structured <strong>induction</strong> programme eases newly qualified teachers into the complex realities of classroom life."},
+{"w":"continuing professional development","p":"n.","zh":"持续专业发展","cl":"complete continuing professional development","ex":"Most licensing bodies require teachers to complete annual <strong>continuing professional development</strong> to maintain their credentials."},
+{"w":"workload","p":"n.","zh":"工作量","cl":"manage teacher workload","ex":"Unmanageable <strong>workload</strong> is consistently cited as the primary driver of stress and departure among teaching professionals."},
+{"w":"collaborative inquiry","p":"n.","zh":"协作探究","cl":"engage in collaborative inquiry","ex":"Regular <strong>collaborative inquiry</strong> among staff helps schools identify and share evidence-based instructional strategies."},
+{"w":"peer observation","p":"n.","zh":"同伴课堂观摩","cl":"conduct peer observation","ex":"Structured <strong>peer observation</strong> creates a culture of mutual professional learning and shared accountability."},
+{"w":"capability","p":"n.","zh":"能力集合","cl":"build teacher capability","ex":"Investing in <strong>capability</strong> across the whole teaching staff yields school-wide improvements in student outcomes."},
+{"w":"resilience","p":"n.","zh":"韧性","cl":"foster staff resilience","ex":"Schools that actively foster <strong>resilience</strong> among their staff create a culture of growth rather than blame."},
+{"w":"motivational climate","p":"n.","zh":"动机氛围","cl":"create a positive motivational climate","ex":"A positive <strong>motivational climate</strong> values effort and learning over raw performance rankings."},
+{"w":"distributed cognition","p":"n.","zh":"分布式认知","cl":"leverage distributed cognition","ex":"<strong>Distributed cognition</strong> describes how learning occurs across people, tools, and environments, not only in individual minds."},
+{"w":"professional autonomy","p":"n.","zh":"职业自主权","cl":"protect professional autonomy","ex":"High-performing education systems typically afford teachers considerable <strong>professional autonomy</strong> over curriculum and methods."},
+{"w":"learning management system","p":"n.","zh":"学习管理系统","cl":"adopt a learning management system","ex":"Most universities now use a <strong>learning management system</strong> to organise course materials, assignments, and grade records."},
+{"w":"gamification","p":"n.","zh":"游戏化","cl":"implement gamification","ex":"<strong>Gamification</strong> applies game mechanics such as points, badges, and leaderboards to motivate and engage learners."},
+{"w":"immersive learning","p":"n.","zh":"沉浸式学习","cl":"design immersive learning","ex":"Virtual-reality headsets enable <strong>immersive learning</strong> experiences that would be impossible in a conventional classroom."},
+{"w":"adaptive algorithm","p":"n.","zh":"自适应算法","cl":"deploy an adaptive algorithm","ex":"An <strong>adaptive algorithm</strong> personalises the difficulty and pacing of each task based on the learner's prior performance."},
+{"w":"learning analytics","p":"n.","zh":"学习分析","cl":"implement learning analytics","ex":"<strong>Learning analytics</strong> uses data from digital platforms to identify at-risk students and tailor early support."},
+{"w":"learning pathway","p":"n.","zh":"学习路径","cl":"personalise the learning pathway","ex":"Adaptive software personalises the <strong>learning pathway</strong> so each student progresses at their optimal pace."},
+{"w":"digital literacy","p":"n.","zh":"数字素养","cl":"develop digital literacy","ex":"Schools have a responsibility to develop <strong>digital literacy</strong> as a core competency alongside reading and numeracy."},
+{"w":"Open Educational Resources","p":"n.","zh":"开放教育资源","cl":"share Open Educational Resources","ex":"Platforms sharing <strong>Open Educational Resources</strong> have democratised access to high-quality instructional content worldwide."},
+{"w":"microlearning","p":"n.","zh":"微学习","cl":"design for microlearning","ex":"Corporate training teams increasingly design for <strong>microlearning</strong>, delivering content in focused five-minute bursts."},
+{"w":"synchronous","p":"adj.","zh":"同步的","cl":"synchronous online sessions","ex":"<strong>Synchronous</strong> online sessions replicate the real-time dialogue of face-to-face classes but require stable internet access."},
+{"w":"augmented reality","p":"n.","zh":"增强现实","cl":"incorporate augmented reality","ex":"<strong>Augmented reality</strong> overlays interactive instructional content onto physical objects, enhancing engagement and comprehension."},
+{"w":"learning ecosystem","p":"n.","zh":"学习生态系统","cl":"build a learning ecosystem","ex":"A well-designed <strong>learning ecosystem</strong> integrates formal schooling, informal learning spaces, and community resources."},
+{"w":"blended delivery","p":"n.","zh":"混合式传授","cl":"adopt blended delivery","ex":"<strong>Blended delivery</strong> combines online self-paced modules with in-person seminars for maximum flexibility and depth."},
+{"w":"EdTech","p":"n.","zh":"教育科技","cl":"invest in EdTech","ex":"Not all investment in <strong>EdTech</strong> translates into improved outcomes; implementation quality matters as much as the technology."},
+{"w":"accessibility","p":"n.","zh":"可及性","cl":"ensure digital accessibility","ex":"Schools must ensure digital <strong>accessibility</strong> so that students with visual or motor impairments can use online platforms."},
+{"w":"raise the bar","p":"phrasal v.","zh":"提高标准","cl":"raise the bar for students","ex":"Ambitious curriculum reform can <strong>raise the bar</strong> for what all students are expected to achieve."},
+{"w":"set the tone","p":"phrasal v.","zh":"定调","cl":"set the tone for the year","ex":"The first week of school <strong>sets the tone</strong> for the entire academic year's classroom culture and expectations."},
+{"w":"instil a love of learning","p":"v. phrase","zh":"培养对学习的热爱","cl":"instil a love of learning","ex":"The finest educators <strong>instil a love of learning</strong> that outlasts formal schooling by decades."},
+{"w":"bridge the gap","p":"phrasal v.","zh":"弥合差距","cl":"bridge the achievement gap","ex":"Targeted tutoring programmes aim to <strong>bridge the gap</strong> between disadvantaged and more affluent students."},
+{"w":"second nature","p":"idiom","zh":"第二天性","cl":"become second nature","ex":"With consistent practice, critical analysis becomes <strong>second nature</strong> to confident academic writers."},
+{"w":"have the edge","p":"idiom","zh":"具有优势","cl":"have the edge over rivals","ex":"Students who read widely <strong>have the edge over</strong> those who rely solely on assigned textbooks."},
+{"w":"fall behind","p":"phrasal v.","zh":"落后","cl":"fall behind academically","ex":"Early intervention prevents at-risk students from <strong>falling behind</strong> their peers and losing confidence."},
+{"w":"stay on track","p":"idiom","zh":"保持正轨","cl":"stay on track academically","ex":"Regular check-ins with tutors help students <strong>stay on track</strong> throughout the academic term."},
+{"w":"level the playing field","p":"idiom","zh":"公平竞争","cl":"level the playing field","ex":"Generous scholarships help <strong>level the playing field</strong> for talented students from low-income families."},
+{"w":"a paradigm shift","p":"n. phrase","zh":"范式转变","cl":"bring about a paradigm shift","ex":"Remote learning during the pandemic brought about a <strong>paradigm shift</strong> in how society defines a classroom."},
+{"w":"fall short of","p":"idiom","zh":"未达到","cl":"fall short of expectations","ex":"Many well-intentioned education reforms <strong>fall short of</strong> expectations due to inadequate implementation support."},
+{"w":"hit the ground running","p":"idiom","zh":"立即全力以赴","cl":"hit the ground running","ex":"Students who prepare thoroughly over summer can <strong>hit the ground running</strong> when university begins."},
+{"w":"go the extra mile","p":"idiom","zh":"付出额外努力","cl":"go the extra mile for students","ex":"Dedicated teachers <strong>go the extra mile</strong> by providing individual feedback outside scheduled class time."},
+{"w":"make strides","p":"idiom","zh":"取得重大进步","cl":"make strides in literacy","ex":"Developing nations are making impressive <strong>strides</strong> in closing the gender gap in tertiary education enrolment."},
+{"w":"come to grips with","p":"idiom","zh":"开始认真掌握","cl":"come to grips with theory","ex":"Students must first <strong>come to grips with</strong> abstract concepts before applying them confidently to real problems."},
+{"w":"rise to the challenge","p":"idiom","zh":"迎接挑战","cl":"rise to the challenge","ex":"High but realistic expectations consistently encourage students to <strong>rise to the challenge</strong>."},
+{"w":"in leaps and bounds","p":"idiom","zh":"突飞猛进","cl":"progress in leaps and bounds","ex":"With targeted support, struggling readers can progress <strong>in leaps and bounds</strong> within a single term."},
+{"w":"point the finger at","p":"idiom","zh":"指责","cl":"point the finger at schools","ex":"Politicians are quick to <strong>point the finger at</strong> schools when national test scores decline."},
+{"w":"on a par with","p":"idiom","zh":"与…相当","cl":"on a par with leading systems","ex":"The reformed curriculum aims to bring domestic standards <strong>on a par with</strong> the world's leading education systems."},
+{"w":"chalk and talk","p":"idiom","zh":"粉笔加讲解 (传统教学)","cl":"move beyond chalk and talk","ex":"Modern pedagogy encourages teachers to move beyond <strong>chalk and talk</strong> and embrace active, student-centred learning."}
+];
+
+let state = JSON.parse(localStorage.getItem("ielts_vocab_20260716") || "{}");
+let queue = CARDS.map((c, i) => ({...c, idx: i})).filter(c => !state[c.idx] || state[c.idx] === "review");
+let cur = 0;
+
+function speak(text) {
+  if (!text || !window.speechSynthesis) return;
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = "en-US"; u.rate = 0.85; u.pitch = 1;
+  const voices = speechSynthesis.getVoices();
+  const en = voices.find(v => /en-(US|GB)/.test(v.lang) && /Samantha|Daniel|Alex|Karen|Moira|Google US English|Google UK English/.test(v.name))
+          || voices.find(v => v.lang.startsWith("en"));
+  if (en) u.voice = en;
+  speechSynthesis.speak(u);
+}
+if (window.speechSynthesis) speechSynthesis.onvoiceschanged = () => {};
+
+function render() {
+  if (cur >= queue.length) return showDone();
+  const c = queue[cur];
+  document.getElementById("w").textContent = c.w;
+  document.getElementById("p").textContent = c.p;
+  document.getElementById("zh").textContent = c.zh;
+  document.getElementById("cl").textContent = c.cl;
+  document.getElementById("ex").innerHTML = c.ex;
+  document.getElementById("card").classList.remove("flipped");
+  document.getElementById("meta").textContent = `${cur+1} / ${queue.length} · Education Day 57 (Cycle 2)`;
+  updateStats();
+  setTimeout(() => speak(c.w), 150);
+}
+
+function setView(v) {
+  document.getElementById("vtFlash").classList.toggle("active", v === "flash");
+  document.getElementById("vtList").classList.toggle("active", v === "list");
+  document.getElementById("deck").style.display = v === "flash" ? "" : "none";
+  document.getElementById("listView").classList.toggle("active", v === "list");
+  if (v === "list") renderList();
+}
+
+function renderList() {
+  const body = document.getElementById("listBody");
+  body.innerHTML = CARDS.map((c, i) => {
+    const mark = state[i] || "";
+    const cls = mark === "know" ? "knew" : mark === "weak" ? "weak" : "";
+    const ico = mark === "know" ? "✓" : mark === "weak" ? "○" : "·";
+    const mcls = mark === "know" ? "know" : mark === "weak" ? "weak" : "";
+    return `<div class="list-row">
+      <div class="num">${String(i+1).padStart(3,'0')}</div>
+      <div class="word"><div class="w ${cls}">${c.w} <span style="color:var(--muted);font-weight:400;font-size:0.78rem;">${c.p}</span></div><div class="zh">${c.zh}</div></div>
+      <button class="spk" onclick="speak('${c.w.replace(/'/g,"\\'")}')">&#128266;</button>
+      <div class="mk ${mcls}">${ico}</div>
+    </div>`;
+  }).join("");
+}
+
+function flip() { document.getElementById("card").classList.toggle("flipped"); }
+
+function mark(t) {
+  const c = queue[cur];
+  state[c.idx] = (t === "know" ? "know" : "weak");
+  localStorage.setItem("ielts_vocab_20260716", JSON.stringify(state));
+  cur++;
+  render();
+}
+
+function updateStats() {
+  const kn = Object.values(state).filter(v=>v==="know").length;
+  const wk = Object.values(state).filter(v=>v==="weak").length;
+  const lf = 150 - kn - wk;
+  document.getElementById("kn").textContent = kn;
+  document.getElementById("wk").textContent = wk;
+  document.getElementById("lf").textContent = lf;
+  document.getElementById("pg").style.width = ((kn+wk)/150*100) + "%";
+}
+
+function showDone() {
+  document.getElementById("deck").style.display = "none";
+  document.getElementById("done").classList.add("show");
+  const kn = Object.values(state).filter(v=>v==="know").length;
+  const wk = Object.values(state).filter(v=>v==="weak").length;
+  document.getElementById("doneTtl").textContent = wk > 0 ? `今日 150 词完成! 还有 ${wk} 张不熟` : "今日 150 词全掌握 🎉";
+  document.getElementById("doneSub").textContent = `知道 ${kn} · 不熟 ${wk}`;
+}
+
+function reviewWeak() {
+  queue = CARDS.map((c,i)=>({...c,idx:i})).filter(c => state[c.idx] === "weak");
+  if (queue.length === 0) { alert("没有不熟的卡!"); return; }
+  cur = 0;
+  document.getElementById("done").classList.remove("show");
+  document.getElementById("deck").style.display = "";
+  render();
+}
+
+function resetAll() {
+  if (!confirm("清空今日进度,重新开始?")) return;
+  localStorage.removeItem("ielts_vocab_20260716");
+  state = {};
+  queue = CARDS.map((c,i)=>({...c,idx:i}));
+  cur = 0;
+  document.getElementById("done").classList.remove("show");
+  document.getElementById("deck").style.display = "";
+  render();
+}
+
+render();
+</script>
+
+</body>
+</html>
