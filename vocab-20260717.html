@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#2563eb">
+<title>今日 150 词 · 2026-07-17 · Education</title>
+<style>
+  :root {
+    --bg: #ffffff; --fg: #1a1a1a; --muted: #6b7280;
+    --accent: #2563eb; --ok: #059669; --warn: #d97706;
+    --card: #f9fafb; --border: #e5e7eb;
+    --nav-bg: rgba(255,255,255,0.92);
+    --header-bg: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f172a; --fg: #f1f5f9; --muted: #94a3b8;
+      --accent: #60a5fa; --ok: #34d399; --warn: #fbbf24;
+      --card: #1e293b; --border: #334155;
+      --nav-bg: rgba(15,23,42,0.92);
+      --header-bg: linear-gradient(135deg, #1e40af 0%, #6b21a8 100%);
+    }
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg); }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif;
+    line-height: 1.5;
+    min-height: 100vh;
+    padding-bottom: calc(64px + env(safe-area-inset-bottom, 0));
+  }
+  .app-header {
+    background: var(--header-bg); color: white;
+    padding: calc(env(safe-area-inset-top, 16px) + 12px) 16px 14px;
+    position: sticky; top: 0; z-index: 20;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .back-btn {
+    background: rgba(255,255,255,0.18); border: none; color: white;
+    width: 34px; height: 34px; border-radius: 10px;
+    font-size: 1.1rem; cursor: pointer; flex-shrink: 0;
+    text-decoration: none; display: flex; align-items: center; justify-content: center;
+  }
+  .app-header .ttl { font-size: 1rem; font-weight: 700; }
+  .app-header .sub {
+    font-size: 0.72rem; opacity: 0.85; margin-top: 1px;
+    letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  main { max-width: 760px; margin: 0 auto; padding: 16px; }
+  .progress { height: 6px; background: var(--border); border-radius: 3px; margin-bottom: 16px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--accent); transition: width 0.3s; }
+  .stats { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+  .stat { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; text-align: center; flex: 1; min-width: 80px; }
+  .stat .num { font-size: 1.4rem; font-weight: 700; color: var(--accent); }
+  .stat .lbl { font-size: 0.72rem; color: var(--muted); }
+  .card-wrap { perspective: 1000px; margin-bottom: 14px; min-height: 200px; cursor: pointer; }
+  .card-inner {
+    position: relative; width: 100%; min-height: 200px;
+    transition: transform 0.45s; transform-style: preserve-3d;
+  }
+  .card-wrap.flipped .card-inner { transform: rotateY(180deg); }
+  .card-face {
+    position: absolute; top: 0; left: 0; right: 0; min-height: 200px;
+    background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+    padding: 20px; backface-visibility: hidden; display: flex; flex-direction: column; justify-content: center;
+  }
+  .card-back { transform: rotateY(180deg); }
+  .card-type { font-size: 0.68rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
+  .card-word { font-size: 1.8rem; font-weight: 700; margin-bottom: 4px; line-height: 1.2; }
+  .card-pos { font-size: 0.85rem; color: var(--muted); margin-bottom: 12px; }
+  .card-zh { font-size: 1.1rem; font-weight: 600; color: var(--accent); margin-bottom: 10px; }
+  .card-cl { font-size: 0.88rem; color: var(--muted); margin-bottom: 8px; }
+  .card-ex { font-size: 0.9rem; line-height: 1.6; }
+  .card-ex strong { color: var(--accent); font-weight: 700; }
+  .card-hint { font-size: 0.78rem; color: var(--muted); text-align: center; margin-top: 8px; }
+  .nav-btns { display: flex; gap: 10px; margin-bottom: 20px; }
+  .btn { flex: 1; padding: 12px; border: none; border-radius: 10px; font-size: 0.95rem; font-weight: 600; cursor: pointer; font-family: inherit; }
+  .btn-secondary { background: var(--card); color: var(--fg); border: 1px solid var(--border); }
+  .btn-ok { background: var(--ok); color: white; }
+  .btn-warn { background: var(--warn); color: white; }
+  .section-label { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin: 16px 0 8px; font-weight: 700; padding: 0 2px; border-left: 3px solid var(--accent); padding-left: 8px; }
+  .tabbar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--nav-bg); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px); border-top: 1px solid var(--border); display: flex; padding-bottom: env(safe-area-inset-bottom, 0); z-index: 30; }
+  .tab-btn { flex: 1; background: transparent; border: none; padding: 10px 4px 8px; color: var(--muted); font-size: 0.68rem; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 3px; font-family: inherit; text-decoration: none; }
+  .tab-btn .icon { font-size: 1.25rem; line-height: 1; }
+  .tab-btn.active { color: var(--accent); }
+  .curriculum-note { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; margin-bottom: 14px; font-size: 0.85rem; color: var(--muted); line-height: 1.6; }
+  .curriculum-note strong { color: var(--fg); }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <a class="back-btn" href="index.html">&#8592;</a>
+  <div>
+    <div class="ttl">150 词卡 &middot; Education Day 2 (Cycle 2)</div>
+    <div class="sub">Day 58 &middot; 2026-07-17 &middot; 语言习得/高等教育/动机/研究写作/公平</div>
+  </div>
+</header>
+
+<main>
+
+  <div class="progress"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+
+  <div class="stats">
+    <div class="stat"><div class="num" id="totalSeen">0</div><div class="lbl">已看</div></div>
+    <div class="stat"><div class="num" id="totalOk">0</div><div class="lbl">&#10003; 记住</div></div>
+    <div class="stat"><div class="num" id="totalRetry">0</div><div class="lbl">&#8635; 再看</div></div>
+    <div class="stat"><div class="num">150</div><div class="lbl">总计</div></div>
+  </div>
+
+  <div class="curriculum-note">
+    <strong>今日主题: Education Day 2 (Cycle 2) &middot; 语言习得 / 高等教育 / 动机自律 / 学术写作 / 公平与诚信</strong><br>
+    涵盖 SLA 理论词汇、高校文化、内外动机、学术写作规范、课堂互动与研究伦理。与前日认知神经科学/评估理论词汇零重叠。点击卡片翻转查看释义与例句。
+  </div>
+
+  <div id="cardArea"></div>
+
+  <div class="nav-btns">
+    <button class="btn btn-secondary" onclick="prevCard()">&#8592; 上一张</button>
+    <button class="btn btn-warn" id="btnRetry" onclick="markRetry()">&#8635; 再看</button>
+    <button class="btn btn-ok" id="btnOk" onclick="markOk()">&#10003; 记住</button>
+    <button class="btn btn-secondary" onclick="nextCard()">下一张 &#8594;</button>
+  </div>
+
+</main>
+
+<nav class="tabbar">
+  <a class="tab-btn active" href="index.html#home"><span class="icon">&#127968;</span>概览</a>
+  <a class="tab-btn" href="index.html#materials"><span class="icon">&#128250;</span>材料</a>
+  <a class="tab-btn" href="index.html#quizzes"><span class="icon">&#9999;&#65039;</span>测验</a>
+  <a class="tab-btn" href="index.html#plan"><span class="icon">&#128203;</span>计划</a>
+</nav>
+
+<script>
+const CARDS = [
+{"w":"acquisition","p":"n.","zh":"习得；获取","cl":"language acquisition / skill acquisition","ex":"A child's rapid language <strong>acquisition</strong> in early childhood is driven by immersion and social interaction."},
+{"w":"bilingual","p":"adj./n.","zh":"双语的；双语者","cl":"bilingual education / bilingual proficiency","ex":"<strong>Bilingual</strong> children often demonstrate superior cognitive flexibility compared to their monolingual peers."},
+{"w":"multilingualism","p":"n.","zh":"多语能力；多语现象","cl":"promote / embrace multilingualism","ex":"In globalised workplaces, <strong>multilingualism</strong> is increasingly viewed as a competitive advantage."},
+{"w":"immersion","p":"n.","zh":"沉浸式学习；全浸教学","cl":"language immersion programme / total immersion","ex":"Full <strong>immersion</strong> programmes accelerate fluency by surrounding learners with the target language at all times."},
+{"w":"interlanguage","p":"n.","zh":"中介语","cl":"fossilise in interlanguage / interlanguage stage","ex":"Without corrective feedback, learners may fossilise at an <strong>interlanguage</strong> stage and never achieve full proficiency."},
+{"w":"code-switching","p":"n.","zh":"语码转换","cl":"engage in code-switching","ex":"Bilingual speakers engage in <strong>code-switching</strong> naturally, alternating between languages depending on audience and context."},
+{"w":"fluency","p":"n.","zh":"流利度；流畅","cl":"attain / achieve fluency","ex":"Communicative <strong>fluency</strong>, rather than grammatical precision, is the primary goal of modern language teaching."},
+{"w":"proficiency","p":"n.","zh":"熟练度；精通","cl":"assess / demonstrate proficiency","ex":"Standardised tests such as IELTS are designed to measure language <strong>proficiency</strong> across four skill areas."},
+{"w":"vernacular","p":"n./adj.","zh":"方言；本地语","cl":"regional vernacular / vernacular language","ex":"Teachers sometimes incorporate the <strong>vernacular</strong> to help students bridge the gap between home and school language."},
+{"w":"phonological","p":"adj.","zh":"音系学的；语音的","cl":"phonological awareness / phonological processing","ex":"<strong>Phonological</strong> awareness — the ability to manipulate sounds — is a strong predictor of early reading success."},
+{"w":"morphology","p":"n.","zh":"词法；形态学","cl":"word morphology / grammatical morphology","ex":"Children acquire basic <strong>morphology</strong>, such as plurals and past tense, before mastering complex sentence structures."},
+{"w":"syntax","p":"n.","zh":"句法；语法结构","cl":"complex syntax / syntactic structure","ex":"Academic writing demands complex <strong>syntax</strong>, including embedded clauses and passive constructions."},
+{"w":"pragmatics","p":"n.","zh":"语用学","cl":"pragmatic competence / pragmatic awareness","ex":"Mastering <strong>pragmatics</strong> — how language functions in social contexts — is essential for successful real-world communication."},
+{"w":"fossilisation","p":"n.","zh":"石化（语言习得）","cl":"prevent / lead to fossilisation","ex":"Without sustained exposure and feedback, pronunciation errors can lead to <strong>fossilisation</strong> in adult learners."},
+{"w":"scaffolding","p":"n.","zh":"脚手架辅助；支架式教学","cl":"provide / withdraw scaffolding","ex":"Effective teachers provide <strong>scaffolding</strong> and gradually withdraw it as learners become more independent."},
+{"w":"undergraduate","p":"n./adj.","zh":"本科生；本科的","cl":"undergraduate programme / undergraduate student","ex":"Most <strong>undergraduate</strong> programmes in the UK span three years and culminate in a bachelor's degree."},
+{"w":"postgraduate","p":"n./adj.","zh":"研究生；研究生的","cl":"postgraduate degree / postgraduate study","ex":"A <strong>postgraduate</strong> qualification is often required for entry into competitive research or management roles."},
+{"w":"doctoral","p":"adj.","zh":"博士的","cl":"doctoral candidate / doctoral thesis","ex":"<strong>Doctoral</strong> candidates must complete an original research contribution and defend their thesis before an examination committee."},
+{"w":"seminar","p":"n.","zh":"研讨课；讨论班","cl":"lead / attend a seminar","ex":"Weekly <strong>seminars</strong> require students to engage with primary texts and defend their interpretations in open debate."},
+{"w":"tutorial","p":"n.","zh":"导师辅导课","cl":"one-to-one tutorial / tutorial system","ex":"Oxford's <strong>tutorial</strong> system is celebrated for the depth of intellectual engagement it fosters between student and tutor."},
+{"w":"module","p":"n.","zh":"课程模块","cl":"core / optional module","ex":"Students choose a combination of compulsory and optional <strong>modules</strong> to tailor their degree to their interests."},
+{"w":"syllabus","p":"n.","zh":"课程大纲；教学计划","cl":"design / revise the syllabus","ex":"The <strong>syllabus</strong> outlines the topics, readings, and assessment requirements for the entire academic year."},
+{"w":"tenure","p":"n.","zh":"（学术）终身职位","cl":"gain / achieve tenure","ex":"Academic <strong>tenure</strong> provides job security and is supposed to protect freedom of inquiry and controversial research."},
+{"w":"peer-reviewed","p":"adj.","zh":"同行评审的","cl":"peer-reviewed journal / peer-reviewed article","ex":"Students should rely on <strong>peer-reviewed</strong> articles rather than websites of unknown scholarly authority."},
+{"w":"consortium","p":"n.","zh":"联盟；联合体","cl":"university consortium / research consortium","ex":"A <strong>consortium</strong> of twelve universities has launched a joint programme in artificial intelligence and ethics."},
+{"w":"endowment","p":"n.","zh":"捐款基金；禀赋","cl":"university endowment / endow a scholarship","ex":"Harvard's vast <strong>endowment</strong> funds thousands of scholarships and enables it to recruit global talent."},
+{"w":"collegial","p":"adj.","zh":"同事间的；协同的","cl":"collegial atmosphere / collegial relationship","ex":"A <strong>collegial</strong> atmosphere in which academics freely challenge each other's arguments is essential to intellectual progress."},
+{"w":"sabbatical","p":"n.","zh":"学术休假","cl":"take / apply for a sabbatical","ex":"Professors often use their <strong>sabbatical</strong> year to write a book or conduct extended field research abroad."},
+{"w":"provost","p":"n.","zh":"教务长；行政长官","cl":"university provost / provost's office","ex":"The <strong>provost</strong> oversees the academic mission of the university, including curriculum design and faculty appointments."},
+{"w":"elective","p":"n./adj.","zh":"选修课；可选择的","cl":"take an elective / elective subject","ex":"Students are encouraged to take an <strong>elective</strong> outside their major to broaden their intellectual horizons."},
+{"w":"intrinsic","p":"adj.","zh":"内在的；本质的","cl":"intrinsic motivation / intrinsic value","ex":"<strong>Intrinsic</strong> motivation — doing something for the love of it — produces deeper and more durable learning than external rewards."},
+{"w":"extrinsic","p":"adj.","zh":"外在的；来自外部的","cl":"extrinsic reward / extrinsic motivation","ex":"Over-reliance on <strong>extrinsic</strong> rewards such as grades and prizes can gradually undermine genuine curiosity."},
+{"w":"self-efficacy","p":"n.","zh":"自我效能感","cl":"build / boost self-efficacy","ex":"Bandura's concept of <strong>self-efficacy</strong> — one's belief in one's capacity to succeed — predicts academic persistence."},
+{"w":"perseverance","p":"n.","zh":"毅力；坚持不懈","cl":"develop perseverance / show perseverance","ex":"Long-term academic success often depends less on raw intelligence than on <strong>perseverance</strong> in the face of difficulty."},
+{"w":"tenacity","p":"n.","zh":"坚韧；顽强","cl":"demonstrate tenacity","ex":"Researchers who demonstrate <strong>tenacity</strong> in the face of rejection tend to produce the most significant breakthroughs."},
+{"w":"mindset","p":"n.","zh":"思维方式；心态","cl":"fixed / growth mindset","ex":"Dweck's growth <strong>mindset</strong> theory holds that effort and strategy, not innate talent, determine ultimate achievement."},
+{"w":"self-regulation","p":"n.","zh":"自我调节；自律","cl":"develop / exercise self-regulation","ex":"Effective learners develop <strong>self-regulation</strong> skills that allow them to monitor and sustain their own learning process."},
+{"w":"procrastination","p":"n.","zh":"拖延；拖拉","cl":"overcome procrastination / chronic procrastination","ex":"Chronic <strong>procrastination</strong> is one of the most common obstacles to academic achievement among university students."},
+{"w":"grit","p":"n.","zh":"坚毅；毅力","cl":"demonstrate grit / grit scale","ex":"Duckworth's research suggests that <strong>grit</strong> — passion combined with perseverance — predicts success better than IQ."},
+{"w":"volition","p":"n.","zh":"意志力；意志行为","cl":"volitional control / act of volition","ex":"Volitional control enables learners to stay on task even when faced with boredom or competing <strong>volition</strong>al conflicts."},
+{"w":"engagement","p":"n.","zh":"投入度；参与感","cl":"student engagement / sustained engagement","ex":"High levels of academic <strong>engagement</strong> — cognitive, emotional, and behavioural — are consistently linked to achievement."},
+{"w":"agency","p":"n.","zh":"主动性；能动性","cl":"student agency / exercise agency","ex":"Giving students greater <strong>agency</strong> over their own learning promotes deeper curiosity and stronger self-motivation."},
+{"w":"attribution","p":"n.","zh":"归因","cl":"causal attribution / attribution theory","ex":"<strong>Attribution</strong> theory examines whether students explain success or failure in terms of effort, ability, or luck."},
+{"w":"expectancy","p":"n.","zh":"期望；预期","cl":"expectancy-value model","ex":"The expectancy-value model predicts that students invest effort when they believe they can succeed and value the task: both <strong>expectancy</strong> and value must be present."},
+{"w":"incentive","p":"n.","zh":"激励；诱因","cl":"provide an incentive / financial incentive","ex":"Scholarships and awards serve as <strong>incentives</strong> that can draw talented students into underfunded disciplines."},
+{"w":"methodology","p":"n.","zh":"研究方法论","cl":"qualitative / quantitative methodology","ex":"Researchers must justify their chosen <strong>methodology</strong> and acknowledge its limitations in the methods section."},
+{"w":"qualitative","p":"adj.","zh":"定性的","cl":"qualitative research / qualitative data","ex":"<strong>Qualitative</strong> research explores meaning, experience, and context, generating rich but non-generalisable insights."},
+{"w":"quantitative","p":"adj.","zh":"定量的","cl":"quantitative data / quantitative analysis","ex":"<strong>Quantitative</strong> studies use statistical methods to analyse numerical data and draw generalisable conclusions."},
+{"w":"abstract","p":"n.","zh":"摘要","cl":"write an abstract / structured abstract","ex":"A well-written <strong>abstract</strong> summarises the aim, method, key findings, and implications of a study in under 300 words."},
+{"w":"paraphrase","p":"v./n.","zh":"释义；改述","cl":"paraphrase an argument / accurate paraphrase","ex":"Students are taught to <strong>paraphrase</strong> sources rather than copy verbatim, demonstrating genuine comprehension."},
+{"w":"cohesion","p":"n.","zh":"语篇衔接","cl":"textual cohesion / lexical cohesion","ex":"Effective use of <strong>cohesion</strong> devices — referencing, ellipsis, conjunction — makes a text easier to follow."},
+{"w":"coherence","p":"n.","zh":"逻辑连贯","cl":"logical coherence / ensure coherence","ex":"A high-scoring IELTS essay demonstrates both <strong>coherence</strong> (logical flow) and cohesion (grammatical linking)."},
+{"w":"argumentation","p":"n.","zh":"论证；论辩","cl":"develop argumentation / sound argumentation","ex":"Strong <strong>argumentation</strong> requires a clear thesis, relevant evidence, and acknowledgement of counterpoints."},
+{"w":"counterargument","p":"n.","zh":"反驳论点","cl":"address a counterargument / refute a counterargument","ex":"Acknowledging a <strong>counterargument</strong> before refuting it demonstrates intellectual rigour and builds the writer's credibility."},
+{"w":"analogy","p":"n.","zh":"类比","cl":"draw an analogy / apt analogy","ex":"The lecturer drew an <strong>analogy</strong> between long-term memory and a well-organised filing cabinet to help students understand consolidation."},
+{"w":"anecdotal","p":"adj.","zh":"轶事性的；非系统的","cl":"anecdotal evidence","ex":"<strong>Anecdotal</strong> evidence, however compelling, is insufficient to support a generalisable academic claim."},
+{"w":"annotated","p":"adj.","zh":"有注解的","cl":"annotated bibliography / annotated edition","ex":"Students compiled an <strong>annotated</strong> bibliography, summarising and critically evaluating twenty sources relevant to their thesis."},
+{"w":"originality","p":"n.","zh":"原创性","cl":"demonstrate originality / claim of originality","ex":"PhD candidates must demonstrate <strong>originality</strong> — a genuine contribution to knowledge not previously published."},
+{"w":"fabrication","p":"n.","zh":"捏造；造假","cl":"data fabrication","ex":"Data <strong>fabrication</strong> — inventing results that were never actually observed — is the most serious form of research misconduct."},
+{"w":"retraction","p":"n.","zh":"撤稿","cl":"journal retraction / issue a retraction","ex":"The journal was forced to issue a <strong>retraction</strong> after peer reviewers discovered errors in the statistical analysis."},
+{"w":"stratification","p":"n.","zh":"分层；阶层化","cl":"social / educational stratification","ex":"Educational <strong>stratification</strong> — sorting students into different tracks — tends to reproduce existing social inequalities."},
+{"w":"meritocracy","p":"n.","zh":"精英（才能）主义","cl":"a meritocratic system","ex":"Critics argue that what is labelled a <strong>meritocracy</strong> often simply reinforces the advantages of those already privileged."},
+{"w":"compensatory","p":"adj.","zh":"补偿性的","cl":"compensatory education / compensatory programme","ex":"<strong>Compensatory</strong> education aims to offset disadvantages accumulated in early childhood before formal schooling begins."},
+{"w":"bursary","p":"n.","zh":"助学金；奖学金","cl":"award a bursary / bursary scheme","ex":"The school's <strong>bursary</strong> scheme enables talented students from low-income families to attend regardless of fee pressures."},
+{"w":"means-tested","p":"adj.","zh":"经过资产调查的","cl":"means-tested scholarship / means-tested benefit","ex":"<strong>Means-tested</strong> grants target public funding at those who genuinely need financial support, rather than distributing it equally."},
+{"w":"social mobility","p":"n.","zh":"社会流动性","cl":"promote / enable social mobility","ex":"Education is traditionally viewed as the most powerful vehicle for upward <strong>social mobility</strong>."},
+{"w":"first-generation","p":"adj.","zh":"第一代（大学生）","cl":"first-generation student","ex":"<strong>First-generation</strong> students, whose parents did not attend university, often lack the cultural capital and navigational know-how of their peers."},
+{"w":"underrepresented","p":"adj.","zh":"代表性不足的","cl":"underrepresented group / underrepresented minority","ex":"Universities have launched outreach programmes to recruit students from <strong>underrepresented</strong> communities."},
+{"w":"streaming","p":"n.","zh":"能力分班","cl":"academic streaming / streaming by ability","ex":"The practice of <strong>streaming</strong> students by perceived ability remains controversial, as it may entrench disadvantage rather than address it."},
+{"w":"attainment","p":"n.","zh":"成就；学业成就","cl":"educational attainment / attainment level","ex":"Educational <strong>attainment</strong> is one of the strongest predictors of lifetime earnings and long-term health outcomes."},
+{"w":"misconduct","p":"n.","zh":"不端行为","cl":"academic misconduct / research misconduct","ex":"Universities have zero-tolerance policies for academic <strong>misconduct</strong>, including plagiarism and data falsification."},
+{"w":"falsification","p":"n.","zh":"篡改；伪造","cl":"data falsification / falsification of results","ex":"The <strong>falsification</strong> of clinical trial data is not merely an academic offence but a serious public health threat."},
+{"w":"whistleblower","p":"n.","zh":"举报人；吹哨人","cl":"academic whistleblower","ex":"The <strong>whistleblower</strong> who exposed the fraudulent study risked professional ostracism but ultimately protected scientific integrity."},
+{"w":"verbatim","p":"adv./adj.","zh":"逐字地；原文照录","cl":"copy verbatim / verbatim quotation","ex":"Reproducing a source <strong>verbatim</strong> without using quotation marks or a citation is a clear form of plagiarism."},
+{"w":"intellectual property","p":"n.","zh":"知识产权","cl":"protect intellectual property","ex":"Universities must have clear policies on <strong>intellectual property</strong> generated by staff and students during funded research."},
+{"w":"conflict of interest","p":"n.","zh":"利益冲突","cl":"disclose a conflict of interest","ex":"Researchers are required to disclose any <strong>conflict of interest</strong> that might bias their findings or peer-review judgements."},
+{"w":"self-plagiarism","p":"n.","zh":"自我剽窃","cl":"avoid self-plagiarism","ex":"Submitting substantially the same work to two different courses or publications constitutes <strong>self-plagiarism</strong>."},
+{"w":"citation","p":"n.","zh":"引用；引证","cl":"accurate citation / citation style","ex":"Every source consulted must receive an accurate <strong>citation</strong> so that readers can trace and verify the evidence."},
+{"w":"referencing","p":"n.","zh":"参考文献规范","cl":"Harvard referencing / APA referencing","ex":"Students must follow the prescribed <strong>referencing</strong> style consistently throughout their essays and dissertations."},
+{"w":"recitation","p":"n.","zh":"背诵；朗诵","cl":"rote recitation","ex":"Rote <strong>recitation</strong> may produce surface retention, but it rarely leads to the deep understanding required for critical thinking."},
+{"w":"elaboration","p":"n.","zh":"阐述；详述","cl":"verbal elaboration / encourage elaboration","ex":"Encouraging students to produce verbal <strong>elaboration</strong> — explaining ideas in their own words — deepens conceptual understanding."},
+{"w":"elicitation","p":"n.","zh":"引导提问；诱导法","cl":"teacher elicitation techniques","ex":"Skilled teachers use <strong>elicitation</strong> rather than direct instruction, drawing knowledge out of students through targeted questions."},
+{"w":"wait time","p":"n.","zh":"候答时间","cl":"extend wait time","ex":"Research shows that extending <strong>wait time</strong> — the pause after a teacher's question — produces significantly richer student responses."},
+{"w":"dialogic","p":"adj.","zh":"对话式的","cl":"dialogic teaching / dialogic approach","ex":"A <strong>dialogic</strong> approach treats classroom discussion as genuine intellectual inquiry rather than a test of memorised content."},
+{"w":"discourse marker","p":"n.","zh":"语篇标记语","cl":"use discourse markers","ex":"Effective academic speakers use <strong>discourse markers</strong> such as 'furthermore,' 'by contrast,' and 'in short' to signal transitions."},
+{"w":"uptake","p":"n.","zh":"（教师对学生话语的）采纳","cl":"teacher uptake of student ideas","ex":"High rates of teacher <strong>uptake</strong> — incorporating student contributions into the lesson — signal that student voice is genuinely valued."},
+{"w":"accountable talk","p":"n.","zh":"负责任的话语","cl":"promote accountable talk","ex":"<strong>Accountable talk</strong> norms require students to justify their reasoning with evidence and respond substantively to peers' ideas."},
+{"w":"question taxonomy","p":"n.","zh":"问题分类体系","cl":"Bloom's question taxonomy","ex":"Bloom's <strong>question taxonomy</strong> helps teachers move from recall questions towards higher-order tasks such as analysis and evaluation."},
+{"w":"differentiation","p":"n.","zh":"差异化教学","cl":"curriculum differentiation","ex":"Effective <strong>differentiation</strong> ensures that all students, regardless of ability, are appropriately challenged by the curriculum."},
+{"w":"acculturation","p":"n.","zh":"文化适应","cl":"cultural acculturation","ex":"International students undergo a process of <strong>acculturation</strong> as they adjust to the academic norms of their host country."},
+{"w":"transcript","p":"n.","zh":"成绩单；文字记录","cl":"academic transcript","ex":"A university <strong>transcript</strong> lists all courses completed, grades received, and credits earned by a student."},
+{"w":"prerequisite","p":"n.","zh":"前提条件；先修课","cl":"course prerequisite","ex":"Statistics is a <strong>prerequisite</strong> for most postgraduate research methods courses in the social sciences."},
+{"w":"invigilate","p":"v.","zh":"监考","cl":"invigilate an exam","ex":"Trained staff are required to <strong>invigilate</strong> all formal examinations to ensure fair conditions for every candidate."},
+{"w":"viva","p":"n.","zh":"口试；论文答辩","cl":"doctoral viva / viva examination","ex":"The <strong>viva</strong> — or oral examination — is the final hurdle for doctoral students, who must defend their thesis in person."},
+{"w":"extracurricular","p":"adj.","zh":"课外的","cl":"extracurricular activity / extracurricular involvement","ex":"Universities increasingly recognise that <strong>extracurricular</strong> involvement develops leadership and interpersonal skills."},
+{"w":"multidisciplinary","p":"adj.","zh":"多学科的","cl":"multidisciplinary approach / multidisciplinary team","ex":"Complex challenges such as climate change demand a <strong>multidisciplinary</strong> approach crossing traditional academic boundaries."},
+{"w":"remediation","p":"n.","zh":"补救教学","cl":"academic remediation","ex":"<strong>Remediation</strong> courses help students who lack foundational skills before entering mainstream academic programmes."},
+{"w":"deferral","p":"n.","zh":"延期；推迟","cl":"academic deferral","ex":"Students may apply for a <strong>deferral</strong> of their examination if they have compelling medical or personal grounds."},
+{"w":"enrolment","p":"n.","zh":"入学注册；注册人数","cl":"student enrolment / increase in enrolment","ex":"University <strong>enrolment</strong> figures have risen sharply in many countries as higher education becomes more widely accessible."},
+{"w":"autonomous learning","p":"collocation","zh":"自主学习","cl":"promote / foster autonomous learning","ex":"Technology-enhanced tools can support <strong>autonomous learning</strong> by giving students control over the pace and content of their study."},
+{"w":"experiential learning","p":"collocation","zh":"体验式学习","cl":"through experiential learning","ex":"<strong>Experiential learning</strong> — learning by doing — is central to professional training in medicine, law, and engineering."},
+{"w":"project-based learning","p":"collocation","zh":"项目式学习","cl":"implement project-based learning","ex":"<strong>Project-based learning</strong> develops collaboration, problem-solving, and communication skills through sustained real-world inquiry."},
+{"w":"inquiry-based learning","p":"collocation","zh":"探究式学习","cl":"inquiry-based approach","ex":"An <strong>inquiry-based learning</strong> environment encourages students to pose their own questions and pursue answers through investigation."},
+{"w":"cooperative learning","p":"collocation","zh":"合作学习","cl":"cooperative learning strategies","ex":"<strong>Cooperative learning</strong> tasks structure peer interaction in ways that promote mutual accountability and shared understanding."},
+{"w":"active learning","p":"collocation","zh":"主动学习","cl":"active learning strategies","ex":"Lecture theatres are being redesigned to support <strong>active learning</strong> rather than passive reception of information."},
+{"w":"deep learning approach","p":"collocation","zh":"深层学习取向","cl":"adopt a deep learning approach","ex":"Students who adopt a <strong>deep learning approach</strong> seek to understand underlying principles rather than memorise facts."},
+{"w":"surface learning","p":"collocation","zh":"浅层学习","cl":"surface learning strategies","ex":"Excessive examination pressure often drives students towards <strong>surface learning</strong> — memorisation without genuine understanding."},
+{"w":"language transfer","p":"collocation","zh":"语言迁移","cl":"positive / negative language transfer","ex":"Positive <strong>language transfer</strong> occurs when knowledge of one language facilitates the learning of another."},
+{"w":"zone of proximal development","p":"collocation","zh":"最近发展区","cl":"within the zone of proximal development","ex":"Vygotsky's <strong>zone of proximal development</strong> describes the gap between what a learner can do alone and with expert guidance."},
+{"w":"student-centred approach","p":"collocation","zh":"以学生为中心的教学","cl":"a student-centred approach","ex":"A <strong>student-centred approach</strong> places learners' needs, interests, and prior knowledge at the heart of curriculum design."},
+{"w":"teacher-led instruction","p":"collocation","zh":"教师主导的教学","cl":"traditional teacher-led instruction","ex":"Critics argue that <strong>teacher-led instruction</strong> limits student agency and favours passive rather than active engagement."},
+{"w":"cultural capital","p":"collocation","zh":"文化资本","cl":"accumulate / possess cultural capital","ex":"Bourdieu's concept of <strong>cultural capital</strong> explains why children from educated families often outperform their peers academically."},
+{"w":"hidden curriculum","p":"collocation","zh":"隐性课程","cl":"the hidden curriculum","ex":"The <strong>hidden curriculum</strong> — the unspoken norms and expectations of schooling — shapes student identities as profoundly as the formal curriculum."},
+{"w":"null curriculum","p":"collocation","zh":"空无课程","cl":"the null curriculum","ex":"Eisner's concept of the <strong>null curriculum</strong> draws attention to what schools deliberately choose not to teach."},
+{"w":"assessment for learning","p":"collocation","zh":"促进学习的评估","cl":"assessment for learning (AfL)","ex":"<strong>Assessment for learning</strong> uses evidence from student performance to inform and adjust ongoing teaching."},
+{"w":"assessment of learning","p":"collocation","zh":"学业成就评估","cl":"assessment of learning (AoL)","ex":"End-of-year examinations are a form of <strong>assessment of learning</strong>, providing a summative snapshot of student achievement."},
+{"w":"inclusive classroom","p":"collocation","zh":"融合课堂","cl":"create an inclusive classroom","ex":"An <strong>inclusive classroom</strong> welcomes learners of all abilities and adapts instruction to meet diverse needs."},
+{"w":"academic discourse community","p":"collocation","zh":"学术话语社群","cl":"become part of an academic discourse community","ex":"Learning to write academically involves initiation into an <strong>academic discourse community</strong> with its own conventions and genres."},
+{"w":"research ethics committee","p":"collocation","zh":"研究伦理委员会","cl":"submit to a research ethics committee","ex":"All studies involving human participants must receive approval from a <strong>research ethics committee</strong> before data collection begins."},
+{"w":"intellectual rigour","p":"collocation","zh":"学术严谨性","cl":"maintain intellectual rigour","ex":"Peer review is the primary mechanism for maintaining <strong>intellectual rigour</strong> and quality control in academic publishing."},
+{"w":"academic freedom","p":"collocation","zh":"学术自由","cl":"protect academic freedom","ex":"<strong>Academic freedom</strong> — the right to research, teach, and publish without censorship — is a cornerstone of university life."},
+{"w":"vocational pathway","p":"collocation","zh":"职业发展路径","cl":"pursue a vocational pathway","ex":"Apprenticeships and vocational colleges offer a <strong>vocational pathway</strong> that serves many students better than a purely academic route."},
+{"w":"academic resilience","p":"collocation","zh":"学业韧性","cl":"build academic resilience","ex":"Schools that build <strong>academic resilience</strong> in students equip them to recover from setbacks rather than give up under pressure."},
+{"w":"feedback loop","p":"collocation","zh":"反馈回路","cl":"create a feedback loop","ex":"Effective teaching creates a continuous <strong>feedback loop</strong> in which student performance informs planning and instruction is adjusted accordingly."},
+{"w":"benchmark test","p":"collocation","zh":"基准测试","cl":"administer a benchmark test","ex":"Schools use <strong>benchmark tests</strong> at intervals throughout the year to monitor progress and identify learning gaps early."},
+{"w":"co-curricular programme","p":"collocation","zh":"协同课程活动","cl":"co-curricular programme","ex":"A rich <strong>co-curricular programme</strong> of sports, music, and debate complements the academic curriculum and develops the whole child."},
+{"w":"cross-disciplinary collaboration","p":"collocation","zh":"跨学科合作","cl":"foster cross-disciplinary collaboration","ex":"Breakthroughs in science increasingly emerge from <strong>cross-disciplinary collaboration</strong> between biologists, engineers, and data scientists."},
+{"w":"think outside the box","p":"idiom","zh":"跳出固有思维","cl":"encourage sb to think outside the box","ex":"The most innovative teachers encourage students to <strong>think outside the box</strong> rather than simply reproduce received wisdom."},
+{"w":"steep learning curve","p":"idiom","zh":"（学习）很有挑战的过程","cl":"face a steep learning curve","ex":"Transitioning from secondary to university-level study presents most students with a <strong>steep learning curve</strong>."},
+{"w":"trial and error","p":"idiom","zh":"反复试验；试错法","cl":"learn by trial and error","ex":"Scientists advance knowledge through <strong>trial and error</strong>, testing hypotheses and learning from unexpected results."},
+{"w":"food for thought","p":"idiom","zh":"值得深思的材料","cl":"provide food for thought","ex":"The lecturer's provocative examples provided plenty of <strong>food for thought</strong> for students preparing their essays."},
+{"w":"burn the midnight oil","p":"idiom","zh":"挑灯夜战；熬夜苦读","cl":"burn the midnight oil","ex":"Students who consistently <strong>burn the midnight oil</strong> to meet deadlines may be managing their time ineffectively."},
+{"w":"get the ball rolling","p":"phrasal v.","zh":"开始行动；启动","cl":"get the ball rolling on a project","ex":"The professor asked each group to <strong>get the ball rolling</strong> on their literature review before the next session."},
+{"w":"take on board","p":"phrasal v.","zh":"采纳；接受（意见）","cl":"take feedback on board","ex":"Students who <strong>take feedback on board</strong> and revise their work systematically make the fastest progress."},
+{"w":"come up short","p":"phrasal v.","zh":"达不到；不足","cl":"come up short of expectations","ex":"Despite working hard, students who rely on surface approaches often <strong>come up short</strong> in essays requiring analytical depth."},
+{"w":"bring to the table","p":"phrasal v.","zh":"贡献；提供","cl":"bring skills to the table","ex":"International students <strong>bring to the table</strong> diverse perspectives that enrich classroom discussion for everyone."},
+{"w":"wrap one's head around","p":"phrasal v.","zh":"理解；弄懂（复杂的事）","cl":"wrap one's head around a concept","ex":"Many students find it hard to <strong>wrap their heads around</strong> Vygotsky's zone of proximal development at first."},
+{"w":"pick up where one left off","p":"phrasal v.","zh":"从上次中断处继续","cl":"pick up where one left off","ex":"After the summer break, students are encouraged to review their notes and <strong>pick up where they left off</strong>."},
+{"w":"It is worth noting that","p":"sentence stem","zh":"值得指出的是","cl":"","ex":"<strong>It is worth noting that</strong> not all high-achieving students possess the grit or resilience that studies associate with long-term success."},
+{"w":"A case in point is","p":"sentence stem","zh":"一个典型例子就是","cl":"","ex":"<strong>A case in point is</strong> Finland, where high teacher autonomy and minimal testing have produced consistently outstanding results."},
+{"w":"This begs the question","p":"sentence stem","zh":"这引发了一个问题","cl":"","ex":"<strong>This begs the question</strong>: if intrinsic motivation is so powerful, why do schools continue to rely so heavily on extrinsic rewards?"},
+{"w":"By the same token","p":"sentence stem","zh":"同样地；出于同样的理由","cl":"","ex":"<strong>By the same token</strong>, if schools are held accountable for test scores alone, teachers will inevitably narrow their instruction."},
+{"w":"It stands to reason that","p":"sentence stem","zh":"理所当然；合乎逻辑的是","cl":"","ex":"<strong>It stands to reason that</strong> students who receive timely, specific feedback make more rapid progress than those who receive grades alone."},
+{"w":"From a pedagogical standpoint","p":"sentence stem","zh":"从教学论的角度来看","cl":"","ex":"<strong>From a pedagogical standpoint</strong>, the most effective lesson designs begin with the desired learning outcomes and work backwards."},
+{"w":"Far from being a disadvantage","p":"sentence stem","zh":"非但不是劣势，反而","cl":"","ex":"<strong>Far from being a disadvantage</strong>, growing up in a bilingual household appears to confer significant cognitive benefits in later life."},
+{"w":"On balance, the evidence suggests","p":"sentence stem","zh":"总体而言，证据显示","cl":"","ex":"<strong>On balance, the evidence suggests</strong> that mixed-ability grouping benefits lower-attaining students without significantly harming higher achievers."},
+{"w":"The degree to which","p":"sentence stem","zh":"……的程度","cl":"","ex":"<strong>The degree to which</strong> a student's home environment supports academic learning is one of the most powerful predictors of school success."},
+{"w":"It is no coincidence that","p":"sentence stem","zh":"这绝非偶然","cl":"","ex":"<strong>It is no coincidence that</strong> countries which invest most heavily in teacher training tend to produce the most motivated and capable students."}
+];
+
+const STORAGE_KEY = 'ielts_vocab_20260717';
+let idx = 0;
+let results = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+
+function saveResults() { localStorage.setItem(STORAGE_KEY, JSON.stringify(results)); }
+
+function renderCard() {
+  const c = CARDS[idx];
+  document.getElementById('cardArea').innerHTML = `
+    <div class="section-label">词 ${idx+1} / ${CARDS.length} &middot; ${c.p}</div>
+    <div class="card-wrap" id="card" onclick="flipCard()">
+      <div class="card-inner">
+        <div class="card-face">
+          <div class="card-type">点击翻转查看释义</div>
+          <div class="card-word">${c.w}</div>
+          <div class="card-pos">${c.p}</div>
+          <div class="card-hint">&#128161; 先想想这个词的意思…</div>
+        </div>
+        <div class="card-face card-back">
+          <div class="card-zh">${c.zh}</div>
+          <div class="card-cl">搭配: ${c.cl || '—'}</div>
+          <div class="card-ex">${c.ex}</div>
+        </div>
+      </div>
+    </div>`;
+  updateStats();
+}
+
+function flipCard() { document.getElementById('card').classList.toggle('flipped'); }
+
+function markOk() {
+  results[idx] = 'ok';
+  saveResults();
+  nextCard();
+}
+
+function markRetry() {
+  results[idx] = 'retry';
+  saveResults();
+  nextCard();
+}
+
+function nextCard() {
+  if (idx < CARDS.length - 1) { idx++; renderCard(); }
+}
+
+function prevCard() {
+  if (idx > 0) { idx--; renderCard(); }
+}
+
+function updateStats() {
+  const seen = Object.keys(results).length;
+  const ok = Object.values(results).filter(v => v === 'ok').length;
+  const retry = Object.values(results).filter(v => v === 'retry').length;
+  document.getElementById('totalSeen').textContent = seen;
+  document.getElementById('totalOk').textContent = ok;
+  document.getElementById('totalRetry').textContent = retry;
+  document.getElementById('progressFill').style.width = (seen / CARDS.length * 100) + '%';
+}
+
+renderCard();
+</script>
+</body>
+</html>

@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#2563eb">
+<title>Day 58 &middot; Reading T/F/NG &middot; 双语教育的益处、挑战与政策</title>
+<style>
+  :root {
+    --bg: #ffffff; --fg: #1a1a1a; --muted: #6b7280;
+    --accent: #2563eb; --ok: #059669; --err: #dc2626;
+    --card: #f9fafb; --border: #e5e7eb;
+    --nav-bg: rgba(255,255,255,0.92);
+    --header-bg: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f172a; --fg: #f1f5f9; --muted: #94a3b8;
+      --accent: #60a5fa; --ok: #34d399; --err: #f87171;
+      --card: #1e293b; --border: #334155;
+      --nav-bg: rgba(15,23,42,0.92);
+      --header-bg: linear-gradient(135deg, #1e40af 0%, #6b21a8 100%);
+    }
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg); }
+  body { font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif; line-height: 1.6; min-height: 100vh; padding-bottom: calc(64px + env(safe-area-inset-bottom, 0)); }
+  .app-header { background: var(--header-bg); color: white; padding: calc(env(safe-area-inset-top, 16px) + 12px) 16px 14px; position: sticky; top: 0; z-index: 20; display: flex; align-items: center; gap: 12px; }
+  .back-btn { background: rgba(255,255,255,0.18); border: none; color: white; width: 34px; height: 34px; border-radius: 10px; font-size: 1.1rem; cursor: pointer; flex-shrink: 0; text-decoration: none; display: flex; align-items: center; justify-content: center; }
+  .app-header .ttl { font-size: 1rem; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .app-header .sub { font-size: 0.72rem; opacity: 0.85; margin-top: 1px; letter-spacing: 0.04em; text-transform: uppercase; }
+  main { max-width: 720px; margin: 0 auto; padding: 16px; }
+  .progress { height: 6px; background: var(--border); border-radius: 3px; margin-bottom: 16px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--accent); transition: width 0.3s ease; }
+  .passage { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; margin-bottom: 16px; font-size: 0.95rem; line-height: 1.75; }
+  .passage h3 { margin: 0 0 8px; font-size: 0.78rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+  .question { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 14px; }
+  .q-num { color: var(--muted); font-size: 0.78rem; font-family: "SF Mono", Menlo, monospace; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.04em; }
+  .q-text { font-size: 1rem; margin-bottom: 12px; font-weight: 500; }
+  .options { display: flex; flex-direction: column; gap: 8px; }
+  .option { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; cursor: pointer; font-size: 0.95rem; text-align: left; color: var(--fg); font-family: inherit; }
+  .option.selected { border-color: var(--accent); background: rgba(37,99,235,0.08); }
+  .option.correct { border-color: var(--ok); background: rgba(5,150,105,0.1); }
+  .option.wrong { border-color: var(--err); background: rgba(220,38,38,0.1); }
+  .blank-input { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; font-size: 1rem; color: var(--fg); font-family: inherit; }
+  .blank-input:focus { outline: none; border-color: var(--accent); }
+  .blank-input.correct { border-color: var(--ok); }
+  .blank-input.wrong { border-color: var(--err); }
+  .explanation { margin-top: 10px; padding: 10px 12px; background: var(--bg); border-left: 3px solid var(--accent); border-radius: 4px; font-size: 0.9rem; color: var(--muted); display: none; }
+  .explanation.show { display: block; }
+  .explanation .answer { color: var(--ok); font-weight: 600; }
+  .actions { display: flex; gap: 10px; margin-top: 20px; }
+  .btn { flex: 1; padding: 12px; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; font-family: inherit; }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-secondary { background: var(--card); color: var(--fg); border: 1px solid var(--border); }
+  .result { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; text-align: center; margin-top: 20px; display: none; }
+  .result.show { display: block; }
+  .score { font-size: 2.5rem; font-weight: 700; color: var(--accent); }
+  .score-label { color: var(--muted); font-size: 0.9rem; margin-top: 4px; }
+  .tabbar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--nav-bg); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px); border-top: 1px solid var(--border); display: flex; padding-bottom: env(safe-area-inset-bottom, 0); z-index: 30; }
+  .tab-btn { flex: 1; background: transparent; border: none; padding: 10px 4px 8px; color: var(--muted); font-size: 0.68rem; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 3px; font-family: inherit; text-decoration: none; }
+  .tab-btn .icon { font-size: 1.25rem; line-height: 1; }
+  .tab-btn.active { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <a class="back-btn" href="index.html#quizzes">&#8592;</a>
+  <div style="flex:1;min-width:0;">
+    <div class="ttl">Reading T/F/NG &middot; 双语教育的益处、挑战与政策争议</div>
+    <div class="sub">Day 58 &middot; 11 题 &middot; ~13 分钟</div>
+  </div>
+</header>
+
+<main>
+
+  <div class="progress"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+
+  <div class="passage">
+    <h3>Passage &middot; Bilingual Education: Benefits, Challenges, and Policy Debates (~620 words)</h3>
+    <p>Bilingual education — the practice of teaching academic subjects in two languages simultaneously — has been the subject of sustained debate among linguists, psychologists, and policymakers for several decades. Advocates argue that it produces not only proficient speakers of two languages but also students with enhanced cognitive abilities. Critics, however, contend that dividing instructional time between two languages risks undermining the development of either. The evidence drawn from research and from large-scale policy implementation is more nuanced than either camp typically acknowledges.</p>
+    <p>The cognitive benefits of bilingualism have been extensively documented in the research literature. Studies consistently find that children who operate regularly in two languages develop stronger executive function — the set of mental processes that underpin planning, task-switching, and the suppression of irrelevant information. This <em>bilingual advantage</em> in executive control appears to persist into old age, with some longitudinal studies suggesting that bilingual individuals develop symptoms of dementia an average of four to five years later than their monolingual peers. Researchers attribute this effect to the continuous cognitive effort involved in managing and code-switching between two linguistic systems.</p>
+    <p>The classroom benefits are equally well-attested. Immersion programmes, in which the majority of instruction is delivered in a second language, have been shown to produce students who achieve high levels of proficiency in both languages without sacrificing performance in core academic subjects. Canadian French immersion programmes, which have operated since the 1960s, are frequently cited as evidence that immersion does not impede content learning. Students in these programmes typically outperform their non-immersion peers on second-language measures while maintaining equivalent academic outcomes in mathematics and sciences.</p>
+    <p>However, a more contested finding concerns the role of a child's home language. Research in sociolinguistics has established that children whose home language differs from the language of instruction frequently experience what theorists call <em>subtractive bilingualism</em> — a process in which the acquisition of the dominant societal language comes at the cost of maintaining the heritage language. This phenomenon is particularly prevalent among immigrant families in countries where assimilation pressures are strong. In these contexts, bilingual education programmes that deliberately support and maintain the heritage language have shown stronger outcomes for students' academic achievement and identity development compared with programmes that focus exclusively on rapid transition to the dominant language.</p>
+    <p>Critics of bilingual education raise legitimate concerns about resource allocation and teacher training. Effective bilingual instruction requires teachers who possess not only native or near-native proficiency in both languages but also the pedagogical expertise to deliver complex academic content in a second or additional language — a combination that many school systems struggle to supply. In districts with large, linguistically diverse populations, the challenge is compounded by the sheer number of languages represented, making systematic bilingual provision logistically difficult and financially demanding.</p>
+    <p>At the policy level, the debate has been shaped as much by political ideology as by empirical evidence. In several English-speaking countries during the late twentieth century, political campaigns successfully restricted bilingual education in favour of English-only instruction, often invoking nationalist arguments about social cohesion and the primacy of the national language. Subsequent research evaluating the impact of these policy shifts found no consistent evidence that English-only instruction improved long-term academic outcomes for language-minority students; in some cases, the removal of heritage language support was associated with increased dropout rates and diminished academic engagement. These findings have prompted a cautious but growing return to bilingual models in many jurisdictions.</p>
+  </div>
+
+  <div id="questions">
+
+    <div class="question" data-type="mcq" data-answer="A">
+      <div class="q-num">Q01 &middot; T/F/NG</div>
+      <div class="q-text">Research consistently shows that bilingual children develop stronger executive function than their monolingual peers.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <span class="answer">Answer: TRUE</span> &mdash; Paragraph 2 states that "children who operate regularly in two languages develop stronger executive function," and that studies "consistently find" this result.
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="A">
+      <div class="q-num">Q02 &middot; T/F/NG</div>
+      <div class="q-text">Some studies suggest that bilingual individuals show symptoms of dementia later than monolingual individuals.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <span class="answer">Answer: TRUE</span> &mdash; Paragraph 2: "bilingual individuals develop symptoms of dementia an average of four to five years later than their monolingual peers."
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="B">
+      <div class="q-num">Q03 &middot; T/F/NG</div>
+      <div class="q-text">Students in Canadian French immersion programmes perform worse than non-immersion peers in mathematics and sciences.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <span class="answer">Answer: FALSE</span> &mdash; Paragraph 3 explicitly states that immersion students "typically outperform their non-immersion peers on second-language measures while <em>maintaining equivalent academic outcomes</em> in mathematics and sciences."
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="A">
+      <div class="q-num">Q04 &middot; T/F/NG</div>
+      <div class="q-text">The term "subtractive bilingualism" refers to a situation in which learning a dominant language can erode a child's heritage language.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <span class="answer">Answer: TRUE</span> &mdash; Paragraph 4 defines "subtractive bilingualism" as "a process in which the acquisition of the dominant societal language comes at the cost of maintaining the heritage language."
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="C">
+      <div class="q-num">Q05 &middot; T/F/NG</div>
+      <div class="q-text">The majority of bilingual education teachers currently hold formal qualifications in both of their teaching languages.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <span class="answer">Answer: NOT GIVEN</span> &mdash; Paragraph 5 discusses the difficulty of finding qualified bilingual teachers but makes no specific claim about the proportion who hold formal dual-language qualifications.
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="B">
+      <div class="q-num">Q06 &middot; T/F/NG</div>
+      <div class="q-text">Research found that English-only instruction consistently improved the long-term academic outcomes of language-minority students.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <span class="answer">Answer: FALSE</span> &mdash; Paragraph 6 states: "Subsequent research... found <em>no consistent evidence</em> that English-only instruction improved long-term academic outcomes for language-minority students."
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="A">
+      <div class="q-num">Q07 &middot; T/F/NG</div>
+      <div class="q-text">The removal of heritage language support was in some cases linked to higher dropout rates among language-minority students.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <span class="answer">Answer: TRUE</span> &mdash; Paragraph 6: "the removal of heritage language support was associated with increased dropout rates and diminished academic engagement."
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="subtractive">
+      <div class="q-num">Q08 &middot; 词汇填空</div>
+      <div class="q-text">The passage uses the term "__________ bilingualism" to describe the process by which acquiring a dominant language erodes a child's home language. (Fill in <em>one word</em>)</div>
+      <input class="blank-input" type="text" placeholder="Type your answer..." autocapitalize="off">
+      <div class="explanation">
+        <span class="answer">Answer: subtractive</span> &mdash; Paragraph 4: "<em>subtractive</em> bilingualism — a process in which the acquisition of the dominant societal language comes at the cost of maintaining the heritage language."
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="proficiency">
+      <div class="q-num">Q09 &middot; 词汇填空</div>
+      <div class="q-text">According to paragraph 5, effective bilingual teachers must possess "native or near-native __________ in both languages." (Fill in <em>one word</em>)</div>
+      <input class="blank-input" type="text" placeholder="Type your answer..." autocapitalize="off">
+      <div class="explanation">
+        <span class="answer">Answer: proficiency</span> &mdash; Paragraph 5: "teachers who possess not only native or near-native <em>proficiency</em> in both languages but also the pedagogical expertise to deliver complex academic content."
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="cohesion">
+      <div class="q-num">Q10 &middot; 词汇填空</div>
+      <div class="q-text">Paragraph 6 mentions that political campaigns restricted bilingual education partly by invoking nationalist arguments about "social __________." (Fill in <em>one word</em>)</div>
+      <input class="blank-input" type="text" placeholder="Type your answer..." autocapitalize="off">
+      <div class="explanation">
+        <span class="answer">Answer: cohesion</span> &mdash; Paragraph 6: "invoking nationalist arguments about social <em>cohesion</em> and the primacy of the national language."
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="immersion">
+      <div class="q-num">Q11 &middot; 词汇填空</div>
+      <div class="q-text">The passage states that Canadian French "__________ programmes" have operated since the 1960s and are frequently cited as evidence that content learning is not impeded. (Fill in <em>one word</em>)</div>
+      <input class="blank-input" type="text" placeholder="Type your answer..." autocapitalize="off">
+      <div class="explanation">
+        <span class="answer">Answer: immersion</span> &mdash; Paragraph 3: "Canadian French <em>immersion</em> programmes, which have operated since the 1960s, are frequently cited as evidence that immersion does not impede content learning."
+      </div>
+    </div>
+
+  </div>
+
+  <div class="actions">
+    <button class="btn btn-secondary" onclick="resetQuiz()">重置</button>
+    <button class="btn btn-primary" onclick="submitQuiz()">提交评分</button>
+  </div>
+
+  <div class="result" id="result">
+    <div class="score" id="scoreText">—</div>
+    <div class="score-label" id="scoreLabel">得分</div>
+    <div style="margin-top:16px;color:var(--muted);font-size:0.88rem;" id="scoreDetail"></div>
+    <button onclick="resetQuiz()" style="margin-top:16px;padding:10px 20px;background:var(--accent);color:white;border:none;border-radius:8px;font-size:0.92rem;font-weight:600;cursor:pointer;font-family:inherit;">再来一次</button>
+    <a href="index.html" style="display:block;margin-top:8px;font-size:0.88rem;color:var(--muted);text-align:center;">回主页</a>
+  </div>
+
+</main>
+
+<nav class="tabbar">
+  <a class="tab-btn" href="index.html#home"><span class="icon">&#127968;</span>概览</a>
+  <a class="tab-btn" href="index.html#materials"><span class="icon">&#128250;</span>材料</a>
+  <a class="tab-btn active" href="index.html#quizzes"><span class="icon">&#9999;&#65039;</span>测验</a>
+  <a class="tab-btn" href="index.html#plan"><span class="icon">&#128203;</span>计划</a>
+</nav>
+
+<script>
+const ANSWERS = {
+  mcq: { 0:"A", 1:"A", 2:"B", 3:"A", 4:"C", 5:"B", 6:"A" },
+  blank: { 7:"subtractive", 8:"proficiency", 9:"cohesion", 10:"immersion" }
+};
+const userMCQ = {};
+const TOTAL = 11;
+
+document.querySelectorAll('.question[data-type="mcq"]').forEach((q, qi) => {
+  q.querySelectorAll('.option').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (q.classList.contains('answered')) return;
+      userMCQ[qi] = btn.dataset.key;
+      q.querySelectorAll('.option').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      updateProgress();
+    });
+  });
+});
+
+function updateProgress() {
+  const mcqDone = Object.keys(userMCQ).length;
+  const blankDone = Array.from(document.querySelectorAll('.blank-input')).filter(i => i.value.trim().length > 0).length;
+  document.getElementById('progressFill').style.width = ((mcqDone + blankDone) / TOTAL * 100) + '%';
+}
+
+document.querySelectorAll('.blank-input').forEach(inp => { inp.addEventListener('input', updateProgress); });
+
+function submitQuiz() {
+  let correct = 0;
+  document.querySelectorAll('.question[data-type="mcq"]').forEach((q, qi) => {
+    const correct_ans = q.dataset.answer;
+    const user_ans = userMCQ[qi];
+    q.classList.add('answered');
+    q.querySelectorAll('.option').forEach(btn => {
+      if (btn.dataset.key === correct_ans) btn.classList.add('correct');
+      else if (btn.dataset.key === user_ans && user_ans !== correct_ans) btn.classList.add('wrong');
+    });
+    q.querySelector('.explanation').classList.add('show');
+    if (user_ans === correct_ans) correct++;
+  });
+
+  const blanks = document.querySelectorAll('.question[data-type="blank"]');
+  blanks.forEach((q, bqi) => {
+    const inp = q.querySelector('.blank-input');
+    const ans = ANSWERS.blank[bqi + 7];
+    const user = (inp.value || '').trim().toLowerCase();
+    const isCorrect = user === ans.toLowerCase();
+    inp.classList.add(isCorrect ? 'correct' : 'wrong');
+    inp.disabled = true;
+    q.querySelector('.explanation').classList.add('show');
+    if (isCorrect) correct++;
+  });
+
+  const pct = Math.round(correct / TOTAL * 100);
+  let band = correct <= 3 ? 'Band 4.5-5.0' : correct <= 6 ? 'Band 5.5-6.0' : correct <= 8 ? 'Band 6.5-7.0' : 'Band 7.5+';
+  document.getElementById('scoreText').textContent = correct + ' / ' + TOTAL;
+  document.getElementById('scoreLabel').textContent = '得分 (' + pct + '%)';
+  document.getElementById('scoreDetail').textContent = '估算: ' + band + ' · 错题请重点复习';
+  document.getElementById('result').classList.add('show');
+  document.getElementById('progressFill').style.width = '100%';
+}
+
+function resetQuiz() {
+  document.querySelectorAll('.question').forEach(q => {
+    q.classList.remove('answered');
+    q.querySelectorAll('.option').forEach(b => b.classList.remove('selected','correct','wrong'));
+    const exp = q.querySelector('.explanation');
+    if (exp) exp.classList.remove('show');
+    const inp = q.querySelector('.blank-input');
+    if (inp) { inp.value = ''; inp.classList.remove('correct','wrong'); inp.disabled = false; }
+  });
+  Object.keys(userMCQ).forEach(k => delete userMCQ[k]);
+  document.getElementById('result').classList.remove('show');
+  document.getElementById('progressFill').style.width = '0%';
+}
+</script>
+</body>
+</html>
