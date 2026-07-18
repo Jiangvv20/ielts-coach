@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#2563eb">
+<title>测验 · Day 60 · 考试制度改革与标准化测试的局限性</title>
+<style>
+  :root {
+    --bg: #ffffff; --fg: #1a1a1a; --muted: #6b7280;
+    --accent: #2563eb; --ok: #059669; --err: #dc2626;
+    --card: #f9fafb; --border: #e5e7eb;
+    --nav-bg: rgba(255,255,255,0.92);
+    --header-bg: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f172a; --fg: #f1f5f9; --muted: #94a3b8;
+      --accent: #60a5fa; --ok: #34d399; --err: #f87171;
+      --card: #1e293b; --border: #334155;
+      --nav-bg: rgba(15,23,42,0.92);
+      --header-bg: linear-gradient(135deg, #1e40af 0%, #6b21a8 100%);
+    }
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg); }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif;
+    line-height: 1.6;
+    min-height: 100vh;
+    padding-bottom: calc(64px + env(safe-area-inset-bottom, 0));
+  }
+  .app-header {
+    background: var(--header-bg); color: white;
+    padding: calc(env(safe-area-inset-top, 16px) + 12px) 16px 14px;
+    position: sticky; top: 0; z-index: 20;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .back-btn {
+    background: rgba(255,255,255,0.18); border: none; color: white;
+    width: 34px; height: 34px; border-radius: 10px;
+    font-size: 1.1rem; cursor: pointer; flex-shrink: 0;
+    text-decoration: none; display: flex; align-items: center; justify-content: center;
+  }
+  .app-header .ttl {
+    font-size: 1rem; font-weight: 700;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .app-header .sub {
+    font-size: 0.72rem; opacity: 0.85; margin-top: 1px;
+    letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  main { max-width: 720px; margin: 0 auto; padding: 16px; }
+  .progress {
+    height: 6px; background: var(--border); border-radius: 3px;
+    margin-bottom: 16px; overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%; background: var(--accent);
+    transition: width 0.3s ease;
+  }
+  .passage {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 14px 16px; margin-bottom: 16px;
+    font-size: 0.95rem; line-height: 1.75;
+  }
+  .passage h3 { margin: 0 0 8px; font-size: 0.78rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+  .passage h4 { margin: 0 0 10px; font-size: 1rem; font-weight: 700; }
+  .passage p { margin: 0 0 10px; }
+  .passage p:last-child { margin-bottom: 0; }
+  .question {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 16px; margin-bottom: 14px;
+  }
+  .q-num {
+    color: var(--muted); font-size: 0.78rem;
+    font-family: "SF Mono", Menlo, monospace; margin-bottom: 6px;
+    text-transform: uppercase; letter-spacing: 0.04em;
+  }
+  .q-text { font-size: 1rem; margin-bottom: 12px; font-weight: 500; line-height: 1.5; }
+  .options { display: flex; flex-direction: column; gap: 8px; }
+  .option {
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 8px; padding: 12px 14px;
+    cursor: pointer; font-size: 0.95rem; text-align: left;
+    color: var(--fg); font-family: inherit;
+  }
+  .option.selected { border-color: var(--accent); background: rgba(37, 99, 235, 0.08); }
+  .option.correct { border-color: var(--ok); background: rgba(5, 150, 105, 0.1); }
+  .option.wrong { border-color: var(--err); background: rgba(220, 38, 38, 0.1); }
+  .blank-input {
+    width: 100%; background: var(--bg);
+    border: 1px solid var(--border); border-radius: 8px;
+    padding: 10px 12px; font-size: 1rem;
+    color: var(--fg); font-family: inherit;
+  }
+  .blank-input.correct { border-color: var(--ok); }
+  .blank-input.wrong { border-color: var(--err); }
+  .explanation {
+    margin-top: 10px; padding: 10px 12px;
+    background: var(--bg); border-left: 3px solid var(--accent);
+    border-radius: 4px; font-size: 0.9rem; color: var(--muted);
+    display: none; line-height: 1.5;
+  }
+  .explanation.show { display: block; }
+  .explanation .answer { color: var(--ok); font-weight: 600; margin-bottom: 4px; }
+  .actions { display: flex; gap: 10px; margin-top: 20px; }
+  .btn {
+    flex: 1; padding: 12px;
+    border: none; border-radius: 10px;
+    font-size: 1rem; font-weight: 600; cursor: pointer;
+    font-family: inherit;
+  }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-secondary { background: var(--card); color: var(--fg); border: 1px solid var(--border); }
+  .result {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 20px;
+    text-align: center; margin-top: 20px; display: none;
+  }
+  .result.show { display: block; }
+  .score { font-size: 2.5rem; font-weight: 700; color: var(--accent); }
+  .score-label { color: var(--muted); font-size: 0.9rem; margin-top: 4px; }
+  .section-header {
+    font-size: 0.78rem; color: var(--muted); text-transform: uppercase;
+    letter-spacing: 0.06em; font-weight: 700;
+    padding: 8px 4px 4px; margin-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+  .tabbar {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: var(--nav-bg);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    border-top: 1px solid var(--border);
+    display: flex;
+    padding-bottom: env(safe-area-inset-bottom, 0);
+    z-index: 30;
+  }
+  .tab-btn {
+    flex: 1; background: transparent; border: none;
+    padding: 10px 4px 8px; color: var(--muted); font-size: 0.68rem;
+    cursor: pointer;
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    font-family: inherit; text-decoration: none;
+  }
+  .tab-btn .icon { font-size: 1.25rem; line-height: 1; }
+  .tab-btn.active { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <a class="back-btn" href="index.html#quizzes">&#8592;</a>
+  <div style="flex:1;min-width:0;">
+    <div class="ttl">Reading T/F/NG &#183; 考试制度改革与标准化测试的局限性</div>
+    <div class="sub">Day 60 &#183; 10 题 &#183; ~12 分钟</div>
+  </div>
+</header>
+
+<main>
+
+  <div class="progress"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+
+  <div class="passage">
+    <h3>&#128218; 阅读文章 (约 620 词)</h3>
+    <h4>Rethinking Assessment: What Tests Can and Cannot Measure</h4>
+    <p>For most of the twentieth century, standardised testing occupied a central role in education systems worldwide. Proponents argued that objective, uniformly scored assessments provided the fairest means of comparing student achievement across schools and districts, thereby enabling governments to identify underperforming institutions and allocate resources more equitably. Yet by the early twenty-first century, a growing body of empirical research had begun to reveal the considerable limitations of this model, prompting policymakers, educators, and researchers to question whether the dominance of standardised tests was helping or hindering educational progress.</p>
+    <p>One of the most frequently cited criticisms concerns the narrowing of the curriculum. When schools are evaluated principally on the basis of test scores, teachers face intense pressure to prioritise tested subjects — typically mathematics and literacy — at the expense of arts, physical education, and social-emotional learning. Studies conducted in the United States following the introduction of No Child Left Behind legislation found a measurable <em>decline</em> in instructional time devoted to science, history, and creative subjects, a phenomenon widely known as "teaching to the test." Critics contend that this approach cultivates convergent thinking while suppressing the divergent thinking associated with innovation and problem-solving.</p>
+    <p>A second concern relates to equity. Standardised tests have consistently been shown to reflect the cultural knowledge and linguistic conventions familiar to affluent, majority-culture students. Children from lower socioeconomic backgrounds, English-language learners, and students with certain learning differences tend to perform less well on standardised instruments — not because they lack ability, but because the tests themselves fail to capture the full range of their competencies. Researchers use the term <em>construct validity</em> to describe the degree to which a test actually measures what it claims to measure; by this standard, many high-stakes examinations are found wanting.</p>
+    <p>In response, a growing number of institutions have embraced alternative assessment models. Portfolio assessment, in which students curate a collection of their best work over time, captures development and creativity in ways that a single examination cannot. Competency-based education allows students to advance once they have demonstrated mastery of a skill, irrespective of time spent in class. Meanwhile, several prestigious universities in North America have adopted test-optional admissions policies, citing evidence that high school grade point averages are more reliable predictors of first-year performance than standardised entrance examinations.</p>
+    <p>None of this implies that all formal assessment is without value. Diagnostic assessments, when used formatively to identify knowledge gaps rather than to rank and sort students, can guide teaching with remarkable precision. International benchmarking tools such as PISA provide governments with genuinely useful data about broad trends in literacy and numeracy. The challenge for education systems in the coming decades is to harness the analytical power of assessment while ensuring that the methods employed are equitable, broad enough to capture the full spectrum of human ability, and embedded within a culture of learning rather than a culture of performativity.</p>
+  </div>
+
+  <div id="questions">
+
+    <div class="section-header">&#128221; Section A &#183; True / False / Not Given (判断题)</div>
+
+    <div class="question" data-type="mcq" data-answer="A">
+      <div class="q-num">Q01 &#183; T/F/NG</div>
+      <div class="q-text">Proponents of standardised testing argued that such assessments provided the fairest way to compare student achievement across schools.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#10003; 正确答案: A (True)</div>
+        原文明确写道 "Proponents argued that objective, uniformly scored assessments provided the fairest means of comparing student achievement" — 与题目同义改写，直接对应，判 True。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="B">
+      <div class="q-num">Q02 &#183; T/F/NG</div>
+      <div class="q-text">Following the introduction of No Child Left Behind, instructional time for science and history increased in US schools.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#10003; 正确答案: B (False)</div>
+        原文说的是 "a measurable <em>decline</em> in instructional time devoted to science, history" — 减少而非增加，与题目相矛盾，判 False。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="C">
+      <div class="q-num">Q03 &#183; T/F/NG</div>
+      <div class="q-text">No Child Left Behind legislation was eventually repealed before 2010.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#10003; 正确答案: C (Not Given)</div>
+        文章提到 No Child Left Behind 的影响，但从未谈及该法案是否被废除或何时废除。文章不提 = Not Given。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="B">
+      <div class="q-num">Q04 &#183; T/F/NG</div>
+      <div class="q-text">According to the passage, students from disadvantaged backgrounds perform less well on standardised tests because they lack academic ability.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#10003; 正确答案: B (False)</div>
+        原文明确说 "not because they lack ability, but because the tests themselves fail to capture the full range of their competencies" — 直接与题目矛盾，判 False。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="B">
+      <div class="q-num">Q05 &#183; T/F/NG</div>
+      <div class="q-text">The author believes that international benchmarking tools like PISA are entirely without educational value.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#10003; 正确答案: B (False)</div>
+        原文说 PISA "provide governments with <em>genuinely useful</em> data" — 作者认为有价值，判 False。注意：判 Yes/No/NG 时针对作者观点；此题 T/F/NG 对应事实/观点也可，但答案明确相反。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="C">
+      <div class="q-num">Q06 &#183; T/F/NG</div>
+      <div class="q-text">Portfolio assessment has been proven to raise standardised test scores in participating schools.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#10003; 正确答案: C (Not Given)</div>
+        文章介绍了 portfolio assessment 的特点（捕捉发展与创造力），但从未提及它对标准化考试成绩的影响。不提 = Not Given。
+      </div>
+    </div>
+
+    <div class="section-header" style="margin-top:20px;">&#128221; Section B &#183; 词汇填空 (Vocabulary Gap-Fill)</div>
+    <p style="font-size:0.85rem;color:var(--muted);margin:0 0 12px;">根据上下文或文章内容，填入最合适的词汇（全小写，不含冠词）。</p>
+
+    <div class="question" data-type="blank" data-answer="convergent">
+      <div class="q-num">Q07 &#183; 词汇填空</div>
+      <div class="q-text">Traditional exams reward ____ thinking — the ability to arrive at a single correct answer — but suppress the creative, open-ended reasoning that drives innovation. (Adj.)</div>
+      <input class="blank-input" placeholder="键入答案（全小写）">
+      <div class="explanation">
+        <div class="answer">&#10003; 正确答案: convergent</div>
+        原文: "this approach cultivates <em>convergent thinking</em> while suppressing the <em>divergent thinking</em> associated with innovation." — 聚合思维对应唯一答案，发散思维对应创意。
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="construct">
+      <div class="q-num">Q08 &#183; 词汇填空</div>
+      <div class="q-text">A test has poor ____ validity if it fails to actually measure the competency it claims to assess. (N.)</div>
+      <input class="blank-input" placeholder="键入答案（全小写）">
+      <div class="explanation">
+        <div class="answer">&#10003; 正确答案: construct</div>
+        原文术语: "Researchers use the term <em>construct validity</em> to describe the degree to which a test actually measures what it claims to measure." 考查直接从文中定位专业术语。
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="portfolio">
+      <div class="q-num">Q09 &#183; 词汇填空</div>
+      <div class="q-text">____ assessment, where students collect their best work over time, captures creative development that a one-day exam cannot. (N.)</div>
+      <input class="blank-input" placeholder="键入答案（全小写）">
+      <div class="explanation">
+        <div class="answer">&#10003; 正确答案: portfolio</div>
+        原文: "<em>Portfolio</em> assessment, in which students curate a collection of their best work over time, captures development and creativity in ways that a single examination cannot." — 直接对应。
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="benchmarking">
+      <div class="q-num">Q10 &#183; 词汇填空</div>
+      <div class="q-text">International ____ tools such as PISA give policymakers useful comparative data on national literacy and numeracy trends. (N.)</div>
+      <input class="blank-input" placeholder="键入答案（全小写）">
+      <div class="explanation">
+        <div class="answer">&#10003; 正确答案: benchmarking</div>
+        原文: "International <em>benchmarking</em> tools such as PISA provide governments with genuinely useful data about broad trends in literacy and numeracy." — 直接对应。同时也是今日词卡中的 Band 7+ 词汇。
+      </div>
+    </div>
+
+  </div>
+
+  <div class="actions">
+    <button class="btn btn-secondary" onclick="resetQuiz()">&#128260; 重做</button>
+    <button class="btn btn-primary" onclick="submitQuiz()">&#9989; 提交对答</button>
+  </div>
+
+  <div class="result" id="result">
+    <div class="score" id="scoreNum">--</div>
+    <div class="score-label">正确率 (10 题)</div>
+    <div id="scoreDetail" style="margin-top:10px;color:var(--muted);font-size:0.88rem;line-height:1.6;"></div>
+    <div style="margin-top:14px;padding:10px 12px;background:var(--bg);border-radius:8px;font-size:0.82rem;color:var(--muted);line-height:1.6;">
+      <strong style="color:var(--fg);">&#127891; 今日学习建议</strong><br>
+      &#x26A0;&#xFE0F; T/F/NG 最常见错误: 用常识判断而非文章。只看原文！<br>
+      &#128218; NG 陷阱: 生活常识能判断 ≠ 文章提到。今日 Q03 和 Q06 都是 NG。<br>
+      &#128221; 词汇提升: construct validity · benchmarking · convergent/divergent thinking — 今日词卡均已涵盖。
+    </div>
+  </div>
+
+</main>
+
+<nav class="tabbar">
+  <a class="tab-btn" href="index.html#home"><span class="icon">&#127968;</span>概览</a>
+  <a class="tab-btn" href="index.html#materials"><span class="icon">&#128250;</span>材料</a>
+  <a class="tab-btn active" href="index.html#quizzes"><span class="icon">&#9999;&#65039;</span>测验</a>
+  <a class="tab-btn" href="index.html#plan"><span class="icon">&#128203;</span>计划</a>
+</nav>
+
+<script>
+  const TOTAL = 10;
+  let answered = 0;
+
+  document.querySelectorAll(".option").forEach(opt => {
+    opt.addEventListener("click", () => {
+      const q = opt.closest(".question");
+      q.querySelectorAll(".option").forEach(o => o.classList.remove("selected"));
+      opt.classList.add("selected");
+      q.dataset.userAnswer = opt.dataset.key;
+      answered = document.querySelectorAll(".question[data-user-answer]").length
+               + document.querySelectorAll(".blank-input").length;
+      updateProgress();
+    });
+  });
+
+  document.querySelectorAll(".blank-input").forEach(inp => {
+    inp.addEventListener("input", updateProgress);
+  });
+
+  function updateProgress() {
+    const mcqDone = document.querySelectorAll(".question[data-type='mcq'][data-user-answer]").length;
+    const blankDone = Array.from(document.querySelectorAll(".blank-input")).filter(i => i.value.trim()).length;
+    const frac = (mcqDone + blankDone) / TOTAL;
+    document.getElementById("progressFill").style.width = (frac * 100) + "%";
+  }
+
+  function submitQuiz() {
+    let correct = 0;
+    const details = [];
+
+    document.querySelectorAll(".question").forEach((q, idx) => {
+      const type = q.dataset.type;
+      const exp = q.querySelector(".explanation");
+      exp.classList.add("show");
+
+      if (type === "mcq") {
+        const ans = q.dataset.answer;
+        const user = q.dataset.userAnswer || "";
+        const isRight = user === ans;
+        if (isRight) correct++;
+        q.querySelectorAll(".option").forEach(o => {
+          if (o.dataset.key === ans) o.classList.add("correct");
+          else if (o.dataset.key === user && !isRight) o.classList.add("wrong");
+        });
+        details.push(`Q${String(idx+1).padStart(2,"0")}: ${isRight ? "&#9989;" : "&#10060;"}`);
+      } else if (type === "blank") {
+        const ans = q.dataset.answer.toLowerCase();
+        const inp = q.querySelector(".blank-input");
+        const user = (inp.value || "").trim().toLowerCase();
+        const isRight = user === ans;
+        if (isRight) correct++;
+        inp.classList.add(isRight ? "correct" : "wrong");
+        details.push(`Q${String(idx+1).padStart(2,"0")}: ${isRight ? "&#9989;" : "&#10060;"} (${q.dataset.answer})`);
+      }
+    });
+
+    const pct = Math.round(correct / TOTAL * 100);
+    document.getElementById("scoreNum").textContent = `${correct}/${TOTAL}`;
+    document.getElementById("scoreDetail").innerHTML = details.join(" &nbsp; ");
+    document.getElementById("result").classList.add("show");
+    document.getElementById("result").scrollIntoView({ behavior: "smooth" });
+  }
+
+  function resetQuiz() {
+    document.querySelectorAll(".question").forEach(q => {
+      delete q.dataset.userAnswer;
+      q.querySelectorAll(".option").forEach(o => o.className = "option");
+      const inp = q.querySelector(".blank-input");
+      if (inp) { inp.value = ""; inp.className = "blank-input"; }
+      q.querySelector(".explanation").classList.remove("show");
+    });
+    document.getElementById("result").classList.remove("show");
+    document.getElementById("progressFill").style.width = "0%";
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+</script>
+</body>
+</html>
