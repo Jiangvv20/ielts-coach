@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#2563eb">
+<title>测验 · Day 61 · 高校国际化：机遇、挑战与身份认同</title>
+<style>
+  :root {
+    --bg: #ffffff; --fg: #1a1a1a; --muted: #6b7280;
+    --accent: #2563eb; --ok: #059669; --err: #dc2626;
+    --card: #f9fafb; --border: #e5e7eb;
+    --nav-bg: rgba(255,255,255,0.92);
+    --header-bg: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f172a; --fg: #f1f5f9; --muted: #94a3b8;
+      --accent: #60a5fa; --ok: #34d399; --err: #f87171;
+      --card: #1e293b; --border: #334155;
+      --nav-bg: rgba(15,23,42,0.92);
+      --header-bg: linear-gradient(135deg, #1e40af 0%, #6b21a8 100%);
+    }
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg); }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif;
+    line-height: 1.6;
+    min-height: 100vh;
+    padding-bottom: calc(64px + env(safe-area-inset-bottom, 0));
+  }
+  .app-header {
+    background: var(--header-bg); color: white;
+    padding: calc(env(safe-area-inset-top, 16px) + 12px) 16px 14px;
+    position: sticky; top: 0; z-index: 20;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .back-btn {
+    background: rgba(255,255,255,0.18); border: none; color: white;
+    width: 34px; height: 34px; border-radius: 10px;
+    font-size: 1.1rem; cursor: pointer; flex-shrink: 0;
+    text-decoration: none; display: flex; align-items: center; justify-content: center;
+  }
+  .app-header .ttl {
+    font-size: 1rem; font-weight: 700;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .app-header .sub {
+    font-size: 0.72rem; opacity: 0.85; margin-top: 1px;
+    letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  main { max-width: 720px; margin: 0 auto; padding: 16px; }
+  .progress {
+    height: 6px; background: var(--border); border-radius: 3px;
+    margin-bottom: 16px; overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%; background: var(--accent);
+    transition: width 0.3s ease;
+  }
+  .passage {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 14px 16px; margin-bottom: 16px;
+    font-size: 0.95rem; line-height: 1.75;
+  }
+  .passage h3 { margin: 0 0 8px; font-size: 0.78rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+  .passage h4 { margin: 0 0 10px; font-size: 1rem; font-weight: 700; }
+  .passage p { margin: 0 0 10px; }
+  .passage p:last-child { margin-bottom: 0; }
+  .question {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 16px; margin-bottom: 14px;
+  }
+  .q-num {
+    color: var(--muted); font-size: 0.78rem;
+    font-family: "SF Mono", Menlo, monospace; margin-bottom: 6px;
+    text-transform: uppercase; letter-spacing: 0.04em;
+  }
+  .q-text { font-size: 1rem; margin-bottom: 12px; font-weight: 500; line-height: 1.5; }
+  .options { display: flex; flex-direction: column; gap: 8px; }
+  .option {
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 8px; padding: 12px 14px;
+    cursor: pointer; font-size: 0.95rem; text-align: left;
+    color: var(--fg); font-family: inherit;
+  }
+  .option.selected { border-color: var(--accent); background: rgba(37, 99, 235, 0.08); }
+  .option.correct { border-color: var(--ok); background: rgba(5, 150, 105, 0.1); }
+  .option.wrong { border-color: var(--err); background: rgba(220, 38, 38, 0.1); }
+  .blank-input {
+    width: 100%; background: var(--bg);
+    border: 1px solid var(--border); border-radius: 8px;
+    padding: 10px 12px; font-size: 1rem;
+    color: var(--fg); font-family: inherit;
+  }
+  .blank-input.correct { border-color: var(--ok); }
+  .blank-input.wrong { border-color: var(--err); }
+  .explanation {
+    margin-top: 10px; padding: 10px 12px;
+    background: var(--bg); border-left: 3px solid var(--accent);
+    border-radius: 4px; font-size: 0.9rem; color: var(--muted);
+    display: none; line-height: 1.5;
+  }
+  .explanation.show { display: block; }
+  .explanation .answer { color: var(--ok); font-weight: 600; margin-bottom: 4px; }
+  .actions { display: flex; gap: 10px; margin-top: 20px; }
+  .btn {
+    flex: 1; padding: 12px;
+    border: none; border-radius: 10px;
+    font-size: 1rem; font-weight: 600; cursor: pointer;
+    font-family: inherit;
+  }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-secondary { background: var(--card); color: var(--fg); border: 1px solid var(--border); }
+  .result {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 20px;
+    text-align: center; margin-top: 20px; display: none;
+  }
+  .result.show { display: block; }
+  .score { font-size: 2.5rem; font-weight: 700; color: var(--accent); }
+  .score-label { color: var(--muted); font-size: 0.9rem; margin-top: 4px; }
+  .section-header {
+    font-size: 0.78rem; color: var(--muted); text-transform: uppercase;
+    letter-spacing: 0.06em; font-weight: 700;
+    padding: 8px 4px 4px; margin-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+  .tabbar {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: var(--nav-bg);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    border-top: 1px solid var(--border);
+    display: flex;
+    padding-bottom: env(safe-area-inset-bottom, 0);
+    z-index: 30;
+  }
+  .tab-btn {
+    flex: 1; background: transparent; border: none;
+    padding: 10px 4px 8px; color: var(--muted); font-size: 0.68rem;
+    cursor: pointer;
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    font-family: inherit; text-decoration: none;
+  }
+  .tab-btn .icon { font-size: 1.25rem; line-height: 1; }
+  .tab-btn.active { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <a class="back-btn" href="index.html#quizzes">&#8592;</a>
+  <div style="flex:1;min-width:0;">
+    <div class="ttl">Reading T/F/NG &middot; 高校国际化：机遇、挑战与身份认同</div>
+    <div class="sub">Day 61 &middot; 10 题 &middot; ~12 分钟</div>
+  </div>
+</header>
+
+<main>
+
+  <div class="progress"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+
+  <div class="passage">
+    <h3>&#128218; 阅读文章 (约 620 词)</h3>
+    <h4>The Internationalisation of Higher Education: Opportunity, Inequality, and the Question of Identity</h4>
+    <p>Over the past three decades, the internationalisation of higher education has accelerated dramatically. By 2023, over six million students were enrolled outside their home countries, drawn by the promise of prestigious qualifications, expanded career networks, and the experience of living abroad. Governments and universities alike have embraced this trend: for universities, overseas students represent a significant revenue stream; for host nations, they constitute a form of soft power — demonstrating educational excellence and cultivating goodwill among future leaders. Yet beneath this celebratory narrative lies a more complicated reality.</p>
+    <p>Critics argue that internationalisation as currently practised is deeply unequal. The flow of students is overwhelmingly unidirectional: young people from China, India, South Korea, and other emerging economies travel westward to institutions in the United Kingdom, the United States, Canada, and Australia. The reverse — students from wealthy nations pursuing degrees in Asia or Africa — remains negligible by comparison. Scholars have coined the term <em>academic migration</em> to describe this asymmetry, noting that it mirrors historic patterns of economic and cultural dominance. The universities that dominate global league tables are, with very few exceptions, located in English-speaking countries, and the premium attached to an Anglophone degree perpetuates linguistic hierarchies in the global academy.</p>
+    <p>A second tension concerns the student experience itself. Research consistently shows that international students report higher levels of loneliness and academic difficulty than their domestic peers, not because of inferior preparation, but because of a mismatch between the pedagogical norms they encountered at home and those expected at the host institution. Where students have been schooled in rote memorisation and teacher-directed instruction, they often find the emphasis on critical argumentation and independent research deeply disorienting. Universities that recruit aggressively without investing in adequate induction programmes and welfare support are, in effect, taking fees while failing their students.</p>
+    <p>A third issue involves identity. Students who spend three or four years abroad frequently report undergoing profound shifts in how they perceive themselves and their home societies. Many describe experiencing <em>reverse culture shock</em> on their return — a disorientation triggered not by the foreign country, but by the familiar one. Habits of mind cultivated through years of open debate and independent scholarship can sit uncomfortably alongside social expectations at home. Whether this constitutes personal growth or cultural alienation is a question that researchers have not yet resolved.</p>
+    <p>None of this implies that international study is without value. A generation of students who have navigated unfamiliar academic cultures, forged intercultural friendships, and developed the capacity to operate across national boundaries is, in many respects, better prepared for an interconnected world. The challenge for policymakers is to ensure that the benefits of internationalisation are more equitably distributed — and that the institutions which profit from it invest meaningfully in the wellbeing and success of every student they admit.</p>
+  </div>
+
+  <div id="questions">
+
+    <div class="section-header">&#128221; Section A &middot; True / False / Not Given (判断题)</div>
+
+    <div class="question" data-type="mcq" data-answer="A">
+      <div class="q-num">Q01 &middot; T/F/NG</div>
+      <div class="q-text">By 2023, over six million students were studying outside their home countries.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#10003; 正确答案: A (True)</div>
+        原文明确: "By 2023, over six million students were enrolled outside their home countries" — 与题目完全一致，判 True。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="B">
+      <div class="q-num">Q02 &middot; T/F/NG</div>
+      <div class="q-text">The passage states that students from wealthy nations commonly pursue degrees in Asia and Africa.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#10003; 正确答案: B (False)</div>
+        原文说这种反向流动 "remains negligible by comparison" — 明确相反，判 False。注意区分 T/F/NG 中 False = 文章直接矛盾。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="C">
+      <div class="q-num">Q03 &middot; T/F/NG</div>
+      <div class="q-text">The University of Tokyo is listed among the top institutions in global university rankings.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#10003; 正确答案: C (Not Given)</div>
+        文章提到 league table 上的大学多在英语国家，但从未具体点名任何大学。不论你的常识如何，文章无此信息 = Not Given。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="B">
+      <div class="q-num">Q04 &middot; T/F/NG</div>
+      <div class="q-text">According to the author, international students struggle academically because their academic preparation is weaker than that of domestic students.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#10003; 正确答案: B (False)</div>
+        原文: "not because of inferior preparation, but because of a mismatch between the pedagogical norms" — 明确否定了题目的理由，判 False。这是 T/F/NG 中最常见的偷换因果陷阱。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="A">
+      <div class="q-num">Q05 &middot; T/F/NG</div>
+      <div class="q-text">The author suggests that universities which recruit international students without adequate support are failing those students.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#10003; 正确答案: A (True)</div>
+        原文: "Universities that recruit aggressively without investing in adequate induction programmes and welfare support are, in effect, taking fees while failing their students." — 与题目完全一致，判 True。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="C">
+      <div class="q-num">Q06 &middot; T/F/NG</div>
+      <div class="q-text">Researchers have conclusively determined that studying abroad leads to personal growth rather than cultural alienation.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#10003; 正确答案: C (Not Given)</div>
+        原文恰恰相反: "Whether this constitutes personal growth or cultural alienation is a question that researchers have not yet resolved." — 研究尚无定论，判 Not Given。注意: NG 不是说"不知道"，而是"文章没有给出结论"。
+      </div>
+    </div>
+
+    <div class="section-header" style="margin-top:20px;">&#128221; Section B &middot; 词汇填空 (Vocabulary Gap-Fill)</div>
+    <p style="font-size:0.85rem;color:var(--muted);margin:0 0 12px;">根据上下文或文章内容，填入最合适的词汇（全小写，不含冠词）。</p>
+
+    <div class="question" data-type="blank" data-answer="soft power">
+      <div class="q-num">Q07 &middot; 词汇填空</div>
+      <div class="q-text">Attracting overseas students demonstrates educational prestige and cultivates goodwill among future leaders — making it an exercise in ____. (2 words)</div>
+      <input class="blank-input" placeholder="键入答案（全小写）">
+      <div class="explanation">
+        <div class="answer">&#10003; 正确答案: soft power</div>
+        原文: "they constitute a form of <em>soft power</em> — demonstrating educational excellence and cultivating goodwill among future leaders." — 直接定位。今日词卡高频词汇。
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="academic migration">
+      <div class="q-num">Q08 &middot; 词汇填空</div>
+      <div class="q-text">The unidirectional movement of students from emerging economies to English-speaking universities is described in the passage using the term ____. (2 words)</div>
+      <input class="blank-input" placeholder="键入答案（全小写）">
+      <div class="explanation">
+        <div class="answer">&#10003; 正确答案: academic migration</div>
+        原文: "Scholars have coined the term <em>academic migration</em> to describe this asymmetry." — 直接引用术语。今日词卡词汇，务必掌握。
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="reverse culture shock">
+      <div class="q-num">Q09 &middot; 词汇填空</div>
+      <div class="q-text">Students returning home after years abroad often experience ____, a disorientation triggered not by the foreign country but by their home society. (3 words)</div>
+      <input class="blank-input" placeholder="键入答案（全小写）">
+      <div class="explanation">
+        <div class="answer">&#10003; 正确答案: reverse culture shock</div>
+        原文: "Many describe experiencing <em>reverse culture shock</em> on their return — a disorientation triggered not by the foreign country, but by the familiar one." — 原文原词，今日词卡必考。
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="internationalisation">
+      <div class="q-num">Q10 &middot; 词汇填空</div>
+      <div class="q-text">The author concludes that the benefits of ____ should be more equitably distributed. (1 word)</div>
+      <input class="blank-input" placeholder="键入答案（全小写）">
+      <div class="explanation">
+        <div class="answer">&#10003; 正确答案: internationalisation</div>
+        原文末段: "The challenge for policymakers is to ensure that the benefits of <em>internationalisation</em> are more equitably distributed." — 直接对应，注意英式拼写（-isation 而非 -ization）。
+      </div>
+    </div>
+
+  </div>
+
+  <div class="actions">
+    <button class="btn btn-secondary" onclick="resetQuiz()">&#128260; 重做</button>
+    <button class="btn btn-primary" onclick="submitQuiz()">&#9989; 提交对答</button>
+  </div>
+
+  <div class="result" id="result">
+    <div class="score" id="scoreNum">--</div>
+    <div class="score-label">正确率 (10 题)</div>
+    <div id="scoreDetail" style="margin-top:10px;color:var(--muted);font-size:0.88rem;line-height:1.6;"></div>
+    <div style="margin-top:14px;padding:10px 12px;background:var(--bg);border-radius:8px;font-size:0.82rem;color:var(--muted);line-height:1.6;">
+      <strong style="color:var(--fg);">&#127891; 今日学习建议</strong><br>
+      &#x26A0;&#xFE0F; T/F/NG 陷阱 #1: 题目改变原因或条件 (Q04: 不是能力差，是文化不匹配)。<br>
+      &#128218; NG 关键: Q03 提具体大学 — 文章没提；Q06 提"已有结论" — 文章说尚无定论。<br>
+      &#128221; 今日高频词汇: <em>soft power · academic migration · reverse culture shock · internationalisation · credential inflation · open access</em>
+    </div>
+  </div>
+
+</main>
+
+<nav class="tabbar">
+  <a class="tab-btn" href="index.html#home"><span class="icon">&#127968;</span>概览</a>
+  <a class="tab-btn" href="index.html#materials"><span class="icon">&#128250;</span>材料</a>
+  <a class="tab-btn active" href="index.html#quizzes"><span class="icon">&#9999;&#65039;</span>测验</a>
+  <a class="tab-btn" href="index.html#plan"><span class="icon">&#128203;</span>计划</a>
+</nav>
+
+<script>
+  const TOTAL = 10;
+
+  document.querySelectorAll(".option").forEach(opt => {
+    opt.addEventListener("click", () => {
+      const q = opt.closest(".question");
+      q.querySelectorAll(".option").forEach(o => o.classList.remove("selected"));
+      opt.classList.add("selected");
+      q.dataset.userAnswer = opt.dataset.key;
+      updateProgress();
+    });
+  });
+
+  document.querySelectorAll(".blank-input").forEach(inp => {
+    inp.addEventListener("input", updateProgress);
+  });
+
+  function updateProgress() {
+    const mcqDone = document.querySelectorAll(".question[data-type='mcq'][data-user-answer]").length;
+    const blankDone = Array.from(document.querySelectorAll(".blank-input")).filter(i => i.value.trim()).length;
+    const frac = (mcqDone + blankDone) / TOTAL;
+    document.getElementById("progressFill").style.width = (frac * 100) + "%";
+  }
+
+  function submitQuiz() {
+    let correct = 0;
+    const details = [];
+
+    document.querySelectorAll(".question").forEach((q, idx) => {
+      const type = q.dataset.type;
+      const exp = q.querySelector(".explanation");
+      exp.classList.add("show");
+
+      if (type === "mcq") {
+        const ans = q.dataset.answer;
+        const user = q.dataset.userAnswer || "";
+        const isRight = user === ans;
+        if (isRight) correct++;
+        q.querySelectorAll(".option").forEach(o => {
+          if (o.dataset.key === ans) o.classList.add("correct");
+          else if (o.dataset.key === user && !isRight) o.classList.add("wrong");
+        });
+        details.push(`Q${String(idx+1).padStart(2,"0")}: ${isRight ? "&#9989;" : "&#10060;"}`);
+      } else if (type === "blank") {
+        const ans = q.dataset.answer.toLowerCase();
+        const inp = q.querySelector(".blank-input");
+        const user = (inp.value || "").trim().toLowerCase();
+        const isRight = user === ans;
+        if (isRight) correct++;
+        inp.classList.add(isRight ? "correct" : "wrong");
+        details.push(`Q${String(idx+1).padStart(2,"0")}: ${isRight ? "&#9989;" : "&#10060;"} (${q.dataset.answer})`);
+      }
+    });
+
+    document.getElementById("scoreNum").textContent = `${correct}/${TOTAL}`;
+    document.getElementById("scoreDetail").innerHTML = details.join(" &nbsp; ");
+    document.getElementById("result").classList.add("show");
+    document.getElementById("result").scrollIntoView({ behavior: "smooth" });
+  }
+
+  function resetQuiz() {
+    document.querySelectorAll(".question").forEach(q => {
+      delete q.dataset.userAnswer;
+      q.querySelectorAll(".option").forEach(o => o.className = "option");
+      const inp = q.querySelector(".blank-input");
+      if (inp) { inp.value = ""; inp.className = "blank-input"; }
+      q.querySelector(".explanation").classList.remove("show");
+    });
+    document.getElementById("result").classList.remove("show");
+    document.getElementById("progressFill").style.width = "0%";
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#2563eb">
+<title>今日 150 词 · 2026-07-20 · Education</title>
+<style>
+  :root {
+    --bg: #ffffff; --fg: #1a1a1a; --muted: #6b7280;
+    --accent: #2563eb; --ok: #059669; --warn: #d97706;
+    --card: #f9fafb; --border: #e5e7eb;
+    --nav-bg: rgba(255,255,255,0.92);
+    --header-bg: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f172a; --fg: #f1f5f9; --muted: #94a3b8;
+      --accent: #60a5fa; --ok: #34d399; --warn: #fbbf24;
+      --card: #1e293b; --border: #334155;
+      --nav-bg: rgba(15,23,42,0.92);
+      --header-bg: linear-gradient(135deg, #1e40af 0%, #6b21a8 100%);
+    }
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg); }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif;
+    line-height: 1.5;
+    min-height: 100vh;
+    padding-bottom: calc(64px + env(safe-area-inset-bottom, 0));
+  }
+  .app-header {
+    background: var(--header-bg); color: white;
+    padding: calc(env(safe-area-inset-top, 16px) + 12px) 16px 14px;
+    position: sticky; top: 0; z-index: 20;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .back-btn {
+    background: rgba(255,255,255,0.18); border: none; color: white;
+    width: 34px; height: 34px; border-radius: 10px;
+    font-size: 1.1rem; cursor: pointer; flex-shrink: 0;
+    text-decoration: none; display: flex; align-items: center; justify-content: center;
+  }
+  .app-header .ttl { font-size: 1rem; font-weight: 700; }
+  .app-header .sub {
+    font-size: 0.72rem; opacity: 0.85; margin-top: 1px;
+    letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  .stats {
+    background: var(--card); padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px; text-align: center;
+  }
+  .stat .num { font-size: 1.4rem; font-weight: 700; }
+  .stat .num.know { color: var(--ok); }
+  .stat .num.weak { color: var(--warn); }
+  .stat .num.left { color: var(--accent); }
+  .stat .lbl { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; margin-top: 2px; }
+  .progress-bar {
+    height: 4px; background: var(--border);
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%; background: var(--accent);
+    transition: width 0.3s;
+  }
+  .card-stage {
+    margin: 24px 16px;
+    perspective: 1000px;
+  }
+  .card-3d {
+    position: relative;
+    width: 100%; min-height: 260px;
+    transform-style: preserve-3d;
+    transition: transform 0.5s;
+    cursor: pointer;
+  }
+  .card-3d.flipped { transform: rotateY(180deg); }
+  .face {
+    position: absolute; width: 100%; height: 100%;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 24px 20px;
+    display: flex; flex-direction: column;
+    justify-content: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .face.front { text-align: center; }
+  .face.front .word {
+    font-size: 2rem; font-weight: 700;
+    color: var(--accent); margin-bottom: 8px;
+    word-break: break-word;
+  }
+  .face.front .pos {
+    color: var(--muted); font-size: 0.95rem;
+    font-style: italic;
+  }
+  .face.front .hint {
+    margin-top: 28px; color: var(--muted);
+    font-size: 0.82rem;
+  }
+  .face.back { transform: rotateY(180deg); }
+  .face.back .zh {
+    font-size: 1.3rem; font-weight: 600;
+    color: var(--accent); margin-bottom: 12px;
+  }
+  .face.back .collo {
+    background: var(--bg); padding: 8px 12px;
+    border-radius: 8px; font-size: 0.92rem;
+    color: var(--fg); margin-bottom: 10px;
+    border-left: 3px solid var(--accent);
+  }
+  .face.back .ex {
+    font-size: 0.95rem; font-style: italic;
+    color: var(--fg); line-height: 1.6;
+  }
+  .face.back .ex strong { color: var(--accent); font-style: normal; }
+  .speaker {
+    position: absolute; top: 14px; right: 14px;
+    width: 36px; height: 36px; border-radius: 50%;
+    background: var(--bg); border: 1px solid var(--border);
+    cursor: pointer; font-size: 1.1rem; padding: 0;
+    color: var(--accent);
+  }
+  .view-toggle {
+    display: flex; padding: 12px 16px 0;
+    gap: 8px;
+  }
+  .view-toggle button {
+    flex: 1; padding: 8px;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 8px; color: var(--muted);
+    font-size: 0.85rem; cursor: pointer; font-family: inherit;
+  }
+  .view-toggle button.active { background: var(--accent); color: white; border-color: var(--accent); }
+  .list-view { display: none; padding: 12px 16px 24px; }
+  .list-view.active { display: block; }
+  .list-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px; border-bottom: 1px solid var(--border);
+    background: var(--card); border-radius: 8px;
+    margin-bottom: 6px;
+  }
+  .list-row .num {
+    flex-shrink: 0; width: 28px;
+    color: var(--muted); font-size: 0.72rem;
+    font-family: "SF Mono", Menlo, monospace;
+  }
+  .list-row .word {
+    flex: 1; min-width: 0;
+  }
+  .list-row .w { font-weight: 600; font-size: 0.95rem; color: var(--fg); }
+  .list-row .w.knew { color: var(--ok); }
+  .list-row .w.weak { color: var(--warn); }
+  .list-row .zh {
+    font-size: 0.78rem; color: var(--muted); margin-top: 2px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .list-row .spk {
+    flex-shrink: 0; width: 32px; height: 32px;
+    border-radius: 50%; background: var(--bg);
+    border: 1px solid var(--border); cursor: pointer;
+    color: var(--accent); font-size: 0.9rem; padding: 0;
+  }
+  .list-row .mk {
+    flex-shrink: 0; width: 24px; text-align: center;
+    color: var(--muted);
+  }
+  .list-row .mk.know { color: var(--ok); }
+  .list-row .mk.weak { color: var(--warn); }
+  .curriculum-note {
+    margin: 16px; padding: 12px 14px;
+    background: var(--card); border-left: 3px solid var(--accent);
+    border-radius: 8px; font-size: 0.82rem;
+    color: var(--muted); line-height: 1.5;
+  }
+  .curriculum-note strong { color: var(--fg); }
+  .actions {
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px; padding: 0 16px;
+  }
+  .btn {
+    padding: 14px 8px; border: 1px solid var(--border);
+    border-radius: 12px; background: var(--card);
+    color: var(--fg); font-size: 0.95rem;
+    font-weight: 600; cursor: pointer; font-family: inherit;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .btn .ico { display: block; font-size: 1.4rem; margin-bottom: 2px; }
+  .btn.weak { color: var(--warn); }
+  .btn.weak:active { background: rgba(217,119,6,0.1); }
+  .btn.flip { color: var(--accent); }
+  .btn.flip:active { background: rgba(37,99,235,0.1); }
+  .btn.know { color: var(--ok); }
+  .btn.know:active { background: rgba(5,150,105,0.1); }
+  .meta {
+    text-align: center; color: var(--muted);
+    font-size: 0.78rem; margin-top: 20px;
+  }
+  .tabbar {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: var(--nav-bg);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    border-top: 1px solid var(--border);
+    display: flex;
+    padding-bottom: env(safe-area-inset-bottom, 0);
+    z-index: 30;
+  }
+  .tab-btn {
+    flex: 1; background: transparent; border: none;
+    padding: 10px 4px 8px; color: var(--muted); font-size: 0.68rem;
+    cursor: pointer;
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    font-family: inherit; text-decoration: none;
+  }
+  .tab-btn .icon { font-size: 1.25rem; line-height: 1; }
+  .tab-btn.active { color: var(--accent); }
+  .done-screen {
+    text-align: center; padding: 60px 24px;
+    display: none;
+  }
+  .done-screen.show { display: block; }
+  .done-screen .big { font-size: 4rem; }
+  .done-screen .ttl { font-size: 1.3rem; font-weight: 700; margin: 8px 0; }
+  .done-screen .sub { color: var(--muted); margin-bottom: 24px; }
+  .done-screen button {
+    background: var(--accent); color: white; border: none;
+    padding: 12px 24px; border-radius: 12px;
+    font-size: 0.95rem; font-weight: 600; cursor: pointer;
+    font-family: inherit; margin: 4px;
+  }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <a class="back-btn" href="index.html#home">←</a>
+  <div style="flex:1;">
+    <div class="ttl">今日 150 词 · Education</div>
+    <div class="sub">2026-05-21 · Day 1</div>
+  </div>
+</header>
+
+<div class="stats">
+  <div class="stat"><div class="num know" id="kn">0</div><div class="lbl">知道</div></div>
+  <div class="stat"><div class="num weak" id="wk">0</div><div class="lbl">不熟</div></div>
+  <div class="stat"><div class="num left" id="lf">150</div><div class="lbl">剩余</div></div>
+</div>
+<div class="progress-bar"><div class="progress-fill" id="pg" style="width:0%"></div></div>
+
+<div class="view-toggle">
+  <button id="vtFlash" class="active" onclick="setView('flash')">📇 卡片</button>
+  <button id="vtList" onclick="setView('list')">📋 列表</button>
+</div>
+
+<div id="deck">
+  <div class="card-stage">
+    <div class="card-3d" id="card" onclick="flip()">
+      <div class="face front">
+        <button class="speaker" onclick="event.stopPropagation();speak(document.getElementById('w').textContent)">🔊</button>
+        <div class="word" id="w">—</div>
+        <div class="pos" id="p">—</div>
+        <div class="hint">轻触卡片 · 翻看释义</div>
+      </div>
+      <div class="face back">
+        <button class="speaker" onclick="event.stopPropagation();speak(document.getElementById('w').textContent)">🔊</button>
+        <div class="zh" id="zh">—</div>
+        <div class="collo" id="cl">—</div>
+        <div class="ex" id="ex">—</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="btn weak" onclick="mark('weak')"><span class="ico">😣</span>不熟</button>
+    <button class="btn flip" onclick="flip()"><span class="ico">🔄</span>翻转</button>
+    <button class="btn know" onclick="mark('know')"><span class="ico">✅</span>知道</button>
+  </div>
+
+  <div class="meta" id="meta">1 / 150 · 今日主题 Education</div>
+</div>
+
+<div class="list-view" id="listView">
+  <div id="listBody"></div>
+</div>
+
+<div class="curriculum-note">
+  <strong>词汇来源</strong>: 8 天主题轮换,涵盖雅思高频话题。<br>
+  Day 1-7 <strong>Education</strong> · Day 8-14 <strong>Environment</strong> · Day 15-21 <strong>Technology</strong> · Day 22-28 <strong>Health</strong> · Day 29-35 <strong>Government & Society</strong> · Day 36-42 <strong>Work & Economy</strong> · Day 43-49 <strong>Family</strong> · Day 50-56 <strong>Travel & Culture</strong> · 之后循环。<br>
+  词汇为 Band 7+ 难度, 每条含 词性 · 中文 · 搭配 · 例句, 由 IELTS 高分话题词库扩展生成。
+</div>
+
+<div class="done-screen" id="done">
+  <div class="big">🎉</div>
+  <div class="ttl" id="doneTtl">今日 150 词完成!</div>
+  <div class="sub" id="doneSub">知道 0 · 不熟 0</div>
+  <button onclick="resetAll()">重新开始</button>
+  <button onclick="reviewWeak()">只复习不熟</button>
+  <button onclick="location.href='index.html'">回主页</button>
+</div>
+
+<nav class="tabbar">
+  <a class="tab-btn active" href="index.html#home"><span class="icon">🏠</span>概览</a>
+  <a class="tab-btn" href="index.html#materials"><span class="icon">📺</span>材料</a>
+  <a class="tab-btn" href="index.html#quizzes"><span class="icon">✏️</span>测验</a>
+  <a class="tab-btn" href="index.html#plan"><span class="icon">📋</span>计划</a>
+</nav>
+
+<script>
+const CARDS = [{"w": "dean", "p": "n.", "zh": "院长", "cl": "faculty dean", "ex": "The <strong>dean</strong> of the engineering faculty launched a new research initiative."}, {"w": "rector", "p": "n.", "zh": "校长(欧式)", "cl": "university rector", "ex": "The <strong>rector</strong> addressed students at the opening ceremony."}, {"w": "warden", "p": "n.", "zh": "学院院长(英式)", "cl": "college warden", "ex": "The <strong>warden</strong> of the college presided over the annual dinner."}, {"w": "proctor", "p": "n.", "zh": "监考官/执行官", "cl": "university proctor", "ex": "The <strong>proctor</strong> investigated a plagiarism complaint filed by the department."}, {"w": "bursar", "p": "n.", "zh": "财务主任", "cl": "college bursar", "ex": "Students should direct fee queries to the college <strong>bursar</strong>."}, {"w": "adjunct", "p": "adj./n.", "zh": "兼职教师；附属的", "cl": "adjunct professor", "ex": "Many universities rely heavily on <strong>adjunct</strong> faculty to deliver courses."}, {"w": "postdoc", "p": "n.", "zh": "博士后研究员", "cl": "postdoc fellowship", "ex": "She spent two years as a <strong>postdoc</strong> at MIT before applying for a lectureship."}, {"w": "academician", "p": "n.", "zh": "院士", "cl": "elected academician", "ex": "He was elected an <strong>academician</strong> of the national academy of sciences."}, {"w": "valedictorian", "p": "n.", "zh": "毕业典礼学生致辞代表", "cl": "class valedictorian", "ex": "As <strong>valedictorian</strong>, she delivered an inspiring address about resilience."}, {"w": "salutatorian", "p": "n.", "zh": "毕业典礼第二发言人", "cl": "class salutatorian", "ex": "The <strong>salutatorian</strong> welcomed guests on behalf of the graduating class."}, {"w": "alumnus", "p": "n.", "zh": "(男)校友", "cl": "distinguished alumnus", "ex": "The university honoured its most distinguished <strong>alumnus</strong> at the gala."}, {"w": "alumna", "p": "n.", "zh": "(女)校友", "cl": "notable alumna", "ex": "She returned as a notable <strong>alumna</strong> to mentor current undergraduates."}, {"w": "fresher", "p": "n.", "zh": "大一新生(英式)", "cl": "a fresher arriving on campus", "ex": "Every <strong>fresher</strong> is assigned a personal tutor in their first week."}, {"w": "sophomore", "p": "n.", "zh": "大二学生(美式)", "cl": "sophomore year", "ex": "In their <strong>sophomore</strong> year, students must declare a major."}, {"w": "alma mater", "p": "n.", "zh": "母校", "cl": "return to one's alma mater", "ex": "She returned to her <strong>alma mater</strong> to deliver the honorary lecture."}, {"w": "semester", "p": "n.", "zh": "学期(两学期制)", "cl": "spring semester", "ex": "The spring <strong>semester</strong> runs from January to May."}, {"w": "trimester", "p": "n.", "zh": "三学期制的学期", "cl": "trimester system", "ex": "Some universities operate on a <strong>trimester</strong> system with three equal terms."}, {"w": "orientation", "p": "n.", "zh": "新生入学引导", "cl": "freshers orientation", "ex": "The <strong>orientation</strong> programme helps new students navigate campus life."}, {"w": "timetable", "p": "n.", "zh": "课程表", "cl": "lecture timetable", "ex": "Students can download their <strong>timetable</strong> from the online portal."}, {"w": "reading week", "p": "n.", "zh": "自习/复习周", "cl": "use reading week wisely", "ex": "Many students use <strong>reading week</strong> to catch up on seminar readings."}, {"w": "office hours", "p": "n.", "zh": "答疑时间", "cl": "attend office hours", "ex": "Visiting a professor during <strong>office hours</strong> demonstrates academic initiative."}, {"w": "academic year", "p": "n.", "zh": "学年", "cl": "the current academic year", "ex": "Fees are billed once per <strong>academic year</strong>."}, {"w": "campus culture", "p": "n.", "zh": "校园文化", "cl": "vibrant campus culture", "ex": "A vibrant <strong>campus culture</strong> contributes to student satisfaction and retention."}, {"w": "imposter syndrome", "p": "n.", "zh": "冒名顶替综合征", "cl": "suffer from imposter syndrome", "ex": "Many PhD students suffer from <strong>imposter syndrome</strong> despite their achievements."}, {"w": "academic burnout", "p": "n.", "zh": "学业倦怠", "cl": "prevent academic burnout", "ex": "Universities are investing in counselling to prevent <strong>academic burnout</strong>."}, {"w": "dual degree", "p": "n.", "zh": "双学位", "cl": "pursue a dual degree", "ex": "She pursued a <strong>dual degree</strong> in economics and computer science."}, {"w": "joint degree", "p": "n.", "zh": "联合学位", "cl": "a joint degree programme", "ex": "The <strong>joint degree</strong> programme involves study at two partner universities."}, {"w": "sandwich course", "p": "n.", "zh": "三明治课程(含实习年)", "cl": "a sandwich course with placement", "ex": "A <strong>sandwich course</strong> includes a paid placement year in industry."}, {"w": "foundation year", "p": "n.", "zh": "预科年", "cl": "study a foundation year", "ex": "Students without traditional qualifications can study a <strong>foundation year</strong> first."}, {"w": "access course", "p": "n.", "zh": "入学预备课程", "cl": "complete an access course", "ex": "An <strong>access course</strong> prepares adult learners for higher education."}, {"w": "conversion course", "p": "n.", "zh": "跨专业研究生课程", "cl": "take a conversion course", "ex": "She took a law <strong>conversion course</strong> after graduating in philosophy."}, {"w": "doctoral programme", "p": "n.", "zh": "博士项目", "cl": "enrol in a doctoral programme", "ex": "The structured <strong>doctoral programme</strong> includes taught modules and independent research."}, {"w": "widening participation", "p": "n.", "zh": "扩大高等教育参与政策", "cl": "widening participation policy", "ex": "The university's <strong>widening participation</strong> strategy targets underrepresented communities."}, {"w": "mature student", "p": "n.", "zh": "成年学生", "cl": "a mature student returning to study", "ex": "<strong>Mature students</strong> often bring valuable life experience to the classroom."}, {"w": "Russell Group", "p": "n.", "zh": "英国罗素集团(顶级大学联盟)", "cl": "Russell Group university", "ex": "A <strong>Russell Group</strong> degree is widely associated with research prestige in the UK."}, {"w": "Ivy League", "p": "n.", "zh": "(美国)常青藤联盟", "cl": "Ivy League admission", "ex": "<strong>Ivy League</strong> admissions have grown increasingly competitive in recent decades."}, {"w": "red-brick", "p": "adj./n.", "zh": "红砖大学(英国维多利亚时代市立大学)", "cl": "a red-brick university", "ex": "<strong>Red-brick</strong> universities were founded in industrial cities to train a professional class."}, {"w": "research-intensive", "p": "adj.", "zh": "研究密集型的", "cl": "a research-intensive university", "ex": "Staff at <strong>research-intensive</strong> institutions are expected to publish regularly."}, {"w": "general education", "p": "n.", "zh": "通识教育", "cl": "a general education requirement", "ex": "Liberal arts colleges emphasise <strong>general education</strong> across multiple disciplines."}, {"w": "core curriculum", "p": "n.", "zh": "核心课程", "cl": "a compulsory core curriculum", "ex": "The <strong>core curriculum</strong> ensures every student gains a broad academic foundation."}, {"w": "student loan", "p": "n.", "zh": "学生贷款", "cl": "repay a student loan", "ex": "Graduates typically begin to repay their <strong>student loan</strong> once they earn above a threshold."}, {"w": "financial aid", "p": "n.", "zh": "经济资助", "cl": "apply for financial aid", "ex": "The college's financial aid office awarded her a full scholarship."}, {"w": "employability", "p": "n.", "zh": "就业能力", "cl": "enhance employability", "ex": "Work placements significantly enhance graduate <strong>employability</strong>."}, {"w": "career centre", "p": "n.", "zh": "就业指导中心", "cl": "visit the career centre", "ex": "The <strong>career centre</strong> offers CV workshops and mock interviews."}, {"w": "transferable skills", "p": "n.", "zh": "可迁移技能", "cl": "develop transferable skills", "ex": "Communication and data analysis are highly prized <strong>transferable skills</strong>."}, {"w": "internationalisation", "p": "n.", "zh": "(高等教育)国际化", "cl": "internationalisation of higher education", "ex": "The rapid <strong>internationalisation</strong> of higher education has created a global marketplace for degrees."}, {"w": "overseas student", "p": "n.", "zh": "海外留学生", "cl": "recruit overseas students", "ex": "<strong>Overseas students</strong> contribute significantly to university revenues and cultural diversity."}, {"w": "student visa", "p": "n.", "zh": "学生签证", "cl": "obtain a student visa", "ex": "Tightened <strong>student visa</strong> rules have deterred some international applicants."}, {"w": "cultural adjustment", "p": "n.", "zh": "文化适应", "cl": "undergo cultural adjustment", "ex": "International students often undergo a period of <strong>cultural adjustment</strong> upon arrival."}, {"w": "reverse culture shock", "p": "n.", "zh": "回国文化冲击", "cl": "experience reverse culture shock", "ex": "Returning graduates sometimes experience <strong>reverse culture shock</strong> when they arrive home."}, {"w": "global citizen", "p": "n.", "zh": "全球公民", "cl": "cultivate global citizens", "ex": "Universities aim to cultivate <strong>global citizens</strong> capable of working across borders."}, {"w": "cultural competence", "p": "n.", "zh": "跨文化能力", "cl": "develop cultural competence", "ex": "<strong>Cultural competence</strong> is increasingly valued in international workplaces."}, {"w": "intercultural", "p": "adj.", "zh": "跨文化的", "cl": "intercultural communication", "ex": "The programme teaches <strong>intercultural</strong> communication skills alongside academic content."}, {"w": "diaspora", "p": "n.", "zh": "海外移民社群", "cl": "the Chinese diaspora", "ex": "The university maintains strong links with the global Chinese <strong>diaspora</strong>."}, {"w": "brain gain", "p": "n.", "zh": "人才回流/引进", "cl": "policies to encourage brain gain", "ex": "Strategic scholarships can convert brain drain into <strong>brain gain</strong> over time."}, {"w": "soft power", "p": "n.", "zh": "软实力", "cl": "university as soft power", "ex": "World-class universities are a nation's most effective instrument of <strong>soft power</strong>."}, {"w": "cultural diplomacy", "p": "n.", "zh": "文化外交", "cl": "exercise cultural diplomacy", "ex": "Student exchange programmes are a form of <strong>cultural diplomacy</strong>."}, {"w": "academic migration", "p": "n.", "zh": "学者移民/学术人员流动", "cl": "patterns of academic migration", "ex": "<strong>Academic migration</strong> concentrates talent in a small number of wealthy nations."}, {"w": "year abroad", "p": "n.", "zh": "海外学年", "cl": "a compulsory year abroad", "ex": "The language degree includes a compulsory <strong>year abroad</strong>."}, {"w": "exchange student", "p": "n.", "zh": "交换生", "cl": "incoming exchange student", "ex": "As an <strong>exchange student</strong>, she spent a semester in Seoul before returning to her home institution."}, {"w": "open access", "p": "n.", "zh": "开放获取(学术出版)", "cl": "open access journal", "ex": "<strong>Open access</strong> publishing makes research freely available to anyone with an internet connection."}, {"w": "preprint", "p": "n.", "zh": "预印本(未经同行评审)", "cl": "post a preprint", "ex": "Scientists posted a <strong>preprint</strong> so the community could critique the findings immediately."}, {"w": "H-index", "p": "n.", "zh": "H指数(学者影响力)", "cl": "a high H-index", "ex": "A researcher with an <strong>H-index</strong> of 30 has published 30 papers cited at least 30 times each."}, {"w": "impact factor", "p": "n.", "zh": "期刊影响因子", "cl": "a high impact factor", "ex": "Researchers are often pressured to publish in high <strong>impact factor</strong> journals."}, {"w": "research output", "p": "n.", "zh": "科研产出", "cl": "increase research output", "ex": "The department's <strong>research output</strong> was ranked among the top ten globally."}, {"w": "knowledge economy", "p": "n.", "zh": "知识经济", "cl": "transition to a knowledge economy", "ex": "Universities are the engines of the <strong>knowledge economy</strong>."}, {"w": "technology transfer", "p": "n.", "zh": "技术转让/成果转化", "cl": "an office of technology transfer", "ex": "The university's <strong>technology transfer</strong> office helps commercialise academic inventions."}, {"w": "spin-off", "p": "n.", "zh": "衍生企业(源自大学)", "cl": "a university spin-off", "ex": "The software company began as a <strong>spin-off</strong> from a laboratory at Cambridge."}, {"w": "grant funding", "p": "n.", "zh": "科研项目资助", "cl": "secure grant funding", "ex": "Securing <strong>grant funding</strong> is increasingly competitive in the social sciences."}, {"w": "research council", "p": "n.", "zh": "研究资助理事会", "cl": "a research council grant", "ex": "The project was supported by a <strong>research council</strong> grant worth two million pounds."}, {"w": "league table", "p": "n.", "zh": "排名表", "cl": "climb the league table", "ex": "The university climbed the <strong>league table</strong> following improvements in student satisfaction."}, {"w": "university ranking", "p": "n.", "zh": "大学排名", "cl": "university ranking system", "ex": "<strong>University rankings</strong> influence where students apply and where governments invest."}, {"w": "research excellence", "p": "n.", "zh": "科研卓越", "cl": "demonstrate research excellence", "ex": "The REF measures <strong>research excellence</strong> across UK higher education institutions."}, {"w": "applied research", "p": "n.", "zh": "应用研究", "cl": "conduct applied research", "ex": "<strong>Applied research</strong> addresses immediate practical problems, unlike pure research."}, {"w": "pure research", "p": "n.", "zh": "基础/纯理论研究", "cl": "fund pure research", "ex": "<strong>Pure research</strong> often yields discoveries whose applications take decades to emerge."}, {"w": "grant proposal", "p": "n.", "zh": "科研项目申请书", "cl": "write a grant proposal", "ex": "Writing a compelling <strong>grant proposal</strong> is a skill PhD students rarely learn formally."}, {"w": "ethics committee", "p": "n.", "zh": "研究伦理审查委员会", "cl": "ethics committee approval", "ex": "All human-subjects research requires <strong>ethics committee</strong> approval before it begins."}, {"w": "research integrity", "p": "n.", "zh": "学术研究诚信", "cl": "uphold research integrity", "ex": "Universities are strengthening policies to uphold <strong>research integrity</strong>."}, {"w": "citation count", "p": "n.", "zh": "引用次数", "cl": "a high citation count", "ex": "A high <strong>citation count</strong> suggests that a paper has influenced the field."}, {"w": "co-authorship", "p": "n.", "zh": "合著", "cl": "acknowledge co-authorship", "ex": "<strong>Co-authorship</strong> disputes are a common source of conflict in research teams."}, {"w": "manuscript", "p": "n.", "zh": "论文稿件", "cl": "submit a manuscript", "ex": "The <strong>manuscript</strong> was submitted to three journals before being accepted."}, {"w": "précis", "p": "n.", "zh": "内容提要/精要摘要", "cl": "write a précis", "ex": "A <strong>précis</strong> condenses an argument into its essential points without loss of meaning."}, {"w": "referee", "p": "n.", "zh": "(同行评审)审稿人", "cl": "anonymous referee", "ex": "The anonymous <strong>referee</strong> suggested significant revisions before acceptance."}, {"w": "acceptance rate", "p": "n.", "zh": "(期刊/大学)录用率", "cl": "a low acceptance rate", "ex": "Top-tier journals have an <strong>acceptance rate</strong> of under five percent."}, {"w": "citation index", "p": "n.", "zh": "引文索引", "cl": "appear in a citation index", "ex": "A paper listed in a major <strong>citation index</strong> gains international visibility."}, {"w": "keyword", "p": "n.", "zh": "关键词(学术论文)", "cl": "choose keywords carefully", "ex": "Selecting the right <strong>keywords</strong> makes a paper easier to discover in databases."}, {"w": "submission", "p": "n.", "zh": "投稿/论文提交", "cl": "a journal submission", "ex": "Authors must format their <strong>submission</strong> according to the journal's house style."}, {"w": "student union", "p": "n.", "zh": "学生会", "cl": "the student union", "ex": "The <strong>student union</strong> lobbied the university to extend library hours."}, {"w": "co-curricular", "p": "adj.", "zh": "辅修的/与正课相辅的", "cl": "co-curricular activities", "ex": "<strong>Co-curricular</strong> activities such as sports teams and debate clubs complement academic study."}, {"w": "time management", "p": "n.", "zh": "时间管理", "cl": "effective time management", "ex": "Effective <strong>time management</strong> prevents last-minute panic before deadlines."}, {"w": "study skills", "p": "n.", "zh": "学习技能", "cl": "improve study skills", "ex": "The university offers a workshop series to improve <strong>study skills</strong>."}, {"w": "perfectionism", "p": "n.", "zh": "完美主义", "cl": "destructive perfectionism", "ex": "Destructive <strong>perfectionism</strong> can paralyse students who fear submitting imperfect work."}, {"w": "scholarly identity", "p": "n.", "zh": "学者身份认同", "cl": "develop a scholarly identity", "ex": "Doctoral education helps students develop a <strong>scholarly identity</strong> over time."}, {"w": "locus of control", "p": "n.", "zh": "控制点(内控/外控)", "cl": "internal locus of control", "ex": "Students with an internal <strong>locus of control</strong> believe their effort shapes their outcomes."}, {"w": "institutional belonging", "p": "n.", "zh": "对院校的归属感", "cl": "strengthen institutional belonging", "ex": "Research shows that <strong>institutional belonging</strong> predicts both academic persistence and wellbeing."}, {"w": "social capital", "p": "n.", "zh": "社会资本", "cl": "build social capital at university", "ex": "University provides an opportunity to build <strong>social capital</strong> that lasts a lifetime."}, {"w": "wellbeing", "p": "n.", "zh": "幸福感/身心健康", "cl": "student wellbeing services", "ex": "The new student <strong>wellbeing</strong> centre offers counselling and mindfulness sessions."}, {"w": "alumni network", "p": "n.", "zh": "校友网络", "cl": "leverage the alumni network", "ex": "The college's global <strong>alumni network</strong> opens doors across industries."}, {"w": "honour roll", "p": "n.", "zh": "荣誉榜", "cl": "appear on the honour roll", "ex": "She was placed on the dean's <strong>honour roll</strong> for academic excellence."}, {"w": "honours thesis", "p": "n.", "zh": "荣誉学位论文", "cl": "write an honours thesis", "ex": "She wrote her <strong>honours thesis</strong> on the economics of climate adaptation."}, {"w": "graduate school", "p": "n.", "zh": "研究生院", "cl": "apply to graduate school", "ex": "Applying to <strong>graduate school</strong> in the US requires a personal statement and GRE scores."}, {"w": "year-one retention", "p": "n.", "zh": "大一留校率", "cl": "improve year-one retention", "ex": "The university tackled declining <strong>year-one retention</strong> by introducing peer mentoring."}, {"w": "articulation", "p": "n.", "zh": "课程衔接(大专升本)", "cl": "articulation pathway", "ex": "An <strong>articulation</strong> pathway allows polytechnic graduates to enter university at the second year."}, {"w": "accrediting body", "p": "n.", "zh": "认证机构", "cl": "recognised by an accrediting body", "ex": "The MBA programme is recognised by a leading <strong>accrediting body</strong>."}, {"w": "federated university", "p": "n.", "zh": "联邦制大学(多学院联合)", "cl": "a federated university system", "ex": "The <strong>federated university</strong> model allows constituent colleges to retain academic autonomy."}, {"w": "lecture capture", "p": "n.", "zh": "录播讲课", "cl": "lecture capture system", "ex": "<strong>Lecture capture</strong> allows students to revisit recorded talks at their own pace."}, {"w": "asynchronous learning", "p": "n.", "zh": "异步学习", "cl": "asynchronous learning platform", "ex": "<strong>Asynchronous learning</strong> allows students in different time zones to engage flexibly with content."}, {"w": "synchronous learning", "p": "n.", "zh": "同步学习", "cl": "synchronous online session", "ex": "<strong>Synchronous learning</strong> preserves real-time interaction between students and instructors."}, {"w": "open learning", "p": "n.", "zh": "开放式学习", "cl": "open learning initiative", "ex": "<strong>Open learning</strong> initiatives remove traditional barriers such as entrance qualifications and fixed schedules."}, {"w": "hybrid learning", "p": "n.", "zh": "混合教学(同时线上线下)", "cl": "hybrid learning environment", "ex": "A <strong>hybrid learning</strong> environment allows some students to attend in person while others join remotely."}, {"w": "online courseware", "p": "n.", "zh": "在线课件", "cl": "freely available online courseware", "ex": "MIT's open <strong>online courseware</strong> makes university-level content available worldwide."}, {"w": "massive open online course", "p": "n. phr.", "zh": "大规模开放在线课程", "cl": "enrol in a massive open online course", "ex": "She earned a verified certificate through a <strong>massive open online course</strong>."}, {"w": "credential inflation", "p": "n.", "zh": "学历通货膨胀", "cl": "the problem of credential inflation", "ex": "<strong>Credential inflation</strong> occurs when more degrees are awarded but their market value falls."}, {"w": "grade point average", "p": "n.", "zh": "平均绩点", "cl": "a high grade point average", "ex": "A strong <strong>grade point average</strong> is often required for graduate school admission."}, {"w": "academic transcript", "p": "n.", "zh": "成绩单", "cl": "official academic transcript", "ex": "All applicants must submit an official <strong>academic transcript</strong> by the deadline."}, {"w": "student body", "p": "n.", "zh": "全体学生", "cl": "diverse student body", "ex": "The university prides itself on its diverse <strong>student body</strong>."}, {"w": "departmental seminar", "p": "n.", "zh": "院系研讨讲座", "cl": "attend a departmental seminar", "ex": "Attending a <strong>departmental seminar</strong> each week keeps researchers abreast of new findings."}, {"w": "inaugural lecture", "p": "n.", "zh": "就职演讲", "cl": "deliver an inaugural lecture", "ex": "The new professor delivered her <strong>inaugural lecture</strong> to a packed auditorium."}, {"w": "keynote address", "p": "n.", "zh": "主旨演讲", "cl": "deliver a keynote address", "ex": "She delivered the <strong>keynote address</strong> at the international education conference."}, {"w": "conference paper", "p": "n.", "zh": "会议论文", "cl": "present a conference paper", "ex": "Presenting a <strong>conference paper</strong> is a milestone for doctoral students."}, {"w": "journal article", "p": "n.", "zh": "期刊文章", "cl": "publish a journal article", "ex": "Her first <strong>journal article</strong> was accepted after two rounds of peer review."}, {"w": "academic publishing", "p": "n.", "zh": "学术出版", "cl": "the world of academic publishing", "ex": "<strong>Academic publishing</strong> is dominated by a small number of large commercial publishers."}, {"w": "book chapter", "p": "n.", "zh": "书章(专著中的章节)", "cl": "contribute a book chapter", "ex": "She was invited to contribute a <strong>book chapter</strong> to the edited volume."}, {"w": "edited volume", "p": "n.", "zh": "多人编写的学术文集", "cl": "an edited volume on education", "ex": "Contributors submitted their chapters to the <strong>edited volume</strong> by the summer deadline."}, {"w": "lecture series", "p": "n.", "zh": "系列讲座", "cl": "a public lecture series", "ex": "The annual <strong>lecture series</strong> invites leading thinkers to address the university community."}, {"w": "student accommodation", "p": "n.", "zh": "学生住宿", "cl": "on-campus student accommodation", "ex": "Rising costs of <strong>student accommodation</strong> are a growing barrier to participation."}, {"w": "academic calendar", "p": "n.", "zh": "学期历", "cl": "the academic calendar", "ex": "The <strong>academic calendar</strong> sets term dates, examination periods, and graduation ceremonies."}, {"w": "graduation ceremony", "p": "n.", "zh": "毕业典礼", "cl": "attend the graduation ceremony", "ex": "Families travel from across the country to attend the <strong>graduation ceremony</strong>."}, {"w": "degree classification", "p": "n.", "zh": "学位分类(一等/二等等)", "cl": "degree classification system", "ex": "The UK <strong>degree classification</strong> system uses a four-tier scale from first to third class."}, {"w": "conditional offer", "p": "n.", "zh": "有条件录取通知", "cl": "receive a conditional offer", "ex": "She received a <strong>conditional offer</strong> requiring an A* in A-level Mathematics."}, {"w": "unconditional offer", "p": "n.", "zh": "无条件录取通知", "cl": "secure an unconditional offer", "ex": "Securing an <strong>unconditional offer</strong> allows students to plan their university place with certainty."}, {"w": "personal statement", "p": "n.", "zh": "个人陈述(申请文书)", "cl": "write a personal statement", "ex": "A compelling <strong>personal statement</strong> can distinguish an applicant in a crowded pool."}, {"w": "reference letter", "p": "n.", "zh": "推荐信", "cl": "a strong reference letter", "ex": "A strong <strong>reference letter</strong> from a professor can tip the balance in admissions."}, {"w": "publish or perish", "p": "idiom", "zh": "不发表即被淘汰", "cl": "the publish-or-perish culture", "ex": "The <strong>publish-or-perish</strong> culture places unsustainable pressure on early-career academics."}, {"w": "the ivory tower", "p": "idiom", "zh": "象牙塔(脱离现实的学术世界)", "cl": "retreat to the ivory tower", "ex": "Critics accuse universities of retreating into <strong>the ivory tower</strong> rather than engaging with society."}, {"w": "go back to the drawing board", "p": "idiom", "zh": "推倒重来/重新开始", "cl": "go back to the drawing board", "ex": "When the pilot study failed, the team had to <strong>go back to the drawing board</strong>."}, {"w": "a level playing field", "p": "idiom", "zh": "公平竞争的环境", "cl": "create a level playing field", "ex": "Financial aid is intended to create <strong>a level playing field</strong> in university admissions."}, {"w": "ahead of the curve", "p": "idiom", "zh": "领先于潮流/走在前列", "cl": "stay ahead of the curve", "ex": "Institutions that embrace technology tend to stay <strong>ahead of the curve</strong>."}, {"w": "close the gap", "p": "phrase", "zh": "缩小差距", "cl": "close the attainment gap", "ex": "Additional tutoring is one approach to <strong>close the gap</strong> between advantaged and disadvantaged students."}, {"w": "fall through the cracks", "p": "idiom", "zh": "被忽视/遗漏", "cl": "students who fall through the cracks", "ex": "Students with hidden disabilities often <strong>fall through the cracks</strong> without proper support."}, {"w": "push the envelope", "p": "idiom", "zh": "突破极限/开拓创新", "cl": "push the envelope of research", "ex": "The lab is known for <strong>pushing the envelope</strong> of what is computationally possible."}, {"w": "strike a balance", "p": "idiom", "zh": "找到平衡", "cl": "strike a balance between teaching and research", "ex": "Most academics struggle to <strong>strike a balance</strong> between teaching and research."}, {"w": "at the cutting edge", "p": "idiom", "zh": "处于最前沿", "cl": "at the cutting edge of research", "ex": "This laboratory is <strong>at the cutting edge</strong> of neuroscience research."}, {"w": "a watershed moment", "p": "phrase", "zh": "转折点/分水岭", "cl": "a watershed moment in education", "ex": "The launch of MOOCs in 2012 was <strong>a watershed moment</strong> in the history of higher education."}, {"w": "be steeped in tradition", "p": "phrase", "zh": "充满传统/浸润于传统之中", "cl": "steeped in academic tradition", "ex": "Oxford and Cambridge are institutions <strong>steeped in</strong> centuries of academic <strong>tradition</strong>."}, {"w": "It is axiomatic that", "p": "sentence stem", "zh": "众所周知的是", "cl": "It is axiomatic that", "ex": "<strong>It is axiomatic that</strong> open access to knowledge benefits all of society."}, {"w": "The evidence is mounting that", "p": "sentence stem", "zh": "越来越多的证据表明", "cl": "The evidence is mounting that", "ex": "<strong>The evidence is mounting that</strong> student debt dampens long-term economic mobility."}, {"w": "There is a growing consensus that", "p": "sentence stem", "zh": "越来越多的共识是", "cl": "There is a growing consensus that", "ex": "<strong>There is a growing consensus that</strong> university rankings distort institutional priorities."}, {"w": "in the final analysis", "p": "phrase", "zh": "归根结底", "cl": "in the final analysis", "ex": "<strong>In the final analysis</strong>, a university education is an investment in human capital."}, {"w": "weather the storm", "p": "idiom", "zh": "渡过难关/经受住考验", "cl": "weather the storm of funding cuts", "ex": "Many humanities departments have had to <strong>weather the storm</strong> of repeated budget cuts."}];
+
+let state = JSON.parse(localStorage.getItem("ielts_vocab_20260720") || "{}");
+let queue = CARDS.map((c, i) => ({...c, idx: i})).filter(c => !state[c.idx] || state[c.idx] === "review");
+let cur = 0;
+
+// ---- Web Speech API (free TTS, native browser) ----
+function speak(text) {
+  if (!text || !window.speechSynthesis) return;
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = "en-US"; u.rate = 0.85; u.pitch = 1;
+  // Try to pick a US/UK English voice if available
+  const voices = speechSynthesis.getVoices();
+  const en = voices.find(v => /en-(US|GB)/.test(v.lang) && /Samantha|Daniel|Alex|Karen|Moira|Google US English|Google UK English/.test(v.name))
+          || voices.find(v => v.lang.startsWith("en"));
+  if (en) u.voice = en;
+  speechSynthesis.speak(u);
+}
+// Some browsers load voices async
+if (window.speechSynthesis) speechSynthesis.onvoiceschanged = () => {};
+
+function render() {
+  if (cur >= queue.length) return showDone();
+  const c = queue[cur];
+  document.getElementById("w").textContent = c.w;
+  document.getElementById("p").textContent = c.p;
+  document.getElementById("zh").textContent = c.zh;
+  document.getElementById("cl").textContent = c.cl;
+  document.getElementById("ex").innerHTML = c.ex;
+  document.getElementById("card").classList.remove("flipped");
+  document.getElementById("meta").textContent = `${cur+1} / ${queue.length} · Education Day 5 (Cycle 2)`;
+  updateStats();
+  // Auto-pronounce
+  setTimeout(() => speak(c.w), 150);
+}
+
+// ---- View toggle (flashcard vs list) ----
+function setView(v) {
+  document.getElementById("vtFlash").classList.toggle("active", v === "flash");
+  document.getElementById("vtList").classList.toggle("active", v === "list");
+  document.getElementById("deck").style.display = v === "flash" ? "" : "none";
+  document.getElementById("listView").classList.toggle("active", v === "list");
+  if (v === "list") renderList();
+}
+
+function renderList() {
+  const body = document.getElementById("listBody");
+  body.innerHTML = CARDS.map((c, i) => {
+    const mark = state[i] || "";
+    const cls = mark === "know" ? "knew" : mark === "weak" ? "weak" : "";
+    const ico = mark === "know" ? "✓" : mark === "weak" ? "○" : "·";
+    const mcls = mark === "know" ? "know" : mark === "weak" ? "weak" : "";
+    return `<div class="list-row">
+      <div class="num">${String(i+1).padStart(3,'0')}</div>
+      <div class="word"><div class="w ${cls}">${c.w} <span style="color:var(--muted);font-weight:400;font-size:0.78rem;">${c.p}</span></div><div class="zh">${c.zh}</div></div>
+      <button class="spk" onclick="speak('${c.w.replace(/'/g,"\\'")}')">🔊</button>
+      <div class="mk ${mcls}">${ico}</div>
+    </div>`;
+  }).join("");
+}
+
+function flip() { document.getElementById("card").classList.toggle("flipped"); }
+
+function mark(t) {
+  const c = queue[cur];
+  state[c.idx] = (t === "know" ? "know" : "weak");
+  localStorage.setItem("ielts_vocab_20260720", JSON.stringify(state));
+  cur++;
+  render();
+}
+
+function updateStats() {
+  const kn = Object.values(state).filter(v=>v==="know").length;
+  const wk = Object.values(state).filter(v=>v==="weak").length;
+  const lf = 150 - kn - wk;
+  document.getElementById("kn").textContent = kn;
+  document.getElementById("wk").textContent = wk;
+  document.getElementById("lf").textContent = lf;
+  document.getElementById("pg").style.width = ((kn+wk)/150*100) + "%";
+}
+
+function showDone() {
+  document.getElementById("deck").style.display = "none";
+  document.getElementById("done").classList.add("show");
+  const kn = Object.values(state).filter(v=>v==="know").length;
+  const wk = Object.values(state).filter(v=>v==="weak").length;
+  document.getElementById("doneTtl").textContent = wk > 0 ? `今日 150 词完成! 还有 ${wk} 张不熟` : "今日 150 词全掌握 🎉";
+  document.getElementById("doneSub").textContent = `知道 ${kn} · 不熟 ${wk}`;
+}
+
+function reviewWeak() {
+  queue = CARDS.map((c,i)=>({...c,idx:i})).filter(c => state[c.idx] === "weak");
+  if (queue.length === 0) { alert("没有不熟的卡!"); return; }
+  cur = 0;
+  document.getElementById("done").classList.remove("show");
+  document.getElementById("deck").style.display = "";
+  render();
+}
+
+function resetAll() {
+  if (!confirm("清空今日进度,重新开始?")) return;
+  localStorage.removeItem("ielts_vocab_20260720");
+  state = {};
+  queue = CARDS.map((c,i)=>({...c,idx:i}));
+  cur = 0;
+  document.getElementById("done").classList.remove("show");
+  document.getElementById("deck").style.display = "";
+  render();
+}
+
+render();
+</script>
+
+</body>
+</html>
