@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#2563eb">
+<title>今日 150 词 · 2026-07-21 · Education</title>
+<style>
+  :root {
+    --bg: #ffffff; --fg: #1a1a1a; --muted: #6b7280;
+    --accent: #2563eb; --ok: #059669; --warn: #d97706;
+    --card: #f9fafb; --border: #e5e7eb;
+    --nav-bg: rgba(255,255,255,0.92);
+    --header-bg: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f172a; --fg: #f1f5f9; --muted: #94a3b8;
+      --accent: #60a5fa; --ok: #34d399; --warn: #fbbf24;
+      --card: #1e293b; --border: #334155;
+      --nav-bg: rgba(15,23,42,0.92);
+      --header-bg: linear-gradient(135deg, #1e40af 0%, #6b21a8 100%);
+    }
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg); }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif;
+    line-height: 1.5;
+    min-height: 100vh;
+    padding-bottom: calc(64px + env(safe-area-inset-bottom, 0));
+  }
+  .app-header {
+    background: var(--header-bg); color: white;
+    padding: calc(env(safe-area-inset-top, 16px) + 12px) 16px 14px;
+    position: sticky; top: 0; z-index: 20;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .back-btn {
+    background: rgba(255,255,255,0.18); border: none; color: white;
+    width: 34px; height: 34px; border-radius: 10px;
+    font-size: 1.1rem; cursor: pointer; flex-shrink: 0;
+    text-decoration: none; display: flex; align-items: center; justify-content: center;
+  }
+  .app-header .ttl { font-size: 1rem; font-weight: 700; }
+  .app-header .sub {
+    font-size: 0.72rem; opacity: 0.85; margin-top: 1px;
+    letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  .stats {
+    background: var(--card); padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px; text-align: center;
+  }
+  .stat .num { font-size: 1.4rem; font-weight: 700; }
+  .stat .num.know { color: var(--ok); }
+  .stat .num.weak { color: var(--warn); }
+  .stat .num.left { color: var(--accent); }
+  .stat .lbl { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; margin-top: 2px; }
+  .progress-bar { height: 4px; background: var(--border); overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--accent); transition: width 0.3s; }
+  .card-stage { margin: 24px 16px; perspective: 1000px; }
+  .card-3d {
+    position: relative; width: 100%; min-height: 260px;
+    transform-style: preserve-3d; transition: transform 0.5s; cursor: pointer;
+  }
+  .card-3d.flipped { transform: rotateY(180deg); }
+  .face {
+    position: absolute; width: 100%; height: 100%;
+    backface-visibility: hidden; -webkit-backface-visibility: hidden;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 18px; padding: 24px 20px;
+    display: flex; flex-direction: column; justify-content: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .face.front { text-align: center; }
+  .face.front .word { font-size: 2rem; font-weight: 700; color: var(--accent); margin-bottom: 8px; word-break: break-word; }
+  .face.front .pos { color: var(--muted); font-size: 0.95rem; font-style: italic; }
+  .face.front .hint { margin-top: 28px; color: var(--muted); font-size: 0.82rem; }
+  .face.back { transform: rotateY(180deg); }
+  .face.back .zh { font-size: 1.3rem; font-weight: 600; color: var(--accent); margin-bottom: 12px; }
+  .face.back .collo { background: var(--bg); padding: 8px 12px; border-radius: 8px; font-size: 0.92rem; color: var(--fg); margin-bottom: 10px; border-left: 3px solid var(--accent); }
+  .face.back .ex { font-size: 0.95rem; font-style: italic; color: var(--fg); line-height: 1.6; }
+  .face.back .ex strong { color: var(--accent); font-style: normal; }
+  .speaker { position: absolute; top: 14px; right: 14px; width: 36px; height: 36px; border-radius: 50%; background: var(--bg); border: 1px solid var(--border); cursor: pointer; font-size: 1.1rem; padding: 0; color: var(--accent); }
+  .view-toggle { display: flex; padding: 12px 16px 0; gap: 8px; }
+  .view-toggle button { flex: 1; padding: 8px; background: var(--card); border: 1px solid var(--border); border-radius: 8px; color: var(--muted); font-size: 0.85rem; cursor: pointer; font-family: inherit; }
+  .view-toggle button.active { background: var(--accent); color: white; border-color: var(--accent); }
+  .list-view { display: none; padding: 12px 16px 24px; }
+  .list-view.active { display: block; }
+  .list-row { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-bottom: 1px solid var(--border); background: var(--card); border-radius: 8px; margin-bottom: 6px; }
+  .list-row .num { flex-shrink: 0; width: 28px; color: var(--muted); font-size: 0.72rem; font-family: "SF Mono", Menlo, monospace; }
+  .list-row .word { flex: 1; min-width: 0; }
+  .list-row .w { font-weight: 600; font-size: 0.95rem; color: var(--fg); }
+  .list-row .w.knew { color: var(--ok); }
+  .list-row .w.weak { color: var(--warn); }
+  .list-row .zh { font-size: 0.78rem; color: var(--muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .list-row .spk { flex-shrink: 0; width: 32px; height: 32px; border-radius: 50%; background: var(--bg); border: 1px solid var(--border); cursor: pointer; color: var(--accent); font-size: 0.9rem; padding: 0; }
+  .list-row .mk { flex-shrink: 0; width: 24px; text-align: center; color: var(--muted); }
+  .list-row .mk.know { color: var(--ok); }
+  .list-row .mk.weak { color: var(--warn); }
+  .curriculum-note { margin: 16px; padding: 12px 14px; background: var(--card); border-left: 3px solid var(--accent); border-radius: 8px; font-size: 0.82rem; color: var(--muted); line-height: 1.5; }
+  .curriculum-note strong { color: var(--fg); }
+  .actions { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; padding: 0 16px; }
+  .btn { padding: 14px 8px; border: 1px solid var(--border); border-radius: 12px; background: var(--card); color: var(--fg); font-size: 0.95rem; font-weight: 600; cursor: pointer; font-family: inherit; -webkit-tap-highlight-color: transparent; }
+  .btn .ico { display: block; font-size: 1.4rem; margin-bottom: 2px; }
+  .btn.weak { color: var(--warn); }
+  .btn.weak:active { background: rgba(217,119,6,0.1); }
+  .btn.flip { color: var(--accent); }
+  .btn.flip:active { background: rgba(37,99,235,0.1); }
+  .btn.know { color: var(--ok); }
+  .btn.know:active { background: rgba(5,150,105,0.1); }
+  .meta { text-align: center; color: var(--muted); font-size: 0.78rem; margin-top: 20px; }
+  .tabbar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--nav-bg); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px); border-top: 1px solid var(--border); display: flex; padding-bottom: env(safe-area-inset-bottom, 0); z-index: 30; }
+  .tab-btn { flex: 1; background: transparent; border: none; padding: 10px 4px 8px; color: var(--muted); font-size: 0.68rem; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 3px; font-family: inherit; text-decoration: none; }
+  .tab-btn .icon { font-size: 1.25rem; line-height: 1; }
+  .tab-btn.active { color: var(--accent); }
+  .done-screen { text-align: center; padding: 60px 24px; display: none; }
+  .done-screen.show { display: block; }
+  .done-screen .big { font-size: 4rem; }
+  .done-screen .ttl { font-size: 1.3rem; font-weight: 700; margin: 8px 0; }
+  .done-screen .sub { color: var(--muted); margin-bottom: 24px; }
+  .done-screen button { background: var(--accent); color: white; border: none; padding: 12px 24px; border-radius: 12px; font-size: 0.95rem; font-weight: 600; cursor: pointer; font-family: inherit; margin: 4px; }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <a class="back-btn" href="index.html#home">←</a>
+  <div style="flex:1;">
+    <div class="ttl">今日 150 词 · Education</div>
+    <div class="sub">2026-07-21 · Day 62</div>
+  </div>
+</header>
+
+<div class="stats">
+  <div class="stat"><div class="num know" id="kn">0</div><div class="lbl">知道</div></div>
+  <div class="stat"><div class="num weak" id="wk">0</div><div class="lbl">不熟</div></div>
+  <div class="stat"><div class="num left" id="lf">150</div><div class="lbl">剩余</div></div>
+</div>
+<div class="progress-bar"><div class="progress-fill" id="pg" style="width:0%"></div></div>
+
+<div class="view-toggle">
+  <button id="vtFlash" class="active" onclick="setView('flash')">📇 卡片</button>
+  <button id="vtList" onclick="setView('list')">📋 列表</button>
+</div>
+
+<div id="deck">
+  <div class="card-stage">
+    <div class="card-3d" id="card" onclick="flip()">
+      <div class="face front">
+        <button class="speaker" onclick="event.stopPropagation();speak(document.getElementById('w').textContent)">🔊</button>
+        <div class="word" id="w">—</div>
+        <div class="pos" id="p">—</div>
+        <div class="hint">轻触卡片 · 翻看释义</div>
+      </div>
+      <div class="face back">
+        <button class="speaker" onclick="event.stopPropagation();speak(document.getElementById('w').textContent)">🔊</button>
+        <div class="zh" id="zh">—</div>
+        <div class="collo" id="cl">—</div>
+        <div class="ex" id="ex">—</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="btn weak" onclick="mark('weak')"><span class="ico">😣</span>不熟</button>
+    <button class="btn flip" onclick="flip()"><span class="ico">🔄</span>翻转</button>
+    <button class="btn know" onclick="mark('know')"><span class="ico">✅</span>知道</button>
+  </div>
+
+  <div class="meta" id="meta">1 / 150 · 今日主题 Education · 教育公平与社会流动性</div>
+</div>
+
+<div class="list-view" id="listView">
+  <div id="listBody"></div>
+</div>
+
+<div class="curriculum-note">
+  <strong>词汇来源</strong>: 8 天主题轮换,涵盖雅思高频话题。<br>
+  Day 1-7 <strong>Education</strong> · Day 8-14 <strong>Environment</strong> · Day 15-21 <strong>Technology</strong> · Day 22-28 <strong>Health</strong> · Day 29-35 <strong>Government & Society</strong> · Day 36-42 <strong>Work & Economy</strong> · Day 43-49 <strong>Family</strong> · Day 50-56 <strong>Travel & Culture</strong> · 之后循环。<br>
+  今日焦点: <strong>教育公平、社会流动性与机会均等</strong> (Education Day 6, Cycle 2)。词汇为 Band 7+ 难度,含词性 · 中文 · 搭配 · 例句。
+</div>
+
+<div class="done-screen" id="done">
+  <div class="big">🎉</div>
+  <div class="ttl" id="doneTtl">今日 150 词完成!</div>
+  <div class="sub" id="doneSub">知道 0 · 不熟 0</div>
+  <button onclick="resetAll()">重新开始</button>
+  <button onclick="reviewWeak()">只复习不熟</button>
+  <button onclick="location.href='index.html'">回主页</button>
+</div>
+
+<nav class="tabbar">
+  <a class="tab-btn active" href="index.html#home"><span class="icon">🏠</span>概览</a>
+  <a class="tab-btn" href="index.html#materials"><span class="icon">📺</span>材料</a>
+  <a class="tab-btn" href="index.html#quizzes"><span class="icon">✏️</span>测验</a>
+  <a class="tab-btn" href="index.html#plan"><span class="icon">📋</span>计划</a>
+</nav>
+
+<script>
+const CARDS = [
+{"w":"equity","p":"n.","zh":"公平/教育公平","cl":"educational equity / promote equity","ex":"<strong>Equity</strong> in education means giving each student what they specifically need to succeed."},
+{"w":"meritocracy","p":"n.","zh":"精英选拔制度/才能至上主义","cl":"a pure meritocracy / meritocratic ideal","ex":"Critics argue that a <strong>meritocracy</strong> cannot function fairly when starting conditions are profoundly unequal."},
+{"w":"stratification","p":"n.","zh":"(社会)分层","cl":"social stratification / class stratification","ex":"Persistent social <strong>stratification</strong> limits upward mobility for students from disadvantaged backgrounds."},
+{"w":"disparate","p":"adj.","zh":"悬殊的/迥异的","cl":"disparate outcomes / disparate treatment","ex":"Research reveals <strong>disparate</strong> academic outcomes between pupils from wealthy and deprived neighbourhoods."},
+{"w":"marginalized","p":"adj.","zh":"边缘化的","cl":"marginalized communities / marginalized groups","ex":"Schools must actively support <strong>marginalized</strong> students who are most at risk of dropping out."},
+{"w":"remediation","p":"n.","zh":"补救教学","cl":"academic remediation / remediation programme","ex">Academic <strong>remediation</strong> programmes help underprepared students bridge the gap before entering university."},
+{"w":"disproportionate","p":"adj.","zh":"不成比例的","cl":"disproportionate impact / disproportionate representation","ex":"Students from low-income families face a <strong>disproportionate</strong> share of school disciplinary measures."},
+{"w":"ostracism","p":"n.","zh":"排斥/社会孤立","cl":"social ostracism / face ostracism","ex":"Gifted children from poor backgrounds sometimes endure <strong>ostracism</strong> when placed in selective schools."},
+{"w":"redress","p":"v./n.","zh":"纠正/补救","cl":"redress the balance / redress an injustice","ex":"Targeted bursaries help <strong>redress</strong> the imbalance in university enrolment between rich and poor students."},
+{"w":"socioeconomic","p":"adj.","zh":"社会经济的","cl":"socioeconomic background / socioeconomic disadvantage","ex":"A student's <strong>socioeconomic</strong> background remains the strongest predictor of academic attainment."},
+{"w":"empower","p":"v.","zh":"赋权/使能够","cl":"empower students / empower communities","ex":"Quality education <strong>empowers</strong> individuals to break free from cycles of intergenerational poverty."},
+{"w":"disadvantaged","p":"adj.","zh":"处于不利地位的","cl":"disadvantaged youth / economically disadvantaged","ex":"<strong>Disadvantaged</strong> students who receive early support are significantly more likely to complete secondary school."},
+{"w":"perpetuate","p":"v.","zh":"使永久延续","cl":"perpetuate inequality / perpetuate a cycle","ex":"Chronically underfunded schools <strong>perpetuate</strong> cycles of poverty across successive generations."},
+{"w":"stipend","p":"n.","zh":"奖学金/生活补贴","cl":"monthly stipend / receive a stipend","ex":"Graduate researchers rely on a modest monthly <strong>stipend</strong> that barely covers rent and food."},
+{"w":"bursary","p":"n.","zh":"助学金(英式)","cl":"award a bursary / apply for a bursary","ex":"She was awarded a means-tested <strong>bursary</strong> that covered her tuition and living costs in full."},
+{"w":"attainment","p":"n.","zh":"学业成就/达成","cl":"academic attainment / attainment levels","ex":"The <strong>attainment</strong> gap between the richest and poorest pupils widens dramatically during secondary school."},
+{"w":"cohort","p":"n.","zh":"(同一批)学生群体","cl":"a student cohort / the incoming cohort","ex":"The <strong>cohort</strong> of first-generation university students showed extraordinary resilience in the face of adversity."},
+{"w":"outreach","p":"n.","zh":"外展/社区推广","cl":"community outreach / outreach programme","ex":"The university's <strong>outreach</strong> programme sends volunteers into under-resourced secondary schools each weekend."},
+{"w":"segregation","p":"n.","zh":"隔离/种族隔离","cl":"residential segregation / school segregation","ex"><strong>Segregation</strong> in housing patterns directly produces racially and socioeconomically isolated schools."},
+{"w":"desegregation","p":"n.","zh":"废除隔离","cl":"school desegregation / racial desegregation","ex":"The landmark ruling of 1954 accelerated the <strong>desegregation</strong> of public schools across the United States."},
+{"w":"pipeline","p":"n.","zh":"人才输送管道","cl":"academic pipeline / talent pipeline","ex":"Mentorship schemes are vital to building a stronger academic <strong>pipeline</strong> for first-generation students."},
+{"w":"precarity","p":"n.","zh":"不稳定性","cl":"economic precarity / housing precarity","ex">Financial <strong>precarity</strong> forces many talented students to choose low-paid work over further study."},
+{"w":"upward mobility","p":"n.","zh":"向上社会流动","cl":"enable upward mobility / social upward mobility","ex":"Education remains the most powerful vehicle for <strong>upward mobility</strong> in advanced economies."},
+{"w":"resilience","p":"n.","zh":"韧性/复原力","cl":"build resilience / demonstrate resilience","ex":"Schools must actively cultivate <strong>resilience</strong> in pupils who face profound adversity outside the classroom."},
+{"w":"disenfranchise","p":"v.","zh":"剥夺权利/使无力发声","cl":"disenfranchise communities / disenfranchised groups","ex":"Persistently poor schooling effectively <strong>disenfranchises</strong> entire communities from economic and civic life."},
+{"w":"philanthropist","p":"n.","zh":"慈善家","cl":"education philanthropist / local philanthropist","ex":"A Silicon Valley <strong>philanthropist</strong> donated fifty million dollars to expand access to STEM education."},
+{"w":"endowment","p":"n.","zh":"捐赠基金/天赋","cl":"university endowment / large endowment","ex":"Elite universities with enormous <strong>endowments</strong> can afford to meet one hundred per cent of demonstrated financial need."},
+{"w":"grant","p":"n.","zh":"助学金/科研经费","cl":"apply for a grant / government grant","ex":"She secured a competitive government <strong>grant</strong> to pursue a doctorate in educational neuroscience."},
+{"w":"voucher","p":"n.","zh":"教育券","cl":"school voucher / voucher system","ex":"The <strong>voucher</strong> scheme allows families to redirect public funding to the school of their choice."},
+{"w":"matriculation","p":"n.","zh":"入学注册","cl":"successful matriculation / matriculation rate","ex"><strong>Matriculation</strong> rates among students from the bottom income quintile remain stubbornly and unacceptably low."},
+{"w":"retention","p":"n.","zh":"留存率/(学生)留校率","cl":"improve retention / student retention","ex":"Universities are expanding counselling services and financial support to improve overall student <strong>retention</strong>."},
+{"w":"attrition","p":"n.","zh":"减员/自然损耗","cl":"high attrition rate / student attrition","ex":"High <strong>attrition</strong> among first-year engineering students signals an urgent need for better academic mentoring."},
+{"w":"remedial","p":"adj.","zh":"补救性的","cl":"remedial classes / remedial instruction","ex"><strong>Remedial</strong> courses are often stigmatised, deterring struggling students from seeking the help they genuinely need."},
+{"w":"mandate","p":"v./n.","zh":"强制要求/法定授权","cl":"federal mandate / mandate that","ex":"The federal <strong>mandate</strong> obliges all state schools to provide appropriate support for students with disabilities."},
+{"w":"provision","p":"n.","zh":"提供/规定","cl":"educational provision / adequate provision","ex":"Gaps in educational <strong>provision</strong> between affluent and deprived areas reflect deeper structural inequalities."},
+{"w":"systemic","p":"adj.","zh":"系统性的","cl":"systemic racism / systemic barriers","ex"><strong>Systemic</strong> barriers in education prevent many brilliant individuals from ever realising their full potential."},
+{"w":"underrepresented","p":"adj.","zh":"代表性不足的","cl":"underrepresented minorities / underrepresented groups","ex":"Universities are actively recruiting <strong>underrepresented</strong> minorities into STEM programmes through targeted outreach."},
+{"w":"bias","p":"n.","zh":"偏见/倾向","cl":"unconscious bias / implicit bias","ex">Unconscious <strong>bias</strong> in teacher assessment can unfairly disadvantage students from certain ethnic backgrounds."},
+{"w":"quota","p":"n.","zh":"配额","cl":"diversity quota / enrolment quota","ex":"Critics contend that rigid <strong>quotas</strong> undermine the principle of individual merit in university admissions."},
+{"w":"holistic","p":"adj.","zh":"全面的/整体的","cl":"holistic admissions / holistic approach","ex"><strong>Holistic</strong> admissions processes evaluate the whole student rather than reducing them to a single test score."},
+{"w":"standardized","p":"adj.","zh":"标准化的","cl":"standardized testing / standardized curriculum","ex">Over-reliance on <strong>standardized</strong> testing fails to capture the full spectrum of student ability and potential."},
+{"w":"disparity","p":"n.","zh":"差距/悬殊","cl":"income disparity / significant disparity","ex">The reading <strong>disparity</strong> between the richest and poorest pupils emerges as early as the first year of school."},
+{"w":"inequity","p":"n.","zh":"不公平/不公正","cl":"address inequity / structural inequity","ex">Structural <strong>inequity</strong> is deeply embedded in how schools are funded through local property taxes."},
+{"w":"stratify","p":"v.","zh":"使分层","cl":"stratify students / stratify society","ex">Rigid ability grouping can inadvertently <strong>stratify</strong> pupils along socioeconomic and racial lines from a young age."},
+{"w":"leverage","p":"v.","zh":"利用/借助","cl":"leverage technology / leverage resources","ex">Schools in low-income areas must <strong>leverage</strong> every available resource to close the opportunity gap."},
+{"w":"tutor","p":"n./v.","zh":"家庭教师/辅导","cl":"private tutor / one-to-one tutoring","ex">Access to a skilled private <strong>tutor</strong> remains an economic privilege unavailable to most families."},
+{"w":"criterion","p":"n.","zh":"标准/准则","cl":"selection criterion / admissions criterion","ex">The <strong>criterion</strong> for scholarship awards must be transparent, consistent, and clearly communicated to all applicants."},
+{"w":"dismantle","p":"v.","zh":"拆除/废除","cl":"dismantle barriers / dismantle a system","ex">Reformers argue that we must fundamentally <strong>dismantle</strong> the structural barriers that perpetuate educational inequality."},
+{"w":"exclusion","p":"n.","zh":"排除/排斥","cl":"social exclusion / school exclusion","ex">Poverty is the single most consistent predictor of educational <strong>exclusion</strong> in high-income countries."},
+{"w":"inclusive","p":"adj.","zh":"包容性的/全纳的","cl":"inclusive education / inclusive classroom","ex">An <strong>inclusive</strong> classroom validates and accommodates the diverse needs and learning styles of every student."},
+{"w":"perseverance","p":"n.","zh":"坚持不懈","cl":"demonstrate perseverance / perseverance in adversity","ex"><strong>Perseverance</strong> in the face of financial hardship is a hallmark of successful first-generation graduates."},
+{"w":"aspiration","p":"n.","zh":"志向/抱负","cl":"raise aspirations / higher aspirations","ex">High-quality teachers raise the <strong>aspirations</strong> of students who might otherwise never consider university."},
+{"w":"impediment","p":"n.","zh":"障碍","cl":"structural impediment / major impediment","ex">Language barriers represent a serious <strong>impediment</strong> to academic progress for newly arrived immigrant pupils."},
+{"w":"trajectory","p":"n.","zh":"(人生/学业)轨迹","cl":"academic trajectory / life trajectory","ex">Early intervention can meaningfully redirect a struggling student's academic <strong>trajectory</strong> toward success."},
+{"w":"catalyst","p":"n.","zh":"催化剂/推动力","cl":"a catalyst for change / act as a catalyst","ex">Dedicated teachers often serve as the primary <strong>catalyst</strong> for social mobility in disadvantaged communities."},
+{"w":"prerequisite","p":"n.","zh":"先决条件","cl":"academic prerequisite / a prerequisite for","ex">Basic numeracy and literacy are absolute <strong>prerequisites</strong> for meaningful participation in the modern economy."},
+{"w":"meritocratic","p":"adj.","zh":"才能至上的","cl":"meritocratic ideal / meritocratic system","ex">The <strong>meritocratic</strong> ideal is systematically undermined when wealthy families can buy superior test preparation."},
+{"w":"intersectionality","p":"n.","zh":"交叉性","cl":"intersectionality in education / concept of intersectionality","ex"><strong>Intersectionality</strong> reveals how race, class, and gender compound to amplify educational disadvantage."},
+{"w":"stereotype threat","p":"n.","zh":"刻板印象威胁","cl":"overcome stereotype threat / experience stereotype threat","ex">Research demonstrates that <strong>stereotype threat</strong> measurably depresses the academic performance of minority students."},
+{"w":"academic capital","p":"n.","zh":"学业资本","cl":"accumulate academic capital / lack academic capital","ex">First-generation students frequently lack the informal <strong>academic capital</strong> needed to navigate university bureaucracy."},
+{"w":"cultural capital","p":"n.","zh":"文化资本","cl":"cultural capital gap / forms of cultural capital","ex"><strong>Cultural capital</strong>—the norms, habits, and knowledge of a social class—profoundly shapes school achievement."},
+{"w":"austerity","p":"n.","zh":"(财政)紧缩","cl":"austerity measures / fiscal austerity","ex"><strong>Austerity</strong> cuts to education budgets consistently and disproportionately harm the most deprived schools."},
+{"w":"decile","p":"n.","zh":"十分位数","cl":"bottom income decile / top decile","ex">Students from the lowest income <strong>decile</strong> are four times less likely to attend a research university."},
+{"w":"subsidize","p":"v.","zh":"补贴/资助","cl":"subsidize tuition / publicly subsidized","ex">The government should <strong>subsidize</strong> university tuition for students from the lowest-income quartile."},
+{"w":"earmark","p":"v.","zh":"专款专用/指定用途","cl":"earmark funds / earmark resources","ex">The ministry <strong>earmarked</strong> additional capital specifically for schools in areas of acute deprivation."},
+{"w":"underpin","p":"v.","zh":"支撑/奠基","cl":"underpin the system / underpin success","ex">Sustained public investment in early education <strong>underpins</strong> the social mobility of future generations."},
+{"w":"literacy","p":"n.","zh":"读写能力/素养","cl":"improve literacy / functional literacy","ex">Functional <strong>literacy</strong> is the foundation upon which all subsequent academic and economic progress depends."},
+{"w":"numeracy","p":"n.","zh":"数学素养","cl":"improve numeracy / basic numeracy","ex">Employers continue to report alarming deficits in <strong>numeracy</strong> among young people entering the workforce."},
+{"w":"absenteeism","p":"n.","zh":"旷课/缺勤","cl":"chronic absenteeism / address absenteeism","ex">Rates of chronic <strong>absenteeism</strong> are highest in schools where pupils struggle with food insecurity and housing instability."},
+{"w":"precarious","p":"adj.","zh":"不稳定的/脆弱的","cl":"precarious circumstances / precarious living","ex">Students in <strong>precarious</strong> housing situations find sustained academic concentration extremely difficult."},
+{"w":"safeguarding","p":"n.","zh":"安全保障/保护","cl":"child safeguarding / safeguarding policy","ex">Schools carry a statutory duty of <strong>safeguarding</strong> for every student in their care, regardless of background."},
+{"w":"underperform","p":"v.","zh":"表现不佳/未达预期","cl":"consistently underperform / underperform on tests","ex">Schools in the most economically deprived areas continue to <strong>underperform</strong> in national league tables."},
+{"w":"mentorship","p":"n.","zh":"导师制/辅导关系","cl":"formal mentorship / mentorship scheme","ex">A structured <strong>mentorship</strong> programme significantly reduced the confidence gap among minority STEM students."},
+{"w":"sponsorship","p":"n.","zh":"资助/赞助","cl":"corporate sponsorship / financial sponsorship","ex">Corporate <strong>sponsorship</strong> of apprenticeships creates pathways into skilled work for students who cannot afford university."},
+{"w":"internship","p":"n.","zh":"实习","cl":"paid internship / unpaid internship","ex">Unpaid <strong>internships</strong> structurally disadvantage students who cannot afford to work without remuneration."},
+{"w":"financial aid","p":"n.","zh":"助学金/经济援助","cl":"generous financial aid / apply for financial aid","ex">Transparent <strong>financial aid</strong> packages make elite universities genuinely accessible to high-achieving low-income students."},
+{"w":"poverty trap","p":"n.","zh":"贫困陷阱","cl":"escape the poverty trap / break free from the poverty trap","ex">Education is widely regarded as the most reliable route out of the <strong>poverty trap</strong>."},
+{"w":"household income","p":"n.","zh":"家庭收入","cl":"low household income / household income level","ex">Academic attainment correlates more strongly with <strong>household income</strong> than with any other single variable."},
+{"w":"free school meal","p":"n.","zh":"免费校餐","cl":"eligible for free school meals / receive free school meals","ex">Eligibility for a <strong>free school meal</strong> is the most widely used official proxy for pupil deprivation in England."},
+{"w":"summer learning loss","p":"n.","zh":"暑假学习退步","cl":"combat summer learning loss / experience summer learning loss","ex">Low-income children suffer the most severe <strong>summer learning loss</strong> because they lack access to enrichment activities."},
+{"w":"literacy gap","p":"n.","zh":"读写能力差距","cl":"close the literacy gap / widening literacy gap","ex">The <strong>literacy gap</strong> between the richest and poorest five-year-olds is already measurable on the first day of school."},
+{"w":"representation","p":"n.","zh":"代表性","cl":"increase representation / lack of representation","ex">Greater <strong>representation</strong> of diverse role models in the teaching workforce benefits students of all backgrounds."},
+{"w":"certification","p":"n.","zh":"资质认证","cl":"teacher certification / professional certification","ex">Robust teacher <strong>certification</strong> standards guarantee a baseline of competence and safeguard pupils' entitlement to quality instruction."},
+{"w":"access","p":"n.","zh":"获得途径/机会","cl":"access to education / widen access","ex">Ensuring universal <strong>access</strong> to high-quality education demands sustained and substantial public investment."},
+{"w":"privilege","p":"n.","zh":"特权","cl":"unearned privilege / economic privilege","ex">Acknowledging structural <strong>privilege</strong> is the necessary first step toward designing genuinely equitable schools."},
+{"w":"intergenerational","p":"adj.","zh":"代际的","cl":"intergenerational poverty / intergenerational inequality","ex"><strong>Intergenerational</strong> poverty is most effectively broken by sustained investment in early childhood education."},
+{"w":"intervention","p":"n.","zh":"干预","cl":"early intervention / targeted intervention","ex">Early <strong>intervention</strong> for children with emerging literacy difficulties dramatically improves long-term outcomes."},
+{"w":"benchmark","p":"n./v.","zh":"基准/衡量标准","cl":"national benchmark / benchmark against","ex">Schools in deprived areas are frequently judged against <strong>benchmarks</strong> that do not account for their contextual challenges."},
+{"w":"accountability framework","p":"n.","zh":"问责框架","cl":"school accountability framework / robust accountability","ex">A fair <strong>accountability framework</strong> must weigh pupil progress, not just raw attainment, when evaluating schools."},
+{"w":"enrolment","p":"n.","zh":"注册入学/招生","cl":"university enrolment / boost enrolment","ex">Policies to boost university <strong>enrolment</strong> among low-income students must address financial and cultural barriers simultaneously."},
+{"w":"transition","p":"n.","zh":"过渡/转型","cl":"school transition / transition to university","ex">The <strong>transition</strong> from secondary school to university is particularly challenging for first-generation students."},
+{"w":"accountability","p":"n.","zh":"责任制","cl":"school accountability / strengthen accountability","ex">Strong teacher <strong>accountability</strong> mechanisms are essential to ensure every child receives the education they deserve."},
+{"w":"parity","p":"n.","zh":"同等/均等","cl":"achieve parity / parity of esteem","ex">Vocational qualifications still lack <strong>parity</strong> of esteem with academic degrees in many national education systems."},
+{"w":"differentiation","p":"n.","zh":"差异化教学","cl":"classroom differentiation / curriculum differentiation","ex">Effective <strong>differentiation</strong> enables teachers to stretch the most able while supporting those who are struggling."},
+{"w":"inclusion","p":"n.","zh":"包容/全纳","cl":"promote inclusion / a culture of inclusion","ex">True <strong>inclusion</strong> requires more than placing disabled students in mainstream classrooms; it demands full curricular access."},
+{"w":"segregate","p":"v.","zh":"隔离/将…分组","cl":"segregate students / segregated schooling","ex">Ability tracking that effectively <strong>segregates</strong> students along class lines can harden inequality rather than addressing it."},
+{"w":"curriculum reform","p":"n.","zh":"课程改革","cl":"drive curriculum reform / radical curriculum reform","ex">Meaningful <strong>curriculum reform</strong> is essential to ensure all students encounter histories and perspectives beyond the dominant culture."},
+{"w":"school funding","p":"n.","zh":"学校经费","cl":"equitable school funding / school funding gap","ex">The deep inequity in <strong>school funding</strong> between wealthy and poor districts is one of the greatest challenges in education policy."},
+{"w":"teacher retention","p":"n.","zh":"教师留存","cl":"improve teacher retention / teacher retention crisis","ex">High rates of <strong>teacher retention</strong> are strongly associated with better long-term outcomes for disadvantaged pupils."},
+{"w":"universal pre-K","p":"n.","zh":"全民学前教育","cl":"implement universal pre-K / fund universal pre-K","ex">Economists argue that <strong>universal pre-K</strong> delivers a higher return on public investment than almost any other policy."},
+{"w":"social capital","p":"n.","zh":"社会资本","cl":"build social capital / social capital networks","ex">Well-connected families draw on extensive <strong>social capital</strong> to access opportunities that are invisible to less privileged peers."},
+{"w":"role model","p":"n.","zh":"榜样/楷模","cl":"serve as a role model / lack a role model","ex">Young people from minority backgrounds benefit enormously from seeing <strong>role models</strong> who share their identity and background."},
+{"w":"peer tutoring","p":"n.","zh":"同伴辅导","cl":"peer tutoring programme / reciprocal peer tutoring","ex">Well-structured <strong>peer tutoring</strong> schemes benefit both the tutor and the student, deepening understanding for both parties."},
+{"w":"admissions policy","p":"n.","zh":"招生政策","cl":"fair admissions policy / university admissions policy","ex">A transparent <strong>admissions policy</strong> that contextualizes achievement can level the playing field for disadvantaged applicants."},
+{"w":"extracurricular","p":"adj.","zh":"课外的","cl":"extracurricular activities / extracurricular participation","ex">Participation in <strong>extracurricular</strong> activities develops leadership skills and enriches university applications."},
+{"w":"student loan","p":"n.","zh":"学生贷款","cl":"repay a student loan / student loan debt","ex">Growing anxiety about <strong>student loan</strong> debt is deterring some prospective first-generation students from applying to university."},
+{"w":"affirmative action","p":"n.","zh":"平权措施","cl":"implement affirmative action / oppose affirmative action","ex"><strong>Affirmative action</strong> policies remain deeply contested, with supporters citing equity and opponents citing merit."},
+{"w":"widening participation","p":"n.","zh":"扩大参与","cl":"widening participation agenda / widening participation initiatives","ex">The university's <strong>widening participation</strong> strategy has doubled enrolment from state-maintained secondary schools."},
+{"w":"attainment gap","p":"n.","zh":"成绩差距","cl":"close the attainment gap / persistent attainment gap","ex">The <strong>attainment gap</strong> between the richest and poorest pupils is the defining challenge of contemporary education policy."},
+{"w":"first-generation student","p":"n.","zh":"第一代大学生","cl":"support first-generation students / first-generation graduate","ex">As a <strong>first-generation student</strong>, she lacked the tacit knowledge and professional networks her peers took for granted."},
+{"w":"student-teacher ratio","p":"n.","zh":"师生比","cl":"reduce the student-teacher ratio / optimal student-teacher ratio","ex">A lower <strong>student-teacher ratio</strong> is one of the strongest predictors of academic outcomes in primary education."},
+{"w":"income inequality","p":"n.","zh":"收入不平等","cl":"rising income inequality / address income inequality","ex"><strong>Income inequality</strong> is the structural root cause from which educational disadvantage ultimately flows."},
+{"w":"resource allocation","p":"n.","zh":"资源分配","cl":"equitable resource allocation / resource allocation decisions","ex"><strong>Resource allocation</strong> in public education must actively prioritize schools serving the most deprived communities."},
+{"w":"high-stakes testing","p":"n.","zh":"高风险考试","cl":"pressure of high-stakes testing / high-stakes testing culture","ex">The relentless pressure of <strong>high-stakes testing</strong> distorts the curriculum and narrows what students are taught."},
+{"w":"pupil premium","p":"n.","zh":"学生补贴(英国)","cl":"receive pupil premium / the pupil premium grant","ex">Schools in England receive a <strong>pupil premium</strong> for every child eligible for free school meals, to be spent on targeted support."},
+{"w":"grade inflation","p":"n.","zh":"成绩膨胀","cl":"combat grade inflation / evidence of grade inflation","ex">Critics warn that widespread <strong>grade inflation</strong> is eroding the credibility of public examinations."},
+{"w":"catch-up programme","p":"n.","zh":"追赶/补救计划","cl":"enrol in a catch-up programme / government catch-up programme","ex">Post-pandemic <strong>catch-up programmes</strong> were launched to address the severe learning losses experienced by the most disadvantaged pupils."},
+{"w":"socioeconomic disadvantage","p":"n.","zh":"社会经济劣势","cl":"overcome socioeconomic disadvantage / compounded by socioeconomic disadvantage","ex">Many of the most successful graduates have triumphed against profound <strong>socioeconomic disadvantage</strong>."},
+{"w":"school completion rate","p":"n.","zh":"完成学业率","cl":"improve school completion rates / low school completion rate","ex">Conditional cash transfers have proven highly effective at raising <strong>school completion rates</strong> in lower-income countries."},
+{"w":"means-tested","p":"adj.","zh":"经济状况调查的","cl":"means-tested scholarship / means-tested benefit","ex"><strong>Means-tested</strong> bursaries are more equitable than blanket subsidies because they concentrate support where it is most needed."},
+{"w":"blind admissions","p":"n.","zh":"匿名/去背景录取","cl":"adopt blind admissions / blind admissions policy","ex">Several universities now operate <strong>blind admissions</strong>, removing school names and postcodes to reduce institutional bias."},
+{"w":"equal opportunities","p":"n.","zh":"均等机会","cl":"promote equal opportunities / equal opportunities legislation","ex">Effective <strong>equal opportunities</strong> legislation has expanded access to higher education for previously excluded groups."},
+{"w":"community college","p":"n.","zh":"社区大学","cl":"attend community college / community college pathway","ex"><strong>Community college</strong> provides an affordable and accessible pathway to a four-year degree for many first-generation students."},
+{"w":"safe learning environment","p":"n.","zh":"安全的学习环境","cl":"create a safe learning environment / maintain a safe learning environment","ex">Every child has an absolute right to a <strong>safe learning environment</strong> free from bullying, fear, and discrimination."},
+{"w":"behavioural intervention","p":"n.","zh":"行为干预","cl":"early behavioural intervention / targeted behavioural intervention","ex"><strong>Behavioural interventions</strong> in the early years prevent minor difficulties from escalating into serious barriers to learning."},
+{"w":"social-emotional learning","p":"n.","zh":"社会情感学习","cl":"prioritise social-emotional learning / social-emotional learning curriculum","ex">Schools that embed <strong>social-emotional learning</strong> in the curriculum see better attendance, behaviour, and academic outcomes."},
+{"w":"culturally responsive teaching","p":"n.","zh":"文化回应教学","cl":"adopt culturally responsive teaching / culturally responsive teaching practices","ex"><strong>Culturally responsive teaching</strong> validates students' lived experiences and makes the curriculum accessible to all learners."},
+{"w":"level the playing field","p":"idiom","zh":"创造公平竞争环境","cl":"level the playing field for / help level the playing field","ex">Scholarships and structured mentoring help <strong>level the playing field</strong> for the most talented disadvantaged students."},
+{"w":"pull oneself up by one's bootstraps","p":"idiom","zh":"靠自己奋斗/白手起家","cl":"the bootstraps narrative / pull oneself up","ex">The <strong>bootstraps</strong> narrative that anyone can succeed through sheer effort conveniently ignores the role of structural inequality."},
+{"w":"fall through the cracks","p":"idiom","zh":"被忽视/在系统中遗漏","cl":"fall through the cracks of / risk falling through the cracks","ex">Students with undiagnosed learning differences too often <strong>fall through the cracks</strong> of an overburdened education system."},
+{"w":"a leg up","p":"idiom","zh":"助力/有利条件","cl":"give someone a leg up / provide a leg up","ex">A well-timed scholarship gave her <strong>a leg up</strong> that permanently altered the direction of her life."},
+{"w":"bridge the gap","p":"phrasal v.","zh":"弥合差距","cl":"bridge the gap between / help bridge the gap","ex">Intensive summer reading programmes are designed to <strong>bridge the gap</strong> between affluent and disadvantaged pupils."},
+{"w":"pay it forward","p":"phrasal v.","zh":"传递善意/回馈社会","cl":"pay it forward by / encouraged to pay it forward","ex">First-generation graduates are often inspired to <strong>pay it forward</strong> by mentoring the next generation of aspiring students."},
+{"w":"open doors","p":"phrasal v.","zh":"开启机会之门","cl":"open doors for / open doors to","ex">A university education <strong>opens doors</strong> that remain firmly closed for those who lack formal qualifications."},
+{"w":"break the cycle","p":"phrasal v.","zh":"打破循环","cl":"break the cycle of / break the cycle of poverty","ex">Education is the most powerful and evidence-backed means of <strong>breaking the cycle</strong> of intergenerational poverty."},
+{"w":"catch up","p":"phrasal v.","zh":"追赶上","cl":"catch up with peers / struggle to catch up","ex">Intensive one-to-one tutoring helps disadvantaged children <strong>catch up with</strong> peers who have had far greater support at home."},
+{"w":"be left behind","p":"phrasal v.","zh":"被落下/被抛弃","cl":"risk being left behind / no child left behind","ex">Children without reliable internet access risk <strong>being left behind</strong> in an educational system increasingly reliant on technology."},
+{"w":"sink or swim","p":"idiom","zh":"自生自灭/适者生存","cl":"a sink-or-swim approach / sink or swim mentality","ex">A <strong>sink or swim</strong> approach to university life leaves first-generation students particularly vulnerable to dropping out."},
+{"w":"get a foot in the door","p":"idiom","zh":"踏入/争取到机会","cl":"get a foot in the door of / help get a foot in the door","ex">Paid internship schemes help first-generation graduates <strong>get a foot in the door</strong> of otherwise inaccessible competitive industries."},
+{"w":"Closing the attainment gap requires a comprehensive strategy.","p":"sentence stem","zh":"消除成绩差距需要综合策略","cl":"Closing the attainment gap requires... / The attainment gap can only be closed if...","ex":"<strong>Closing the attainment gap</strong> requires a comprehensive strategy that addresses both in-school and out-of-school factors simultaneously."},
+{"w":"It would be naïve to assume that inequality stems solely from individual effort.","p":"sentence stem","zh":"将不平等归因于个人努力不足是幼稚的","cl":"It would be naïve to assume that... / It is naïve to suggest that...","ex":"<strong>It would be naïve to assume</strong> that educational inequality stems solely from differences in individual effort or ambition."},
+{"w":"The evidence overwhelmingly suggests that early investment yields the greatest return.","p":"sentence stem","zh":"证据强烈表明早期投资回报最高","cl":"The evidence overwhelmingly suggests that... / The evidence points overwhelmingly to...","ex":"<strong>The evidence overwhelmingly suggests</strong> that investment in early childhood education yields the greatest long-term social return."},
+{"w":"Without adequate investment, no reform will achieve lasting impact.","p":"sentence stem","zh":"缺乏足够投入，任何改革都难以持久","cl":"Without adequate investment in... / Without sustained investment...","ex":"<strong>Without adequate investment</strong> in teacher training and school infrastructure, no education reform will achieve lasting impact."},
+{"w":"The onus falls on governments to ensure that postcode does not determine destiny.","p":"sentence stem","zh":"政府有责任确保邮编不决定命运","cl":"The onus falls on... to / The onus is on governments to","ex":"<strong>The onus falls on governments</strong> to ensure that where a child is born does not determine the quality of education they receive."}
+];
+
+const SK = 'ielts_vocab_20260721';
+let state = JSON.parse(localStorage.getItem(SK)||'{}');
+let order = shuffle([...Array(CARDS.length).keys()].filter(i=>!state[i]));
+let fullOrder = [...order];
+let cur = 0;
+let flipped = false;
+
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+function render(){
+  const done=Object.keys(state);
+  const know=done.filter(k=>state[k]==='know').length;
+  const weak=done.filter(k=>state[k]==='weak').length;
+  const left=CARDS.length-done.length;
+  document.getElementById('kn').textContent=know;
+  document.getElementById('wk').textContent=weak;
+  document.getElementById('lf').textContent=left;
+  document.getElementById('pg').style.width=((done.length/CARDS.length)*100)+'%';
+  if(order.length===0){showDone(know,weak);return;}
+  const c=CARDS[order[cur]];
+  document.getElementById('w').textContent=c.w;
+  document.getElementById('p').textContent=c.p;
+  document.getElementById('zh').textContent=c.zh;
+  document.getElementById('cl').textContent=c.cl;
+  document.getElementById('ex').innerHTML=c.ex;
+  document.getElementById('meta').textContent=(cur+1)+' / '+order.length+' · 今日主题 Education · 教育公平与社会流动性';
+  const card=document.getElementById('card');
+  card.classList.remove('flipped');
+  flipped=false;
+  buildList();
+}
+
+function flip(){
+  const card=document.getElementById('card');
+  flipped=!flipped;
+  card.classList.toggle('flipped',flipped);
+}
+
+function mark(type){
+  const idx=order[cur];
+  state[idx]=type;
+  localStorage.setItem(SK,JSON.stringify(state));
+  order.splice(cur,1);
+  if(cur>=order.length)cur=0;
+  render();
+}
+
+function showDone(know,weak){
+  document.getElementById('deck').style.display='none';
+  document.getElementById('listView').style.display='none';
+  const d=document.getElementById('done');
+  d.classList.add('show');
+  document.getElementById('doneTtl').textContent='今日 150 词完成!';
+  document.getElementById('doneSub').textContent='知道 '+know+' · 不熟 '+weak;
+}
+
+function resetAll(){
+  localStorage.removeItem(SK);
+  state={};
+  order=shuffle([...Array(CARDS.length).keys()]);
+  fullOrder=[...order];
+  cur=0;
+  document.getElementById('done').classList.remove('show');
+  document.getElementById('deck').style.display='';
+  render();
+}
+
+function reviewWeak(){
+  const weakIds=Object.keys(state).filter(k=>state[k]==='weak').map(Number);
+  if(weakIds.length===0){alert('没有标记为不熟的词汇');return;}
+  order=shuffle(weakIds);
+  cur=0;
+  document.getElementById('done').classList.remove('show');
+  document.getElementById('deck').style.display='';
+  render();
+}
+
+function speak(text){
+  if('speechSynthesis' in window){
+    const u=new SpeechSynthesisUtterance(text);
+    u.lang='en-US';u.rate=0.9;
+    speechSynthesis.cancel();speechSynthesis.speak(u);
+  }
+}
+
+function setView(v){
+  document.getElementById('vtFlash').classList.toggle('active',v==='flash');
+  document.getElementById('vtList').classList.toggle('active',v==='list');
+  document.getElementById('deck').style.display=v==='flash'?'':'none';
+  document.getElementById('listView').classList.toggle('active',v==='list');
+  if(v==='list')buildList();
+}
+
+function buildList(){
+  const body=document.getElementById('listBody');
+  body.innerHTML=CARDS.map((c,i)=>{
+    const s=state[i]||'';
+    return `<div class="list-row">
+      <div class="num">${i+1}</div>
+      <div class="word">
+        <div class="w${s==='know'?' knew':s==='weak'?' weak':''}">${c.w}</div>
+        <div class="zh">${c.zh}</div>
+      </div>
+      <button class="spk" onclick="speak('${c.w.replace(/'/g,"\\'")}')">🔊</button>
+      <div class="mk${s==='know'?' know':s==='weak'?' weak':''}">${s==='know'?'✅':s==='weak'?'😣':'·'}</div>
+    </div>`;
+  }).join('');
+}
+
+render();
+</script>
+</body>
+</html>
