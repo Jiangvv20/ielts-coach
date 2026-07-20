@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#2563eb">
+<title>Day 62 · Reading T/F/NG · 2026-07-21</title>
+<style>
+  :root{--bg:#fff;--fg:#1a1a1a;--muted:#6b7280;--accent:#2563eb;--ok:#059669;--warn:#d97706;--err:#dc2626;--card:#f9fafb;--border:#e5e7eb;--nav-bg:rgba(255,255,255,0.92);--header-bg:linear-gradient(135deg,#2563eb 0%,#7c3aed 100%);}
+  @media(prefers-color-scheme:dark){:root{--bg:#0f172a;--fg:#f1f5f9;--muted:#94a3b8;--accent:#60a5fa;--warn:#fbbf24;--ok:#34d399;--err:#f87171;--card:#1e293b;--border:#334155;--nav-bg:rgba(15,23,42,0.92);--header-bg:linear-gradient(135deg,#1e40af 0%,#6b21a8 100%);}}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--fg);}
+  body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue",sans-serif;line-height:1.6;min-height:100vh;padding-bottom:calc(80px + env(safe-area-inset-bottom,0));}
+  .app-header{background:var(--header-bg);color:white;padding:calc(env(safe-area-inset-top,16px) + 12px) 16px 14px;position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:12px;}
+  .back-btn{background:rgba(255,255,255,0.18);border:none;color:white;width:34px;height:34px;border-radius:10px;font-size:1.1rem;cursor:pointer;flex-shrink:0;text-decoration:none;display:flex;align-items:center;justify-content:center;}
+  .app-header .ttl{font-size:1rem;font-weight:700;}
+  .app-header .sub{font-size:0.72rem;opacity:0.85;margin-top:1px;letter-spacing:0.04em;}
+  main{max-width:720px;margin:0 auto;padding:16px;}
+  .passage-box{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:20px;font-size:0.95rem;line-height:1.75;}
+  .passage-box h3{font-size:1rem;font-weight:700;margin:0 0 12px;color:var(--accent);}
+  .passage-box p{margin:0 0 12px;}
+  .passage-box p:last-child{margin:0;}
+  .passage-box .para-label{font-weight:700;color:var(--accent);margin-right:4px;}
+  .section-title{font-size:0.78rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin:20px 0 10px;}
+  .q-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:12px;}
+  .q-num{font-size:0.72rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px;}
+  .q-text{font-size:0.95rem;margin-bottom:12px;line-height:1.5;}
+  .opts{display:flex;gap:8px;flex-wrap:wrap;}
+  .opt-btn{flex:1;min-width:70px;padding:10px 4px;border:1.5px solid var(--border);border-radius:10px;background:var(--bg);color:var(--fg);font-size:0.88rem;font-weight:600;cursor:pointer;font-family:inherit;text-align:center;transition:all 0.15s;}
+  .opt-btn:active{transform:scale(0.97);}
+  .opt-btn.selected{border-color:var(--accent);background:rgba(37,99,235,0.1);color:var(--accent);}
+  .opt-btn.correct{border-color:var(--ok);background:rgba(5,150,105,0.1);color:var(--ok);}
+  .opt-btn.wrong{border-color:var(--err);background:rgba(220,38,38,0.1);color:var(--err);}
+  .q-explanation{margin-top:10px;padding:10px 12px;background:var(--bg);border-left:3px solid var(--accent);border-radius:6px;font-size:0.85rem;color:var(--muted);display:none;line-height:1.55;}
+  .q-explanation.show{display:block;}
+  .q-explanation strong{color:var(--fg);}
+  .vocab-section{margin-top:28px;}
+  .vocab-q{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:12px;}
+  .fill-input{border:1.5px solid var(--border);border-radius:8px;padding:8px 12px;font-size:0.95rem;font-family:inherit;background:var(--bg);color:var(--fg);width:100%;margin-top:8px;}
+  .fill-input:focus{outline:none;border-color:var(--accent);}
+  .check-btn{margin-top:8px;padding:10px 20px;background:var(--accent);color:white;border:none;border-radius:8px;font-size:0.88rem;font-weight:600;cursor:pointer;font-family:inherit;}
+  .fill-feedback{margin-top:8px;font-size:0.85rem;display:none;padding:8px 10px;border-radius:6px;}
+  .fill-feedback.show{display:block;}
+  .fill-feedback.ok{background:rgba(5,150,105,0.1);color:var(--ok);}
+  .fill-feedback.err{background:rgba(220,38,38,0.1);color:var(--err);}
+  .result-bar{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;margin-top:20px;text-align:center;display:none;}
+  .result-bar.show{display:block;}
+  .result-bar .score{font-size:2.2rem;font-weight:700;color:var(--accent);}
+  .result-bar .sub{color:var(--muted);font-size:0.88rem;margin-top:4px;}
+  .submit-btn{display:block;width:100%;padding:14px;background:var(--accent);color:white;border:none;border-radius:12px;font-size:1rem;font-weight:700;cursor:pointer;font-family:inherit;margin-top:20px;}
+  .submit-btn:disabled{background:var(--border);color:var(--muted);cursor:not-allowed;}
+  .tabbar{position:fixed;bottom:0;left:0;right:0;background:var(--nav-bg);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-top:1px solid var(--border);display:flex;padding-bottom:env(safe-area-inset-bottom,0);z-index:30;}
+  .tab-btn{flex:1;background:transparent;border:none;padding:10px 4px 8px;color:var(--muted);font-size:0.68rem;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;font-family:inherit;text-decoration:none;}
+  .tab-btn .icon{font-size:1.25rem;line-height:1;}
+  .tab-btn.active{color:var(--accent);}
+  .strategy-box{background:rgba(37,99,235,0.05);border:1px solid rgba(37,99,235,0.2);border-radius:12px;padding:14px;margin-bottom:18px;font-size:0.85rem;color:var(--fg);}
+  .strategy-box h4{margin:0 0 8px;font-size:0.82rem;color:var(--accent);text-transform:uppercase;letter-spacing:0.04em;}
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <a class="back-btn" href="index.html#quizzes">←</a>
+  <div style="flex:1;">
+    <div class="ttl">Reading · T/F/NG 专项</div>
+    <div class="sub">Day 62 · 2026-07-21 · Education</div>
+  </div>
+</header>
+
+<main>
+
+<div class="strategy-box">
+  <h4>📖 T/F/NG 判断原则</h4>
+  <strong>TRUE</strong>: 文章明确表述或同义改写 &nbsp;|&nbsp; <strong>FALSE</strong>: 文章表述相反或矛盾 &nbsp;|&nbsp; <strong>NOT GIVEN</strong>: 文章未涉及，或无法判断<br>
+  <span style="color:var(--muted);font-size:0.82rem;">⚠️ 仅根据原文判断，不依赖常识或个人经验。全文通读后再作答。</span>
+</div>
+
+<div class="passage-box">
+  <h3>The Postcode Lottery: Educational Equity and Social Mobility in the 21st Century</h3>
+
+  <p><span class="para-label">A</span>In most high-income nations, the quality of education a child receives is determined less by their ability or effort than by the neighbourhood in which they happen to be born. This phenomenon — often called the "postcode lottery" in Britain or the "ZIP code effect" in the United States — reflects a deeper structural inequity in how schools are funded. In many jurisdictions, state school budgets are tied to local property taxes, meaning that communities with higher property values generate greater per-pupil expenditure. The consequence is a self-reinforcing cycle: affluent areas produce well-resourced schools that attract experienced teachers, which in turn sustain high house prices, which maintain the funding advantage.</p>
+
+  <p><span class="para-label">B</span>The attainment gap — the measurable difference in academic outcomes between children from the highest and lowest income quartiles — is one of the most persistent challenges in contemporary education policy. Research by the OECD indicates that in most member countries, socioeconomic background is a more powerful predictor of academic achievement than any school-level variable, including class size, curriculum quality, or teacher experience. Critically, this gap is not an inevitable product of differences in innate ability; longitudinal studies consistently show that children from disadvantaged backgrounds who receive sustained, high-quality early intervention significantly close the gap with their more privileged peers.</p>
+
+  <p><span class="para-label">C</span>The concept of social mobility — the capacity of individuals to move upward in the socioeconomic hierarchy relative to their parents — has historically been associated with educational attainment. Economists and sociologists have long argued that education serves as the great equaliser, providing the skills and credentials that allow talented individuals to transcend their origins. Yet the empirical evidence presents a more troubling picture. In many countries, intergenerational social mobility has actually declined over the past four decades, precisely as inequality of income and wealth has risen. The correlation is not coincidental: when the returns to education depend on social networks, cultural capital, and access to elite institutions, those already at the top accumulate advantages that are difficult for others to replicate.</p>
+
+  <p><span class="para-label">D</span>Policy responses to educational inequity have varied considerably. Some governments have experimented with school choice mechanisms, including voucher schemes that allow public funding to follow pupils to private or independent schools. Proponents argue that competition among schools drives up quality universally; critics counter that such schemes divert resources from the public system and primarily benefit families with the cultural capital to navigate complex admissions processes, leaving the most vulnerable students behind. A growing body of evidence from Chile, Sweden, and the United States — all of which have implemented large-scale choice programmes — suggests that their effects on average attainment and equity have been modest at best and, in some cases, have widened existing inequalities.</p>
+
+  <p><span class="para-label">E</span>An alternative approach focuses on redistribution within the public system. Several jurisdictions have implemented weighted funding formulae, directing additional resources — sometimes called a "pupil premium" in England or "Title I funding" in the United States — to schools serving concentrations of disadvantaged pupils. When well-implemented, such programmes have demonstrated meaningful improvements in outcomes for target groups. England's pupil premium, introduced in 2011, has been associated with a modest but measurable narrowing of the attainment gap in primary education, though secondary school results have proven more resistant to change. Crucially, the impact depends not merely on the quantity of additional funding but on how schools choose to deploy it: evidence-based interventions such as structured tutoring, extended day programmes, and high-quality professional development for teachers consistently outperform non-targeted spending.</p>
+
+  <p><span class="para-label">F</span>Beyond funding, researchers have identified teacher quality as the single most important school-level variable affecting pupil outcomes. Studies in both developed and developing countries show that the difference between a highly effective teacher and an average one can amount to the equivalent of several months of additional learning per year — an effect that compounds dramatically across a child's schooling career. Yet the distribution of teaching talent is itself deeply inequitable: in most systems, the most experienced and best-qualified teachers are disproportionately concentrated in schools that already serve advantaged populations, attracted by better working conditions, higher salaries, and a more supportive professional environment. Addressing this maldistribution requires systemic incentives, including targeted salary enhancements and career development opportunities for teachers who choose to work in the most challenging schools.</p>
+
+  <p><span class="para-label">G</span>Ultimately, the most enduring reforms combine structural changes to school funding with investments in early childhood education, teacher quality, and the social infrastructure surrounding schools — nutrition programmes, mental health support, and parental engagement initiatives. The evidence is clear that no single policy lever is sufficient on its own. Yet there is cause for optimism: research on highly effective schools in low-income communities demonstrates that the attainment gap is not immutable. Where strong leadership, well-supported teachers, and a culture of high expectations converge, disadvantaged children achieve at levels that confound low expectations and illuminate the path toward genuinely equitable education.</p>
+</div>
+
+<div class="section-title">Questions 1–7 · True / False / Not Given</div>
+<p style="font-size:0.85rem;color:var(--muted);margin-bottom:14px;">Do the following statements agree with the information given in the passage?</p>
+
+<div class="q-card" id="q1">
+  <div class="q-num">Question 1</div>
+  <div class="q-text">In many countries, school budgets are partially determined by the value of local property, creating funding disparities between schools in rich and poor areas.</div>
+  <div class="opts">
+    <button class="opt-btn" onclick="answer(1,'T')">TRUE</button>
+    <button class="opt-btn" onclick="answer(1,'F')">FALSE</button>
+    <button class="opt-btn" onclick="answer(1,'NG')">NOT GIVEN</button>
+  </div>
+  <div class="q-explanation" id="exp1"><strong>答案: TRUE</strong> · 段落A明确说明: "in many jurisdictions, state school budgets are tied to local property taxes, meaning that communities with higher property values generate greater per-pupil expenditure."</div>
+</div>
+
+<div class="q-card" id="q2">
+  <div class="q-num">Question 2</div>
+  <div class="q-text">According to OECD research, class size is a more significant determinant of academic achievement than a student's socioeconomic background.</div>
+  <div class="opts">
+    <button class="opt-btn" onclick="answer(2,'T')">TRUE</button>
+    <button class="opt-btn" onclick="answer(2,'F')">FALSE</button>
+    <button class="opt-btn" onclick="answer(2,'NG')">NOT GIVEN</button>
+  </div>
+  <div class="q-explanation" id="exp2"><strong>答案: FALSE</strong> · 段落B明确相反: "socioeconomic background is a more powerful predictor of academic achievement than any school-level variable, including class size."</div>
+</div>
+
+<div class="q-card" id="q3">
+  <div class="q-num">Question 3</div>
+  <div class="q-text">The passage suggests that differences in innate ability are the primary cause of the attainment gap between rich and poor students.</div>
+  <div class="opts">
+    <button class="opt-btn" onclick="answer(3,'T')">TRUE</button>
+    <button class="opt-btn" onclick="answer(3,'F')">FALSE</button>
+    <button class="opt-btn" onclick="answer(3,'NG')">NOT GIVEN</button>
+  </div>
+  <div class="q-explanation" id="exp3"><strong>答案: FALSE</strong> · 段落B明确否定: "this gap is not an inevitable product of differences in innate ability; longitudinal studies consistently show that children from disadvantaged backgrounds who receive sustained, high-quality early intervention significantly close the gap."</div>
+</div>
+
+<div class="q-card" id="q4">
+  <div class="q-num">Question 4</div>
+  <div class="q-text">Social mobility has improved steadily in most developed countries over the past four decades as a result of expanded access to higher education.</div>
+  <div class="opts">
+    <button class="opt-btn" onclick="answer(4,'T')">TRUE</button>
+    <button class="opt-btn" onclick="answer(4,'F')">FALSE</button>
+    <button class="opt-btn" onclick="answer(4,'NG')">NOT GIVEN</button>
+  </div>
+  <div class="q-explanation" id="exp4"><strong>答案: FALSE</strong> · 段落C指出: "intergenerational social mobility has actually <em>declined</em> over the past four decades, precisely as inequality of income and wealth has risen." 与题目表述相反。</div>
+</div>
+
+<div class="q-card" id="q5">
+  <div class="q-num">Question 5</div>
+  <div class="q-text">Evidence from countries that have implemented large-scale school choice programmes shows that these policies have consistently and significantly reduced inequality in educational outcomes.</div>
+  <div class="opts">
+    <button class="opt-btn" onclick="answer(5,'T')">TRUE</button>
+    <button class="opt-btn" onclick="answer(5,'F')">FALSE</button>
+    <button class="opt-btn" onclick="answer(5,'NG')">NOT GIVEN</button>
+  </div>
+  <div class="q-explanation" id="exp5"><strong>答案: FALSE</strong> · 段落D说明: "their effects on average attainment and equity have been modest at best and, in some cases, have widened existing inequalities." 与题目相反。</div>
+</div>
+
+<div class="q-card" id="q6">
+  <div class="q-num">Question 6</div>
+  <div class="q-text">England's pupil premium has been more effective at narrowing the attainment gap in primary schools than in secondary schools.</div>
+  <div class="opts">
+    <button class="opt-btn" onclick="answer(6,'T')">TRUE</button>
+    <button class="opt-btn" onclick="answer(6,'F')">FALSE</button>
+    <button class="opt-btn" onclick="answer(6,'NG')">NOT GIVEN</button>
+  </div>
+  <div class="q-explanation" id="exp6"><strong>答案: TRUE</strong> · 段落E明确: "has been associated with a modest but measurable narrowing of the attainment gap in primary education, though secondary school results have proven more resistant to change."</div>
+</div>
+
+<div class="q-card" id="q7">
+  <div class="q-num">Question 7</div>
+  <div class="q-text">The passage claims that the most experienced teachers tend to work in the most disadvantaged schools because they feel a greater sense of professional purpose there.</div>
+  <div class="opts">
+    <button class="opt-btn" onclick="answer(7,'T')">TRUE</button>
+    <button class="opt-btn" onclick="answer(7,'F')">FALSE</button>
+    <button class="opt-btn" onclick="answer(7,'NG')">NOT GIVEN</button>
+  </div>
+  <div class="q-explanation" id="exp7"><strong>答案: FALSE</strong> · 段落F说法相反: "the most experienced and best-qualified teachers are disproportionately concentrated in schools that already serve <em>advantaged</em> populations, attracted by better working conditions, higher salaries." 与题目相反。</div>
+</div>
+
+<div class="section-title" style="margin-top:28px;">Questions 8–10 · Vocabulary in Context</div>
+<p style="font-size:0.85rem;color:var(--muted);margin-bottom:14px;">Complete each sentence using a word or phrase from the passage. Use NO MORE THAN THREE WORDS.</p>
+
+<div class="vocab-q" id="vq1">
+  <div class="q-num">Question 8</div>
+  <div class="q-text">The author uses the term "____________" to describe the phenomenon where a child's educational prospects are determined by where they live rather than by their abilities.</div>
+  <input class="fill-input" id="fi1" placeholder="输入答案 (1-3 words)" autocomplete="off" autocorrect="off" spellcheck="false">
+  <button class="check-btn" onclick="checkFill(1)">检查</button>
+  <div class="fill-feedback" id="ff1"></div>
+</div>
+
+<div class="vocab-q" id="vq2">
+  <div class="q-num">Question 9</div>
+  <div class="q-text">According to paragraph E, evidence-based interventions such as structured tutoring and extended day programmes consistently outperform spending that is not ____________.</div>
+  <input class="fill-input" id="fi2" placeholder="输入答案 (1-3 words)" autocomplete="off" autocorrect="off" spellcheck="false">
+  <button class="check-btn" onclick="checkFill(2)">检查</button>
+  <div class="fill-feedback" id="ff2"></div>
+</div>
+
+<div class="vocab-q" id="vq3">
+  <div class="q-num">Question 10</div>
+  <div class="q-text">The passage concludes that in highly effective schools serving low-income communities, the attainment gap is not ____________, meaning it can be significantly reduced.</div>
+  <input class="fill-input" id="fi3" placeholder="输入答案 (1-3 words)" autocomplete="off" autocorrect="off" spellcheck="false">
+  <button class="check-btn" onclick="checkFill(3)">检查</button>
+  <div class="fill-feedback" id="ff3"></div>
+</div>
+
+<button class="submit-btn" id="submitBtn" onclick="submitAll()">提交全部答案 · 查看解析</button>
+
+<div class="result-bar" id="resultBar">
+  <div class="score" id="scoreText">—</div>
+  <div class="sub" id="scoreSub">T/F/NG 题 + 词汇填空</div>
+  <div style="margin-top:12px;font-size:0.85rem;color:var(--muted);text-align:left;" id="scoreDetail"></div>
+</div>
+
+</main>
+
+<nav class="tabbar">
+  <a class="tab-btn" href="index.html#home"><span class="icon">🏠</span>概览</a>
+  <a class="tab-btn" href="index.html#materials"><span class="icon">📺</span>材料</a>
+  <a class="tab-btn active" href="index.html#quizzes"><span class="icon">✏️</span>测验</a>
+  <a class="tab-btn" href="index.html#plan"><span class="icon">📋</span>计划</a>
+</nav>
+
+<script>
+const ANSWERS = {1:'T',2:'F',3:'F',4:'F',5:'F',6:'T',7:'F'};
+const FILL_ANSWERS = {
+  1: ['postcode lottery','zip code effect','the postcode lottery','the zip code effect'],
+  2: ['non-targeted','targeted','not targeted'],
+  3: ['immutable','not immutable']
+};
+const FILL_EXP = {
+  1: '正确答案: <strong>postcode lottery</strong> (或 "ZIP code effect") · 段落A: "This phenomenon — often called the \'postcode lottery\' in Britain..."',
+  2: '正确答案: <strong>non-targeted</strong> (或 targeted) · 段落E: "evidence-based interventions...consistently outperform non-targeted spending."',
+  3: '正确答案: <strong>immutable</strong> · 段落G: "the attainment gap is not immutable" (= can be changed)'
+};
+let userAnswers = {};
+let submitted = false;
+
+function answer(q, val) {
+  if (submitted) return;
+  userAnswers[q] = val;
+  const card = document.getElementById('q'+q);
+  card.querySelectorAll('.opt-btn').forEach(b => {
+    b.classList.remove('selected');
+    if (b.textContent.trim().startsWith(val)) b.classList.add('selected');
+  });
+}
+
+function checkFill(n) {
+  const input = document.getElementById('fi'+n);
+  const fb = document.getElementById('ff'+n);
+  const val = input.value.trim().toLowerCase();
+  const correct = FILL_ANSWERS[n].some(a => val === a.toLowerCase() || val.includes(a.toLowerCase().split(' ')[0]));
+  fb.className = 'fill-feedback show ' + (correct ? 'ok' : 'err');
+  fb.innerHTML = correct
+    ? '✅ 正确! ' + FILL_EXP[n]
+    : '❌ ' + FILL_EXP[n];
+}
+
+function submitAll() {
+  if (submitted) return;
+  submitted = true;
+  document.getElementById('submitBtn').disabled = true;
+  let correct = 0;
+  let details = [];
+
+  [1,2,3,4,5,6,7].forEach(q => {
+    const ua = userAnswers[q];
+    const ca = ANSWERS[q];
+    const card = document.getElementById('q'+q);
+    const exp = document.getElementById('exp'+q);
+    exp.classList.add('show');
+    card.querySelectorAll('.opt-btn').forEach(b => {
+      const v = b.textContent.trim();
+      const isCorrect = v.startsWith(ca);
+      const isSelected = ua && v.startsWith(ua);
+      if (isCorrect) b.classList.add('correct');
+      if (isSelected && !isCorrect) b.classList.add('wrong');
+      if (isSelected && isCorrect) { b.classList.remove('selected'); b.classList.add('correct'); }
+    });
+    if (ua === ca) {
+      correct++;
+      details.push('Q'+q+': ✅');
+    } else {
+      details.push('Q'+q+': ❌ (你选: '+(ua||'未答')+' · 正确: '+ca+')');
+    }
+  });
+
+  const resultBar = document.getElementById('resultBar');
+  resultBar.classList.add('show');
+  const label = correct >= 6 ? '🎉 优秀' : correct >= 4 ? '👍 良好' : '📚 继续练习';
+  document.getElementById('scoreText').textContent = correct + '/7 · ' + label;
+  document.getElementById('scoreSub').textContent = 'T/F/NG 题得分 (词汇题请点击"检查"按钮查看)';
+  document.getElementById('scoreDetail').innerHTML = details.join(' &nbsp; ');
+  resultBar.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+</script>
+</body>
+</html>
