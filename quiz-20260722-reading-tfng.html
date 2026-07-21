@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#2563eb">
+<title>Day 63 · Reading T/F/NG · 2026-07-22</title>
+<style>
+  :root{--bg:#fff;--fg:#1a1a1a;--muted:#6b7280;--accent:#2563eb;--ok:#059669;--warn:#d97706;--err:#dc2626;--card:#f9fafb;--border:#e5e7eb;--nav-bg:rgba(255,255,255,0.92);--header-bg:linear-gradient(135deg,#2563eb 0%,#7c3aed 100%);}
+  @media(prefers-color-scheme:dark){:root{--bg:#0f172a;--fg:#f1f5f9;--muted:#94a3b8;--accent:#60a5fa;--warn:#fbbf24;--ok:#34d399;--err:#f87171;--card:#1e293b;--border:#334155;--nav-bg:rgba(15,23,42,0.92);--header-bg:linear-gradient(135deg,#1e40af 0%,#6b21a8 100%);}}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--fg);}
+  body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue",sans-serif;line-height:1.6;min-height:100vh;padding-bottom:calc(80px + env(safe-area-inset-bottom,0));}
+  .app-header{background:var(--header-bg);color:white;padding:calc(env(safe-area-inset-top,16px) + 12px) 16px 14px;position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:12px;}
+  .back-btn{background:rgba(255,255,255,0.18);border:none;color:white;width:34px;height:34px;border-radius:10px;font-size:1.1rem;cursor:pointer;flex-shrink:0;text-decoration:none;display:flex;align-items:center;justify-content:center;}
+  .app-header .ttl{font-size:1rem;font-weight:700;}
+  .app-header .sub{font-size:0.72rem;opacity:0.85;margin-top:1px;letter-spacing:0.04em;}
+  main{max-width:720px;margin:0 auto;padding:16px;}
+  .passage-box{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:20px;font-size:0.95rem;line-height:1.75;}
+  .passage-box h3{font-size:1rem;font-weight:700;margin:0 0 12px;color:var(--accent);}
+  .passage-box p{margin:0 0 12px;}
+  .passage-box p:last-child{margin:0;}
+  .passage-box .para-label{font-weight:700;color:var(--accent);margin-right:4px;}
+  .section-title{font-size:0.78rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin:20px 0 10px;}
+  .q-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:12px;}
+  .q-num{font-size:0.72rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px;}
+  .q-text{font-size:0.95rem;margin-bottom:12px;line-height:1.5;}
+  .opts{display:flex;gap:8px;flex-wrap:wrap;}
+  .opt-btn{flex:1;min-width:70px;padding:10px 4px;border:1.5px solid var(--border);border-radius:10px;background:var(--bg);color:var(--fg);font-size:0.88rem;font-weight:600;cursor:pointer;font-family:inherit;text-align:center;transition:all 0.15s;}
+  .opt-btn:active{transform:scale(0.97);}
+  .opt-btn.selected{border-color:var(--accent);background:rgba(37,99,235,0.1);color:var(--accent);}
+  .opt-btn.correct{border-color:var(--ok);background:rgba(5,150,105,0.1);color:var(--ok);}
+  .opt-btn.wrong{border-color:var(--err);background:rgba(220,38,38,0.1);color:var(--err);}
+  .q-explanation{margin-top:10px;padding:10px 12px;background:var(--bg);border-left:3px solid var(--accent);border-radius:6px;font-size:0.85rem;color:var(--muted);display:none;line-height:1.55;}
+  .q-explanation.show{display:block;}
+  .q-explanation strong{color:var(--fg);}
+  .vocab-section{margin-top:28px;}
+  .vocab-q{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:12px;}
+  .fill-input{border:1.5px solid var(--border);border-radius:8px;padding:8px 12px;font-size:0.95rem;font-family:inherit;background:var(--bg);color:var(--fg);width:100%;margin-top:8px;}
+  .fill-input:focus{outline:none;border-color:var(--accent);}
+  .check-btn{margin-top:8px;padding:10px 20px;background:var(--accent);color:white;border:none;border-radius:8px;font-size:0.88rem;font-weight:600;cursor:pointer;font-family:inherit;}
+  .fill-feedback{margin-top:8px;font-size:0.85rem;display:none;padding:8px 10px;border-radius:6px;}
+  .fill-feedback.show{display:block;}
+  .fill-feedback.ok{background:rgba(5,150,105,0.1);color:var(--ok);}
+  .fill-feedback.err{background:rgba(220,38,38,0.1);color:var(--err);}
+  .result-bar{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;margin-top:20px;text-align:center;display:none;}
+  .result-bar.show{display:block;}
+  .result-bar .score{font-size:2.2rem;font-weight:700;color:var(--accent);}
+  .result-bar .sub{color:var(--muted);font-size:0.88rem;margin-top:4px;}
+  .submit-btn{display:block;width:100%;padding:14px;background:var(--accent);color:white;border:none;border-radius:12px;font-size:1rem;font-weight:700;cursor:pointer;font-family:inherit;margin-top:20px;}
+  .submit-btn:disabled{background:var(--border);color:var(--muted);cursor:not-allowed;}
+  .tabbar{position:fixed;bottom:0;left:0;right:0;background:var(--nav-bg);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-top:1px solid var(--border);display:flex;padding-bottom:env(safe-area-inset-bottom,0);z-index:30;}
+  .tab-btn{flex:1;background:transparent;border:none;padding:10px 4px 8px;color:var(--muted);font-size:0.68rem;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;font-family:inherit;text-decoration:none;}
+  .tab-btn .icon{font-size:1.25rem;line-height:1;}
+  .tab-btn.active{color:var(--accent);}
+  .strategy-box{background:rgba(37,99,235,0.05);border:1px solid rgba(37,99,235,0.2);border-radius:12px;padding:14px;margin-bottom:18px;font-size:0.85rem;color:var(--fg);}
+  .strategy-box h4{margin:0 0 8px;font-size:0.82rem;color:var(--accent);text-transform:uppercase;letter-spacing:0.04em;}
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <a class="back-btn" href="index.html#quizzes">&#8592;</a>
+  <div style="flex:1;">
+    <div class="ttl">Reading &middot; T/F/NG 专项</div>
+    <div class="sub">Day 63 &middot; 2026-07-22 &middot; Education &middot; EdTech</div>
+  </div>
+</header>
+
+<main>
+
+<div class="strategy-box">
+  <h4>&#128218; T/F/NG 判断原则</h4>
+  <strong>TRUE</strong>: 文章明确表述或同义改写 &nbsp;|&nbsp; <strong>FALSE</strong>: 文章表述相反或矛盾 &nbsp;|&nbsp; <strong>NOT GIVEN</strong>: 文章未涉及，或无法判断<br>
+  <span style="color:var(--muted);font-size:0.82rem;">&#9888;&#65039; 仅根据原文判断，不依赖常识或个人经验。全文通读后再作答。</span>
+</div>
+
+<div class="passage-box">
+  <h3>The Promise and Peril of Educational Technology: Separating Signal from Noise</h3>
+
+  <p><span class="para-label">A</span>The history of educational technology is, in many respects, a history of inflated expectations followed by quiet disappointment. From the introduction of radio broadcasts in the 1920s — hailed as a medium that would democratise access to expert teaching across vast distances — to the laptop initiatives of the early 2000s, each successive technology has been greeted with proclamations that it would fundamentally transform learning. In practice, the transformation rarely materialised at the scale promised. This pattern, well documented in the educational research literature, is now being replicated with artificial intelligence. Advocates claim that AI tutoring systems will deliver personalised instruction to every child on the planet; sceptics urge caution, pointing to the long tail of underpowered interventions that preceded it.</p>
+
+  <p><span class="para-label">B</span>Beneath the hype, however, there is genuine evidence that certain uses of technology can meaningfully improve learning outcomes under the right conditions. A landmark meta-analysis conducted by the Education Endowment Foundation examined over 150 studies of digital technology in schools and found that, on average, digital tools produced modest but statistically significant improvements in academic attainment — roughly equivalent to three to four additional months of learning per year. Critically, the benefits were not uniform: technologies that incorporated immediate, corrective feedback produced far larger gains than those that simply digitised existing content. The distinction between augmentation — using technology to extend and enhance good pedagogy — and substitution — replacing existing practice with a digital equivalent — proved decisive.</p>
+
+  <p><span class="para-label">C</span>One of the most robustly supported applications of EdTech is adaptive learning, in which algorithms continuously adjust the difficulty and sequencing of content based on a student's demonstrated performance. Research from Carnegie Learning's MATHia platform, deployed across thousands of American classrooms, showed that students using the adaptive system outperformed control groups on standardised mathematics assessments, with the effect size increasing the longer students used the system. Yet even here, researchers cautioned against over-interpretation: the gains were most pronounced in procedural mathematical tasks and more modest in conceptual understanding, suggesting that adaptive systems are better suited to drilling skills than to fostering deep mathematical reasoning.</p>
+
+  <p><span class="para-label">D</span>The equity implications of EdTech deserve particular scrutiny. Proponents argue that digital tools can level the playing field by giving all students access to the same high-quality instructional resources, regardless of the socioeconomic status of their school or neighbourhood. In theory, a student in a rural village in sub-Saharan Africa can access the same online course as one attending a leading urban school. In practice, the digital divide — defined not merely as access to devices but as the broader constellation of factors including reliable connectivity, digital literacy, and supportive home environments — means that students from disadvantaged backgrounds are the least likely to benefit from purely online provision. Several large-scale studies of online learning during the COVID-19 pandemic found that pre-existing achievement gaps between high- and low-income students widened rather than narrowed, as wealthier families more effectively harnessed available digital tools.</p>
+
+  <p><span class="para-label">E</span>A more nuanced view recognises that the impact of any educational technology is mediated primarily by implementation quality. The same software can produce dramatically different outcomes depending on whether teachers have received adequate training, whether its use is embedded in coherent pedagogical sequences, and whether school leaders create conditions that support its effective deployment. A pioneering study in Chile found that schools that integrated a reading software programme into a structured literacy curriculum achieved learning gains nearly four times larger than schools that used the software in an unstructured, supplementary way. The implication is that technology does not teach; teachers, using technology thoughtfully, do.</p>
+
+  <p><span class="para-label">F</span>The governance of EdTech presents a further, less-discussed challenge. As schools have adopted cloud-based platforms and AI-powered tools at scale, enormous volumes of student behavioural, attitudinal, and academic data have migrated to private companies headquartered in a small number of countries. Critics argue that this concentration of data constitutes a form of surveillance capitalism applied to minors, with educational institutions unwittingly providing detailed profiles of children to organisations whose commercial interests may not align with learner welfare. Regulatory responses have varied dramatically: the European Union's General Data Protection Regulation has been applied to restrict how EdTech companies can process student data, while other jurisdictions have been slower to act. The result is a patchwork of protection that leaves many students exposed.</p>
+
+  <p><span class="para-label">G</span>Looking forward, the most credible voices in educational technology argue for what might be called "disciplined optimism": an openness to innovation that is tempered by rigorous evaluation, a commitment to equity that ensures new tools reach those who stand to benefit most, and a recognition that technology is a means rather than an end. The most transformative EdTech, on this view, will not be the most sophisticated — it will be the most effectively integrated into human relationships, institutional cultures, and evidence-based instructional practice. The teacher who knows how to deploy a simple adaptive quiz at precisely the right moment may achieve more than a school that invests in cutting-edge virtual reality hardware without a clear pedagogical rationale.</p>
+</div>
+
+<div class="section-title">Questions 1&#8211;7 &middot; True / False / Not Given</div>
+<p style="font-size:0.85rem;color:var(--muted);margin-bottom:14px;">Do the following statements agree with the information given in the passage?</p>
+
+<div class="q-card" id="q1">
+  <div class="q-num">Question 1</div>
+  <div class="q-text">The passage suggests that radio broadcasting in the 1920s successfully fulfilled its promise to make expert teaching universally accessible.</div>
+  <div class="opts">
+    <button class="opt-btn" onclick="answer(1,'T')">TRUE</button>
+    <button class="opt-btn" onclick="answer(1,'F')">FALSE</button>
+    <button class="opt-btn" onclick="answer(1,'NG')">NOT GIVEN</button>
+  </div>
+  <div class="q-explanation" id="exp1"><strong>答案: FALSE</strong> &middot; 段落A表明每种新技术都以失望告终: "the transformation rarely materialised at the scale promised." Radio was one such technology — it was hailed but did not succeed at the promised scale. 题目说"成功实现了承诺"，与原文矛盾。</div>
+</div>
+
+<div class="q-card" id="q2">
+  <div class="q-num">Question 2</div>
+  <div class="q-text">According to the Education Endowment Foundation meta-analysis, digital tools that provided immediate corrective feedback produced greater learning gains than those that simply presented content in digital form.</div>
+  <div class="opts">
+    <button class="opt-btn" onclick="answer(2,'T')">TRUE</button>
+    <button class="opt-btn" onclick="answer(2,'F')">FALSE</button>
+    <button class="opt-btn" onclick="answer(2,'NG')">NOT GIVEN</button>
+  </div>
+  <div class="q-explanation" id="exp2"><strong>答案: TRUE</strong> &middot; 段落B明确表述: "technologies that incorporated immediate, corrective feedback produced far larger gains than those that simply digitised existing content." 题目是同义改写。</div>
+</div>
+
+<div class="q-card" id="q3">
+  <div class="q-num">Question 3</div>
+  <div class="q-text">Carnegie Learning's MATHia platform was equally effective at improving students' procedural skills and their conceptual understanding of mathematics.</div>
+  <div class="opts">
+    <button class="opt-btn" onclick="answer(3,'T')">TRUE</button>
+    <button class="opt-btn" onclick="answer(3,'F')">FALSE</button>
+    <button class="opt-btn" onclick="answer(3,'NG')">NOT GIVEN</button>
+  </div>
+  <div class="q-explanation" id="exp3"><strong>答案: FALSE</strong> &middot; 段落C指出: "the gains were most pronounced in procedural mathematical tasks and more modest in conceptual understanding." 两者效果不同，题目称"同样有效"与原文矛盾。</div>
+</div>
+
+<div class="q-card" id="q4">
+  <div class="q-num">Question 4</div>
+  <div class="q-text">Studies of online learning during the COVID-19 pandemic found that the achievement gap between wealthy and less-affluent students became larger.</div>
+  <div class="opts">
+    <button class="opt-btn" onclick="answer(4,'T')">TRUE</button>
+    <button class="opt-btn" onclick="answer(4,'F')">FALSE</button>
+    <button class="opt-btn" onclick="answer(4,'NG')">NOT GIVEN</button>
+  </div>
+  <div class="q-explanation" id="exp4"><strong>答案: TRUE</strong> &middot; 段落D明确: "pre-existing achievement gaps between high- and low-income students widened rather than narrowed." "widened" = "became larger"，直接对应。</div>
+</div>
+
+<div class="q-card" id="q5">
+  <div class="q-num">Question 5</div>
+  <div class="q-text">The Chilean study cited in the passage found that a reading software programme produced the same learning gains whether it was integrated into a structured literacy curriculum or used in an unstructured way.</div>
+  <div class="opts">
+    <button class="opt-btn" onclick="answer(5,'T')">TRUE</button>
+    <button class="opt-btn" onclick="answer(5,'F')">FALSE</button>
+    <button class="opt-btn" onclick="answer(5,'NG')">NOT GIVEN</button>
+  </div>
+  <div class="q-explanation" id="exp5"><strong>答案: FALSE</strong> &middot; 段落E表明两种使用方式的效果差异巨大: "schools that integrated a reading software programme into a structured literacy curriculum achieved learning gains nearly four times larger." 成果截然不同，与题目"相同"矛盾。</div>
+</div>
+
+<div class="q-card" id="q6">
+  <div class="q-num">Question 6</div>
+  <div class="q-text">The passage states that the European Union's General Data Protection Regulation has been used to limit the ways in which EdTech companies can handle data about students.</div>
+  <div class="opts">
+    <button class="opt-btn" onclick="answer(6,'T')">TRUE</button>
+    <button class="opt-btn" onclick="answer(6,'F')">FALSE</button>
+    <button class="opt-btn" onclick="answer(6,'NG')">NOT GIVEN</button>
+  </div>
+  <div class="q-explanation" id="exp6"><strong>答案: TRUE</strong> &middot; 段落F明确: "the European Union's General Data Protection Regulation has been applied to restrict how EdTech companies can process student data." restrict = limit; process = handle. 直接对应。</div>
+</div>
+
+<div class="q-card" id="q7">
+  <div class="q-num">Question 7</div>
+  <div class="q-text">The author argues that the most advanced and technologically sophisticated EdTech tools will inevitably produce the greatest improvements in student learning.</div>
+  <div class="opts">
+    <button class="opt-btn" onclick="answer(7,'T')">TRUE</button>
+    <button class="opt-btn" onclick="answer(7,'F')">FALSE</button>
+    <button class="opt-btn" onclick="answer(7,'NG')">NOT GIVEN</button>
+  </div>
+  <div class="q-explanation" id="exp7"><strong>答案: FALSE</strong> &middot; 段落G明确反驳: "The most transformative EdTech...will not be the most sophisticated — it will be the most effectively integrated into human relationships, institutional cultures, and evidence-based instructional practice." 与题目直接矛盾。</div>
+</div>
+
+<div class="section-title vocab-section">Questions 8&#8211;10 &middot; 词汇填空</div>
+<p style="font-size:0.85rem;color:var(--muted);margin-bottom:14px;">Complete the sentences. Use ONE WORD from the passage for each answer.</p>
+
+<div class="vocab-q">
+  <div class="q-num">Question 8</div>
+  <div class="q-text">The passage contrasts two ways technology can be used: <em>augmentation</em>, which extends good teaching, and ________, which simply replaces existing practice with a digital version.</div>
+  <input class="fill-input" id="v8" type="text" placeholder="one word" autocomplete="off" spellcheck="false">
+  <button class="check-btn" onclick="checkVocab(8,'substitution')">Check</button>
+  <div class="fill-feedback" id="vf8"></div>
+</div>
+
+<div class="vocab-q">
+  <div class="q-num">Question 9</div>
+  <div class="q-text">Critics warn that EdTech platforms may be engaged in a form of ________ capitalism applied to minors, using schools to build detailed commercial profiles of children.</div>
+  <input class="fill-input" id="v9" type="text" placeholder="one word" autocomplete="off" spellcheck="false">
+  <button class="check-btn" onclick="checkVocab(9,'surveillance')">Check</button>
+  <div class="fill-feedback" id="vf9"></div>
+</div>
+
+<div class="vocab-q">
+  <div class="q-num">Question 10</div>
+  <div class="q-text">The article concludes by advocating "disciplined ________": embracing innovation while insisting on rigorous evaluation and a commitment to equity.</div>
+  <input class="fill-input" id="v10" type="text" placeholder="one word" autocomplete="off" spellcheck="false">
+  <button class="check-btn" onclick="checkVocab(10,'optimism')">Check</button>
+  <div class="fill-feedback" id="vf10"></div>
+</div>
+
+<button class="submit-btn" id="submitBtn" onclick="submitAll()">提交所有答案 &rarr; 查看成绩</button>
+
+<div class="result-bar" id="resultBar">
+  <div class="score" id="scoreNum">0/7</div>
+  <div class="sub" id="scoreSub">查看每题解析，分析错误原因</div>
+</div>
+
+</main>
+
+<nav class="tabbar">
+  <a class="tab-btn" href="index.html#home"><span class="icon">&#127968;</span>概览</a>
+  <a class="tab-btn" href="index.html#materials"><span class="icon">&#128250;</span>材料</a>
+  <a class="tab-btn active" href="index.html#quizzes"><span class="icon">&#9999;&#65039;</span>测验</a>
+  <a class="tab-btn" href="index.html#plan"><span class="icon">&#128203;</span>计划</a>
+</nav>
+
+<script>
+const ANSWERS = {1:'T',2:'T',3:'F',4:'T',5:'F',6:'T',7:'F'};
+const userAns = {};
+let submitted = false;
+
+function answer(n, val) {
+  if (submitted) return;
+  userAns[n] = val;
+  const card = document.getElementById('q' + n);
+  card.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('selected'));
+  card.querySelectorAll('.opt-btn').forEach(b => {
+    if (b.textContent.trim().startsWith(val === 'T' ? 'T' : val === 'F' ? 'F' : 'N')) b.classList.add('selected');
+  });
+  document.getElementById('submitBtn').disabled = Object.keys(userAns).length < 7;
+}
+
+function checkVocab(n, correct) {
+  const input = document.getElementById('v' + n);
+  const fb = document.getElementById('vf' + n);
+  const val = input.value.trim().toLowerCase();
+  fb.classList.add('show');
+  if (val === correct.toLowerCase()) {
+    fb.className = 'fill-feedback show ok';
+    fb.textContent = '✓ 正确！答案: ' + correct;
+    input.style.borderColor = 'var(--ok)';
+  } else {
+    fb.className = 'fill-feedback show err';
+    fb.textContent = '✗ 答案: ' + correct + (val ? ' (你的答案: ' + val + ')' : '');
+    input.style.borderColor = 'var(--err)';
+  }
+}
+
+function submitAll() {
+  submitted = true;
+  let correct = 0;
+  for (let n = 1; n <= 7; n++) {
+    const ans = userAns[n];
+    const right = ANSWERS[n];
+    const card = document.getElementById('q' + n);
+    card.querySelectorAll('.opt-btn').forEach(b => {
+      const bVal = b.textContent.trim()[0] === 'T' ? 'T' : b.textContent.trim()[0] === 'F' ? 'F' : 'NG';
+      if (bVal === right) b.classList.add('correct');
+      if (bVal === ans && ans !== right) b.classList.add('wrong');
+    });
+    document.getElementById('exp' + n).classList.add('show');
+    if (ans === right) correct++;
+  }
+  const bar = document.getElementById('resultBar');
+  bar.classList.add('show');
+  document.getElementById('scoreNum').textContent = correct + '/7';
+  const pct = Math.round(correct / 7 * 100);
+  let grade = pct >= 86 ? 'Band 7+ 水平 &#127881;' : pct >= 71 ? 'Band 6-7 — 继续保持 &#128170;' : '需要加强 — 对照解析复习 &#128218;';
+  document.getElementById('scoreSub').innerHTML = `正确率 ${pct}% &middot; ${grade}`;
+  document.getElementById('submitBtn').style.display = 'none';
+  window.scrollTo({top: bar.offsetTop - 80, behavior: 'smooth'});
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#2563eb">
+<title>今日 150 词 · 2026-07-22 · Education</title>
+<style>
+  :root {
+    --bg: #ffffff; --fg: #1a1a1a; --muted: #6b7280;
+    --accent: #2563eb; --ok: #059669; --warn: #d97706;
+    --card: #f9fafb; --border: #e5e7eb;
+    --nav-bg: rgba(255,255,255,0.92);
+    --header-bg: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f172a; --fg: #f1f5f9; --muted: #94a3b8;
+      --accent: #60a5fa; --ok: #34d399; --warn: #fbbf24;
+      --card: #1e293b; --border: #334155;
+      --nav-bg: rgba(15,23,42,0.92);
+      --header-bg: linear-gradient(135deg, #1e40af 0%, #6b21a8 100%);
+    }
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg); }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif;
+    line-height: 1.5;
+    min-height: 100vh;
+    padding-bottom: calc(64px + env(safe-area-inset-bottom, 0));
+  }
+  .app-header {
+    background: var(--header-bg); color: white;
+    padding: calc(env(safe-area-inset-top, 16px) + 12px) 16px 14px;
+    position: sticky; top: 0; z-index: 20;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .back-btn {
+    background: rgba(255,255,255,0.18); border: none; color: white;
+    width: 34px; height: 34px; border-radius: 10px;
+    font-size: 1.1rem; cursor: pointer; flex-shrink: 0;
+    text-decoration: none; display: flex; align-items: center; justify-content: center;
+  }
+  .app-header .ttl { font-size: 1rem; font-weight: 700; }
+  .app-header .sub {
+    font-size: 0.72rem; opacity: 0.85; margin-top: 1px;
+    letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  .stats {
+    background: var(--card); padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px; text-align: center;
+  }
+  .stat .num { font-size: 1.4rem; font-weight: 700; }
+  .stat .num.know { color: var(--ok); }
+  .stat .num.weak { color: var(--warn); }
+  .stat .num.left { color: var(--accent); }
+  .stat .lbl { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; margin-top: 2px; }
+  .progress-bar {
+    height: 4px; background: var(--border);
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%; background: var(--accent);
+    transition: width 0.3s;
+  }
+  .card-stage {
+    margin: 24px 16px;
+    perspective: 1000px;
+  }
+  .card-3d {
+    position: relative;
+    width: 100%; min-height: 260px;
+    transform-style: preserve-3d;
+    transition: transform 0.5s;
+    cursor: pointer;
+  }
+  .card-3d.flipped { transform: rotateY(180deg); }
+  .face {
+    position: absolute; width: 100%; height: 100%;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 24px 20px;
+    display: flex; flex-direction: column;
+    justify-content: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .face.front { text-align: center; }
+  .face.front .word {
+    font-size: 2rem; font-weight: 700;
+    color: var(--accent); margin-bottom: 8px;
+    word-break: break-word;
+  }
+  .face.front .pos {
+    color: var(--muted); font-size: 0.95rem;
+    font-style: italic;
+  }
+  .face.front .hint {
+    margin-top: 28px; color: var(--muted);
+    font-size: 0.82rem;
+  }
+  .face.back { transform: rotateY(180deg); }
+  .face.back .zh {
+    font-size: 1.3rem; font-weight: 600;
+    color: var(--accent); margin-bottom: 12px;
+  }
+  .face.back .collo {
+    background: var(--bg); padding: 8px 12px;
+    border-radius: 8px; font-size: 0.92rem;
+    color: var(--fg); margin-bottom: 10px;
+    border-left: 3px solid var(--accent);
+  }
+  .face.back .ex {
+    font-size: 0.95rem; font-style: italic;
+    color: var(--fg); line-height: 1.6;
+  }
+  .face.back .ex strong { color: var(--accent); font-style: normal; }
+  .speaker {
+    position: absolute; top: 14px; right: 14px;
+    width: 36px; height: 36px; border-radius: 50%;
+    background: var(--bg); border: 1px solid var(--border);
+    cursor: pointer; font-size: 1.1rem; padding: 0;
+    color: var(--accent);
+  }
+  .view-toggle {
+    display: flex; padding: 12px 16px 0;
+    gap: 8px;
+  }
+  .view-toggle button {
+    flex: 1; padding: 8px;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 8px; color: var(--muted);
+    font-size: 0.85rem; cursor: pointer; font-family: inherit;
+  }
+  .view-toggle button.active { background: var(--accent); color: white; border-color: var(--accent); }
+  .list-view { display: none; padding: 12px 16px 24px; }
+  .list-view.active { display: block; }
+  .list-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px; border-bottom: 1px solid var(--border);
+    background: var(--card); border-radius: 8px;
+    margin-bottom: 6px;
+  }
+  .list-row .num {
+    flex-shrink: 0; width: 28px;
+    color: var(--muted); font-size: 0.72rem;
+    font-family: "SF Mono", Menlo, monospace;
+  }
+  .list-row .word {
+    flex: 1; min-width: 0;
+  }
+  .list-row .w { font-weight: 600; font-size: 0.95rem; color: var(--fg); }
+  .list-row .w.knew { color: var(--ok); }
+  .list-row .w.weak { color: var(--warn); }
+  .list-row .zh {
+    font-size: 0.78rem; color: var(--muted); margin-top: 2px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .list-row .spk {
+    flex-shrink: 0; width: 32px; height: 32px;
+    border-radius: 50%; background: var(--bg);
+    border: 1px solid var(--border); cursor: pointer;
+    color: var(--accent); font-size: 0.9rem; padding: 0;
+  }
+  .list-row .mk {
+    flex-shrink: 0; width: 24px; text-align: center;
+    color: var(--muted);
+  }
+  .list-row .mk.know { color: var(--ok); }
+  .list-row .mk.weak { color: var(--warn); }
+  .curriculum-note {
+    margin: 16px; padding: 12px 14px;
+    background: var(--card); border-left: 3px solid var(--accent);
+    border-radius: 8px; font-size: 0.82rem;
+    color: var(--muted); line-height: 1.5;
+  }
+  .curriculum-note strong { color: var(--fg); }
+  .actions {
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px; padding: 0 16px;
+  }
+  .btn {
+    padding: 14px 8px; border: 1px solid var(--border);
+    border-radius: 12px; background: var(--card);
+    color: var(--fg); font-size: 0.95rem;
+    font-weight: 600; cursor: pointer; font-family: inherit;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .btn .ico { display: block; font-size: 1.4rem; margin-bottom: 2px; }
+  .btn.weak { color: var(--warn); }
+  .btn.weak:active { background: rgba(217,119,6,0.1); }
+  .btn.flip { color: var(--accent); }
+  .btn.flip:active { background: rgba(37,99,235,0.1); }
+  .btn.know { color: var(--ok); }
+  .btn.know:active { background: rgba(5,150,105,0.1); }
+  .meta {
+    text-align: center; color: var(--muted);
+    font-size: 0.78rem; margin-top: 20px;
+  }
+  .tabbar {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: var(--nav-bg);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    border-top: 1px solid var(--border);
+    display: flex;
+    padding-bottom: env(safe-area-inset-bottom, 0);
+    z-index: 30;
+  }
+  .tab-btn {
+    flex: 1; background: transparent; border: none;
+    padding: 10px 4px 8px; color: var(--muted); font-size: 0.68rem;
+    cursor: pointer;
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    font-family: inherit; text-decoration: none;
+  }
+  .tab-btn .icon { font-size: 1.25rem; line-height: 1; }
+  .tab-btn.active { color: var(--accent); }
+  .done-screen {
+    text-align: center; padding: 60px 24px;
+    display: none;
+  }
+  .done-screen.show { display: block; }
+  .done-screen .big { font-size: 4rem; }
+  .done-screen .ttl { font-size: 1.3rem; font-weight: 700; margin: 8px 0; }
+  .done-screen .sub { color: var(--muted); margin-bottom: 24px; }
+  .done-screen button {
+    background: var(--accent); color: white; border: none;
+    padding: 12px 24px; border-radius: 12px;
+    font-size: 0.95rem; font-weight: 600; cursor: pointer;
+    font-family: inherit; margin: 4px;
+  }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <a class="back-btn" href="index.html#home">&#8592;</a>
+  <div style="flex:1;">
+    <div class="ttl">今日 150 词 · Education</div>
+    <div class="sub">2026-07-22 · Day 63</div>
+  </div>
+</header>
+
+<div class="stats">
+  <div class="stat"><div class="num know" id="kn">0</div><div class="lbl">知道</div></div>
+  <div class="stat"><div class="num weak" id="wk">0</div><div class="lbl">不熟</div></div>
+  <div class="stat"><div class="num left" id="lf">150</div><div class="lbl">剩余</div></div>
+</div>
+<div class="progress-bar"><div class="progress-fill" id="pg" style="width:0%"></div></div>
+
+<div class="view-toggle">
+  <button id="vtFlash" class="active" onclick="setView('flash')">&#128198; 卡片</button>
+  <button id="vtList" onclick="setView('list')">&#128203; 列表</button>
+</div>
+
+<div id="deck">
+  <div class="card-stage">
+    <div class="card-3d" id="card" onclick="flip()">
+      <div class="face front">
+        <button class="speaker" onclick="event.stopPropagation();speak(document.getElementById('w').textContent)">&#128266;</button>
+        <div class="word" id="w">&#8212;</div>
+        <div class="pos" id="p">&#8212;</div>
+        <div class="hint">轻触卡片 · 翻看释义</div>
+      </div>
+      <div class="face back">
+        <button class="speaker" onclick="event.stopPropagation();speak(document.getElementById('w').textContent)">&#128266;</button>
+        <div class="zh" id="zh">&#8212;</div>
+        <div class="collo" id="cl">&#8212;</div>
+        <div class="ex" id="ex":"&#8212;</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="btn weak" onclick="mark('weak')"><span class="ico">&#128547;</span>不熟</button>
+    <button class="btn flip" onclick="flip()"><span class="ico">&#128260;</span>翻转</button>
+    <button class="btn know" onclick="mark('know')"><span class="ico">&#9989;</span>知道</button>
+  </div>
+
+  <div class="meta" id="meta">1 / 150 · 今日主题 Education · EdTech &amp; 未来学习</div>
+</div>
+
+<div class="list-view" id="listView">
+  <div id="listBody"></div>
+</div>
+
+<div class="curriculum-note">
+  <strong>词汇来源</strong>: 8 天主题轮换，涵盖雅思高频话题。<br>
+  Day 1-7 <strong>Education</strong> · Day 8-14 <strong>Environment</strong> · Day 15-21 <strong>Technology</strong> · Day 22-28 <strong>Health</strong> · Day 29-35 <strong>Government &amp; Society</strong> · Day 36-42 <strong>Work &amp; Economy</strong> · Day 43-49 <strong>Family</strong> · Day 50-56 <strong>Travel &amp; Culture</strong> · 之后循环。<br>
+  今日聚焦 <strong>EdTech · AI 教育 · 未来学习技能</strong>，词汇为 Band 7+ 难度。
+</div>
+
+<div class="done-screen" id="done">
+  <div class="big">&#127881;</div>
+  <div class="ttl" id="doneTtl">今日 150 词完成!</div>
+  <div class="sub" id="doneSub">知道 0 · 不熟 0</div>
+  <button onclick="resetAll()">重新开始</button>
+  <button onclick="reviewWeak()">只复习不熟</button>
+  <button onclick="location.href='index.html'">回主页</button>
+</div>
+
+<nav class="tabbar">
+  <a class="tab-btn active" href="index.html#home"><span class="icon">&#127968;</span>概览</a>
+  <a class="tab-btn" href="index.html#materials"><span class="icon">&#128250;</span>材料</a>
+  <a class="tab-btn" href="index.html#quizzes"><span class="icon">&#9999;&#65039;</span>测验</a>
+  <a class="tab-btn" href="index.html#plan"><span class="icon">&#128203;</span>计划</a>
+</nav>
+
+<script>
+const CARDS = [
+{"w":"adaptive learning","p":"n.","zh":"自适应学习","cl":"adopt adaptive learning platforms","ex":"Schools are adopting <strong>adaptive learning</strong> platforms that adjust content to each student's pace."},
+{"w":"gamification","p":"n.","zh":"游戏化学习","cl":"apply gamification in classrooms","ex":"The startup applied <strong>gamification</strong> techniques to make grammar drills engaging."},
+{"w":"learning analytics","p":"n.","zh":"学习分析","cl":"leverage learning analytics","ex":"Teachers leverage <strong>learning analytics</strong> to identify students who are falling behind."},
+{"w":"micro-credentials","p":"n.","zh":"微型证书","cl":"earn micro-credentials online","ex":"Professionals can now earn <strong>micro-credentials</strong> online to demonstrate specific competencies."},
+{"w":"digital pedagogy","p":"n.","zh":"数字教学法","cl":"apply digital pedagogy","ex":"Effective <strong>digital pedagogy</strong> goes far beyond simply uploading lecture slides."},
+{"w":"e-portfolio","p":"n.","zh":"电子档案袋","cl":"maintain an e-portfolio","ex":"Students maintain an <strong>e-portfolio</strong> to document their learning journey over time."},
+{"w":"LMS","p":"n.","zh":"学习管理系统 (Learning Management System)","cl":"deploy an LMS","ex":"The university deployed a new <strong>LMS</strong> to streamline course delivery and assessment."},
+{"w":"synchronous","p":"adj.","zh":"同步的 (实时在线)","cl":"synchronous online sessions","ex":"<strong>Synchronous</strong> online sessions allow real-time interaction between tutors and students."},
+{"w":"immersive learning","p":"n.","zh":"沉浸式学习","cl":"deliver immersive learning experiences","ex":"VR headsets can deliver truly <strong>immersive learning</strong> experiences in medical training."},
+{"w":"augmented reality","p":"n.","zh":"增强现实","cl":"integrate augmented reality into lessons","ex":"<strong>Augmented reality</strong> overlays digital information onto the physical world, enriching field trips."},
+{"w":"personalised learning","p":"n.","zh":"个性化学习","cl":"shift to personalised learning","ex":"The pandemic accelerated the shift to <strong>personalised learning</strong> driven by AI."},
+{"w":"competency-based education","p":"n.","zh":"能力导向教育","cl":"move towards competency-based education","ex":"Employers increasingly favour graduates from <strong>competency-based education</strong> programmes."},
+{"w":"digital fluency","p":"n.","zh":"数字流利度","cl":"develop digital fluency","ex":"Developing <strong>digital fluency</strong> is now considered as fundamental as numeracy."},
+{"w":"computational thinking","p":"n.","zh":"计算思维","cl":"cultivate computational thinking","ex":"Educators argue that <strong>computational thinking</strong> should be embedded across the curriculum."},
+{"w":"algorithmic literacy","p":"n.","zh":"算法素养","cl":"build algorithmic literacy","ex":"Without <strong>algorithmic literacy</strong>, citizens cannot critically evaluate AI-driven decisions."},
+{"w":"digital citizenship","p":"n.","zh":"数字公民意识","cl":"promote digital citizenship","ex":"Schools now teach <strong>digital citizenship</strong> alongside traditional civic education."},
+{"w":"edtech","p":"n.","zh":"教育科技","cl":"the edtech sector","ex":"Investment in the <strong>edtech</strong> sector surged dramatically during the pandemic years."},
+{"w":"intelligent tutoring system","p":"n.","zh":"智能辅导系统","cl":"deploy an intelligent tutoring system","ex":"An <strong>intelligent tutoring system</strong> can provide one-to-one feedback at scale."},
+{"w":"predictive analytics","p":"n.","zh":"预测分析","cl":"use predictive analytics to identify at-risk students","ex":"Universities use <strong>predictive analytics</strong> to identify students at risk of dropping out."},
+{"w":"chatbot","p":"n.","zh":"聊天机器人","cl":"deploy a chatbot for student queries","ex":"The college deployed a <strong>chatbot</strong> to handle thousands of routine student queries instantly."},
+{"w":"generative AI","p":"n.","zh":"生成式人工智能","cl":"harness generative AI for learning","ex":"<strong>Generative AI</strong> is reshaping how students draft essays and receive writing feedback."},
+{"w":"AI-assisted grading","p":"n.","zh":"AI辅助评分","cl":"implement AI-assisted grading","ex":"<strong>AI-assisted grading</strong> can reduce teacher workload while providing consistent feedback."},
+{"w":"human-AI collaboration","p":"n.","zh":"人机协作","cl":"promote human-AI collaboration in classrooms","ex":"Effective <strong>human-AI collaboration</strong> in classrooms keeps educators at the centre of learning."},
+{"w":"AI ethics","p":"n.","zh":"人工智能伦理","cl":"teach AI ethics","ex":"Universities are introducing dedicated courses to teach <strong>AI ethics</strong> to students in all disciplines."},
+{"w":"explainability","p":"n.","zh":"(AI)可解释性","cl":"demand explainability from AI systems","ex":"Educators demand <strong>explainability</strong> from AI grading tools before deploying them at scale."},
+{"w":"data sovereignty","p":"n.","zh":"数据主权","cl":"protect student data sovereignty","ex":"Countries are enacting laws to protect <strong>data sovereignty</strong> over student information held by foreign platforms."},
+{"w":"surveillance capitalism","p":"n.","zh":"监控资本主义","cl":"critique surveillance capitalism in education","ex":"Critics warn that edtech platforms practise <strong>surveillance capitalism</strong>, monetising student behavioural data."},
+{"w":"bias in AI","p":"n.","zh":"AI中的偏见","cl":"address bias in AI","ex":"Researchers are working to address <strong>bias in AI</strong> systems used for student assessment."},
+{"w":"metacognition","p":"n.","zh":"元认知","cl":"develop metacognition","ex":"Teaching students to develop <strong>metacognition</strong> — thinking about their own thinking — dramatically improves learning outcomes."},
+{"w":"self-regulation","p":"n.","zh":"自我调节学习","cl":"foster self-regulation in learners","ex":"Online courses demand high levels of <strong>self-regulation</strong> that many younger students have not yet developed."},
+{"w":"growth mindset","p":"n.","zh":"成长型思维模式","cl":"adopt a growth mindset","ex":"Carol Dweck's research shows that students who <strong>adopt a growth mindset</strong> outperform those who see ability as fixed."},
+{"w":"neuroplasticity","p":"n.","zh":"神经可塑性","cl":"harness neuroplasticity for learning","ex":"Understanding <strong>neuroplasticity</strong> has transformed how educators approach skill development at any age."},
+{"w":"spaced repetition","p":"n.","zh":"间隔重复","cl":"use spaced repetition to retain vocabulary","ex":"<strong>Spaced repetition</strong> exploits the spacing effect to improve long-term retention of information."},
+{"w":"retrieval practice","p":"n.","zh":"提取练习","cl":"embed retrieval practice in lessons","ex":"Embedding <strong>retrieval practice</strong> — low-stakes quizzes and recall activities — significantly boosts memory."},
+{"w":"desirable difficulty","p":"n.","zh":"有益难度","cl":"introduce desirable difficulty","ex":"Learning scientists advocate introducing <strong>desirable difficulty</strong> to prevent the illusion of mastery."},
+{"w":"interleaving","p":"n.","zh":"交叉学习法","cl":"apply interleaving when studying","ex":"<strong>Interleaving</strong> different subjects during study sessions leads to better long-term retention than blocked practice."},
+{"w":"active recall","p":"n.","zh":"主动回忆","cl":"practise active recall","ex":"<strong>Active recall</strong> — retrieving information from memory without looking at notes — is far more effective than rereading."},
+{"w":"portfolio assessment","p":"n.","zh":"作品集式评估","cl":"shift to portfolio assessment","ex":"Schools shifting to <strong>portfolio assessment</strong> allow students to demonstrate learning over time, not just on a test day."},
+{"w":"transdisciplinary","p":"adj.","zh":"超学科的","cl":"adopt a transdisciplinary approach","ex":"A <strong>transdisciplinary</strong> approach to climate education draws on science, ethics, economics, and the arts simultaneously."},
+{"w":"systems thinking","p":"n.","zh":"系统性思维","cl":"apply systems thinking","ex":"<strong>Systems thinking</strong> equips students to understand how complex problems are interconnected."},
+{"w":"design thinking","p":"n.","zh":"设计思维","cl":"apply design thinking in education","ex":"Schools adopting <strong>design thinking</strong> encourage students to empathise, prototype, and iterate."},
+{"w":"entrepreneurial mindset","p":"n.","zh":"创业思维","cl":"cultivate an entrepreneurial mindset","ex":"Educators are increasingly expected to cultivate an <strong>entrepreneurial mindset</strong> alongside traditional subject knowledge."},
+{"w":"digital resilience","p":"n.","zh":"数字韧性","cl":"build digital resilience","ex":"Children need to build <strong>digital resilience</strong> to navigate online misinformation and cyberbullying."},
+{"w":"learning agility","p":"n.","zh":"学习敏捷性","cl":"develop learning agility","ex":"In a fast-changing economy, <strong>learning agility</strong> — the capacity to quickly acquire new skills — is increasingly prized."},
+{"w":"future-proofing","p":"v./n.","zh":"面向未来能力培养","cl":"future-proof the curriculum","ex":"Educators are grappling with how to <strong>future-proof</strong> the curriculum against rapid technological disruption."},
+{"w":"T-shaped skills","p":"n.","zh":"T型技能","cl":"develop T-shaped skills","ex":"Employers seek graduates with <strong>T-shaped skills</strong>: deep expertise in one area and broad cross-disciplinary knowledge."},
+{"w":"VUCA","p":"n.","zh":"易变、不确定、复杂、模糊的环境","cl":"navigate a VUCA world","ex":"Education systems must prepare students to navigate a <strong>VUCA</strong> world characterised by volatility, uncertainty, complexity, and ambiguity."},
+{"w":"engagement gap","p":"n.","zh":"参与度差距","cl":"address the engagement gap","ex":"Online learning has exposed a stark <strong>engagement gap</strong> between self-motivated and passive learners."},
+{"w":"digital fatigue","p":"n.","zh":"数字疲劳","cl":"combat digital fatigue","ex":"Students and teachers alike report suffering from severe <strong>digital fatigue</strong> after years of remote learning."},
+{"w":"completion rate","p":"n.","zh":"完成率","cl":"boost completion rates","ex":"MOOCs have notoriously low <strong>completion rates</strong>, often below 10%, raising questions about their true impact."},
+{"w":"learning loss","p":"n.","zh":"学习损失","cl":"address learning loss","ex":"Governments have launched remedial programmes to address the significant <strong>learning loss</strong> caused by pandemic-era school closures."},
+{"w":"hybrid instruction","p":"n.","zh":"混合式教学","cl":"adopt hybrid instruction","ex":"Many universities have permanently adopted <strong>hybrid instruction</strong>, combining in-person and online delivery."},
+{"w":"microlearning","p":"n.","zh":"微学习","cl":"deliver content via microlearning","ex":"<strong>Microlearning</strong> — short, focused bursts of content — suits the shrinking attention spans of digital learners."},
+{"w":"on-demand learning","p":"n.","zh":"按需学习","cl":"embrace on-demand learning","ex":"<strong>On-demand learning</strong> allows workers to upskill at any time without disrupting their careers."},
+{"w":"cohort-based course","p":"n.","zh":"组群式课程","cl":"enrol in a cohort-based course","ex":"<strong>Cohort-based courses</strong> replicate the social accountability of a classroom within an online environment."},
+{"w":"peer-to-peer learning","p":"n.","zh":"同伴互学","cl":"facilitate peer-to-peer learning","ex":"<strong>Peer-to-peer learning</strong> can be as effective as instruction from an expert, particularly for applied skills."},
+{"w":"community of practice","p":"n.","zh":"实践共同体","cl":"build a community of practice","ex":"Effective teacher development often works through <strong>communities of practice</strong> rather than top-down training."},
+{"w":"open access","p":"n.","zh":"开放获取","cl":"advocate open access to research","ex":"The <strong>open access</strong> movement argues that publicly funded research should be freely available to all."},
+{"w":"digital equity","p":"n.","zh":"数字公平","cl":"promote digital equity","ex":"Without addressing <strong>digital equity</strong>, technology risks deepening existing educational inequalities."},
+{"w":"connectivity gap","p":"n.","zh":"网络连接差距","cl":"close the connectivity gap","ex":"Rural communities remain unable to access online education due to a persistent <strong>connectivity gap</strong>."},
+{"w":"last-mile connectivity","p":"n.","zh":"最后一公里网络连接","cl":"solve last-mile connectivity","ex":"Satellite internet is being proposed as a solution to <strong>last-mile connectivity</strong> in remote regions."},
+{"w":"public-private partnership","p":"n.","zh":"公私合作","cl":"form a public-private partnership","ex":"Governments are forming <strong>public-private partnerships</strong> with technology companies to deliver broadband to schools."},
+{"w":"data governance","p":"n.","zh":"数据治理","cl":"strengthen data governance in education","ex":"Robust <strong>data governance</strong> frameworks are essential before deploying AI in schools."},
+{"w":"privacy by design","p":"n.","zh":"隐私设计原则","cl":"implement privacy by design","ex":"Edtech developers should implement <strong>privacy by design</strong>, building data protection into their products from the outset."},
+{"w":"student data protection","p":"n.","zh":"学生数据保护","cl":"strengthen student data protection","ex":"Legislators are strengthening <strong>student data protection</strong> laws to prevent commercial exploitation of minors' data."},
+{"w":"interoperability","p":"n.","zh":"互操作性","cl":"ensure interoperability of edtech tools","ex":"The lack of <strong>interoperability</strong> between different edtech platforms creates unnecessary barriers for educators."},
+{"w":"digital public goods","p":"n.","zh":"数字公共产品","cl":"invest in digital public goods","ex":"UNESCO advocates treating certain educational technologies as <strong>digital public goods</strong> accessible to all nations."},
+{"w":"education 4.0","p":"n.","zh":"教育4.0","cl":"prepare for Education 4.0","ex":"<strong>Education 4.0</strong> envisions a radical transformation of schooling in response to the Fourth Industrial Revolution."},
+{"w":"scalability","p":"n.","zh":"可扩展性","cl":"demonstrate scalability","ex":"The pilot programme showed promising results, but its <strong>scalability</strong> across diverse school contexts remains unproven."},
+{"w":"proof of concept","p":"n.","zh":"概念验证","cl":"conduct a proof of concept","ex":"Before full deployment, the district ran a <strong>proof of concept</strong> in three schools to test the platform."},
+{"w":"return on investment","p":"n.","zh":"投资回报率","cl":"measure return on investment in edtech","ex":"School boards increasingly demand clear evidence of <strong>return on investment</strong> before committing to new technology."},
+{"w":"evidence-based policy","p":"n.","zh":"循证政策","cl":"develop evidence-based policy in education","ex":"Policymakers should develop <strong>evidence-based policy</strong> in education rather than being seduced by technological novelty."},
+{"w":"hype cycle","p":"n.","zh":"技术炒作周期","cl":"the hype cycle in edtech","ex":"EdTech has repeatedly followed the Gartner <strong>hype cycle</strong>: inflated expectations followed by disillusionment and, eventually, maturity."},
+{"w":"pedagogical value","p":"n.","zh":"教学价值","cl":"assess pedagogical value","ex":"Before adopting any new tool, teachers should critically assess its genuine <strong>pedagogical value</strong>."},
+{"w":"digital native","p":"n.","zh":"数字原住民","cl":"the digital native generation","ex":"Though commonly called <strong>digital natives</strong>, young people often lack the critical digital skills assumed of them."},
+{"w":"digital immigrant","p":"n.","zh":"数字移民","cl":"digital immigrants in the classroom","ex":"Many older teachers, as <strong>digital immigrants</strong>, find it challenging to integrate new technologies fluently into lessons."},
+{"w":"techno-solutionism","p":"n.","zh":"技术万能主义","cl":"reject techno-solutionism","ex":"Critics of <strong>techno-solutionism</strong> argue that deep social problems in education cannot be solved by apps alone."},
+{"w":"critical digital literacy","p":"n.","zh":"批判性数字素养","cl":"develop critical digital literacy","ex":"<strong>Critical digital literacy</strong> enables students to evaluate sources, detect misinformation, and engage responsibly online."},
+{"w":"real-time feedback","p":"n.","zh":"实时反馈","cl":"provide real-time feedback","ex":"AI-powered writing assistants can provide <strong>real-time feedback</strong> on grammar and coherence as students type."},
+{"w":"tailor-made content","p":"n.","zh":"定制化内容","cl":"deliver tailor-made content","ex":"Adaptive platforms deliver <strong>tailor-made content</strong> matched to each learner's current level and learning style."},
+{"w":"self-paced module","p":"n.","zh":"自主节奏模块","cl":"complete self-paced modules","ex":"Employees complete <strong>self-paced modules</strong> in their own time without disrupting core working hours."},
+{"w":"digital transformation","p":"n.","zh":"数字化转型","cl":"undergo digital transformation","ex":"The pandemic forced schools to undergo rapid <strong>digital transformation</strong>, with uneven results."},
+{"w":"learn on the go","p":"phrase","zh":"随时随地学习","cl":"ability to learn on the go","ex":"Mobile apps empower learners to <strong>learn on the go</strong>, turning commute time into productive study sessions."},
+{"w":"empower learners","p":"phrase","zh":"赋能学习者","cl":"technology can empower learners","ex":"Used thoughtfully, technology can <strong>empower learners</strong> who previously had no access to quality instruction."},
+{"w":"democratise access","p":"phrase","zh":"使获取机会平等化","cl":"democratise access to quality education","ex":"Online platforms have the potential to <strong>democratise access</strong> to world-class education regardless of geography."},
+{"w":"disrupt the education sector","p":"phrase","zh":"颠覆教育领域","cl":"poised to disrupt the education sector","ex":"AI is widely predicted to <strong>disrupt the education sector</strong> more profoundly than any previous technology."},
+{"w":"bridge the skills gap","p":"phrase","zh":"弥合技能差距","cl":"bridge the skills gap through education","ex":"Governments look to EdTech to <strong>bridge the skills gap</strong> between what schools produce and what employers need."},
+{"w":"roll out EdTech solutions","p":"phrase","zh":"推出/推广教育科技方案","cl":"roll out EdTech solutions at scale","ex":"The ministry plans to <strong>roll out EdTech solutions</strong> across all secondary schools by 2027."},
+{"w":"keep pace with change","p":"phrase","zh":"跟上变化","cl":"education must keep pace with change","ex":"Critics argue that education systems are structurally incapable of <strong>keeping pace with</strong> technological change."},
+{"w":"harness the power of technology","p":"phrase","zh":"充分利用技术的力量","cl":"harness the power of technology in learning","ex":"The challenge is to <strong>harness the power of technology</strong> without losing the irreplaceable human element of teaching."},
+{"w":"seamlessly integrate","p":"phrase","zh":"无缝融合","cl":"seamlessly integrate technology into teaching","ex":"The best EdTech tools <strong>seamlessly integrate</strong> into existing classroom practice rather than disrupting it."},
+{"w":"flipped learning","p":"n.","zh":"翻转式学习","cl":"implement flipped learning","ex":"In <strong>flipped learning</strong>, students watch instructional videos at home and use class time for discussion and application."},
+{"w":"blended approach","p":"n.","zh":"混合式方法","cl":"adopt a blended approach","ex":"A <strong>blended approach</strong> combines the best of face-to-face teaching with the flexibility of online resources."},
+{"w":"scale up","p":"phrasal v.","zh":"扩大规模","cl":"scale up a successful programme","ex":"The challenge lies not in identifying effective EdTech but in how to <strong>scale up</strong> successful pilots."},
+{"w":"at one's own pace","p":"phrase","zh":"按自己的节奏","cl":"learn at one's own pace","ex":"One of online learning's greatest advantages is allowing students to progress <strong>at their own pace</strong>."},
+{"w":"unlock potential","p":"phrase","zh":"释放潜力","cl":"unlock learners' potential","ex":"Advocates believe that personalised EdTech can <strong>unlock the potential</strong> of every learner, regardless of background."},
+{"w":"stay ahead of the curve","p":"idiom","zh":"保持领先","cl":"educators must stay ahead of the curve","ex":"Teachers are urged to <strong>stay ahead of the curve</strong> on AI tools to guide students effectively."},
+{"w":"at the cutting edge","p":"idiom","zh":"处于尖端","cl":"at the cutting edge of educational technology","ex":"The research lab is <strong>at the cutting edge</strong> of applying neuroscience to classroom learning."},
+{"w":"a game changer","p":"n. phrase","zh":"改变游戏规则的事物","cl":"AI is a game changer for education","ex":"Many educators believe AI is <strong>a game changer</strong> that will fundamentally alter the role of the teacher."},
+{"w":"the jury is still out","p":"idiom","zh":"尚无定论","cl":"the jury is still out on virtual reality in education","ex":"Despite the excitement, <strong>the jury is still out</strong> on whether virtual reality delivers measurable learning gains."},
+{"w":"be on the cusp of","p":"idiom","zh":"处于...的临界点","cl":"be on the cusp of a revolution","ex":"Education is <strong>on the cusp of</strong> an AI-driven revolution that promises to personalise learning at scale."},
+{"w":"not a silver bullet","p":"idiom","zh":"不是万能解法","cl":"technology is not a silver bullet","ex":"Experts caution that technology is <strong>not a silver bullet</strong> for the deep-rooted challenges facing education."},
+{"w":"push the envelope","p":"idiom","zh":"突破极限","cl":"push the envelope in educational innovation","ex":"The school is pushing the envelope with its fully immersive, project-based curriculum."},
+{"w":"a paradigm shift","p":"n. phrase","zh":"范式转变","cl":"a paradigm shift in how we learn","ex":"AI tutors represent <strong>a paradigm shift</strong> in how we think about personalised instruction."},
+{"w":"level the playing field","p":"idiom","zh":"创造公平竞争环境","cl":"technology can level the playing field","ex":"Proponents argue that open EdTech platforms can <strong>level the playing field</strong> for students from disadvantaged backgrounds."},
+{"w":"connect the dots","p":"idiom","zh":"把各要素联系起来","cl":"connect the dots between technology and outcomes","ex":"Policymakers struggle to <strong>connect the dots</strong> between investment in edtech and measurable improvements in student outcomes."},
+{"w":"keep up with the times","p":"phrase","zh":"跟上时代","cl":"schools must keep up with the times","ex":"Schools that fail to <strong>keep up with the times</strong> risk producing graduates ill-equipped for a digital economy."},
+{"w":"the writing is on the wall","p":"idiom","zh":"迹象已经很明显","cl":"the writing is on the wall for traditional lecturing","ex":"For those paying attention, <strong>the writing is on the wall</strong>: passive lecture-hall instruction is becoming obsolete."},
+{"w":"think on one's feet","p":"idiom","zh":"随机应变","cl":"students must learn to think on their feet","ex":"In the AI era, students must learn to <strong>think on their feet</strong>, critically adapting to rapidly changing information."},
+{"w":"online proctoring","p":"n.","zh":"在线监考","cl":"use online proctoring during remote exams","ex":"<strong>Online proctoring</strong> software raised serious privacy concerns when universities deployed it during the pandemic."},
+{"w":"device disparity","p":"n.","zh":"设备差距","cl":"address device disparity","ex":"The shift to online learning exposed a severe <strong>device disparity</strong>: many low-income students lacked computers or tablets."},
+{"w":"home learning environment","p":"n.","zh":"家庭学习环境","cl":"the quality of the home learning environment","ex":"Research confirms that the quality of a child's <strong>home learning environment</strong> is a powerful predictor of outcomes."},
+{"w":"freemium","p":"adj./n.","zh":"免费增值 (模式)","cl":"operate on a freemium model","ex":"Many edtech platforms operate on a <strong>freemium</strong> model, offering basic content free while charging for premium features."},
+{"w":"subscription model","p":"n.","zh":"订阅制","cl":"adopt a subscription model","ex":"Publishers are shifting from textbook sales to a <strong>subscription model</strong> for digital learning resources."},
+{"w":"edtech ecosystem","p":"n.","zh":"教育科技生态系统","cl":"build a robust edtech ecosystem","ex":"An effective <strong>edtech ecosystem</strong> requires collaboration between schools, developers, and policymakers."},
+{"w":"platform monopoly","p":"n.","zh":"平台垄断","cl":"challenge platform monopoly in education","ex":"Concerns about <strong>platform monopoly</strong> have emerged as a handful of tech giants dominate global education software."},
+{"w":"open standards","p":"n.","zh":"开放标准","cl":"advocate open standards in edtech","ex":"Adopting <strong>open standards</strong> ensures that schools can switch between edtech providers without losing data."},
+{"w":"regulatory framework","p":"n.","zh":"监管框架","cl":"build a regulatory framework for AI in education","ex":"Countries are scrambling to build adequate <strong>regulatory frameworks</strong> for AI deployed in schools."},
+{"w":"digital divide","p":"n.","zh":"数字鸿沟","cl":"widen / bridge the digital divide","ex":"Without targeted intervention, EdTech risks widening the <strong>digital divide</strong> rather than closing it."},
+{"w":"neurodiversity-affirming tech","p":"n.","zh":"拥抱神经多样性的技术","cl":"develop neurodiversity-affirming tech","ex":"<strong>Neurodiversity-affirming tech</strong> adapts interfaces and content to support learners with dyslexia, ADHD, and autism."},
+{"w":"assistive technology","p":"n.","zh":"辅助技术","cl":"deploy assistive technology","ex":"<strong>Assistive technology</strong> has transformed access to education for students with physical and cognitive disabilities."},
+{"w":"text-to-speech","p":"n.","zh":"文字转语音","cl":"use text-to-speech tools","ex":"<strong>Text-to-speech</strong> tools remove barriers for students with print disabilities, enabling independent reading."},
+{"w":"speech recognition","p":"n.","zh":"语音识别","cl":"integrate speech recognition in classrooms","ex":"<strong>Speech recognition</strong> software allows students with motor impairments to complete written assignments by voice."},
+{"w":"cloud-based","p":"adj.","zh":"基于云端的","cl":"cloud-based learning resources","ex":"<strong>Cloud-based</strong> learning resources can be accessed from any device, removing the need for physical textbooks."},
+{"w":"blockchain credentials","p":"n.","zh":"区块链学历证书","cl":"issue blockchain credentials","ex":"Several universities are piloting <strong>blockchain credentials</strong> to create tamper-proof records of academic achievement."},
+{"w":"nano-degree","p":"n.","zh":"纳米学位 (短期认证)","cl":"complete a nano-degree","ex":"<strong>Nano-degrees</strong> offer targeted, employer-endorsed training in specific technical skills within weeks."},
+{"w":"stackable credentials","p":"n.","zh":"可叠加证书","cl":"offer stackable credentials","ex":"<strong>Stackable credentials</strong> allow learners to build qualifications incrementally, combining work and study over time."},
+{"w":"digital badging","p":"n.","zh":"数字徽章认证","cl":"recognise achievement through digital badging","ex":"<strong>Digital badging</strong> systems provide granular, verifiable recognition of specific skills beyond traditional transcripts."},
+{"w":"teacher augmentation","p":"n.","zh":"教师能力增强","cl":"focus on teacher augmentation rather than replacement","ex":"Leading educators argue that AI should focus on <strong>teacher augmentation</strong> — freeing professionals from routine tasks — not replacement."},
+{"w":"21st-century skills","p":"n.","zh":"21世纪技能","cl":"develop 21st-century skills","ex":"Curricula are being redesigned to foreground <strong>21st-century skills</strong>: collaboration, creativity, critical thinking, and communication."},
+{"w":"learning engineering","p":"n.","zh":"学习工程学","cl":"apply learning engineering","ex":"<strong>Learning engineering</strong> applies research from cognitive science and data analytics to systematically improve learning environments."},
+{"w":"xAPI","p":"n.","zh":"经验API (学习活动追踪标准)","cl":"implement xAPI for tracking learning","ex":"<strong>xAPI</strong> allows organisations to track learning experiences across diverse platforms and contexts."},
+{"w":"knowledge graph","p":"n.","zh":"知识图谱","cl":"build a knowledge graph for adaptive content","ex":"Adaptive platforms rely on a <strong>knowledge graph</strong> that maps relationships between concepts to sequence content intelligently."},
+{"w":"cognitive load","p":"n.","zh":"认知负荷","cl":"manage cognitive load in instructional design","ex":"Good instructional design carefully manages <strong>cognitive load</strong> to prevent learners from becoming overwhelmed."},
+{"w":"worked example effect","p":"n.","zh":"例题效应","cl":"exploit the worked example effect","ex":"Teachers can exploit the <strong>worked example effect</strong> by walking students through solved problems before independent practice."},
+{"w":"dual coding","p":"n.","zh":"双重编码","cl":"apply dual coding in teaching","ex":"<strong>Dual coding</strong> — combining words with visuals — is one of the most reliably effective learning strategies."},
+{"w":"multimodal learning","p":"n.","zh":"多模态学习","cl":"design multimodal learning experiences","ex":"<strong>Multimodal learning</strong> engages visual, auditory, and kinaesthetic pathways to deepen understanding."},
+{"w":"deep work","p":"n.","zh":"深度工作/学习","cl":"cultivate deep work habits","ex":"Digital distractions are undermining students' capacity for <strong>deep work</strong> — the sustained focus required for complex learning."},
+{"w":"attention span","p":"n.","zh":"注意力持续时间","cl":"shrinking attention span","ex":"Educators are concerned that excessive social media use is shrinking students' <strong>attention span</strong>."},
+{"w":"cognitive offloading","p":"n.","zh":"认知卸载","cl":"cognitive offloading via technology","ex":"<strong>Cognitive offloading</strong> — using technology to store information externally — changes how and what we choose to memorise."},
+{"w":"the Dunning-Kruger effect","p":"n.","zh":"达克效应","cl":"the Dunning-Kruger effect in self-assessment","ex":"Students often overestimate their own competence, falling victim to <strong>the Dunning-Kruger effect</strong>, which inflated self-assessment can mask."},
+{"w":"affective computing","p":"n.","zh":"情感计算","cl":"apply affective computing in education","ex":"<strong>Affective computing</strong> uses cameras and sensors to detect students' emotional states and adjust instruction accordingly."},
+{"w":"a trail-blazing approach","p":"phrase","zh":"开拓性方法","cl":"a trail-blazing approach to education","ex":"The school's <strong>trail-blazing approach</strong> to competency-based assessment has attracted global attention."},
+{"w":"drive innovation","p":"phrase","zh":"推动创新","cl":"drive innovation in education","ex":"Universities have a responsibility to <strong>drive innovation</strong> both in what they teach and in how they teach it."},
+{"w":"reshape the landscape","p":"phrase","zh":"重塑格局","cl":"AI will reshape the educational landscape","ex":"Artificial intelligence is set to <strong>reshape the educational landscape</strong> in ways that are still only partially understood."},
+{"w":"augment human capability","p":"phrase","zh":"增强人类能力","cl":"technology should augment human capability","ex":"The ultimate goal of EdTech is to <strong>augment human capability</strong>, not to replace the judgment and empathy of teachers."},
+{"w":"pedagogical scaffolding","p":"n.","zh":"教学支架","cl":"provide pedagogical scaffolding","ex":"Without appropriate <strong>pedagogical scaffolding</strong>, even the most sophisticated edtech platform will fail to support struggling learners."},
+{"w":"zone of proximal development","p":"n.","zh":"最近发展区","cl":"work within the zone of proximal development","ex":"Vygotsky's <strong>zone of proximal development</strong> remains a cornerstone concept for designing adaptive learning systems."},
+{"w":"feedback loop","p":"n.","zh":"反馈回路","cl":"create a tight feedback loop","ex":"Effective learning environments create a tight <strong>feedback loop</strong> so that students can correct misconceptions immediately."},
+{"w":"digital transformation of learning","p":"phrase","zh":"学习的数字化转型","cl":"accelerate the digital transformation of learning","ex":"The pandemic irrevocably accelerated the <strong>digital transformation of learning</strong>, blurring the boundary between physical and virtual classrooms."}
+];
+
+let state = JSON.parse(localStorage.getItem("ielts_vocab_20260722") || "{}");
+let queue = CARDS.map((c, i) => ({...c, idx: i})).filter(c => !state[c.idx] || state[c.idx] === "review");
+let cur = 0;
+
+function speak(text) {
+  if (!text || !window.speechSynthesis) return;
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = "en-US"; u.rate = 0.85; u.pitch = 1;
+  const voices = speechSynthesis.getVoices();
+  const en = voices.find(v => /en-(US|GB)/.test(v.lang) && /Samantha|Daniel|Alex|Karen|Moira|Google US English|Google UK English/.test(v.name))
+          || voices.find(v => v.lang.startsWith("en"));
+  if (en) u.voice = en;
+  speechSynthesis.speak(u);
+}
+if (window.speechSynthesis) speechSynthesis.onvoiceschanged = () => {};
+
+function render() {
+  if (cur >= queue.length) return showDone();
+  const c = queue[cur];
+  document.getElementById("w").textContent = c.w;
+  document.getElementById("p").textContent = c.p;
+  document.getElementById("zh").textContent = c.zh;
+  document.getElementById("cl").textContent = c.cl;
+  document.getElementById("ex").innerHTML = c.ex;
+  document.getElementById("card").classList.remove("flipped");
+  document.getElementById("meta").textContent = `${cur+1} / ${queue.length} · Education Day 7 (Cycle 2)`;
+  updateStats();
+  setTimeout(() => speak(c.w), 150);
+}
+
+function setView(v) {
+  document.getElementById("vtFlash").classList.toggle("active", v === "flash");
+  document.getElementById("vtList").classList.toggle("active", v === "list");
+  document.getElementById("deck").style.display = v === "flash" ? "" : "none";
+  document.getElementById("listView").classList.toggle("active", v === "list");
+  if (v === "list") renderList();
+}
+
+function renderList() {
+  const body = document.getElementById("listBody");
+  body.innerHTML = CARDS.map((c, i) => {
+    const mark = state[i] || "";
+    const cls = mark === "know" ? "knew" : mark === "weak" ? "weak" : "";
+    const ico = mark === "know" ? "✓" : mark === "weak" ? "○" : "·";
+    const mcls = mark === "know" ? "know" : mark === "weak" ? "weak" : "";
+    return `<div class="list-row">
+      <div class="num">${String(i+1).padStart(3,'0')}</div>
+      <div class="word"><div class="w ${cls}">${c.w} <span style="color:var(--muted);font-weight:400;font-size:0.78rem;">${c.p}</span></div><div class="zh">${c.zh}</div></div>
+      <button class="spk" onclick="speak('${c.w.replace(/'/g,"\\'")}')">&#128266;</button>
+      <div class="mk ${mcls}">${ico}</div>
+    </div>`;
+  }).join("");
+}
+
+function flip() { document.getElementById("card").classList.toggle("flipped"); }
+
+function mark(t) {
+  const c = queue[cur];
+  state[c.idx] = (t === "know" ? "know" : "weak");
+  localStorage.setItem("ielts_vocab_20260722", JSON.stringify(state));
+  cur++;
+  render();
+}
+
+function updateStats() {
+  const kn = Object.values(state).filter(v=>v==="know").length;
+  const wk = Object.values(state).filter(v=>v==="weak").length;
+  const lf = 150 - kn - wk;
+  document.getElementById("kn").textContent = kn;
+  document.getElementById("wk").textContent = wk;
+  document.getElementById("lf").textContent = lf;
+  document.getElementById("pg").style.width = ((kn+wk)/150*100) + "%";
+}
+
+function showDone() {
+  document.getElementById("deck").style.display = "none";
+  document.getElementById("done").classList.add("show");
+  const kn = Object.values(state).filter(v=>v==="know").length;
+  const wk = Object.values(state).filter(v=>v==="weak").length;
+  document.getElementById("doneTtl").textContent = wk > 0 ? `今日 150 词完成! 还有 ${wk} 张不熟` : "今日 150 词全掌握 🎉";
+  document.getElementById("doneSub").textContent = `知道 ${kn} · 不熟 ${wk}`;
+}
+
+function reviewWeak() {
+  queue = CARDS.map((c,i)=>({...c,idx:i})).filter(c => state[c.idx] === "weak");
+  if (queue.length === 0) { alert("没有不熟的卡!"); return; }
+  cur = 0;
+  document.getElementById("done").classList.remove("show");
+  document.getElementById("deck").style.display = "";
+  render();
+}
+
+function resetAll() {
+  if (!confirm("清空今日进度，重新开始?")) return;
+  localStorage.removeItem("ielts_vocab_20260722");
+  state = {};
+  queue = CARDS.map((c,i)=>({...c,idx:i}));
+  cur = 0;
+  document.getElementById("done").classList.remove("show");
+  document.getElementById("deck").style.display = "";
+  render();
+}
+
+render();
+</script>
+
+</body>
+</html>
