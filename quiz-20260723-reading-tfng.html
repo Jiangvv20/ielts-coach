@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#2563eb">
+<title>Day 64 &middot; Reading T/F/NG &middot; 2026-07-23</title>
+<style>
+  :root{--bg:#fff;--fg:#1a1a1a;--muted:#6b7280;--accent:#2563eb;--ok:#059669;--warn:#d97706;--err:#dc2626;--card:#f9fafb;--border:#e5e7eb;--nav-bg:rgba(255,255,255,0.92);--header-bg:linear-gradient(135deg,#2563eb 0%,#7c3aed 100%);}
+  @media(prefers-color-scheme:dark){:root{--bg:#0f172a;--fg:#f1f5f9;--muted:#94a3b8;--accent:#60a5fa;--warn:#fbbf24;--ok:#34d399;--err:#f87171;--card:#1e293b;--border:#334155;--nav-bg:rgba(15,23,42,0.92);--header-bg:linear-gradient(135deg,#1e40af 0%,#6b21a8 100%);}}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--fg);}
+  body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue",sans-serif;line-height:1.6;min-height:100vh;padding-bottom:calc(80px + env(safe-area-inset-bottom,0));}
+  .app-header{background:var(--header-bg);color:white;padding:calc(env(safe-area-inset-top,16px) + 12px) 16px 14px;position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:12px;}
+  .back-btn{background:rgba(255,255,255,0.18);border:none;color:white;width:34px;height:34px;border-radius:10px;font-size:1.1rem;cursor:pointer;flex-shrink:0;text-decoration:none;display:flex;align-items:center;justify-content:center;}
+  .app-header .ttl{font-size:1rem;font-weight:700;}
+  .app-header .sub{font-size:0.72rem;opacity:0.85;margin-top:1px;letter-spacing:0.04em;}
+  main{max-width:720px;margin:0 auto;padding:16px;}
+  .passage-box{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:20px;font-size:0.95rem;line-height:1.75;}
+  .passage-box h3{font-size:1rem;font-weight:700;margin:0 0 12px;color:var(--accent);}
+  .passage-box p{margin:0 0 12px;}
+  .passage-box p:last-child{margin:0;}
+  .passage-box .para-label{font-weight:700;color:var(--accent);margin-right:4px;}
+  .section-title{font-size:0.78rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin:20px 0 10px;}
+  .q-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:12px;}
+  .q-num{font-size:0.72rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px;}
+  .q-text{font-size:0.95rem;margin-bottom:12px;line-height:1.5;}
+  .opts{display:flex;gap:8px;flex-wrap:wrap;}
+  .opt-btn{flex:1;min-width:70px;padding:10px 4px;border:1.5px solid var(--border);border-radius:10px;background:var(--bg);color:var(--fg);font-size:0.88rem;font-weight:600;cursor:pointer;font-family:inherit;text-align:center;transition:all 0.15s;}
+  .opt-btn:active{transform:scale(0.97);}
+  .opt-btn.selected{border-color:var(--accent);background:rgba(37,99,235,0.1);color:var(--accent);}
+  .opt-btn.correct{border-color:var(--ok);background:rgba(5,150,105,0.1);color:var(--ok);}
+  .opt-btn.wrong{border-color:var(--err);background:rgba(220,38,38,0.1);color:var(--err);}
+  .q-explanation{margin-top:10px;padding:10px 12px;background:var(--bg);border-left:3px solid var(--accent);border-radius:6px;font-size:0.85rem;color:var(--muted);display:none;line-height:1.55;}
+  .q-explanation.show{display:block;}
+  .q-explanation strong{color:var(--fg);}
+  .vocab-section{margin-top:28px;}
+  .vocab-q{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:12px;}
+  .fill-input{border:1.5px solid var(--border);border-radius:8px;padding:8px 12px;font-size:0.95rem;font-family:inherit;background:var(--bg);color:var(--fg);width:100%;margin-top:8px;}
+  .fill-input:focus{outline:none;border-color:var(--accent);}
+  .check-btn{margin-top:8px;padding:10px 20px;background:var(--accent);color:white;border:none;border-radius:8px;font-size:0.88rem;font-weight:600;cursor:pointer;font-family:inherit;}
+  .fill-feedback{margin-top:8px;font-size:0.85rem;display:none;padding:8px 10px;border-radius:6px;}
+  .fill-feedback.show{display:block;}
+  .fill-feedback.ok{background:rgba(5,150,105,0.1);color:var(--ok);}
+  .fill-feedback.err{background:rgba(220,38,38,0.1);color:var(--err);}
+  .result-bar{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;margin-top:20px;text-align:center;display:none;}
+  .result-bar.show{display:block;}
+  .result-bar .score{font-size:2.2rem;font-weight:700;color:var(--accent);}
+  .result-bar .sub{color:var(--muted);font-size:0.88rem;margin-top:4px;}
+  .submit-btn{display:block;width:100%;padding:14px;background:var(--accent);color:white;border:none;border-radius:12px;font-size:1rem;font-weight:700;cursor:pointer;font-family:inherit;margin-top:20px;}
+  .submit-btn:disabled{background:var(--border);color:var(--muted);cursor:not-allowed;}
+  .tabbar{position:fixed;bottom:0;left:0;right:0;background:var(--nav-bg);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-top:1px solid var(--border);display:flex;padding-bottom:env(safe-area-inset-bottom,0);z-index:30;}
+  .tab-btn{flex:1;background:transparent;border:none;padding:10px 4px 8px;color:var(--muted);font-size:0.68rem;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;font-family:inherit;text-decoration:none;}
+  .tab-btn .icon{font-size:1.25rem;line-height:1;}
+  .tab-btn.active{color:var(--accent);}
+  .strategy-box{background:rgba(37,99,235,0.05);border:1px solid rgba(37,99,235,0.2);border-radius:12px;padding:14px;margin-bottom:18px;font-size:0.85rem;color:var(--fg);}
+  .strategy-box h4{margin:0 0 8px;font-size:0.82rem;color:var(--accent);text-transform:uppercase;letter-spacing:0.04em;}
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <a class="back-btn" href="index.html#quizzes">&#8592;</a>
+  <div style="flex:1;">
+    <div class="ttl">Reading &middot; T/F/NG 专项</div>
+    <div class="sub">Day 64 &middot; 2026-07-23 &middot; Environment &middot; 蓝碳生态系统</div>
+  </div>
+</header>
+
+<main>
+
+<div class="strategy-box">
+  <h4>&#128218; T/F/NG 判断原则</h4>
+  <strong>TRUE</strong>: 文章明确表述或同义改写 &nbsp;|&nbsp; <strong>FALSE</strong>: 文章表述相反或矛盾 &nbsp;|&nbsp; <strong>NOT GIVEN</strong>: 文章未涉及，或无法判断<br>
+  <span style="color:var(--muted);font-size:0.82rem;">&#9888;&#65039; 仅根据原文判断，不依赖常识或个人经验。全文通读后再作答。</span>
+</div>
+
+<div class="passage-box">
+  <h3>Blue Carbon: Coastal Ecosystems and the Battle Against Climate Change</h3>
+
+  <p><span class="para-label">A</span>Beneath the surface of the world's shallow coastal waters lies an often overlooked climate weapon: the blue carbon ecosystem. Seagrass meadows, mangrove forests, and tidal salt marshes collectively cover only around 0.2 percent of the ocean floor, yet they are among the most carbon-dense habitats on Earth. Unlike the carbon stored in terrestrial forests — which resides predominantly in above-ground biomass — coastal blue carbon is buried in waterlogged, oxygen-poor sediments, where microbial decomposition is severely inhibited. This anaerobic environment allows organic matter to accumulate for millennia, with carbon buried in mangrove soils sometimes exceeding five thousand years in age. In per-hectare terms, blue carbon ecosystems sequester carbon at rates up to five times greater than those of mature tropical forests.</p>
+
+  <p><span class="para-label">B</span>The climate significance of coastal ecosystems extends beyond their capacity to absorb carbon dioxide. Mangroves and seagrasses also act as nurseries for juvenile fish, filter agricultural runoff before it reaches the open ocean, stabilise shorelines against wave erosion, and protect coastal communities from storm surges. Research published in Nature Climate Change estimated that mangroves alone prevent storm damage valued at approximately $65 billion annually through their role as natural coastal buffers. This multi-functionality — providing simultaneous ecological and economic services — is increasingly cited by conservation economists as making blue carbon habitats among the highest-value natural assets in the world.</p>
+
+  <p><span class="para-label">C</span>Despite their importance, blue carbon ecosystems have been devastated at alarming rates. Globally, up to 50 percent of tidal wetlands, 35 percent of mangrove forests, and 29 percent of seagrass meadows have been lost since the mid-twentieth century, primarily driven by coastal development, aquaculture expansion, and pollution. The consequences for climate are severe: when blue carbon ecosystems are disturbed or destroyed, the ancient carbon stored in their sediments is exposed to oxygen and rapidly oxidised, releasing greenhouse gases that may have been safely locked away for thousands of years. A 2017 study estimated that the degradation of coastal wetlands releases between 0.15 and 1.02 billion tonnes of carbon dioxide annually — a figure comparable to the emissions of some medium-sized industrialised nations.</p>
+
+  <p><span class="para-label">D</span>Recognition of blue carbon's potential has sparked growing interest in including coastal ecosystems within national climate commitments. Several countries, including Australia, Indonesia, and Madagascar, have begun incorporating blue carbon into their Nationally Determined Contributions under the Paris Agreement, effectively counting mangrove restoration and protection as equivalent to emissions reductions. Proponents argue that this approach is not only environmentally sound but also economically attractive: the cost of restoring a hectare of mangrove forest is typically a fraction of the cost of implementing equivalent emissions reductions through industrial decarbonisation. Critics, however, caution that carbon accounting for blue carbon is technically complex, since accurate measurement of sediment carbon stocks requires specialised sampling techniques and is subject to high levels of uncertainty.</p>
+
+  <p><span class="para-label">E</span>Community-based conservation has emerged as a particularly promising model for blue carbon protection. In the Philippines, local fishing communities that historically relied on mangrove forests for both food and coastal protection have been trained to monitor and restore coastal habitats in exchange for formally recognised rights over the areas they steward. Early evaluations of these programmes suggest that community-led management achieves comparable conservation outcomes to government-administered protected areas at significantly lower cost. The dual benefit — protecting both livelihoods and ecosystems — has made this model attractive to international donors and development agencies seeking cost-effective climate solutions.</p>
+
+  <p><span class="para-label">F</span>Looking ahead, scientists argue that blue carbon alone cannot solve the climate crisis, but that its integration into comprehensive climate strategies could yield disproportionate benefits relative to the investment required. The challenge lies in overcoming the institutional inertia that has historically left coastal ecosystems outside mainstream climate policy. As awareness grows of the carbon and biodiversity value embedded in what were once dismissed as "unproductive" wetlands, there are cautious grounds for optimism that these habitats will at last receive the protection — and the resources — they deserve.</p>
+</div>
+
+<div class="section-title">Questions 1&#8211;7 &middot; True / False / Not Given</div>
+<p style="font-size:0.85rem;color:var(--muted);margin-bottom:14px;">Do the following statements agree with the information given in the passage?</p>
+
+<div class="q-card" id="q1">
+  <div class="q-num">Question 1</div>
+  <div class="q-text">Blue carbon ecosystems sequester carbon at a slower rate per hectare than mature tropical forests.</div>
+  <div class="opts">
+    <button class="opt-btn" onclick="answer(1,'T')">TRUE</button>
+    <button class="opt-btn" onclick="answer(1,'F')">FALSE</button>
+    <button class="opt-btn" onclick="answer(1,'NG')">NOT GIVEN</button>
+  </div>
+  <div class="q-explanation" id="exp1"><strong>答案: FALSE</strong> &middot; 段落A明确表述: "blue carbon ecosystems sequester carbon at rates up to five times greater than those of mature tropical forests." 题目称蓝碳速率"更慢"，与原文"最多快5倍"直接矛盾。</div>
+</div>
+
+<div class="q-card" id="q2">
+  <div class="q-num">Question 2</div>
+  <div class="q-text">Carbon stored in blue carbon sediments can remain buried for thousands of years because low oxygen levels prevent decomposition.</div>
+  <div class="opts">
+    <button class="opt-btn" onclick="answer(2,'T')">TRUE</button>
+    <button class="opt-btn" onclick="answer(2,'F')">FALSE</button>
+    <button class="opt-btn" onclick="answer(2,'NG')">NOT GIVEN</button>
+  </div>
+  <div class="q-explanation" id="exp2"><strong>答案: TRUE</strong> &middot; 段落A表述: "waterlogged, oxygen-poor sediments, where microbial decomposition is severely inhibited...carbon buried in mangrove soils sometimes exceeding five thousand years in age." 低氧→分解受阻→碳千年封存。题目是同义改写。</div>
+</div>
+
+<div class="q-card" id="q3">
+  <div class="q-num">Question 3</div>
+  <div class="q-text">According to the passage, the annual economic value of storm damage prevented by mangroves worldwide has been calculated at approximately $65 billion.</div>
+  <div class="opts">
+    <button class="opt-btn" onclick="answer(3,'T')">TRUE</button>
+    <button class="opt-btn" onclick="answer(3,'F')">FALSE</button>
+    <button class="opt-btn" onclick="answer(3,'NG')">NOT GIVEN</button>
+  </div>
+  <div class="q-explanation" id="exp3"><strong>答案: TRUE</strong> &middot; 段落B明确: "mangroves alone prevent storm damage valued at approximately $65 billion annually." 数字与题目完全对应。</div>
+</div>
+
+<div class="q-card" id="q4">
+  <div class="q-num">Question 4</div>
+  <div class="q-text">The main cause of blue carbon ecosystem loss since the mid-twentieth century has been climate change rather than human development activities.</div>
+  <div class="opts">
+    <button class="opt-btn" onclick="answer(4,'T')">TRUE</button>
+    <button class="opt-btn" onclick="answer(4,'F')">FALSE</button>
+    <button class="opt-btn" onclick="answer(4,'NG')">NOT GIVEN</button>
+  </div>
+  <div class="q-explanation" id="exp4"><strong>答案: FALSE</strong> &middot; 段落C指出损失的原因: "primarily driven by coastal development, aquaculture expansion, and pollution." 这些都是人类活动，不是气候变化本身。题目把原因归结为气候变化，与原文矛盾。</div>
+</div>
+
+<div class="q-card" id="q5">
+  <div class="q-num">Question 5</div>
+  <div class="q-text">Critics of including blue carbon in national climate commitments are concerned partly about the difficulty of accurately measuring how much carbon is stored in coastal sediments.</div>
+  <div class="opts">
+    <button class="opt-btn" onclick="answer(5,'T')">TRUE</button>
+    <button class="opt-btn" onclick="answer(5,'F')">FALSE</button>
+    <button class="opt-btn" onclick="answer(5,'NG')">NOT GIVEN</button>
+  </div>
+  <div class="q-explanation" id="exp5"><strong>答案: TRUE</strong> &middot; 段落D明确: "Critics...caution that carbon accounting for blue carbon is technically complex, since accurate measurement of sediment carbon stocks requires specialised sampling techniques and is subject to high levels of uncertainty." 题目是同义改写。</div>
+</div>
+
+<div class="q-card" id="q6">
+  <div class="q-num">Question 6</div>
+  <div class="q-text">The passage states that community-led mangrove conservation in the Philippines has proven more effective at conserving ecosystems than equivalent government programmes.</div>
+  <div class="opts">
+    <button class="opt-btn" onclick="answer(6,'T')">TRUE</button>
+    <button class="opt-btn" onclick="answer(6,'F')">FALSE</button>
+    <button class="opt-btn" onclick="answer(6,'NG')">NOT GIVEN</button>
+  </div>
+  <div class="q-explanation" id="exp6"><strong>答案: FALSE</strong> &middot; 段落E的表述是: "community-led management achieves <em>comparable</em> conservation outcomes to government-administered protected areas at significantly lower cost." 结果"相当"(comparable)，而非"更有效"。题目改写为"更有效"，与原文矛盾。</div>
+</div>
+
+<div class="q-card" id="q7">
+  <div class="q-num">Question 7</div>
+  <div class="q-text">The author suggests that blue carbon ecosystems have been historically neglected by climate policy in part because they were perceived as economically unproductive.</div>
+  <div class="opts">
+    <button class="opt-btn" onclick="answer(7,'T')">TRUE</button>
+    <button class="opt-btn" onclick="answer(7,'F')">FALSE</button>
+    <button class="opt-btn" onclick="answer(7,'NG')">NOT GIVEN</button>
+  </div>
+  <div class="q-explanation" id="exp7"><strong>答案: TRUE</strong> &middot; 段落F提及: "what were once dismissed as 'unproductive' wetlands." 被视为无生产价值，导致被排除在气候政策之外。题目"perceived as economically unproductive"是同义改写。</div>
+</div>
+
+<div class="section-title vocab-section">Questions 8&#8211;10 &middot; 词汇填空</div>
+<p style="font-size:0.85rem;color:var(--muted);margin-bottom:14px;">Complete the sentences. Use ONE WORD from the passage for each answer.</p>
+
+<div class="vocab-q">
+  <div class="q-num">Question 8</div>
+  <div class="q-text">Blue carbon is unique because the carbon is stored in waterlogged ________ where oxygen is scarce, preventing rapid breakdown by microbes.</div>
+  <input class="fill-input" id="v8" type="text" placeholder="one word" autocomplete="off" spellcheck="false">
+  <button class="check-btn" onclick="checkVocab(8,'sediments')">Check</button>
+  <div class="fill-feedback" id="vf8"></div>
+</div>
+
+<div class="vocab-q">
+  <div class="q-num">Question 9</div>
+  <div class="q-text">Mangroves and seagrasses are said to be "multi-functional" because they provide a range of simultaneous ecological and economic ________ to coastal communities.</div>
+  <input class="fill-input" id="v9" type="text" placeholder="one word" autocomplete="off" spellcheck="false">
+  <button class="check-btn" onclick="checkVocab(9,'services')">Check</button>
+  <div class="fill-feedback" id="vf9"></div>
+</div>
+
+<div class="vocab-q">
+  <div class="q-num">Question 10</div>
+  <div class="q-text">The passage argues that blue carbon ecosystems have been excluded from mainstream climate policy due to ________ inertia — a reluctance to change entrenched institutional practices.</div>
+  <input class="fill-input" id="v10" type="text" placeholder="one word" autocomplete="off" spellcheck="false">
+  <button class="check-btn" onclick="checkVocab(10,'institutional')">Check</button>
+  <div class="fill-feedback" id="vf10"></div>
+</div>
+
+<button class="submit-btn" id="submitBtn" onclick="submitAll()" disabled>提交所有答案 &rarr; 查看成绩</button>
+
+<div class="result-bar" id="resultBar">
+  <div class="score" id="scoreNum">0/7</div>
+  <div class="sub" id="scoreSub">查看每题解析，分析错误原因</div>
+</div>
+
+</main>
+
+<nav class="tabbar">
+  <a class="tab-btn" href="index.html#home"><span class="icon">&#127968;</span>概览</a>
+  <a class="tab-btn" href="index.html#materials"><span class="icon">&#128250;</span>材料</a>
+  <a class="tab-btn active" href="index.html#quizzes"><span class="icon">&#9999;&#65039;</span>测验</a>
+  <a class="tab-btn" href="index.html#plan"><span class="icon">&#128203;</span>计划</a>
+</nav>
+
+<script>
+const ANSWERS = {1:'F',2:'T',3:'T',4:'F',5:'T',6:'F',7:'T'};
+const userAns = {};
+let submitted = false;
+
+function answer(n, val) {
+  if (submitted) return;
+  userAns[n] = val;
+  const card = document.getElementById('q' + n);
+  card.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('selected'));
+  card.querySelectorAll('.opt-btn').forEach(b => {
+    if ((val === 'T' && b.textContent.trim().startsWith('T')) ||
+        (val === 'F' && b.textContent.trim().startsWith('F')) ||
+        (val === 'NG' && b.textContent.trim().startsWith('N'))) {
+      b.classList.add('selected');
+    }
+  });
+  document.getElementById('submitBtn').disabled = Object.keys(userAns).length < 7;
+}
+
+function checkVocab(n, correct) {
+  const input = document.getElementById('v' + n);
+  const fb = document.getElementById('vf' + n);
+  const val = input.value.trim().toLowerCase();
+  fb.classList.add('show');
+  if (val === correct.toLowerCase()) {
+    fb.className = 'fill-feedback show ok';
+    fb.textContent = '&#10003; 正确！答案: ' + correct;
+    input.style.borderColor = 'var(--ok)';
+  } else {
+    fb.className = 'fill-feedback show err';
+    fb.textContent = '&#10007; 答案: ' + correct + (val ? ' (你的答案: ' + val + ')' : '');
+    input.style.borderColor = 'var(--err)';
+  }
+}
+
+function submitAll() {
+  submitted = true;
+  let correct = 0;
+  for (let n = 1; n <= 7; n++) {
+    const ans = userAns[n];
+    const right = ANSWERS[n];
+    const card = document.getElementById('q' + n);
+    card.querySelectorAll('.opt-btn').forEach(b => {
+      const bVal = b.textContent.trim()[0] === 'T' ? 'T' : b.textContent.trim()[0] === 'F' ? 'F' : 'NG';
+      if (bVal === right) b.classList.add('correct');
+      if (bVal === ans && ans !== right) b.classList.add('wrong');
+    });
+    document.getElementById('exp' + n).classList.add('show');
+    if (ans === right) correct++;
+  }
+  const bar = document.getElementById('resultBar');
+  bar.classList.add('show');
+  document.getElementById('scoreNum').textContent = correct + '/7';
+  const pct = Math.round(correct / 7 * 100);
+  let grade = pct >= 86 ? 'Band 7+ 水平 &#127881;' : pct >= 71 ? 'Band 6-7 — 继续保持 &#128170;' : '需要加强 — 对照解析复习 &#128218;';
+  document.getElementById('scoreSub').innerHTML = `正确率 ${pct}% &middot; ${grade}`;
+  document.getElementById('submitBtn').style.display = 'none';
+  window.scrollTo({top: bar.offsetTop - 80, behavior: 'smooth'});
+}
+</script>
+
+</body>
+</html>
