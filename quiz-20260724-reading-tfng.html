@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#2563eb">
+<title>测验 Day 65 · Reading T/F/NG · 城市热岛与绿色基础设施</title>
+<style>
+  :root {
+    --bg: #ffffff; --fg: #1a1a1a; --muted: #6b7280;
+    --accent: #2563eb; --ok: #059669; --err: #dc2626;
+    --card: #f9fafb; --border: #e5e7eb;
+    --nav-bg: rgba(255,255,255,0.92);
+    --header-bg: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f172a; --fg: #f1f5f9; --muted: #94a3b8;
+      --accent: #60a5fa; --ok: #34d399; --err: #f87171;
+      --card: #1e293b; --border: #334155;
+      --nav-bg: rgba(15,23,42,0.92);
+      --header-bg: linear-gradient(135deg, #1e40af 0%, #6b21a8 100%);
+    }
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg); }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif;
+    line-height: 1.6;
+    min-height: 100vh;
+    padding-bottom: calc(64px + env(safe-area-inset-bottom, 0));
+  }
+  .app-header {
+    background: var(--header-bg); color: white;
+    padding: calc(env(safe-area-inset-top, 16px) + 12px) 16px 14px;
+    position: sticky; top: 0; z-index: 20;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .back-btn {
+    background: rgba(255,255,255,0.18); border: none; color: white;
+    width: 34px; height: 34px; border-radius: 10px;
+    font-size: 1.1rem; cursor: pointer; flex-shrink: 0;
+    text-decoration: none; display: flex; align-items: center; justify-content: center;
+  }
+  .app-header .ttl {
+    font-size: 1rem; font-weight: 700;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .app-header .sub {
+    font-size: 0.72rem; opacity: 0.85; margin-top: 1px;
+    letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  main { max-width: 720px; margin: 0 auto; padding: 16px; }
+  .progress {
+    height: 6px; background: var(--border); border-radius: 3px;
+    margin-bottom: 16px; overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%; background: var(--accent);
+    transition: width 0.3s ease;
+  }
+  .passage {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 14px 16px; margin-bottom: 16px;
+    font-size: 0.95rem; line-height: 1.7;
+  }
+  .passage h3 { margin: 0 0 8px; font-size: 0.78rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+  .passage p { margin: 0 0 10px; }
+  .passage p:last-child { margin-bottom: 0; }
+  .question {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 16px; margin-bottom: 14px;
+  }
+  .q-num {
+    color: var(--muted); font-size: 0.78rem;
+    font-family: "SF Mono", Menlo, monospace; margin-bottom: 6px;
+    text-transform: uppercase; letter-spacing: 0.04em;
+  }
+  .q-text { font-size: 1rem; margin-bottom: 12px; font-weight: 500; }
+  .options { display: flex; flex-direction: column; gap: 8px; }
+  .option {
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 8px; padding: 12px 14px;
+    cursor: pointer; font-size: 0.95rem; text-align: left;
+    color: var(--fg); font-family: inherit;
+  }
+  .option.selected { border-color: var(--accent); background: rgba(37, 99, 235, 0.08); }
+  .option.correct { border-color: var(--ok); background: rgba(5, 150, 105, 0.1); }
+  .option.wrong { border-color: var(--err); background: rgba(220, 38, 38, 0.1); }
+  .blank-input {
+    width: 100%; background: var(--bg);
+    border: 1px solid var(--border); border-radius: 8px;
+    padding: 10px 12px; font-size: 1rem;
+    color: var(--fg); font-family: inherit;
+  }
+  .blank-input.correct { border-color: var(--ok); }
+  .blank-input.wrong { border-color: var(--err); }
+  .explanation {
+    margin-top: 10px; padding: 10px 12px;
+    background: var(--bg); border-left: 3px solid var(--accent);
+    border-radius: 4px; font-size: 0.9rem; color: var(--muted);
+    display: none;
+  }
+  .explanation.show { display: block; }
+  .explanation .answer { color: var(--ok); font-weight: 600; }
+  .actions { display: flex; gap: 10px; margin-top: 20px; }
+  .btn {
+    flex: 1; padding: 12px;
+    border: none; border-radius: 10px;
+    font-size: 1rem; font-weight: 600; cursor: pointer;
+    font-family: inherit;
+  }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-secondary { background: var(--card); color: var(--fg); border: 1px solid var(--border); }
+  .result {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 20px;
+    text-align: center; margin-top: 20px; display: none;
+  }
+  .result.show { display: block; }
+  .score { font-size: 2.5rem; font-weight: 700; color: var(--accent); }
+  .score-label { color: var(--muted); font-size: 0.9rem; margin-top: 4px; }
+  .tabbar {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: var(--nav-bg);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    border-top: 1px solid var(--border);
+    display: flex;
+    padding-bottom: env(safe-area-inset-bottom, 0);
+    z-index: 30;
+  }
+  .tab-btn {
+    flex: 1; background: transparent; border: none;
+    padding: 10px 4px 8px; color: var(--muted); font-size: 0.68rem;
+    cursor: pointer;
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    font-family: inherit; text-decoration: none;
+  }
+  .tab-btn .icon { font-size: 1.25rem; line-height: 1; }
+  .tab-btn.active { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <a class="back-btn" href="index.html#quizzes">&#8592;</a>
+  <div style="flex:1;min-width:0;">
+    <div class="ttl">Reading T/F/NG &middot; 城市热岛与绿色基础设施</div>
+    <div class="sub">Day 65 &middot; 2026-07-24 &middot; 10 题 &middot; ~12 分钟</div>
+  </div>
+</header>
+
+<main>
+
+  <div class="progress"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+
+  <div class="passage">
+    <h3>&#128218; 阅读材料 — Urban Heat Islands and Green Infrastructure (约 620 词)</h3>
+    <p>Cities across the world are warming faster than their rural surroundings, a phenomenon known as the urban heat island (UHI) effect. The UHI effect arises because dense concentrations of buildings, roads, and impervious surfaces absorb and retain solar radiation far more efficiently than natural landscapes do. Concrete and asphalt, which blanket most city centres, have a low albedo — meaning they reflect little sunlight — and release stored heat slowly after dark, keeping overnight temperatures elevated. Studies consistently show that urban cores can be 3–8°C warmer than adjacent rural areas, with the gap widening on still, cloudless nights.</p>
+    <p>The consequences for public health are severe. Prolonged exposure to elevated urban temperatures exacerbates heat-related illnesses, particularly among the elderly, young children, and outdoor workers. Research published in leading medical journals suggests that UHI conditions can double or even triple heat-related mortality during summer heatwaves compared with rural populations exposed to the same ambient temperatures. Hospitals in densely built cities often see patient admissions for cardiovascular and respiratory conditions surge during such events. Paradoxically, the air-conditioning units installed to counter the heat discharge thermal pollution into the surrounding air, amplifying the very problem they are meant to solve.</p>
+    <p>Green infrastructure — a broad term encompassing street trees, green roofs, urban parks, wetlands, and permeable pavements — is increasingly recognised as a cost-effective countermeasure. Trees cool the air through transpiration and by providing shade that blocks direct solar radiation. A study conducted in Melbourne, Australia, found that a mature street tree can reduce surface temperatures on pavements below its canopy by up to 15°C on a hot day. Green roofs, which replace conventional waterproofed membranes with growing media and vegetation, reduce stormwater runoff, improve insulation, and lower rooftop temperatures by 20–40°C compared with traditional roofs. Critically, these effects accumulate: modelling suggests that increasing urban tree cover by 10% across a typical mid-latitude city could reduce mean summer temperatures by approximately 0.5–0.8°C.</p>
+    <p>Despite this evidence, urban greening faces significant barriers. Land values in city centres make park expansion prohibitively expensive, and landlords are often reluctant to bear the upfront costs of retrofitting green roofs. Planning regulations in many jurisdictions still favour speed of development over ecological considerations, allowing impervious surface coverage to expand unchecked. Critics also point out that the benefits of green infrastructure are not distributed equitably: wealthier districts tend to have more trees and parks than deprived neighbourhoods, meaning that lower-income residents — who are statistically more likely to live in heat-exposed environments and to lack air-conditioning — bear the brunt of the UHI effect disproportionately.</p>
+    <p>Proponents of urban greening argue that the economic case is compelling. When ecosystem services such as stormwater management, air purification, and reduced energy demand for cooling are factored in, the financial returns on investment in green infrastructure frequently exceed those of purely grey engineering solutions such as white-painted rooftops or mechanical ventilation systems. Singapore's extensive network of vertical gardens, sky terraces, and roof parks has become an internationally cited example of a city that has embedded nature into its built environment at scale. Singapore's government mandates a minimum Greenery Provision Ratio for new developments, ensuring that green space lost to construction is replaced above ground. Whether such regulatory innovation can be replicated in cities with weaker governance remains an open question, but the pressure to act is mounting as summer temperatures continue to break records worldwide.</p>
+  </div>
+
+  <div id="questions">
+
+    <div class="question" data-type="mcq" data-answer="A">
+      <div class="q-num">Q01 &middot; T/F/NG</div>
+      <div class="q-text">Urban areas can be up to 8°C warmer than surrounding rural areas, especially on calm clear nights.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#10003; 正确答案: A (True)</div>
+        原文: "urban cores can be 3–8°C warmer than adjacent rural areas, with the gap widening on still, cloudless nights." 与题目完全一致。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="A">
+      <div class="q-num">Q02 &middot; T/F/NG</div>
+      <div class="q-text">Air-conditioning use in cities can worsen the urban heat island effect.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#10003; 正确答案: A (True)</div>
+        原文: "the air-conditioning units installed to counter the heat discharge thermal pollution into the surrounding air, amplifying the very problem they are meant to solve."
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="B">
+      <div class="q-num">Q03 &middot; T/F/NG</div>
+      <div class="q-text">Heat-related mortality in urban areas is lower than in rural areas because cities have better hospital access.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#10003; 正确答案: B (False)</div>
+        原文说 UHI conditions "can double or even triple heat-related mortality" compared with rural populations, 即城市死亡率更高，与题目相反。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="A">
+      <div class="q-num">Q04 &middot; T/F/NG</div>
+      <div class="q-text">A mature street tree can lower pavement surface temperatures by as much as 15°C in hot weather.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#10003; 正确答案: A (True)</div>
+        原文 Melbourne 研究: "a mature street tree can reduce surface temperatures on pavements below its canopy by up to 15°C on a hot day."
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="C">
+      <div class="q-num">Q05 &middot; T/F/NG</div>
+      <div class="q-text">The city of Singapore was the first in the world to introduce mandatory green roof legislation.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#10003; 正确答案: C (Not Given)</div>
+        原文提及 Singapore 的 Greenery Provision Ratio，但并未说明它是否是"全球第一"——该信息在文中未涉及。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="B">
+      <div class="q-num">Q06 &middot; T/F/NG</div>
+      <div class="q-text">Wealthier urban neighbourhoods are typically more exposed to the urban heat island effect than poorer ones.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#10003; 正确答案: B (False)</div>
+        原文说 "wealthier districts tend to have more trees and parks" 而 "lower-income residents ... bear the brunt of the UHI effect" — 即贫困区更受影响，与题目相反。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="C">
+      <div class="q-num">Q07 &middot; T/F/NG</div>
+      <div class="q-text">Green roofs are more expensive to maintain over their lifetime than traditional roofs.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#10003; 正确答案: C (Not Given)</div>
+        原文提及 "landlords are often reluctant to bear the upfront costs" 但未比较长期维护成本。生命周期成本对比在文中没有涉及。
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="impervious">
+      <div class="q-num">Q08 &middot; 词汇填空</div>
+      <div class="q-text">Roads and rooftops are largely ____ surfaces that prevent rainfall from soaking into the ground. (中文: 不渗透的)</div>
+      <input class="blank-input" placeholder="键入答案 (英文单词)">
+      <div class="explanation">
+        <div class="answer">&#10003; 正确答案: impervious</div>
+        "impervious surfaces" — 今日词卡核心词。不渗透的地面是城市热岛和内涝的共同根源。
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="transpiration">
+      <div class="q-num">Q09 &middot; 词汇填空</div>
+      <div class="q-text">Trees cool surrounding air through ____, releasing water vapour from their leaves. (中文: 蒸腾作用)</div>
+      <input class="blank-input" placeholder="键入答案 (英文单词)">
+      <div class="explanation">
+        <div class="answer">&#10003; 正确答案: transpiration</div>
+        "Trees cool the air through transpiration" — 直接来自阅读文章第三段，今日词卡亦收录此词。
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="stewardship">
+      <div class="q-num">Q10 &middot; 词汇填空</div>
+      <div class="q-text">Responsible ____ of urban green spaces is essential to maintain the long-term benefits they provide. (中文: 管理责任)</div>
+      <input class="blank-input" placeholder="键入答案 (英文单词)">
+      <div class="explanation">
+        <div class="answer">&#10003; 正确答案: stewardship</div>
+        "environmental stewardship" — Band 7+ 搭配。管理责任强调对公共资源的长期负责态度。
+      </div>
+    </div>
+
+  </div>
+
+  <div class="actions">
+    <button class="btn btn-secondary" onclick="resetQuiz()">重做</button>
+    <button class="btn btn-primary" onclick="submitQuiz()">提交对答</button>
+  </div>
+
+  <div class="result" id="result">
+    <div class="score" id="scoreNum">--</div>
+    <div class="score-label">正确率</div>
+    <div id="scoreDetail" style="margin-top:10px;color:var(--muted);font-size:0.9rem;"></div>
+    <div style="margin-top:16px;font-size:0.82rem;color:var(--muted);">T/F/NG 重点: 只依据文中信息判断 — 题目所述在文中找到且一致=True, 与文中矛盾=False, 文中未提及=Not Given</div>
+  </div>
+
+</main>
+
+<nav class="tabbar">
+  <a class="tab-btn" href="index.html#home"><span class="icon">&#127968;</span>概览</a>
+  <a class="tab-btn" href="index.html#materials"><span class="icon">&#128250;</span>材料</a>
+  <a class="tab-btn active" href="index.html#quizzes"><span class="icon">&#9999;&#65039;</span>测验</a>
+  <a class="tab-btn" href="index.html#plan"><span class="icon">&#128203;</span>计划</a>
+</nav>
+
+<script>
+  document.querySelectorAll(".option").forEach(opt => {
+    opt.addEventListener("click", () => {
+      const q = opt.closest(".question");
+      q.querySelectorAll(".option").forEach(o => o.classList.remove("selected"));
+      opt.classList.add("selected");
+      q.dataset.userAnswer = opt.dataset.key;
+      updateProgress();
+    });
+  });
+
+  document.querySelectorAll(".blank-input").forEach(inp => {
+    inp.addEventListener("input", () => {
+      inp.closest(".question").dataset.userAnswer = inp.value.trim().toLowerCase();
+      updateProgress();
+    });
+  });
+
+  function updateProgress() {
+    const total = document.querySelectorAll(".question").length;
+    const done = document.querySelectorAll(".question[data-user-answer]").length;
+    document.getElementById("progressFill").style.width = (done/total*100) + "%";
+  }
+
+  function submitQuiz() {
+    let correct = 0, total = 0;
+    document.querySelectorAll(".question").forEach(q => {
+      total++;
+      const userAns = (q.dataset.userAnswer || "").toLowerCase();
+      const correctAns = q.dataset.answer.toLowerCase();
+      const isCorrect = userAns === correctAns;
+      if (isCorrect) correct++;
+
+      if (q.dataset.type === "mcq") {
+        q.querySelectorAll(".option").forEach(o => {
+          if (o.dataset.key.toLowerCase() === correctAns) o.classList.add("correct");
+          else if (o.dataset.key.toLowerCase() === userAns && !isCorrect) o.classList.add("wrong");
+        });
+      } else if (q.dataset.type === "blank") {
+        const inp = q.querySelector(".blank-input");
+        inp.classList.add(isCorrect ? "correct" : "wrong");
+      }
+      q.querySelector(".explanation")?.classList.add("show");
+    });
+
+    const result = document.getElementById("result");
+    const pct = Math.round(correct/total*100);
+    document.getElementById("scoreNum").textContent = pct + "%";
+    document.getElementById("scoreDetail").textContent = `${correct} / ${total} 正确`;
+    result.classList.add("show");
+    result.scrollIntoView({behavior:"smooth"});
+  }
+
+  function resetQuiz() {
+    document.querySelectorAll(".question").forEach(q => {
+      delete q.dataset.userAnswer;
+      q.querySelectorAll(".option").forEach(o => o.classList.remove("selected","correct","wrong"));
+      const inp = q.querySelector(".blank-input");
+      if (inp) { inp.value = ""; inp.classList.remove("correct","wrong"); }
+      q.querySelector(".explanation")?.classList.remove("show");
+    });
+    document.getElementById("result").classList.remove("show");
+    document.getElementById("progressFill").style.width = "0%";
+  }
+</script>
+
+</body>
+</html>
