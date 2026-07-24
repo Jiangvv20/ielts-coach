@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#2563eb">
+<title>今日 150 词 · 2026-07-25 · Environment</title>
+<style>
+  :root {
+    --bg: #ffffff; --fg: #1a1a1a; --muted: #6b7280;
+    --accent: #2563eb; --ok: #059669; --warn: #d97706;
+    --card: #f9fafb; --border: #e5e7eb;
+    --nav-bg: rgba(255,255,255,0.92);
+    --header-bg: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f172a; --fg: #f1f5f9; --muted: #94a3b8;
+      --accent: #60a5fa; --ok: #34d399; --warn: #fbbf24;
+      --card: #1e293b; --border: #334155;
+      --nav-bg: rgba(15,23,42,0.92);
+      --header-bg: linear-gradient(135deg, #1e40af 0%, #6b21a8 100%);
+    }
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg); }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif;
+    line-height: 1.5;
+    min-height: 100vh;
+    padding-bottom: calc(64px + env(safe-area-inset-bottom, 0));
+  }
+  .app-header {
+    background: var(--header-bg); color: white;
+    padding: calc(env(safe-area-inset-top, 16px) + 12px) 16px 14px;
+    position: sticky; top: 0; z-index: 20;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .back-btn {
+    background: rgba(255,255,255,0.18); border: none; color: white;
+    width: 34px; height: 34px; border-radius: 10px;
+    font-size: 1.1rem; cursor: pointer; flex-shrink: 0;
+    text-decoration: none; display: flex; align-items: center; justify-content: center;
+  }
+  .app-header .ttl { font-size: 1rem; font-weight: 700; }
+  .app-header .sub {
+    font-size: 0.72rem; opacity: 0.85; margin-top: 1px;
+    letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  .stats {
+    background: var(--card); padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px; text-align: center;
+  }
+  .stat .num { font-size: 1.4rem; font-weight: 700; }
+  .stat .num.know { color: var(--ok); }
+  .stat .num.weak { color: var(--warn); }
+  .stat .num.left { color: var(--accent); }
+  .stat .lbl { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; margin-top: 2px; }
+  .progress-bar {
+    height: 4px; background: var(--border);
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%; background: var(--accent);
+    transition: width 0.3s;
+  }
+  .card-stage {
+    margin: 24px 16px;
+    perspective: 1000px;
+  }
+  .card-3d {
+    position: relative;
+    width: 100%; min-height: 260px;
+    transform-style: preserve-3d;
+    transition: transform 0.5s;
+    cursor: pointer;
+  }
+  .card-3d.flipped { transform: rotateY(180deg); }
+  .face {
+    position: absolute; width: 100%; height: 100%;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 24px 20px;
+    display: flex; flex-direction: column;
+    justify-content: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .face.front { text-align: center; }
+  .face.front .word {
+    font-size: 2rem; font-weight: 700;
+    color: var(--accent); margin-bottom: 8px;
+    word-break: break-word;
+  }
+  .face.front .pos {
+    color: var(--muted); font-size: 0.95rem;
+    font-style: italic;
+  }
+  .face.front .hint {
+    margin-top: 28px; color: var(--muted);
+    font-size: 0.82rem;
+  }
+  .face.back { transform: rotateY(180deg); }
+  .face.back .zh {
+    font-size: 1.3rem; font-weight: 600;
+    color: var(--accent); margin-bottom: 12px;
+  }
+  .face.back .collo {
+    background: var(--bg); padding: 8px 12px;
+    border-radius: 8px; font-size: 0.92rem;
+    color: var(--fg); margin-bottom: 10px;
+    border-left: 3px solid var(--accent);
+  }
+  .face.back .ex {
+    font-size: 0.95rem; font-style: italic;
+    color: var(--fg); line-height: 1.6;
+  }
+  .face.back .ex strong { color: var(--accent); font-style: normal; }
+  .speaker {
+    position: absolute; top: 14px; right: 14px;
+    width: 36px; height: 36px; border-radius: 50%;
+    background: var(--bg); border: 1px solid var(--border);
+    cursor: pointer; font-size: 1.1rem; padding: 0;
+    color: var(--accent);
+  }
+  .view-toggle {
+    display: flex; padding: 12px 16px 0;
+    gap: 8px;
+  }
+  .view-toggle button {
+    flex: 1; padding: 8px;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 8px; color: var(--muted);
+    font-size: 0.85rem; cursor: pointer; font-family: inherit;
+  }
+  .view-toggle button.active { background: var(--accent); color: white; border-color: var(--accent); }
+  .list-view { display: none; padding: 12px 16px 24px; }
+  .list-view.active { display: block; }
+  .list-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px; border-bottom: 1px solid var(--border);
+    background: var(--card); border-radius: 8px;
+    margin-bottom: 6px;
+  }
+  .list-row .num {
+    flex-shrink: 0; width: 28px;
+    color: var(--muted); font-size: 0.72rem;
+    font-family: "SF Mono", Menlo, monospace;
+  }
+  .list-row .word {
+    flex: 1; min-width: 0;
+  }
+  .list-row .w { font-weight: 600; font-size: 0.95rem; color: var(--fg); }
+  .list-row .w.knew { color: var(--ok); }
+  .list-row .w.weak { color: var(--warn); }
+  .list-row .zh {
+    font-size: 0.78rem; color: var(--muted); margin-top: 2px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .list-row .spk {
+    flex-shrink: 0; width: 32px; height: 32px;
+    border-radius: 50%; background: var(--bg);
+    border: 1px solid var(--border); cursor: pointer;
+    color: var(--accent); font-size: 0.9rem; padding: 0;
+  }
+  .list-row .mk {
+    flex-shrink: 0; width: 24px; text-align: center;
+    color: var(--muted);
+  }
+  .list-row .mk.know { color: var(--ok); }
+  .list-row .mk.weak { color: var(--warn); }
+  .curriculum-note {
+    margin: 16px; padding: 12px 14px;
+    background: var(--card); border-left: 3px solid var(--accent);
+    border-radius: 8px; font-size: 0.82rem;
+    color: var(--muted); line-height: 1.5;
+  }
+  .curriculum-note strong { color: var(--fg); }
+  .actions {
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px; padding: 0 16px;
+  }
+  .btn {
+    padding: 14px 8px; border: 1px solid var(--border);
+    border-radius: 12px; background: var(--card);
+    color: var(--fg); font-size: 0.95rem;
+    font-weight: 600; cursor: pointer; font-family: inherit;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .btn .ico { display: block; font-size: 1.4rem; margin-bottom: 2px; }
+  .btn.weak { color: var(--warn); }
+  .btn.weak:active { background: rgba(217,119,6,0.1); }
+  .btn.flip { color: var(--accent); }
+  .btn.flip:active { background: rgba(37,99,235,0.1); }
+  .btn.know { color: var(--ok); }
+  .btn.know:active { background: rgba(5,150,105,0.1); }
+  .meta {
+    text-align: center; color: var(--muted);
+    font-size: 0.78rem; margin-top: 20px;
+  }
+  .tabbar {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: var(--nav-bg);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    border-top: 1px solid var(--border);
+    display: flex;
+    padding-bottom: env(safe-area-inset-bottom, 0);
+    z-index: 30;
+  }
+  .tab-btn {
+    flex: 1; background: transparent; border: none;
+    padding: 10px 4px 8px; color: var(--muted); font-size: 0.68rem;
+    cursor: pointer;
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    font-family: inherit; text-decoration: none;
+  }
+  .tab-btn .icon { font-size: 1.25rem; line-height: 1; }
+  .tab-btn.active { color: var(--accent); }
+  .done-screen {
+    text-align: center; padding: 60px 24px;
+    display: none;
+  }
+  .done-screen.show { display: block; }
+  .done-screen .big { font-size: 4rem; }
+  .done-screen .ttl { font-size: 1.3rem; font-weight: 700; margin: 8px 0; }
+  .done-screen .sub { color: var(--muted); margin-bottom: 24px; }
+  .done-screen button {
+    background: var(--accent); color: white; border: none;
+    padding: 12px 24px; border-radius: 12px;
+    font-size: 0.95rem; font-weight: 600; cursor: pointer;
+    font-family: inherit; margin: 4px;
+  }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <a class="back-btn" href="index.html#home">&#8592;</a>
+  <div style="flex:1;">
+    <div class="ttl">今日 150 词 · Environment</div>
+    <div class="sub">2026-07-25 · Day 66</div>
+  </div>
+</header>
+
+<div class="stats">
+  <div class="stat"><div class="num know" id="kn">0</div><div class="lbl">知道</div></div>
+  <div class="stat"><div class="num weak" id="wk">0</div><div class="lbl">不熟</div></div>
+  <div class="stat"><div class="num left" id="lf">150</div><div class="lbl">剩余</div></div>
+</div>
+<div class="progress-bar"><div class="progress-fill" id="pg" style="width:0%"></div></div>
+
+<div class="view-toggle">
+  <button id="vtFlash" class="active" onclick="setView('flash')">&#128199; 卡片</button>
+  <button id="vtList" onclick="setView('list')">&#128203; 列表</button>
+</div>
+
+<div id="deck">
+  <div class="card-stage">
+    <div class="card-3d" id="card" onclick="flip()">
+      <div class="face front">
+        <button class="speaker" onclick="event.stopPropagation();speak(document.getElementById('w').textContent)">&#128266;</button>
+        <div class="word" id="w">—</div>
+        <div class="pos" id="p">—</div>
+        <div class="hint">轻触卡片 · 翻看释义</div>
+      </div>
+      <div class="face back">
+        <button class="speaker" onclick="event.stopPropagation();speak(document.getElementById('w').textContent)">&#128266;</button>
+        <div class="zh" id="zh">—</div>
+        <div class="collo" id="cl">—</div>
+        <div class="ex" id="ex">—</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="btn weak" onclick="mark('weak')"><span class="ico">&#128552;</span>不熟</button>
+    <button class="btn flip" onclick="flip()"><span class="ico">&#128260;</span>翻转</button>
+    <button class="btn know" onclick="mark('know')"><span class="ico">&#9989;</span>知道</button>
+  </div>
+
+  <div class="meta" id="meta">1 / 150 · 今日主题 Environment Day 3</div>
+</div>
+
+<div class="list-view" id="listView">
+  <div id="listBody"></div>
+</div>
+
+<div class="curriculum-note">
+  <strong>词汇来源</strong>: 8 天主题轮换,涵盖雅思高频话题。<br>
+  Day 1-7 <strong>Education</strong> · Day 8-14 <strong>Environment</strong> · Day 15-21 <strong>Technology</strong> · Day 22-28 <strong>Health</strong> · Day 29-35 <strong>Government &amp; Society</strong> · Day 36-42 <strong>Work &amp; Economy</strong> · Day 43-49 <strong>Family</strong> · Day 50-56 <strong>Travel &amp; Culture</strong> · 之后循环。<br>
+  今日 Day 66 · Environment Day 3 (Cycle 2) · 空气质量/物种保育/废物管理/环境政策/绿色科技/生态概念。词汇为 Band 7+ 难度。
+</div>
+
+<div class="done-screen" id="done">
+  <div class="big">&#127881;</div>
+  <div class="ttl" id="doneTtl">今日 150 词完成!</div>
+  <div class="sub" id="doneSub">知道 0 · 不熟 0</div>
+  <button onclick="resetAll()">重新开始</button>
+  <button onclick="reviewWeak()">只复习不熟</button>
+  <button onclick="location.href='index.html'">回主页</button>
+</div>
+
+<nav class="tabbar">
+  <a class="tab-btn active" href="index.html#home"><span class="icon">&#127968;</span>概览</a>
+  <a class="tab-btn" href="index.html#materials"><span class="icon">&#128250;</span>材料</a>
+  <a class="tab-btn" href="index.html#quizzes"><span class="icon">&#9999;&#65039;</span>测验</a>
+  <a class="tab-btn" href="index.html#plan"><span class="icon">&#128203;</span>计划</a>
+</nav>
+
+<script>
+const CARDS = [
+{"w":"particulate matter","p":"n.","zh":"颗粒物/细颗粒 (PM2.5)","cl":"particulate matter pollution","ex":"Fine <strong>particulate matter</strong> from diesel exhaust penetrates deep into lung tissue and the bloodstream."},
+{"w":"smog","p":"n.","zh":"雾霾/烟雾","cl":"a thick blanket of smog","ex":"Industrial <strong>smog</strong> blanketed the city, prompting authorities to close schools and restrict traffic."},
+{"w":"volatile organic compound","p":"n.","zh":"挥发性有机物 (VOC)","cl":"emit volatile organic compounds","ex":"Paints and solvents emit <strong>volatile organic compounds</strong> that react with sunlight to form ground-level smog."},
+{"w":"nitrogen dioxide","p":"n.","zh":"二氧化氮 (NO₂)","cl":"nitrogen dioxide levels","ex":"High <strong>nitrogen dioxide</strong> concentrations near busy roads are strongly linked to childhood asthma."},
+{"w":"troposphere","p":"n.","zh":"对流层","cl":"tropospheric ozone","ex":"Ground-level <strong>tropospheric</strong> ozone — formed by vehicle exhaust reacting with sunlight — damages crops and human lungs."},
+{"w":"aerosol","p":"n.","zh":"气溶胶","cl":"atmospheric aerosol","ex":"Industrial <strong>aerosols</strong> scatter sunlight and can temporarily cool the planet, partially masking greenhouse warming."},
+{"w":"inversion layer","p":"n.","zh":"逆温层","cl":"temperature inversion layer","ex":"A <strong>temperature inversion layer</strong> traps pollutants close to the ground, dramatically worsening urban smog."},
+{"w":"flue gas","p":"n.","zh":"烟道气","cl":"flue gas desulphurisation","ex":"<strong>Flue gas</strong> desulphurisation scrubbers remove sulphur dioxide before power-station emissions enter the atmosphere."},
+{"w":"soot","p":"n.","zh":"煤烟/炭黑","cl":"deposit soot","ex":"Black carbon <strong>soot</strong> from diesel engines accelerates Arctic melting when particles settle on snow and ice."},
+{"w":"sulphur dioxide","p":"n.","zh":"二氧化硫 (SO₂)","cl":"emit sulphur dioxide","ex":"Coal plants emit <strong>sulphur dioxide</strong>, a key precursor of acid rain that kills forests and acidifies lakes."},
+{"w":"acid rain","p":"n.","zh":"酸雨","cl":"acid rain damage","ex":"<strong>Acid rain</strong> leaches nutrients from soils and wipes out fish populations in freshwater lakes."},
+{"w":"ozone depletion","p":"n.","zh":"臭氧耗损","cl":"halt ozone depletion","ex":"The Montreal Protocol has successfully slowed <strong>ozone depletion</strong> in the stratosphere, allowing partial recovery."},
+{"w":"carbon monoxide","p":"n.","zh":"一氧化碳 (CO)","cl":"carbon monoxide poisoning","ex"><strong>Carbon monoxide</strong> from faulty gas appliances can cause silent, lethal poisoning indoors."},
+{"w":"indoor air quality","p":"n.","zh":"室内空气质量","cl":"improve indoor air quality","ex":"Poor <strong>indoor air quality</strong> from cooking on solid fuel stoves affects over three billion people in developing nations."},
+{"w":"incineration","p":"n.","zh":"废物焚烧","cl":"waste incineration plant","ex":"Modern <strong>incineration</strong> plants recover energy from municipal waste while filtering harmful dioxins and particulates."},
+{"w":"scrubber","p":"n.","zh":"洗涤器/脱硫装置","cl":"install flue gas scrubbers","ex":"Power stations that install <strong>scrubbers</strong> can remove up to 95% of their sulphur dioxide emissions."},
+{"w":"emission standard","p":"n.","zh":"排放标准","cl":"tighten emission standards","ex":"Stricter vehicle <strong>emission standards</strong> introduced over the past decade have significantly improved urban air quality."},
+{"w":"catalytic converter","p":"n.","zh":"催化转化器","cl":"fit a catalytic converter","ex":"The mandatory fitment of <strong>catalytic converters</strong> on petrol cars dramatically reduced toxic exhaust pollutants."},
+{"w":"plume","p":"n.","zh":"烟羽/烟柱","cl":"pollution plume","ex":"Satellite imagery revealed a vast <strong>plume</strong> of industrial emissions drifting over a thousand kilometres downwind."},
+{"w":"bioaccumulate","p":"v.","zh":"生物积累","cl":"bioaccumulate in the food chain","ex":"Heavy metals <strong>bioaccumulate</strong> up the food chain, reaching dangerous concentrations in tuna and other apex fish."},
+{"w":"leach","p":"v.","zh":"渗出/浸出","cl":"leach into waterways","ex":"Agricultural chemicals <strong>leach</strong> from saturated soils into surrounding streams after prolonged heavy rain."},
+{"w":"photochemical","p":"adj.","zh":"光化学的","cl":"photochemical smog","ex"><strong>Photochemical</strong> smog forms when vehicle exhaust reacts with intense sunlight in hot, still conditions."},
+{"w":"ambient","p":"adj.","zh":"周围的/环境的","cl":"ambient air quality","ex"><strong>Ambient</strong> air quality in dozens of major cities regularly exceeds safe limits recommended by the World Health Organization."},
+{"w":"dioxin","p":"n.","zh":"二噁英","cl":"dioxin emissions","ex":"Burning mixed plastics can release carcinogenic <strong>dioxins</strong> that persist in soil and accumulate in living tissue."},
+{"w":"dust storm","p":"n.","zh":"沙尘暴","cl":"a severe dust storm","ex">A severe <strong>dust storm</strong> engulfed the city, reducing visibility to near zero and coating surfaces with a fine orange layer."},
+{"w":"endangered species","p":"n.","zh":"濒危物种","cl":"protect endangered species","ex":"The IUCN Red List now tracks over 40,000 <strong>endangered species</strong> at elevated risk of extinction."},
+{"w":"critically endangered","p":"adj.","zh":"极度濒危的","cl":"a critically endangered population","ex":"The Amur leopard, with fewer than 100 individuals remaining in the wild, is <strong>critically endangered</strong>."},
+{"w":"poaching","p":"n.","zh":"偷猎","cl":"combat poaching","ex":"Heavily armed rangers patrol the reserve around the clock to combat <strong>poaching</strong> of elephants and rhinos."},
+{"w":"trophy hunting","p":"n.","zh":"战利品狩猎","cl":"ban trophy hunting","ex":"The ethics of <strong>trophy hunting</strong> remain deeply contested: some argue revenues fund conservation, others call it indefensible."},
+{"w":"captive breeding","p":"n.","zh":"人工繁育","cl":"captive breeding programme","ex":"The <strong>captive breeding</strong> programme has successfully increased the Californian condor population from 27 to over 500."},
+{"w":"rewilding","p":"n.","zh":"野化/生态恢复","cl":"large-scale rewilding","ex"><strong>Rewilding</strong> projects restore ecosystems by reintroducing native species and removing artificial barriers to natural processes."},
+{"w":"invasive species","p":"n.","zh":"入侵物种","cl":"control invasive species","ex":"The introduction of <strong>invasive species</strong> remains one of the leading drivers of global biodiversity collapse."},
+{"w":"keystone species","p":"n.","zh":"关键种","cl":"protect keystone species","ex":"Wolves are a <strong>keystone species</strong>: their removal causes cascading changes that ultimately alter entire river landscapes."},
+{"w":"wildlife trafficking","p":"n.","zh":"野生动物走私","cl":"crack down on wildlife trafficking","ex":"Interpol coordinates with national police forces to dismantle <strong>wildlife trafficking</strong> networks worth billions annually."},
+{"w":"apex predator","p":"n.","zh":"顶级捕食者","cl":"reintroduce apex predators","ex"><strong>Apex predators</strong> regulate prey populations and maintain the structural integrity of the entire food web."},
+{"w":"biodiversity loss","p":"n.","zh":"生物多样性丧失","cl":"halt biodiversity loss","ex":"Scientists warn that <strong>biodiversity loss</strong> is occurring at a rate 1,000 times above the natural background."},
+{"w":"genetic diversity","p":"n.","zh":"遗传多样性","cl":"preserve genetic diversity","ex":"Small, isolated populations rapidly lose <strong>genetic diversity</strong>, making them far more susceptible to disease."},
+{"w":"endemic","p":"adj.","zh":"特有的/地方性的","cl":"endemic to one island","ex":"Species <strong>endemic</strong> to isolated islands are the most vulnerable because they have no alternative habitat."},
+{"w":"extinction rate","p":"n.","zh":"灭绝速率","cl":"accelerating extinction rate","ex":"The current <strong>extinction rate</strong> is estimated at 1,000 times the natural background, prompting talk of a sixth mass extinction."},
+{"w":"IUCN Red List","p":"n.","zh":"国际自然保护联盟红色名录","cl":"listed on the IUCN Red List","ex":"The snow leopard was recently uplisted to Vulnerable on the <strong>IUCN Red List</strong> as numbers recover slowly."},
+{"w":"wildlife sanctuary","p":"n.","zh":"野生动物保护区","cl":"establish wildlife sanctuaries","ex"><strong>Wildlife sanctuaries</strong> provide crucial refuges for species displaced by agricultural expansion."},
+{"w":"bushmeat","p":"n.","zh":"野味肉","cl":"the bushmeat trade","ex":"The illegal <strong>bushmeat</strong> trade decimates primate populations across Central and West Africa."},
+{"w":"biopiracy","p":"n.","zh":"生物剽窃","cl":"prevent biopiracy","ex":"Indigenous communities are fighting to prevent <strong>biopiracy</strong> — the commercialisation of their traditional plant knowledge without consent."},
+{"w":"trophic cascade","p":"n.","zh":"营养级联","cl":"trigger a trophic cascade","ex">Reintroducing wolves to Yellowstone triggered a <strong>trophic cascade</strong> that ultimately changed the course of rivers."},
+{"w":"migratory route","p":"n.","zh":"迁徙路线","cl":"protect migratory routes","ex">Fragmentation of habitats along key <strong>migratory routes</strong> disrupts seasonal movements of birds and mammals."},
+{"w":"landfill","p":"n.","zh":"垃圾填埋场","cl":"send to landfill","ex":"Rich nations send millions of tonnes of recyclable material to <strong>landfill</strong> each year through consumer complacency."},
+{"w":"composting","p":"n.","zh":"堆肥","cl":"household composting","ex"><strong>Composting</strong> food waste returns vital nutrients to the soil and prevents methane generation in landfills."},
+{"w":"e-waste","p":"n.","zh":"电子垃圾","cl":"e-waste disposal","ex":"Improper <strong>e-waste</strong> disposal in informal recycling sectors exposes workers to toxic lead, cadmium, and mercury."},
+{"w":"upcycle","p":"v.","zh":"升级再造","cl":"upcycle waste materials","ex":"Creative designers <strong>upcycle</strong> discarded industrial materials into high-value furniture and fashion items."},
+{"w":"microplastic","p":"n.","zh":"微塑料","cl":"microplastic contamination","ex"><strong>Microplastics</strong> have been detected in human blood, breast milk, and even deep-sea sediments miles beneath the surface."},
+{"w":"single-use plastic","p":"n.","zh":"一次性塑料","cl":"ban single-use plastics","ex":"The European Union has prohibited dozens of <strong>single-use plastic</strong> products to curb marine pollution."},
+{"w":"zero waste","p":"adj./n.","zh":"零废弃","cl":"adopt a zero-waste policy","ex":"Some progressive municipalities have adopted <strong>zero-waste</strong> targets, diverting over 90% of materials from landfill."},
+{"w":"municipal solid waste","p":"n.","zh":"城市固体废物","cl":"manage municipal solid waste","ex"><strong>Municipal solid waste</strong> generation has more than doubled across East Asia over the past two decades."},
+{"w":"hazardous waste","p":"n.","zh":"危险废物","cl":"dispose of hazardous waste","ex":"Hospitals and laboratories generate significant volumes of <strong>hazardous waste</strong> requiring specialised high-temperature treatment."},
+{"w":"closed-loop","p":"adj.","zh":"闭环的","cl":"closed-loop recycling system","ex":"Aluminium can be infinitely recycled in a <strong>closed-loop</strong> system without any loss of material quality."},
+{"w":"deposit scheme","p":"n.","zh":"押金回收制度","cl":"bottle deposit scheme","ex">Countries with well-enforced <strong>deposit schemes</strong> for beverage containers achieve recycling rates exceeding 90%."},
+{"w":"extended producer responsibility","p":"n.","zh":"生产者延伸责任","cl":"enforce extended producer responsibility","ex"><strong>Extended producer responsibility</strong> laws make manufacturers financially accountable for end-of-life disposal of their products."},
+{"w":"bioremediation","p":"n.","zh":"生物修复","cl":"apply bioremediation","ex"><strong>Bioremediation</strong> harnesses micro-organisms to break down oil spills, heavy metals, and other toxic contaminants."},
+{"w":"pyrolysis","p":"n.","zh":"热解","cl":"plastic pyrolysis","ex"><strong>Pyrolysis</strong> converts non-recyclable plastic waste into fuel oil through controlled high-temperature decomposition."},
+{"w":"illegal dumping","p":"n.","zh":"非法倾倒","cl":"prevent illegal dumping","ex">CCTV surveillance and heavy fines have significantly reduced <strong>illegal dumping</strong> of construction waste in rural areas."},
+{"w":"cradle-to-cradle","p":"adj.","zh":"摇篮到摇篮","cl":"cradle-to-cradle design","ex"><strong>Cradle-to-cradle</strong> design treats the waste output of one industrial process as raw material for another."},
+{"w":"carbon tax","p":"n.","zh":"碳税","cl":"impose a carbon tax","ex">An effective <strong>carbon tax</strong> gives businesses a direct financial incentive to invest in cleaner technologies."},
+{"w":"cap-and-trade","p":"n.","zh":"总量管制与交易","cl":"a cap-and-trade system","ex>The EU's <strong>cap-and-trade</strong> scheme places a firm ceiling on total emissions, then lets companies trade allowances."},
+{"w":"net zero","p":"n.","zh":"净零排放","cl":"achieve net zero by 2050","ex">Over 130 countries have pledged to reach <strong>net zero</strong> greenhouse gas emissions by mid-century."},
+{"w":"nature-based solution","p":"n.","zh":"基于自然的解决方案","cl":"invest in nature-based solutions","ex"><strong>Nature-based solutions</strong> — restoring mangroves, peatlands, and forests — offer highly cost-effective climate adaptation."},
+{"w":"environmental law","p":"n.","zh":"环境法","cl":"enforce environmental law","ex">Weak enforcement of <strong>environmental law</strong> allows polluting corporations to operate with virtual impunity."},
+{"w":"multilateral","p":"adj.","zh":"多边的","cl":"multilateral environmental agreement","ex"><strong>Multilateral</strong> environmental treaties require difficult consensus among nations with sharply competing economic interests."},
+{"w":"environmental activist","p":"n.","zh":"环保活动人士","cl":"environmental activists","ex"><strong>Environmental activists</strong> have successfully pressured several major banks to withdraw financing from new fossil fuel projects."},
+{"w":"lobby","p":"v.","zh":"游说","cl":"lobby against stricter regulations","ex">Fossil fuel companies spend hundreds of millions each year to <strong>lobby</strong> governments against tighter climate legislation."},
+{"w":"precautionary principle","p":"n.","zh":"预防原则","cl":"apply the precautionary principle","ex">The <strong>precautionary principle</strong> holds that regulatory inaction is unjustifiable when credible scientific evidence of harm exists."},
+{"w":"biodiversity agreement","p":"n.","zh":"生物多样性协议","cl":"sign a biodiversity agreement","ex">The Kunming-Montreal <strong>biodiversity agreement</strong> commits signatories to protecting 30% of land and oceans by 2030."},
+{"w":"environmental justice","p":"n.","zh":"环境公正","cl":"fight for environmental justice","ex"><strong>Environmental justice</strong> advocates argue that the costs of pollution consistently fall on the most marginalised communities."},
+{"w":"decarbonise","p":"v.","zh":"脱碳","cl":"decarbonise the economy","ex">Nations are racing to <strong>decarbonise</strong> their energy, transport, and industrial sectors before tipping points are breached."},
+{"w":"carbon pricing","p":"n.","zh":"碳定价","cl":"introduce carbon pricing","ex><strong>Carbon pricing</strong> is widely regarded by economists as the most cost-efficient tool for driving emission reductions."},
+{"w":"green bond","p":"n.","zh":"绿色债券","cl":"issue green bonds","ex">Governments and corporations issue <strong>green bonds</strong> to raise capital earmarked exclusively for climate-positive projects."},
+{"w":"just transition","p":"n.","zh":"公正转型","cl":"ensure a just transition","ex">A <strong>just transition</strong> guarantees that workers in fossil fuel communities are not left behind by the clean energy shift."},
+{"w":"ESG criteria","p":"n.","zh":"ESG 标准 (环境/社会/治理)","cl":"screen against ESG criteria","ex">Major institutional investors increasingly screen portfolios using <strong>ESG criteria</strong> to exclude environmentally damaging companies."},
+{"w":"loss and damage","p":"n.","zh":"损失与损害","cl":"compensate for loss and damage","ex>Climate-vulnerable developing nations are demanding compensation for <strong>loss and damage</strong> caused by rich countries' historical emissions."},
+{"w":"corporate accountability","p":"n.","zh":"企业问责","cl":"demand corporate accountability","ex">Shareholder activists are demanding greater <strong>corporate accountability</strong> for supply chain environmental impacts."},
+{"w":"hydrogen fuel cell","p":"n.","zh":"氢燃料电池","cl":"powered by hydrogen fuel cells","ex">Buses powered by <strong>hydrogen fuel cells</strong> emit only water vapour, making them ideal for urban zero-emission transport."},
+{"w":"carbon capture","p":"n.","zh":"碳捕获","cl":"direct air carbon capture","ex">Direct air <strong>carbon capture</strong> technology can remove CO₂ directly from the atmosphere, but current costs remain prohibitive."},
+{"w":"geothermal energy","p":"n.","zh":"地热能","cl":"harness geothermal energy","ex">Iceland meets over 90% of its heating demand by harnessing <strong>geothermal energy</strong> from its abundant volcanic activity."},
+{"w":"tidal energy","p":"n.","zh":"潮汐能","cl":"generate tidal energy","ex"><strong>Tidal energy</strong> is entirely predictable — unlike solar and wind — making it a reliable baseload power source."},
+{"w":"smart grid","p":"n.","zh":"智能电网","cl":"develop a smart grid","ex">A <strong>smart grid</strong> balances supply and demand in real time, minimising waste and preventing costly power outages."},
+{"w":"energy storage","p":"n.","zh":"能源存储","cl":"improve energy storage capacity","ex">Breakthroughs in <strong>energy storage</strong> technology are the single biggest challenge for making renewable energy fully reliable."},
+{"w":"biogas","p":"n.","zh":"沼气/生物燃气","cl":"generate biogas","ex">Sealed anaerobic digesters capture <strong>biogas</strong> from decomposing organic waste and use it to heat homes and generate electricity."},
+{"w":"desalination","p":"n.","zh":"海水淡化","cl":"build a desalination plant","ex"><strong>Desalination</strong> provides drinking water for millions in water-scarce regions, though the process is highly energy-intensive."},
+{"w":"passive house","p":"n.","zh":"被动式节能房","cl":"build to passive house standards","ex">A <strong>passive house</strong> is so well-insulated that it requires almost no mechanical heating even in sub-zero winters."},
+{"w":"green building","p":"n.","zh":"绿色建筑","cl":"LEED-certified green building","ex">LEED-certified <strong>green buildings</strong> consume up to 40% less energy than conventional construction and command rent premiums."},
+{"w":"electrification","p":"n.","zh":"电气化","cl":"electrification of transport","ex">The <strong>electrification</strong> of passenger vehicles, shipping, and aviation is central to most nations' net-zero roadmaps."},
+{"w":"life cycle assessment","p":"n.","zh":"生命周期评估","cl":"conduct a life cycle assessment","ex">A <strong>life cycle assessment</strong> measures a product's total environmental cost from raw material extraction to final disposal."},
+{"w":"eco-city","p":"n.","zh":"生态城市","cl":"develop an eco-city","ex">Visionary planners are designing <strong>eco-cities</strong> from scratch, built on principles of zero-carbon living and circular resource flows."},
+{"w":"biomagnification","p":"n.","zh":"生物放大","cl":"biomagnification of toxins","ex">Mercury undergoes <strong>biomagnification</strong>, reaching concentrations in large predatory fish that are dangerous for human consumption."},
+{"w":"eutrophication","p":"n.","zh":"富营养化","cl":"eutrophication of lakes","ex">Fertiliser runoff triggers <strong>eutrophication</strong> of lakes, causing algal blooms that deplete oxygen and suffocate aquatic life."},
+{"w":"biome","p":"n.","zh":"生物群系","cl":"tropical biome","ex">The tropical rainforest <strong>biome</strong> is estimated to contain over half of all species on Earth."},
+{"w":"ecotone","p":"n.","zh":"生态交错区","cl":"ecotone between habitats","ex">An <strong>ecotone</strong> — the transition zone between two distinct habitats — is often the zone of greatest species richness."},
+{"w":"ecological succession","p":"n.","zh":"生态演替","cl":"primary ecological succession","ex"><strong>Ecological succession</strong> describes how plant and animal communities develop progressively from bare rock to mature climax forest."},
+{"w":"carrying capacity","p":"n.","zh":"环境承载力","cl":"exceed the carrying capacity","ex">When a population overshoots its environment's <strong>carrying capacity</strong>, resource depletion and population collapse follow."},
+{"w":"phenology","p":"n.","zh":"物候学","cl":"phenology shifts","ex><strong>Phenology</strong> — the study of seasonal biological events — documents how climate change is disrupting flowering, hatching, and migration."},
+{"w":"riparian","p":"adj.","zh":"河岸的","cl":"riparian vegetation","ex"><strong>Riparian</strong> vegetation stabilises riverbanks, reduces flood peaks, and filters agricultural runoff before it enters the water."},
+{"w":"coral bleaching","p":"n.","zh":"珊瑚白化","cl":"mass coral bleaching event","ex>A mass <strong>coral bleaching</strong> event in 2016 killed over half of the shallow corals on the Great Barrier Reef."},
+{"w":"ocean warming","p":"n.","zh":"海洋变暖","cl":"accelerating ocean warming","ex><strong>Ocean warming</strong> drives thermal expansion of seawater, contributing meaningfully to sea level rise worldwide."},
+{"w":"phytoplankton","p":"n.","zh":"浮游植物","cl":"phytoplankton bloom","ex"><strong>Phytoplankton</strong> — microscopic photosynthesising algae — produce roughly half of the world's atmospheric oxygen."},
+{"w":"benthic","p":"adj.","zh":"底栖的","cl":"benthic ecosystem","ex">Bottom-trawling devastates <strong>benthic</strong> ecosystems by dragging heavy nets across the ocean floor, crushing all life in their path."},
+{"w":"habitat loss","p":"n.","zh":"栖息地丧失","cl":"prevent habitat loss","ex"><strong>Habitat loss</strong> driven by agricultural expansion remains the single greatest cause of species extinction globally."},
+{"w":"dormancy","p":"n.","zh":"休眠","cl":"enter dormancy","ex">Many insects and plants enter <strong>dormancy</strong> during winter, conserving energy until conditions become suitable for growth."},
+{"w":"acclimatise","p":"v.","zh":"适应新环境","cl":"acclimatise to warmer conditions","ex">Some species can <strong>acclimatise</strong> to gradually warming conditions, but the pace of current change may be too rapid."},
+{"w":"depletion","p":"n.","zh":"耗竭","cl":"resource depletion","ex">The rapid <strong>depletion</strong> of fish stocks has pushed once-abundant species such as Atlantic cod to commercial extinction."},
+{"w":"bioluminescence","p":"n.","zh":"生物发光","cl":"bioluminescence in the deep sea","ex"><strong>Bioluminescence</strong> — the production of light by living organisms — is remarkably widespread in deep-sea species."},
+{"w":"the tide is turning","p":"idiom","zh":"形势正在逆转","cl":"the tide is turning on fossil fuels","ex"><strong>The tide is turning</strong> on fossil fuels: renewable energy has become cheaper than coal in most of the world."},
+{"w":"a double-edged sword","p":"idiom","zh":"双刃剑","cl":"technology is a double-edged sword","ex">Nuclear energy is <strong>a double-edged sword</strong>: it is low-carbon but generates radioactive waste that lasts millennia."},
+{"w":"a vicious cycle","p":"n.","zh":"恶性循环","cl":"trapped in a vicious cycle","ex">Climate change and poverty form <strong>a vicious cycle</strong>: the poor suffer most yet lack the resources to adapt."},
+{"w":"play a pivotal role","p":"phrase","zh":"发挥关键作用","cl":"play a pivotal role in conservation","ex">Local communities <strong>play a pivotal role</strong> in conservation by protecting their ancestral territories from exploitation."},
+{"w":"bear the burden","p":"phrase","zh":"承担重担","cl":"bear the burden of climate change","ex">Developing nations disproportionately <strong>bear the burden</strong> of a crisis they contributed very little to creating."},
+{"w":"pave the way for","p":"phrasal v.","zh":"为...铺路","cl":"pave the way for renewables","ex">The plummeting cost of solar panels has <strong>paved the way for</strong> the fastest energy transition in history."},
+{"w":"set a precedent","p":"phrase","zh":"开创先例","cl":"set a legal precedent for climate action","ex">The court's ruling against the fossil fuel company <strong>sets a precedent</strong> for future environmental litigation worldwide."},
+{"w":"offset","p":"v.","zh":"抵消/补偿","cl":"offset carbon emissions","ex">Some corporations plant trees to <strong>offset</strong> their emissions, though critics argue this masks rather than solves the problem."},
+{"w":"tackle head-on","p":"phrase","zh":"正面应对","cl":"tackle the climate crisis head-on","ex">We must <strong>tackle</strong> environmental destruction <strong>head-on</strong> rather than deferring action to future generations."},
+{"w":"put on the back burner","p":"idiom","zh":"搁置/暂缓","cl":"put climate action on the back burner","ex">Short-term economic pressures have led several governments to <strong>put</strong> climate commitments <strong>on the back burner</strong>."},
+{"w":"ramp up","p":"phrasal v.","zh":"大幅提升","cl":"ramp up renewable investment","ex">Governments must dramatically <strong>ramp up</strong> investment in clean energy and nature restoration to meet 2030 commitments."},
+{"w":"hold to account","p":"phrase","zh":"追责","cl":"hold polluters to account","ex">Civil society organisations are increasingly using litigation to <strong>hold</strong> major emitters <strong>to account</strong>."},
+{"w":"break new ground","p":"idiom","zh":"开拓新领域","cl":"break new ground in green technology","ex">The start-up has <strong>broken new ground</strong> with its fully biodegradable single-use packaging made from seaweed."},
+{"w":"draw on","p":"phrasal v.","zh":"借鉴/利用","cl":"draw on indigenous knowledge","ex">Conservation scientists increasingly <strong>draw on</strong> indigenous ecological knowledge to identify critical habitats."},
+{"w":"make inroads into","p":"phrasal v.","zh":"逐步取得进展","cl":"make inroads into deforestation","ex">International pressure is slowly <strong>making inroads into</strong> the catastrophic rate of Amazonian deforestation."},
+{"w":"sweeping change","p":"phrase","zh":"全面变革","cl":"sweeping changes to environmental policy","ex">The incoming administration has promised <strong>sweeping changes</strong> to environmental regulation within its first hundred days."},
+{"w":"compound the problem","p":"phrase","zh":"使问题更复杂/加剧","cl":"compound the environmental problem","ex">Rapid population growth and urbanisation further <strong>compound the problem</strong> of waste management in developing nations."},
+{"w":"give rise to","p":"phrasal v.","zh":"导致/引起","cl":"give rise to ecological imbalance","ex">Heavy reliance on herbicides can <strong>give rise to</strong> resistant weed species that are far harder to control."},
+{"w":"far-reaching consequences","p":"phrase","zh":"深远的影响","cl":"far-reaching consequences for the planet","ex">Continued inaction on climate change will have <strong>far-reaching consequences</strong> for every ecosystem on Earth."},
+{"w":"unprecedented rate","p":"phrase","zh":"前所未有的速度","cl":"at an unprecedented rate","ex">Glaciers are retreating at <strong>an unprecedented rate</strong> not witnessed in the past 10,000 years of geological record."},
+{"w":"under pressure to","p":"stem","zh":"迫于...压力","cl":"under pressure to reduce emissions","ex">Governments are increasingly <strong>under pressure to</strong> translate their climate pledges into binding domestic legislation."},
+{"w":"it is a matter of when, not if","p":"stem","zh":"这是迟早的问题","cl":"a matter of when, not if","ex">For many low-lying Pacific nations, flood inundation is <strong>a matter of when, not if</strong>, sea levels continue to rise."},
+{"w":"urgent action is called for","p":"stem","zh":"迫切需要行动","cl":"urgent collective action is called for","ex">In the face of accelerating biodiversity loss, <strong>urgent action is called for</strong> at every level of governance and society."},
+{"w":"the scientific consensus is clear","p":"stem","zh":"科学共识已然明朗","cl":"the scientific consensus is unambiguous","ex"><strong>The scientific consensus is clear</strong>: without radical cuts to emissions this decade, catastrophic warming becomes unavoidable."},
+{"w":"must be weighed against","p":"stem","zh":"必须与...权衡","cl":"economic benefits must be weighed against","ex">The economic benefits of the dam project <strong>must be weighed against</strong> the irreplaceable loss of a pristine river ecosystem."},
+{"w":"do more harm than good","p":"phrase","zh":"弊大于利","cl":"certain schemes do more harm than good","ex">Critics argue that poorly regulated carbon offset schemes <strong>do more harm than good</strong> by delaying genuine emission reductions."}
+];
+
+let state = JSON.parse(localStorage.getItem("ielts_vocab_20260725") || "{}");
+let queue = CARDS.map((c, i) => ({...c, idx: i})).filter(c => !state[c.idx] || state[c.idx] === "review");
+let cur = 0;
+
+function speak(text) {
+  if (!text || !window.speechSynthesis) return;
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = "en-US"; u.rate = 0.85; u.pitch = 1;
+  const voices = speechSynthesis.getVoices();
+  const en = voices.find(v => /en-(US|GB)/.test(v.lang) && /Samantha|Daniel|Alex|Karen|Moira|Google US English|Google UK English/.test(v.name))
+          || voices.find(v => v.lang.startsWith("en"));
+  if (en) u.voice = en;
+  speechSynthesis.speak(u);
+}
+if (window.speechSynthesis) speechSynthesis.onvoiceschanged = () => {};
+
+function render() {
+  if (cur >= queue.length) return showDone();
+  const c = queue[cur];
+  document.getElementById("w").textContent = c.w;
+  document.getElementById("p").textContent = c.p;
+  document.getElementById("zh").textContent = c.zh;
+  document.getElementById("cl").textContent = c.cl;
+  document.getElementById("ex").innerHTML = c.ex;
+  document.getElementById("card").classList.remove("flipped");
+  document.getElementById("meta").textContent = `${cur+1} / ${queue.length} · Environment Day 3`;
+  updateStats();
+  setTimeout(() => speak(c.w), 150);
+}
+
+function setView(v) {
+  document.getElementById("vtFlash").classList.toggle("active", v === "flash");
+  document.getElementById("vtList").classList.toggle("active", v === "list");
+  document.getElementById("deck").style.display = v === "flash" ? "" : "none";
+  document.getElementById("listView").classList.toggle("active", v === "list");
+  if (v === "list") renderList();
+}
+
+function renderList() {
+  const body = document.getElementById("listBody");
+  body.innerHTML = CARDS.map((c, i) => {
+    const mark = state[i] || "";
+    const cls = mark === "know" ? "knew" : mark === "weak" ? "weak" : "";
+    const ico = mark === "know" ? "&#10003;" : mark === "weak" ? "&#9675;" : "&#183;";
+    const mcls = mark === "know" ? "know" : mark === "weak" ? "weak" : "";
+    return `<div class="list-row">
+      <div class="num">${String(i+1).padStart(3,'0')}</div>
+      <div class="word"><div class="w ${cls}">${c.w} <span style="color:var(--muted);font-weight:400;font-size:0.78rem;">${c.p}</span></div><div class="zh">${c.zh}</div></div>
+      <button class="spk" onclick="speak('${c.w.replace(/'/g,"\\'")}')">&#128266;</button>
+      <div class="mk ${mcls}">${ico}</div>
+    </div>`;
+  }).join("");
+}
+
+function flip() { document.getElementById("card").classList.toggle("flipped"); }
+
+function mark(t) {
+  const c = queue[cur];
+  state[c.idx] = (t === "know" ? "know" : "weak");
+  localStorage.setItem("ielts_vocab_20260725", JSON.stringify(state));
+  cur++;
+  render();
+}
+
+function updateStats() {
+  const kn = Object.values(state).filter(v=>v==="know").length;
+  const wk = Object.values(state).filter(v=>v==="weak").length;
+  const lf = 150 - kn - wk;
+  document.getElementById("kn").textContent = kn;
+  document.getElementById("wk").textContent = wk;
+  document.getElementById("lf").textContent = lf;
+  document.getElementById("pg").style.width = ((kn+wk)/150*100) + "%";
+}
+
+function showDone() {
+  document.getElementById("deck").style.display = "none";
+  document.getElementById("done").classList.add("show");
+  const kn = Object.values(state).filter(v=>v==="know").length;
+  const wk = Object.values(state).filter(v=>v==="weak").length;
+  document.getElementById("doneTtl").textContent = wk > 0 ? `今日 150 词完成! 还有 ${wk} 张不熟` : "今日 150 词全掌握 🎉";
+  document.getElementById("doneSub").textContent = `知道 ${kn} · 不熟 ${wk}`;
+}
+
+function reviewWeak() {
+  queue = CARDS.map((c,i)=>({...c,idx:i})).filter(c => state[c.idx] === "weak");
+  if (queue.length === 0) { alert("没有不熟的卡!"); return; }
+  cur = 0;
+  document.getElementById("done").classList.remove("show");
+  document.getElementById("deck").style.display = "";
+  render();
+}
+
+function resetAll() {
+  if (!confirm("清空今日进度,重新开始?")) return;
+  localStorage.removeItem("ielts_vocab_20260725");
+  state = {};
+  queue = CARDS.map((c,i)=>({...c,idx:i}));
+  cur = 0;
+  document.getElementById("done").classList.remove("show");
+  document.getElementById("deck").style.display = "";
+  render();
+}
+
+render();
+</script>
+
+</body>
+</html>

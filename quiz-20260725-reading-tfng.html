@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#2563eb">
+<title>测验 Day 66 · Reading T/F/NG · 物种灭绝与野生动物保育</title>
+<style>
+  :root {
+    --bg: #ffffff; --fg: #1a1a1a; --muted: #6b7280;
+    --accent: #2563eb; --ok: #059669; --err: #dc2626;
+    --card: #f9fafb; --border: #e5e7eb;
+    --nav-bg: rgba(255,255,255,0.92);
+    --header-bg: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f172a; --fg: #f1f5f9; --muted: #94a3b8;
+      --accent: #60a5fa; --ok: #34d399; --err: #f87171;
+      --card: #1e293b; --border: #334155;
+      --nav-bg: rgba(15,23,42,0.92);
+      --header-bg: linear-gradient(135deg, #1e40af 0%, #6b21a8 100%);
+    }
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg); }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif;
+    line-height: 1.6;
+    min-height: 100vh;
+    padding-bottom: calc(64px + env(safe-area-inset-bottom, 0));
+  }
+  .app-header {
+    background: var(--header-bg); color: white;
+    padding: calc(env(safe-area-inset-top, 16px) + 12px) 16px 14px;
+    position: sticky; top: 0; z-index: 20;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .back-btn {
+    background: rgba(255,255,255,0.18); border: none; color: white;
+    width: 34px; height: 34px; border-radius: 10px;
+    font-size: 1.1rem; cursor: pointer; flex-shrink: 0;
+    text-decoration: none; display: flex; align-items: center; justify-content: center;
+  }
+  .app-header .ttl {
+    font-size: 1rem; font-weight: 700;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .app-header .sub {
+    font-size: 0.72rem; opacity: 0.85; margin-top: 1px;
+    letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  main { max-width: 720px; margin: 0 auto; padding: 16px; }
+  .progress {
+    height: 6px; background: var(--border); border-radius: 3px;
+    margin-bottom: 16px; overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%; background: var(--accent);
+    transition: width 0.3s ease;
+  }
+  .passage {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 14px 16px; margin-bottom: 16px;
+    font-size: 0.95rem; line-height: 1.7;
+  }
+  .passage h3 { margin: 0 0 8px; font-size: 0.78rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+  .passage p { margin: 0 0 10px; }
+  .passage p:last-child { margin-bottom: 0; }
+  .question {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 16px; margin-bottom: 14px;
+  }
+  .q-num {
+    color: var(--muted); font-size: 0.78rem;
+    font-family: "SF Mono", Menlo, monospace; margin-bottom: 6px;
+    text-transform: uppercase; letter-spacing: 0.04em;
+  }
+  .q-text { font-size: 1rem; margin-bottom: 12px; font-weight: 500; }
+  .options { display: flex; flex-direction: column; gap: 8px; }
+  .option {
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 8px; padding: 12px 14px;
+    cursor: pointer; font-size: 0.95rem; text-align: left;
+    color: var(--fg); font-family: inherit;
+  }
+  .option.selected { border-color: var(--accent); background: rgba(37, 99, 235, 0.08); }
+  .option.correct { border-color: var(--ok); background: rgba(5, 150, 105, 0.1); }
+  .option.wrong { border-color: var(--err); background: rgba(220, 38, 38, 0.1); }
+  .blank-input {
+    width: 100%; background: var(--bg);
+    border: 1px solid var(--border); border-radius: 8px;
+    padding: 10px 12px; font-size: 1rem;
+    color: var(--fg); font-family: inherit;
+  }
+  .blank-input.correct { border-color: var(--ok); }
+  .blank-input.wrong { border-color: var(--err); }
+  .explanation {
+    margin-top: 10px; padding: 10px 12px;
+    background: var(--bg); border-left: 3px solid var(--accent);
+    border-radius: 4px; font-size: 0.9rem; color: var(--muted);
+    display: none;
+  }
+  .explanation.show { display: block; }
+  .explanation .answer { color: var(--ok); font-weight: 600; }
+  .actions { display: flex; gap: 10px; margin-top: 20px; }
+  .btn {
+    flex: 1; padding: 12px;
+    border: none; border-radius: 10px;
+    font-size: 1rem; font-weight: 600; cursor: pointer;
+    font-family: inherit;
+  }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-secondary { background: var(--card); color: var(--fg); border: 1px solid var(--border); }
+  .result {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 20px;
+    text-align: center; margin-top: 20px; display: none;
+  }
+  .result.show { display: block; }
+  .score { font-size: 2.5rem; font-weight: 700; color: var(--accent); }
+  .score-label { color: var(--muted); font-size: 0.9rem; margin-top: 4px; }
+  .tabbar {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: var(--nav-bg);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    border-top: 1px solid var(--border);
+    display: flex;
+    padding-bottom: env(safe-area-inset-bottom, 0);
+    z-index: 30;
+  }
+  .tab-btn {
+    flex: 1; background: transparent; border: none;
+    padding: 10px 4px 8px; color: var(--muted); font-size: 0.68rem;
+    cursor: pointer;
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    font-family: inherit; text-decoration: none;
+  }
+  .tab-btn .icon { font-size: 1.25rem; line-height: 1; }
+  .tab-btn.active { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <a class="back-btn" href="index.html#quizzes">&#8592;</a>
+  <div style="flex:1;min-width:0;">
+    <div class="ttl">Reading T/F/NG &middot; 物种灭绝与野生动物保育</div>
+    <div class="sub">Day 66 &middot; 2026-07-25 &middot; 10 题 &middot; ~12 分钟</div>
+  </div>
+</header>
+
+<main>
+
+  <div class="progress"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+
+  <div class="passage">
+    <h3>&#128218; 阅读材料 — The Sixth Mass Extinction: Causes, Scale, and Conservation Response (约 630 词)</h3>
+    <p>Earth is currently experiencing what many scientists describe as the sixth mass extinction event in its 4.5-billion-year history. Unlike the five preceding extinction events — which were caused by natural catastrophes such as asteroid impacts or volcanic super-eruptions — the current crisis is driven almost entirely by human activity. Habitat loss resulting from agricultural expansion, urbanisation, and infrastructure development is widely identified as the primary driver, accounting for an estimated 73% of species at risk. Pollution, invasive species, overexploitation through poaching and unsustainable fishing, and climate change compound these pressures, forming what conservation biologists call a "deadly cocktail" of threats from which no ecosystem on Earth is fully insulated.</p>
+    <p>The scale of the crisis is staggering. The IUCN Red List, which is the world's most authoritative database of species status, currently classifies over 40,000 species as endangered or critically endangered — roughly 28% of all species assessed. Vertebrate populations have declined by an average of 69% since 1970, according to the WWF's Living Planet Index. Insects, which underpin most terrestrial food webs as pollinators and decomposers, are disappearing at rates three times faster than mammals or birds. Scientists estimate that the current extinction rate is between 100 and 1,000 times higher than the natural background rate observed in the fossil record, though precise figures are contested because so many species remain formally undescribed.</p>
+    <p>Conservationists have responded with a range of strategies. Protected areas, which cover approximately 17% of land and 8% of ocean globally, have demonstrably slowed habitat degradation where enforcement is adequate. The Kunming-Montreal Global Biodiversity Framework, agreed in 2022, set an ambitious target of protecting 30% of land and oceans by 2030 — the so-called "30x30" goal. Rewilding initiatives, which aim to restore self-regulating ecosystems by reintroducing keystone species such as wolves, lynx, and beavers, have produced dramatic results in some regions: the reintroduction of wolves to Yellowstone National Park in 1995 triggered a trophic cascade that altered vegetation patterns and even reshaped river channels. Captive breeding programmes have rescued several species from the absolute brink of extinction, including the Arabian oryx and the California condor.</p>
+    <p>Critics, however, argue that conservation efforts remain dangerously underfunded and piecemeal. Protected areas are often poorly enforced "paper parks" that offer wildlife little real protection from poachers and illegal loggers. The 30x30 target has attracted controversy because some proposed conservation zones would displace indigenous communities who have managed their lands sustainably for generations — a practice critics call "fortress conservation." Furthermore, climate change is increasingly forcing species to migrate outside protected area boundaries in search of suitable thermal conditions, rendering static reserve networks of limited value unless habitat corridors connecting them are established.</p>
+    <p>The economic argument for biodiversity conservation is powerful. Ecosystem services provided by wild species — including pollination, water purification, climate regulation, and disease control — are estimated to be worth trillions of dollars annually. A world with substantially fewer species would be a world that is not only ecologically impoverished but also far more vulnerable to crop failure, disease outbreaks, and economic disruption. Despite this, less than 3% of global GDP is invested in nature protection, compared with over 7% spent annually on subsidies that directly harm biodiversity through incentivising agricultural expansion and fossil fuel consumption. Redirecting even a fraction of these perverse subsidies towards conservation and ecosystem restoration could, economists argue, yield returns many times greater than the cost.</p>
+  </div>
+
+  <div id="questions">
+
+    <div class="question" data-type="mcq" data-answer="B">
+      <div class="q-num">Q01 &middot; T/F/NG</div>
+      <div class="q-text">The current mass extinction event is primarily caused by a combination of volcanic eruptions and human activity.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#10003; 正确答案: B (False)</div>
+        原文: "the current crisis is driven almost entirely by human activity." 火山喷发属于过去五次大灭绝的原因，并非当前危机的驱动力。题目将两者混同，故为 False。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="A">
+      <div class="q-num">Q02 &middot; T/F/NG</div>
+      <div class="q-text">Habitat loss is considered the single most significant driver of current species decline.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#10003; 正确答案: A (True)</div>
+        原文: "Habitat loss ... is widely identified as the primary driver, accounting for an estimated 73% of species at risk." 与题目完全吻合。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="A">
+      <div class="q-num">Q03 &middot; T/F/NG</div>
+      <div class="q-text">Insects are declining at a faster rate than mammals or birds.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#10003; 正确答案: A (True)</div>
+        原文: "Insects ... are disappearing at rates three times faster than mammals or birds." 题目表述与原文一致。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="C">
+      <div class="q-num">Q04 &middot; T/F/NG</div>
+      <div class="q-text">The exact number of species currently alive on Earth has been precisely determined by scientists.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#10003; 正确答案: C (Not Given)</div>
+        原文只提到"so many species remain formally undescribed"，暗示总数未知，但未直接讨论是否有精确数字。该具体信息文中未涉及。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="A">
+      <div class="q-num">Q05 &middot; T/F/NG</div>
+      <div class="q-text">The reintroduction of wolves to Yellowstone affected not only animal populations but also the physical landscape.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#10003; 正确答案: A (True)</div>
+        原文: "the reintroduction of wolves to Yellowstone ... triggered a trophic cascade that altered vegetation patterns and even reshaped river channels." 直接支持题目。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="B">
+      <div class="q-num">Q06 &middot; T/F/NG</div>
+      <div class="q-text">The 30x30 biodiversity target has been universally welcomed without any criticism.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#10003; 正确答案: B (False)</div>
+        原文: "The 30x30 target has attracted controversy because some proposed conservation zones would displace indigenous communities." 明确指出存在争议，故"universally welcomed without criticism"为 False。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="C">
+      <div class="q-num">Q07 &middot; T/F/NG</div>
+      <div class="q-text">The Arabian oryx became extinct in the wild before being saved by a captive breeding programme.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#10003; 正确答案: C (Not Given)</div>
+        原文仅说 captive breeding programmes "rescued several species from the absolute brink of extinction, including the Arabian oryx." 文中未说明其是否曾彻底在野外灭绝，该细节未提及。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="A">
+      <div class="q-num">Q08 &middot; T/F/NG</div>
+      <div class="q-text">Climate change is making fixed protected area networks less effective because species are moving beyond their boundaries.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#10003; 正确答案: A (True)</div>
+        原文: "climate change is increasingly forcing species to migrate outside protected area boundaries ... rendering static reserve networks of limited value unless habitat corridors connecting them are established." 完全支持题目。
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="trophic cascade">
+      <div class="q-num">Q09 &middot; 词汇填空</div>
+      <div class="q-text">The reintroduction of a keystone species like the wolf can trigger a ____ ____ that produces widespread changes in an ecosystem. (中文: 营养级联)</div>
+      <input class="blank-input" placeholder="键入答案 (两个英文单词)">
+      <div class="explanation">
+        <div class="answer">&#10003; 正确答案: trophic cascade</div>
+        "trophic cascade" — 今日词卡核心概念。顶级捕食者的引入会连锁影响整个生态系统，包括植被和水文。
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="invasive species">
+      <div class="q-num">Q10 &middot; 词汇填空</div>
+      <div class="q-text">Non-native organisms introduced into a new habitat are called ____ ____, and they are one of the leading causes of biodiversity loss. (中文: 入侵物种)</div>
+      <input class="blank-input" placeholder="键入答案 (两个英文单词)">
+      <div class="explanation">
+        <div class="answer">&#10003; 正确答案: invasive species</div>
+        "invasive species" — 今日词卡核心词。入侵物种在缺乏天敌的新环境中迅速繁殖，挤占本土物种的生态位。
+      </div>
+    </div>
+
+  </div>
+
+  <div class="actions">
+    <button class="btn btn-secondary" onclick="resetQuiz()">重做</button>
+    <button class="btn btn-primary" onclick="submitQuiz()">提交对答</button>
+  </div>
+
+  <div class="result" id="result">
+    <div class="score" id="scoreNum">--</div>
+    <div class="score-label">正确率</div>
+    <div id="scoreDetail" style="margin-top:10px;color:var(--muted);font-size:0.9rem;"></div>
+    <div style="margin-top:16px;font-size:0.82rem;color:var(--muted);">T/F/NG 重点: 只依据文中信息判断 — 题目所述在文中找到且一致=True, 与文中矛盾=False, 文中未提及=Not Given</div>
+  </div>
+
+</main>
+
+<nav class="tabbar">
+  <a class="tab-btn" href="index.html#home"><span class="icon">&#127968;</span>概览</a>
+  <a class="tab-btn" href="index.html#materials"><span class="icon">&#128250;</span>材料</a>
+  <a class="tab-btn active" href="index.html#quizzes"><span class="icon">&#9999;&#65039;</span>测验</a>
+  <a class="tab-btn" href="index.html#plan"><span class="icon">&#128203;</span>计划</a>
+</nav>
+
+<script>
+  document.querySelectorAll(".option").forEach(opt => {
+    opt.addEventListener("click", () => {
+      const q = opt.closest(".question");
+      q.querySelectorAll(".option").forEach(o => o.classList.remove("selected"));
+      opt.classList.add("selected");
+      q.dataset.userAnswer = opt.dataset.key;
+      updateProgress();
+    });
+  });
+
+  document.querySelectorAll(".blank-input").forEach(inp => {
+    inp.addEventListener("input", () => {
+      inp.closest(".question").dataset.userAnswer = inp.value.trim().toLowerCase();
+      updateProgress();
+    });
+  });
+
+  function updateProgress() {
+    const total = document.querySelectorAll(".question").length;
+    const done = document.querySelectorAll(".question[data-user-answer]").length;
+    document.getElementById("progressFill").style.width = (done/total*100) + "%";
+  }
+
+  function submitQuiz() {
+    let correct = 0, total = 0;
+    document.querySelectorAll(".question").forEach(q => {
+      total++;
+      const ua = (q.dataset.userAnswer || "").trim().toLowerCase();
+      const ca = (q.dataset.answer || "").trim().toLowerCase();
+      const type = q.dataset.type;
+      const isCorrect = (ua === ca);
+      if (isCorrect) correct++;
+      const exp = q.querySelector(".explanation");
+      if (exp) exp.classList.add("show");
+      if (type === "mcq") {
+        q.querySelectorAll(".option").forEach(o => {
+          if (o.dataset.key === q.dataset.answer) o.classList.add("correct");
+          else if (o.classList.contains("selected") && o.dataset.key !== q.dataset.answer) o.classList.add("wrong");
+        });
+      } else if (type === "blank") {
+        const inp = q.querySelector(".blank-input");
+        if (inp) inp.classList.add(isCorrect ? "correct" : "wrong");
+      }
+    });
+    const pct = Math.round(correct/total*100);
+    document.getElementById("scoreNum").textContent = pct + "%";
+    document.getElementById("scoreDetail").textContent = `答对 ${correct} / ${total} 题`;
+    document.getElementById("result").classList.add("show");
+    document.getElementById("result").scrollIntoView({behavior:"smooth"});
+  }
+
+  function resetQuiz() {
+    document.querySelectorAll(".question").forEach(q => {
+      delete q.dataset.userAnswer;
+      q.querySelectorAll(".option").forEach(o => o.classList.remove("selected","correct","wrong"));
+      const inp = q.querySelector(".blank-input");
+      if (inp) { inp.value = ""; inp.classList.remove("correct","wrong"); }
+      const exp = q.querySelector(".explanation");
+      if (exp) exp.classList.remove("show");
+    });
+    document.getElementById("result").classList.remove("show");
+    document.getElementById("progressFill").style.width = "0%";
+    window.scrollTo({top:0,behavior:"smooth"});
+  }
+</script>
+
+</body>
+</html>
