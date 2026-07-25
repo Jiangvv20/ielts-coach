@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#2563eb">
+<title>今日 150 词 · 2026-07-26 · Environment</title>
+<style>
+  :root {
+    --bg: #ffffff; --fg: #1a1a1a; --muted: #6b7280;
+    --accent: #2563eb; --ok: #059669; --warn: #d97706;
+    --card: #f9fafb; --border: #e5e7eb;
+    --nav-bg: rgba(255,255,255,0.92);
+    --header-bg: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f172a; --fg: #f1f5f9; --muted: #94a3b8;
+      --accent: #60a5fa; --ok: #34d399; --warn: #fbbf24;
+      --card: #1e293b; --border: #334155;
+      --nav-bg: rgba(15,23,42,0.92);
+      --header-bg: linear-gradient(135deg, #1e40af 0%, #6b21a8 100%);
+    }
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg); }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif;
+    line-height: 1.5;
+    min-height: 100vh;
+    padding-bottom: calc(64px + env(safe-area-inset-bottom, 0));
+  }
+  .app-header {
+    background: var(--header-bg); color: white;
+    padding: calc(env(safe-area-inset-top, 16px) + 12px) 16px 14px;
+    position: sticky; top: 0; z-index: 20;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .back-btn {
+    background: rgba(255,255,255,0.18); border: none; color: white;
+    width: 34px; height: 34px; border-radius: 10px;
+    font-size: 1.1rem; cursor: pointer; flex-shrink: 0;
+    text-decoration: none; display: flex; align-items: center; justify-content: center;
+  }
+  .app-header .ttl { font-size: 1rem; font-weight: 700; }
+  .app-header .sub {
+    font-size: 0.72rem; opacity: 0.85; margin-top: 1px;
+    letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  .stats {
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    padding: 12px 16px 0; gap: 10px;
+  }
+  .stat { text-align: center; }
+  .stat .num { font-size: 1.6rem; font-weight: 700; line-height: 1.2; }
+  .stat .num.know { color: var(--ok); }
+  .stat .num.weak { color: var(--warn); }
+  .stat .num.left { color: var(--accent); }
+  .stat .lbl { font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
+  .progress-bar {
+    height: 4px; background: var(--border); margin: 10px 16px 0; border-radius: 2px;
+  }
+  .progress-fill { height: 100%; background: var(--accent); border-radius: 2px; transition: width 0.3s; }
+  .view-toggle {
+    display: flex; gap: 8px; padding: 10px 16px;
+  }
+  .view-toggle button {
+    flex: 1; padding: 8px; border-radius: 8px; border: 1px solid var(--border);
+    background: var(--card); color: var(--muted); font-family: inherit;
+    font-size: 0.82rem; cursor: pointer;
+  }
+  .view-toggle button.active { background: var(--accent); color: white; border-color: var(--accent); }
+  .card-stage {
+    perspective: 1000px; padding: 0 16px;
+  }
+  .card-3d {
+    width: 100%; min-height: 240px; position: relative;
+    transform-style: preserve-3d; transition: transform 0.4s;
+    cursor: pointer;
+  }
+  .card-3d.flipped { transform: rotateY(180deg); }
+  .face {
+    position: absolute; width: 100%; min-height: 240px;
+    backface-visibility: hidden; -webkit-backface-visibility: hidden;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 16px; padding: 24px 20px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center;
+  }
+  .face.back { transform: rotateY(180deg); }
+  .speaker {
+    position: absolute; top: 12px; right: 12px;
+    background: none; border: none; color: var(--muted); font-size: 1.2rem;
+    cursor: pointer; padding: 4px;
+  }
+  .word { font-size: 1.8rem; font-weight: 700; color: var(--fg); line-height: 1.2; margin-bottom: 6px; }
+  .pos { font-size: 0.82rem; color: var(--muted); font-style: italic; }
+  .hint { font-size: 0.78rem; color: var(--border); margin-top: 20px; }
+  .zh { font-size: 1.2rem; font-weight: 600; color: var(--accent); margin-bottom: 10px; }
+  .collo { font-size: 0.88rem; color: var(--muted); margin-bottom: 8px; font-style: italic; }
+  .ex { font-size: 0.9rem; color: var(--fg); line-height: 1.5; }
+  .ex strong { color: var(--accent); }
+  .actions {
+    display: flex; gap: 10px; padding: 12px 16px;
+  }
+  .btn {
+    flex: 1; padding: 12px; border: none; border-radius: 12px;
+    font-family: inherit; font-size: 0.92rem; font-weight: 600; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+  }
+  .btn .ico { font-size: 1.1rem; }
+  .btn.know { background: #dcfce7; color: #15803d; }
+  .btn.weak { background: #fff7ed; color: #c2410c; }
+  .btn.flip { background: var(--card); color: var(--fg); border: 1px solid var(--border); }
+  @media (prefers-color-scheme: dark) {
+    .btn.know { background: #14532d; color: #86efac; }
+    .btn.weak { background: #431407; color: #fdba74; }
+  }
+  .meta { text-align: center; padding: 4px 16px 8px; font-size: 0.78rem; color: var(--muted); }
+  .list-view { display: none; padding: 0 16px; }
+  .list-view.active { display: block; }
+  .list-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 0; border-bottom: 1px solid var(--border);
+  }
+  .list-row .num { font-size: 0.72rem; color: var(--muted); width: 28px; flex-shrink: 0; }
+  .list-row .word { flex: 1; min-width: 0; }
+  .list-row .word .w { font-weight: 600; font-size: 0.92rem; }
+  .list-row .word .w.knew { text-decoration: line-through; color: var(--muted); }
+  .list-row .word .zh { font-size: 0.78rem; color: var(--muted); margin-top: 2px; }
+  .list-row .spk { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 1rem; flex-shrink: 0; }
+  .list-row .mk { width: 20px; text-align: center; font-size: 0.88rem; flex-shrink: 0; }
+  .list-row .mk.know { color: var(--ok); }
+  .list-row .mk.weak { color: var(--warn); }
+  .curriculum-note {
+    margin: 12px 16px; padding: 12px 14px;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 10px; font-size: 0.8rem; color: var(--muted); line-height: 1.6;
+  }
+  .done-screen {
+    display: none; text-align: center; padding: 40px 20px;
+  }
+  .done-screen.show { display: block; }
+  .done-screen .big { font-size: 3rem; margin-bottom: 12px; }
+  .done-screen .ttl { font-size: 1.2rem; font-weight: 700; margin-bottom: 6px; }
+  .done-screen .sub { color: var(--muted); margin-bottom: 20px; }
+  .done-screen button {
+    display: block; width: 100%; max-width: 280px; margin: 8px auto;
+    padding: 12px; background: var(--accent); color: white; border: none;
+    border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; font-family: inherit;
+  }
+  .tabbar {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: var(--nav-bg);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    border-top: 1px solid var(--border);
+    display: flex;
+    padding-bottom: env(safe-area-inset-bottom, 0);
+    z-index: 30;
+  }
+  .tab-btn {
+    flex: 1; background: transparent; border: none;
+    padding: 10px 4px 8px; color: var(--muted); font-size: 0.68rem;
+    cursor: pointer;
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    font-family: inherit; text-decoration: none;
+  }
+  .tab-btn .icon { font-size: 1.25rem; line-height: 1; }
+  .tab-btn.active { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <a class="back-btn" href="index.html#home">&#8592;</a>
+  <div style="flex:1;">
+    <div class="ttl">今日 150 词 · Environment</div>
+    <div class="sub">2026-07-26 · Day 67</div>
+  </div>
+</header>
+
+<div class="stats">
+  <div class="stat"><div class="num know" id="kn">0</div><div class="lbl">知道</div></div>
+  <div class="stat"><div class="num weak" id="wk">0</div><div class="lbl">不熟</div></div>
+  <div class="stat"><div class="num left" id="lf">150</div><div class="lbl">剩余</div></div>
+</div>
+<div class="progress-bar"><div class="progress-fill" id="pg" style="width:0%"></div></div>
+
+<div class="view-toggle">
+  <button id="vtFlash" class="active" onclick="setView('flash')">&#128199; 卡片</button>
+  <button id="vtList" onclick="setView('list')">&#128203; 列表</button>
+</div>
+
+<div id="deck">
+  <div class="card-stage">
+    <div class="card-3d" id="card" onclick="flip()">
+      <div class="face front">
+        <button class="speaker" onclick="event.stopPropagation();speak(document.getElementById('w').textContent)">&#128266;</button>
+        <div class="word" id="w">—</div>
+        <div class="pos" id="p">—</div>
+        <div class="hint">轻触卡片 · 翻看释义</div>
+      </div>
+      <div class="face back">
+        <button class="speaker" onclick="event.stopPropagation();speak(document.getElementById('w').textContent)">&#128266;</button>
+        <div class="zh" id="zh">—</div>
+        <div class="collo" id="cl">—</div>
+        <div class="ex" id="ex">—</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="btn weak" onclick="mark('weak')"><span class="ico">&#128552;</span>不熟</button>
+    <button class="btn flip" onclick="flip()"><span class="ico">&#128260;</span>翻转</button>
+    <button class="btn know" onclick="mark('know')"><span class="ico">&#9989;</span>知道</button>
+  </div>
+
+  <div class="meta" id="meta">1 / 150 · 今日主题 Environment Day 4</div>
+</div>
+
+<div class="list-view" id="listView">
+  <div id="listBody"></div>
+</div>
+
+<div class="curriculum-note">
+  <strong>词汇来源</strong>: 8 天主题轮换,涵盖雅思高频话题。<br>
+  Day 1-7 <strong>Education</strong> · Day 8-14 <strong>Environment</strong> · Day 15-21 <strong>Technology</strong> · Day 22-28 <strong>Health</strong> · Day 29-35 <strong>Government &amp; Society</strong> · Day 36-42 <strong>Work &amp; Economy</strong> · Day 43-49 <strong>Family</strong> · Day 50-56 <strong>Travel &amp; Culture</strong> · 之后循环。<br>
+  今日 Day 67 · Environment Day 4 (Cycle 2) · 环境治理/绿色金融/可持续发展/气候行动/食物系统/城市可持续。词汇为 Band 7+ 难度。
+</div>
+
+<div class="done-screen" id="done">
+  <div class="big">&#127881;</div>
+  <div class="ttl" id="doneTtl">今日 150 词完成!</div>
+  <div class="sub" id="doneSub">知道 0 · 不熟 0</div>
+  <button onclick="resetAll()">重新开始</button>
+  <button onclick="reviewWeak()">只复习不熟</button>
+  <button onclick="location.href='index.html'">回主页</button>
+</div>
+
+<nav class="tabbar">
+  <a class="tab-btn active" href="index.html#home"><span class="icon">&#127968;</span>概览</a>
+  <a class="tab-btn" href="index.html#materials"><span class="icon">&#128250;</span>材料</a>
+  <a class="tab-btn" href="index.html#quizzes"><span class="icon">&#9999;&#65039;</span>测验</a>
+  <a class="tab-btn" href="index.html#plan"><span class="icon">&#128203;</span>计划</a>
+</nav>
+
+<script>
+const CARDS = [
+{"w":"multilateral treaty","p":"n.","zh":"多边条约","cl":"sign a multilateral treaty","ex":"Nations gathered to sign a <strong>multilateral treaty</strong> on ocean governance that would protect international waters from over-exploitation."},
+{"w":"ratify","p":"v.","zh":"批准(条约)","cl":"ratify an agreement / accord","ex":"Only after two-thirds of member states agreed to <strong>ratify</strong> the accord did the new climate framework come into legal force."},
+{"w":"enforcement mechanism","p":"n.","zh":"执法机制","cl":"robust enforcement mechanism","ex":"Critics argue that the treaty lacks a robust <strong>enforcement mechanism</strong>, allowing signatories to miss targets without penalty."},
+{"w":"regulatory framework","p":"n.","zh":"监管框架","cl":"tighten the regulatory framework","ex":"A comprehensive <strong>regulatory framework</strong> is essential to hold corporations accountable for their environmental impacts."},
+{"w":"compliance","p":"n.","zh":"合规/遵从","cl":"ensure environmental compliance","ex":"Third-party audits are increasingly used to ensure <strong>compliance</strong> with mandatory carbon disclosure requirements."},
+{"w":"mandate","p":"n./v.","zh":"强制规定/授权","cl":"mandate carbon disclosure","ex":"Regulators now <strong>mandate</strong> that large companies disclose their Scope 3 emissions across the entire supply chain."},
+{"w":"voluntary agreement","p":"n.","zh":"自愿协议","cl":"rely on voluntary agreements","ex":"Many economists doubt that <strong>voluntary agreements</strong> alone can deliver the scale of emissions reductions science demands."},
+{"w":"intergovernmental","p":"adj.","zh":"政府间的","cl":"intergovernmental panel / body","ex":"The <strong>intergovernmental</strong> body was tasked with setting binding targets for methane reduction by 2035."},
+{"w":"sanction","p":"n./v.","zh":"制裁","cl":"impose trade sanctions","ex":"Several nations threatened economic <strong>sanctions</strong> against countries that flouted the global fisheries agreement."},
+{"w":"decentralised governance","p":"n.","zh":"分权治理","cl":"promote decentralised governance","ex":"<strong>Decentralised governance</strong> allows local communities to adapt conservation strategies to their unique ecological context."},
+{"w":"stakeholder","p":"n.","zh":"利益相关者","cl":"engage all stakeholders","ex":"Meaningful climate action requires engaging all <strong>stakeholders</strong>, from farmers to industry leaders to indigenous communities."},
+{"w":"oversight","p":"n.","zh":"监督/审查","cl":"independent regulatory oversight","ex":"Without independent <strong>oversight</strong>, voluntary corporate sustainability pledges risk becoming little more than marketing exercises."},
+{"w":"bottom-up approach","p":"n.","zh":"自下而上的方法","cl":"embrace a bottom-up approach","ex":"A <strong>bottom-up approach</strong> to conservation empowers local communities and often proves more durable than top-down mandates."},
+{"w":"transboundary","p":"adj.","zh":"跨界的","cl":"transboundary pollution / cooperation","ex":"<strong>Transboundary</strong> air and water pollution demands cooperative solutions that transcend national borders."},
+{"w":"treaty obligation","p":"n.","zh":"条约义务","cl":"fulfil treaty obligations","ex":"Developed nations have repeatedly failed to fulfil their <strong>treaty obligations</strong> to transfer green technology to developing countries."},
+{"w":"nationally determined contribution","p":"n.","zh":"国家自主贡献 (NDC)","cl":"submit NDCs to the UNFCCC","ex":"Each country's <strong>nationally determined contribution</strong> sets its own climate targets, but campaigners argue the pledges collectively fall far short."},
+{"w":"global commons","p":"n.","zh":"全球公共资源","cl":"protect the global commons","ex":"The atmosphere and oceans are <strong>global commons</strong> whose health cannot be left solely to market forces or individual nations."},
+{"w":"burden sharing","p":"n.","zh":"责任分担","cl":"equitable burden sharing","ex":"The most contentious climate debate centres on fair <strong>burden sharing</strong> between historically high-emitting and developing nations."},
+{"w":"political will","p":"n.","zh":"政治意愿","cl":"demonstrate political will","ex":"Experts agree the technology exists; what is lacking is the <strong>political will</strong> to implement rapid decarbonisation at the scale required."},
+{"w":"green diplomacy","p":"n.","zh":"绿色外交","cl":"practise green diplomacy","ex":"<strong>Green diplomacy</strong> has elevated environmental concerns to the highest levels of international negotiation in recent decades."},
+{"w":"common but differentiated responsibility","p":"n.","zh":"共同但有区别的责任 (CBDR)","cl":"apply the CBDR principle","ex":"The principle of <strong>common but differentiated responsibility</strong> recognises that wealthy nations bear a greater obligation to cut emissions first."},
+{"w":"policy instrument","p":"n.","zh":"政策工具","cl":"deploy policy instruments","ex":"Governments can deploy various <strong>policy instruments</strong>—taxes, subsidies, regulations—to steer economies toward sustainability."},
+{"w":"inaction","p":"n.","zh":"不作为","cl":"the cost of inaction","ex":"Economists increasingly argue that the cost of <strong>inaction</strong> on climate far exceeds the cost of transitioning to clean energy now."},
+{"w":"governance gap","p":"n.","zh":"治理缺口","cl":"address the governance gap","ex":"A significant <strong>governance gap</strong> persists in regulating the environmental impact of multinational corporations operating across borders."},
+{"w":"impact investing","p":"n.","zh":"影响力投资","cl":"pursue impact investing","ex":"<strong>Impact investing</strong> channels capital toward projects that generate measurable environmental or social benefits alongside financial returns."},
+{"w":"ESG disclosure","p":"n.","zh":"ESG 信息披露","cl":"mandatory ESG disclosure","ex":"Regulators in major markets are moving toward mandatory <strong>ESG disclosure</strong> for all publicly listed companies by 2027."},
+{"w":"divestment","p":"n.","zh":"撤资","cl":"fossil fuel divestment campaign","ex":"The <strong>divestment</strong> movement has persuaded hundreds of universities and pension funds to withdraw holdings from fossil fuel companies."},
+{"w":"stranded asset","p":"n.","zh":"搁浅资产","cl":"risk of stranded assets","ex":"As renewables undercut fossil fuel economics, coal plants face an escalating risk of becoming <strong>stranded assets</strong> worth far less than projected."},
+{"w":"carbon credit","p":"n.","zh":"碳信用","cl":"purchase carbon credits","ex":"Companies struggling to cut direct emissions may purchase <strong>carbon credits</strong> generated by reforestation or renewable energy projects in other regions."},
+{"w":"green finance","p":"n.","zh":"绿色金融","cl":"mobilise green finance","ex":"Multilateral development banks are being called on to mobilise far greater <strong>green finance</strong> for climate adaptation in vulnerable nations."},
+{"w":"taxonomy","p":"n.","zh":"(可持续金融)分类标准","cl":"sustainable finance taxonomy","ex":"The EU <strong>taxonomy</strong> defines which economic activities count as environmentally sustainable, guiding the allocation of investment across sectors."},
+{"w":"climate risk","p":"n.","zh":"气候风险","cl":"assess and disclose climate risk","ex":"Regulators now require financial institutions to assess and disclose <strong>climate risk</strong> embedded in their loan portfolios and investment strategies."},
+{"w":"blended finance","p":"n.","zh":"混合融资","cl":"leverage blended finance","ex":"<strong>Blended finance</strong> combines public or philanthropic funds with private capital to reduce the perceived risk of green investments in emerging markets."},
+{"w":"natural capital","p":"n.","zh":"自然资本","cl":"account for natural capital","ex":"Mainstream economics has long failed to adequately value <strong>natural capital</strong>, treating forests and fisheries as free resources with no cost of depletion."},
+{"w":"ecosystem services valuation","p":"n.","zh":"生态系统服务估值","cl":"conduct ecosystem services valuation","ex":"<strong>Ecosystem services valuation</strong> attempts to assign monetary value to benefits such as water purification, pollination, and carbon storage."},
+{"w":"green procurement","p":"n.","zh":"绿色采购","cl":"adopt green procurement policies","ex":"Governments can drive sustainable markets by adopting <strong>green procurement</strong> policies that favour low-carbon products and services."},
+{"w":"carbon market","p":"n.","zh":"碳市场","cl":"well-functioning carbon market","ex":"A well-functioning <strong>carbon market</strong> must put a sufficiently high price on emissions to incentivise genuine decarbonisation across all sectors."},
+{"w":"degrowth","p":"n.","zh":"去增长","cl":"advocate degrowth economics","ex":"Proponents of <strong>degrowth</strong> argue that perpetual economic expansion on a finite planet is ecologically unsustainable and ultimately self-defeating."},
+{"w":"true cost accounting","p":"n.","zh":"真实成本核算","cl":"practise true cost accounting","ex":"<strong>True cost accounting</strong> incorporates externalities such as pollution and resource depletion into product prices, reflecting their full societal cost."},
+{"w":"environmental externality","p":"n.","zh":"环境外部性","cl":"internalise environmental externalities","ex":"Governments use taxes and regulations to <strong>internalise environmental externalities</strong>, ensuring polluters pay for the harm they cause to society."},
+{"w":"low-carbon transition","p":"n.","zh":"低碳转型","cl":"manage the low-carbon transition","ex":"Workers in fossil fuel industries must be supported through the <strong>low-carbon transition</strong> to avoid social backlash and ensure a just outcome."},
+{"w":"subsidy reform","p":"n.","zh":"补贴改革","cl":"implement subsidy reform","ex":"Phasing out fossil fuel subsidies through <strong>subsidy reform</strong> would redirect billions toward renewable energy and energy efficiency programmes."},
+{"w":"investor stewardship","p":"n.","zh":"投资者尽责管理","cl":"exercise investor stewardship","ex":"Through <strong>investor stewardship</strong>, major asset managers can pressure portfolio companies to adopt credible and time-bound climate action plans."},
+{"w":"sustainability reporting","p":"n.","zh":"可持续发展报告","cl":"mandatory sustainability reporting","ex":"<strong>Sustainability reporting</strong> frameworks such as GRI and TCFD require companies to disclose environmental, social, and governance performance metrics."},
+{"w":"wellbeing economy","p":"n.","zh":"福祉经济","cl":"build a wellbeing economy","ex":"A <strong>wellbeing economy</strong> measures success by citizens' quality of life and ecological health rather than by GDP growth alone."},
+{"w":"triple bottom line","p":"n.","zh":"三重底线","cl":"embrace the triple bottom line","ex":"Companies that adopt a <strong>triple bottom line</strong> approach measure success by environmental and social impact as well as by financial profit."},
+{"w":"doughnut economics","p":"n.","zh":"甜甜圈经济学","cl":"apply doughnut economics","ex":"<strong>Doughnut economics</strong> proposes a social foundation and an ecological ceiling within which human economies can thrive sustainably."},
+{"w":"energy democracy","p":"n.","zh":"能源民主","cl":"pursue energy democracy","ex":"<strong>Energy democracy</strong> advocates for community ownership of renewable energy systems, ensuring economic benefits flow to local people."},
+{"w":"socio-ecological system","p":"n.","zh":"社会-生态系统","cl":"manage as a socio-ecological system","ex":"Effective conservation treats forests and wetlands as <strong>socio-ecological systems</strong> that sustain both wildlife and human livelihoods simultaneously."},
+{"w":"transformative change","p":"n.","zh":"变革性变化","cl":"drive transformative change","ex":"Incremental improvements will not suffice; only <strong>transformative change</strong> in production and consumption patterns can avert ecological collapse."},
+{"w":"mainstreaming","p":"n.","zh":"主流化","cl":"mainstreaming of sustainability","ex":"The <strong>mainstreaming</strong> of sustainability into corporate strategy has accelerated as investors and consumers demand greater environmental accountability."},
+{"w":"pro-poor climate policy","p":"n.","zh":"惠贫气候政策","cl":"design pro-poor climate policy","ex":"A <strong>pro-poor climate policy</strong> ensures that the costs of decarbonisation do not fall disproportionately on low-income and marginalised households."},
+{"w":"leave no one behind","p":"phrase","zh":"不让任何人掉队","cl":"commit to leaving no one behind","ex":"Climate adaptation policies that exclude the most vulnerable communities contradict the international pledge to <strong>leave no one behind</strong>."},
+{"w":"civil disobedience","p":"n.","zh":"公民不服从","cl":"engage in civil disobedience","ex":"Environmental groups have used <strong>civil disobedience</strong>—blocking roads and occupying oil terminals—to draw attention to government inaction on climate."},
+{"w":"grassroots movement","p":"n.","zh":"草根运动","cl":"mobilise a grassroots movement","ex":"The <strong>grassroots movement</strong> began with school students striking on Fridays and rapidly spread to millions of people across six continents."},
+{"w":"eco-anxiety","p":"n.","zh":"生态焦虑","cl":"suffer from eco-anxiety","ex":"Psychologists report that growing numbers of young people suffer from <strong>eco-anxiety</strong>, a chronic sense of dread about the environmental future."},
+{"w":"climate litigation","p":"n.","zh":"气候诉讼","cl":"pursue climate litigation","ex":"Successful <strong>climate litigation</strong> has forced several governments to strengthen their emissions reduction targets under constitutional obligations."},
+{"w":"ecofeminism","p":"n.","zh":"生态女性主义","cl":"embrace ecofeminism","ex":"<strong>Ecofeminism</strong> draws connections between the exploitation of nature and patriarchal domination, arguing both systems of oppression must be challenged together."},
+{"w":"climate strike","p":"n.","zh":"气候罢课/罢工","cl":"organise a climate strike","ex":"The <strong>climate strike</strong> movement demonstrated that collective public pressure could shift government rhetoric, if not always transform policy."},
+{"w":"whistleblower","p":"n.","zh":"举报人/吹哨人","cl":"protect the whistleblower","ex":"Environmental <strong>whistleblowers</strong> who expose corporate pollution often face costly legal threats specifically designed to silence them."},
+{"w":"corporate capture","p":"n.","zh":"企业俘获","cl":"resist corporate capture","ex":"Critics accuse certain climate negotiations of succumbing to <strong>corporate capture</strong> by fossil fuel lobbyists seeking to water down commitments."},
+{"w":"public pressure","p":"n.","zh":"公众压力","cl":"respond to public pressure","ex":"Faced with mounting <strong>public pressure</strong>, the supermarket chain pledged to eliminate all single-use plastics from its packaging within three years."},
+{"w":"citizen science","p":"n.","zh":"公民科学","cl":"contribute to citizen science","ex":"<strong>Citizen science</strong> projects enlist volunteers to monitor air and water quality, generating data that supplements official environmental monitoring networks."},
+{"w":"environmental NGO","p":"n.","zh":"环保非政府组织","cl":"work with environmental NGOs","ex":"<strong>Environmental NGOs</strong> play a crucial role in holding governments and corporations to their green commitments through advocacy and legal action."},
+{"w":"food sovereignty","p":"n.","zh":"粮食主权","cl":"promote food sovereignty","ex":"<strong>Food sovereignty</strong> movements argue that communities should control their own agricultural systems, free from multinational corporate influence."},
+{"w":"agroecology","p":"n.","zh":"农业生态学","cl":"practise agroecology","ex":"<strong>Agroecology</strong> applies ecological principles to farming, reducing chemical inputs and enhancing biodiversity while maintaining or improving yields."},
+{"w":"food miles","p":"n.","zh":"食物里程","cl":"reduce food miles","ex":"Buying locally produced food reduces <strong>food miles</strong> and the associated greenhouse gas emissions from long-distance transportation."},
+{"w":"regenerative agriculture","p":"n.","zh":"再生农业","cl":"adopt regenerative agriculture","ex":"<strong>Regenerative agriculture</strong> aims to restore soil health and sequester carbon rather than merely sustaining current agricultural productivity."},
+{"w":"plant-based diet","p":"n.","zh":"植物性饮食","cl":"shift to a plant-based diet","ex":"Research consistently shows that shifting to a <strong>plant-based diet</strong> is one of the most effective individual actions for reducing one's environmental footprint."},
+{"w":"food waste","p":"n.","zh":"食物浪费","cl":"tackle food waste","ex":"Roughly one-third of all food produced globally is lost or wasted, making <strong>food waste</strong> a significant contributor to greenhouse gas emissions."},
+{"w":"soil health","p":"n.","zh":"土壤健康","cl":"restore soil health","ex":"Intensive monoculture farming has degraded <strong>soil health</strong> across vast areas, reducing agricultural resilience and increasing reliance on synthetic fertilisers."},
+{"w":"fertiliser runoff","p":"n.","zh":"化肥径流","cl":"curb fertiliser runoff","ex":"<strong>Fertiliser runoff</strong> into rivers and coastal waters triggers algal blooms that deplete oxygen and create vast dead zones inhospitable to marine life."},
+{"w":"precision agriculture","p":"n.","zh":"精准农业","cl":"deploy precision agriculture","ex":"<strong>Precision agriculture</strong> uses satellite data and sensors to apply water, fertiliser, and pesticides only where and when they are truly needed."},
+{"w":"vertical farming","p":"n.","zh":"垂直农业","cl":"invest in vertical farming","ex":"<strong>Vertical farming</strong> grows crops in stacked indoor layers using LED lighting, dramatically reducing land and water use per kilogram of food."},
+{"w":"seed bank","p":"n.","zh":"种子库","cl":"maintain a seed bank","ex":"The <strong>seed bank</strong> in Svalbard preserves genetic diversity for thousands of plant varieties, providing an insurance policy against agricultural catastrophe."},
+{"w":"food system","p":"n.","zh":"食物系统","cl":"transform the food system","ex":"A sustainable <strong>food system</strong> must minimise environmental harm while ensuring nutritious food is accessible and affordable for all communities."},
+{"w":"overfarming","p":"n.","zh":"过度耕种","cl":"avoid overfarming","ex":"<strong>Overfarming</strong> exhausts soil nutrients and accelerates desertification, ultimately threatening the livelihoods of millions of smallholder farmers."},
+{"w":"aquaculture","p":"n.","zh":"水产养殖","cl":"develop sustainable aquaculture","ex":"Well-managed <strong>aquaculture</strong> can meet growing demand for seafood without the overfishing that threatens wild marine populations worldwide."},
+{"w":"food labelling","p":"n.","zh":"食品标签","cl":"strengthen food labelling","ex":"Improved <strong>food labelling</strong> that discloses carbon footprint and water consumption could empower consumers to make more sustainable purchasing choices."},
+{"w":"methane from livestock","p":"n.","zh":"牲畜甲烷排放","cl":"curb methane from livestock","ex":"<strong>Methane from livestock</strong>—particularly cattle—accounts for a substantial share of total agricultural greenhouse gas emissions globally."},
+{"w":"fair trade","p":"n.","zh":"公平贸易","cl":"support fair trade certification","ex":"<strong>Fair trade</strong> certification guarantees that farmers receive a minimum price that covers the actual cost of sustainable and ethical production."},
+{"w":"indigenous food system","p":"n.","zh":"本土食物系统","cl":"revive indigenous food systems","ex":"Reviving <strong>indigenous food systems</strong> can restore local biodiversity and provide culturally appropriate nutrition in historically marginalised communities."},
+{"w":"crop diversity","p":"n.","zh":"作物多样性","cl":"maintain crop diversity","ex":"Narrowing <strong>crop diversity</strong> to a handful of high-yield varieties leaves global food supplies dangerously vulnerable to disease and climate shocks."},
+{"w":"drought-resistant variety","p":"n.","zh":"耐旱品种","cl":"develop drought-resistant varieties","ex":"Scientists are developing <strong>drought-resistant varieties</strong> of staple crops to help smallholder farmers adapt to increasingly erratic and unpredictable rainfall."},
+{"w":"organic certification","p":"n.","zh":"有机认证","cl":"seek organic certification","ex":"<strong>Organic certification</strong> prohibits synthetic pesticides and fertilisers, though debate continues over whether it always produces lower overall environmental impact."},
+{"w":"low-emission zone","p":"n.","zh":"低排放区","cl":"designate a low-emission zone","ex":"Several European capitals have designated <strong>low-emission zones</strong> that ban the most polluting vehicles from city centres during peak hours."},
+{"w":"active travel","p":"n.","zh":"积极出行(步行/骑行)","cl":"promote active travel","ex":"Investment in cycling lanes and pedestrian infrastructure encourages <strong>active travel</strong>, reducing both transport emissions and public health costs."},
+{"w":"urban greening","p":"n.","zh":"城市绿化","cl":"invest in urban greening","ex":"<strong>Urban greening</strong> initiatives—planting street trees, creating pocket parks—can reduce ambient temperatures by several degrees in dense city districts."},
+{"w":"transit-oriented development","p":"n.","zh":"以公交为导向的开发","cl":"pursue transit-oriented development","ex":"<strong>Transit-oriented development</strong> concentrates housing and businesses around transport hubs, reducing car dependence and per-capita emissions."},
+{"w":"eco-district","p":"n.","zh":"生态街区","cl":"design an eco-district","ex":"The <strong>eco-district</strong> concept integrates renewable energy, rainwater harvesting, and composting into the very fabric of urban neighbourhoods."},
+{"w":"sponge city","p":"n.","zh":"海绵城市","cl":"build a sponge city","ex":"China's <strong>sponge city</strong> initiative designs urban areas to absorb, store, and gradually release rainwater, significantly reducing urban flood risk."},
+{"w":"blue-green infrastructure","p":"n.","zh":"蓝绿基础设施","cl":"integrate blue-green infrastructure","ex":"<strong>Blue-green infrastructure</strong>—rivers, wetlands, parks, and green roofs—delivers multiple ecosystem services simultaneously in the urban environment."},
+{"w":"urban metabolism","p":"n.","zh":"城市代谢","cl":"study urban metabolism","ex":"<strong>Urban metabolism</strong> analyses the flows of energy, water, materials, and waste through a city to identify systemic inefficiencies and improvement opportunities."},
+{"w":"walkability","p":"n.","zh":"步行友好性","cl":"improve walkability score","ex":"High <strong>walkability</strong> scores are associated with lower rates of obesity, reduced air pollution, and lower per-capita carbon emissions in urban areas."},
+{"w":"car-free city","p":"n.","zh":"无车城市","cl":"envision a car-free city","ex":"Proponents of the <strong>car-free city</strong> argue that urban space devoted to roads and parking could be reclaimed as parks, housing, and public squares."},
+{"w":"distributed energy","p":"n.","zh":"分布式能源","cl":"generate distributed energy","ex":"<strong>Distributed energy</strong> systems—rooftop solar panels, community wind farms—empower residents and reduce transmission losses across the grid."},
+{"w":"cool roof","p":"n.","zh":"冷屋顶","cl":"install cool roofs","ex":"<strong>Cool roofs</strong> coated with reflective materials absorb less solar heat, cutting air-conditioning energy use and mitigating the urban heat island effect."},
+{"w":"urban food garden","p":"n.","zh":"城市食物花园","cl":"establish urban food gardens","ex":"<strong>Urban food gardens</strong> on rooftops and vacant lots provide fresh produce, community cohesion, and improved habitat for pollinators in dense cities."},
+{"w":"building retrofit","p":"n.","zh":"建筑改造","cl":"fund building retrofits","ex":"Large-scale <strong>building retrofits</strong>—adding insulation, triple-glazing, and heat pumps—could cut heating and cooling energy demand by up to 75%."},
+{"w":"smart mobility","p":"n.","zh":"智慧出行","cl":"deploy smart mobility solutions","ex":"<strong>Smart mobility</strong> systems integrate real-time data to optimise bus routes, reduce traffic congestion, and cut overall urban transport emissions."},
+{"w":"right to a healthy environment","p":"n.","zh":"享有健康环境的权利","cl":"enshrine the right to a healthy environment","ex":"Over 150 countries have now enshrined the <strong>right to a healthy environment</strong> in their constitutions or national legislation."},
+{"w":"strategic environmental assessment","p":"n.","zh":"战略环境评估","cl":"conduct a strategic environmental assessment","ex":"A <strong>strategic environmental assessment</strong> evaluates the potential environmental consequences of proposed policies and plans before they receive formal approval."},
+{"w":"environmental due diligence","p":"n.","zh":"环境尽职调查","cl":"conduct environmental due diligence","ex":"Investors now conduct thorough <strong>environmental due diligence</strong> before acquiring companies operating in environmentally sensitive or heavily regulated sectors."},
+{"w":"species protection order","p":"n.","zh":"物种保护令","cl":"issue a species protection order","ex":"A <strong>species protection order</strong> was issued immediately to halt construction near the nesting site of a critically endangered migratory bird."},
+{"w":"class action","p":"n.","zh":"集体诉讼","cl":"file a class action lawsuit","ex":"Residents filed a <strong>class action</strong> lawsuit against the chemical company, claiming decades of groundwater contamination had caused widespread illness in the community."},
+{"w":"environmental defender","p":"n.","zh":"环境捍卫者","cl":"protect environmental defenders","ex":"<strong>Environmental defenders</strong>—activists protecting forests and rivers—face threats, harassment, and violence in many countries, particularly in the Global South."},
+{"w":"non-compliance penalty","p":"n.","zh":"违规罚款","cl":"impose non-compliance penalties","ex":"Stricter <strong>non-compliance penalties</strong> are needed to deter companies from treating environmental fines as merely a routine cost of doing business."},
+{"w":"public interest litigation","p":"n.","zh":"公益诉讼","cl":"bring public interest litigation","ex":"<strong>Public interest litigation</strong> allows citizens and NGOs to challenge environmentally harmful government decisions in court on behalf of entire affected communities."},
+{"w":"take the long view","p":"phrase","zh":"着眼长远","cl":"take the long view on sustainability","ex":"Politicians rarely <strong>take the long view</strong> on environmental issues; short electoral cycles militate against policies whose benefits only emerge over decades."},
+{"w":"game changer","p":"n.","zh":"改变格局者/颠覆性因素","cl":"prove to be a game changer","ex":"Advances in battery storage technology could prove to be a <strong>game changer</strong> for the transition to a fully renewable electricity grid."},
+{"w":"in the balance","p":"phrase","zh":"悬而未决/命运未卜","cl":"hang in the balance","ex":"The fate of the coral reef hangs <strong>in the balance</strong> as ocean temperatures continue to rise at an unprecedented and alarming rate."},
+{"w":"pick up the tab","p":"phrase","zh":"买单/承担后果","cl":"who picks up the tab","ex":"The question of who <strong>picks up the tab</strong> for climate adaptation in developing nations remains deeply contentious in international negotiations."},
+{"w":"turn the tide","p":"phrase","zh":"扭转局势","cl":"turn the tide on plastic pollution","ex":"A concerted global effort is urgently needed to <strong>turn the tide</strong> on plastic pollution before it reaches every ocean ecosystem on the planet."},
+{"w":"at a crossroads","p":"phrase","zh":"处于十字路口","cl":"stand at a crossroads","ex":"Humanity stands <strong>at a crossroads</strong>: we can either double down on fossil fuels or boldly embrace a clean-energy future — but not both."},
+{"w":"bite the bullet","p":"phrase","zh":"咬紧牙关/硬着头皮做","cl":"bite the bullet on carbon pricing","ex":"Governments need to <strong>bite the bullet</strong> on meaningful carbon pricing, even if it proves politically unpopular in the short term."},
+{"w":"foot the bill","p":"phrase","zh":"支付费用/承担代价","cl":"foot the bill for environmental cleanup","ex":"Taxpayers routinely end up <strong>footing the bill</strong> for the environmental cleanup of sites abandoned by bankrupt mining companies."},
+{"w":"keep one's house in order","p":"phrase","zh":"先把自家事管好","cl":"keep one's own house in order","ex":"Developed nations must <strong>keep their own house in order</strong> on emissions before credibly lecturing emerging economies about decarbonisation."},
+{"w":"light at the end of the tunnel","p":"phrase","zh":"黑暗中的一线曙光","cl":"see light at the end of the tunnel","ex":"Despite grim climate projections, the rapid fall in solar energy costs offers a genuine <strong>light at the end of the tunnel</strong>."},
+{"w":"close the gap","p":"phrase","zh":"弥合差距","cl":"close the ambition gap","ex":"Campaigners are calling on governments to dramatically increase their climate pledges to <strong>close the gap</strong> between current commitments and safe-temperature targets."},
+{"w":"lead by example","p":"phrase","zh":"以身作则","cl":"lead by example on emissions","ex":"Rich countries must <strong>lead by example</strong> on emissions reduction if they wish to persuade developing nations to follow a similar path."},
+{"w":"strike a balance","p":"phrase","zh":"取得平衡","cl":"strike a balance between growth and sustainability","ex":"Governments face the perennial challenge of <strong>striking a balance</strong> between economic development and meaningful environmental protection."},
+{"w":"shift the goalposts","p":"phrase","zh":"改变规则/悄然降低标准","cl":"shift the goalposts on emissions targets","ex":"Campaigners accused the government of <strong>shifting the goalposts</strong> by reclassifying certain land-use changes as carbon-neutral to meet its targets."},
+{"w":"raise the bar","p":"phrase","zh":"提高标准","cl":"raise the bar on environmental standards","ex":"International pressure has helped <strong>raise the bar</strong> on environmental standards in countries that compete aggressively for foreign direct investment."},
+{"w":"at the heart of","p":"phrase","zh":"在...的核心","cl":"lie at the heart of the problem","ex":"Overconsumption in wealthy nations lies <strong>at the heart of</strong> the global resource depletion crisis that threatens ecosystems worldwide."},
+{"w":"put words into action","p":"phrase","zh":"将言语付诸行动","cl":"put climate pledges into action","ex":"The challenge for the international community is to <strong>put words into action</strong> before critical ecological thresholds are irreversibly crossed."},
+{"w":"in no uncertain terms","p":"phrase","zh":"毫不含糊地","cl":"make clear in no uncertain terms","ex":"The scientific report made it clear <strong>in no uncertain terms</strong> that current policies are leading to a 3°C temperature rise this century."},
+{"w":"take precedence over","p":"phrase","zh":"优先于","cl":"environmental concerns take precedence over","ex":"The court ruled that environmental protection must <strong>take precedence over</strong> short-term economic gain in this particular development case."},
+{"w":"tip of the iceberg","p":"phrase","zh":"冰山一角","cl":"be the tip of the iceberg","ex":"The species documented as threatened may be just the <strong>tip of the iceberg</strong>: thousands more could be at risk before they are even formally catalogued."},
+{"w":"window of opportunity","p":"n.","zh":"机遇之窗","cl":"a closing window of opportunity","ex":"Scientists warn that the <strong>window of opportunity</strong> to limit warming to 1.5°C is closing rapidly with each year of delayed collective action."},
+{"w":"cut corners","p":"phrase","zh":"走捷径/偷工减料","cl":"cut corners on environmental standards","ex":"Under intense cost pressures, some companies are tempted to <strong>cut corners</strong> on environmental standards, risking long-term ecological and reputational damage."},
+{"w":"on the front line","p":"phrase","zh":"处于最前线","cl":"be on the front line of climate impacts","ex":"Small island developing states are <strong>on the front line</strong> of rising sea levels and intensifying storms, yet contribute least to global emissions."},
+{"w":"cast a long shadow","p":"phrase","zh":"留下长期影响","cl":"cast a long shadow over future generations","ex":"Industrial pollution can <strong>cast a long shadow</strong> over future generations, contaminating soil and water supplies for decades or even centuries."},
+{"w":"the writing is on the wall","p":"phrase","zh":"大势已去/警示显而易见","cl":"the writing is on the wall for coal","ex":"With renewables now cheaper than coal in most markets, <strong>the writing is on the wall</strong> for unabated fossil fuel combustion as a viable energy strategy."},
+{"w":"pay lip service to","p":"phrase","zh":"口头支持而不行动","cl":"pay lip service to sustainability","ex":"Many corporations <strong>pay lip service to</strong> sustainability while quietly lobbying against the very regulations needed to enforce it."},
+{"w":"make a dent in","p":"phrase","zh":"在...上取得进展","cl":"make a dent in global emissions","ex":"Without deeper structural reforms, incremental measures are unlikely to <strong>make a dent in</strong> global emissions at the scale required by climate science."},
+{"w":"band together","p":"phrase","zh":"联合起来","cl":"band together to fight pollution","ex":"Communities affected by industrial pollution have <strong>banded together</strong> to demand accountability from the corporations responsible for the contamination."},
+{"w":"a race against time","p":"phrase","zh":"与时间赛跑","cl":"a race against time to protect forests","ex":"Protecting the remaining old-growth rainforests is <strong>a race against time</strong>, as commercial logging continues to advance further each year."},
+{"w":"overshoot","p":"n./v.","zh":"超出/过射","cl":"overshoot planetary limits","ex":"Scientists warned that humanity has already <strong>overshot</strong> several planetary limits, eroding the stable conditions upon which civilisation depends."},
+{"w":"ecological ceiling","p":"n.","zh":"生态上限","cl":"respect the ecological ceiling","ex":"Doughnut economics proposes that economic activity must remain below an <strong>ecological ceiling</strong> to avoid catastrophic environmental overshoot."},
+{"w":"environmental audit","p":"n.","zh":"环境审计","cl":"conduct an independent environmental audit","ex":"An independent <strong>environmental audit</strong> revealed that the factory had been discharging pollutants into the river undetected for over a decade."},
+{"w":"circular design","p":"n.","zh":"循环设计","cl":"embrace circular design principles","ex":"<strong>Circular design</strong> builds products for disassembly, repair, and reuse, eliminating the very concept of waste from the production system."},
+{"w":"pollination service","p":"n.","zh":"授粉服务","cl":"depend on pollination services","ex":"Global agriculture depends heavily on <strong>pollination services</strong> provided by wild bees and other insects, whose populations are in steep decline."},
+{"w":"climate adaptation fund","p":"n.","zh":"气候适应基金","cl":"establish a climate adaptation fund","ex":"Developed nations pledged to establish a <strong>climate adaptation fund</strong> to help vulnerable countries cope with unavoidable climate impacts they did not cause."},
+{"w":"biomimicry","p":"n.","zh":"仿生学","cl":"apply biomimicry in design","ex":"<strong>Biomimicry</strong> looks to nature's blueprints—termite ventilation, lotus-leaf water-repellence—to design more efficient and sustainable products and buildings."},
+{"w":"environmental footprint","p":"n.","zh":"环境足迹","cl":"reduce one's environmental footprint","ex":"Consumers can significantly reduce their <strong>environmental footprint</strong> by choosing durable goods, eating less meat, and using public transport."},
+{"w":"make or break","p":"phrase","zh":"成败在此一举","cl":"a make-or-break decade for the climate","ex":"Climate scientists describe the 2020s as a <strong>make-or-break</strong> decade for global temperature targets — the choices made now will lock in outcomes for generations."},
+{"w":"the stakes could not be higher","p":"stem","zh":"风险极高/事关重大","cl":"the stakes could not be higher","ex":"When it comes to climate change, <strong>the stakes could not be higher</strong>: inaction risks triggering irreversible tipping points in Earth's systems."},
+{"w":"ecosystem collapse","p":"n.","zh":"生态系统崩溃","cl":"risk of ecosystem collapse","ex":"Scientists have warned that continued habitat destruction brings multiple biomes to the brink of <strong>ecosystem collapse</strong>, with cascading consequences for human wellbeing."},
+{"w":"carbon neutrality","p":"n.","zh":"碳中和","cl":"achieve carbon neutrality","ex":"Pledges to achieve <strong>carbon neutrality</strong> by 2050 are only credible if they are backed by legally binding interim targets and robust monitoring systems."},
+{"w":"solidarity","p":"n.","zh":"团结/连带责任","cl":"climate solidarity","ex":"True <strong>solidarity</strong> between rich and poor nations on climate requires wealthy countries to provide not just rhetoric but finance, technology, and policy support."}
+];
+
+let state = JSON.parse(localStorage.getItem("ielts_vocab_20260726") || "{}");
+let queue = CARDS.map((c, i) => ({...c, idx: i})).filter(c => !state[c.idx] || state[c.idx] === "review");
+let cur = 0;
+
+function speak(text) {
+  if (!text || !window.speechSynthesis) return;
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = "en-US"; u.rate = 0.85; u.pitch = 1;
+  const voices = speechSynthesis.getVoices();
+  const en = voices.find(v => /en-(US|GB)/.test(v.lang) && /Samantha|Daniel|Alex|Karen|Moira|Google US English|Google UK English/.test(v.name))
+          || voices.find(v => v.lang.startsWith("en"));
+  if (en) u.voice = en;
+  speechSynthesis.speak(u);
+}
+if (window.speechSynthesis) speechSynthesis.onvoiceschanged = () => {};
+
+function render() {
+  if (cur >= queue.length) return showDone();
+  const c = queue[cur];
+  document.getElementById("w").textContent = c.w;
+  document.getElementById("p").textContent = c.p;
+  document.getElementById("zh").textContent = c.zh;
+  document.getElementById("cl").textContent = c.cl;
+  document.getElementById("ex").innerHTML = c.ex;
+  document.getElementById("card").classList.remove("flipped");
+  document.getElementById("meta").textContent = `${cur+1} / ${queue.length} · Environment Day 4`;
+  updateStats();
+  setTimeout(() => speak(c.w), 150);
+}
+
+function setView(v) {
+  document.getElementById("vtFlash").classList.toggle("active", v === "flash");
+  document.getElementById("vtList").classList.toggle("active", v === "list");
+  document.getElementById("deck").style.display = v === "flash" ? "" : "none";
+  document.getElementById("listView").classList.toggle("active", v === "list");
+  if (v === "list") renderList();
+}
+
+function renderList() {
+  const body = document.getElementById("listBody");
+  body.innerHTML = CARDS.map((c, i) => {
+    const mark = state[i] || "";
+    const cls = mark === "know" ? "knew" : mark === "weak" ? "weak" : "";
+    const ico = mark === "know" ? "&#10003;" : mark === "weak" ? "&#9675;" : "&#183;";
+    const mcls = mark === "know" ? "know" : mark === "weak" ? "weak" : "";
+    return `<div class="list-row">
+      <div class="num">${String(i+1).padStart(3,'0')}</div>
+      <div class="word"><div class="w ${cls}">${c.w} <span style="color:var(--muted);font-weight:400;font-size:0.78rem;">${c.p}</span></div><div class="zh">${c.zh}</div></div>
+      <button class="spk" onclick="speak('${c.w.replace(/'/g,"\\'")}')">&#128266;</button>
+      <div class="mk ${mcls}">${ico}</div>
+    </div>`;
+  }).join("");
+}
+
+function flip() { document.getElementById("card").classList.toggle("flipped"); }
+
+function mark(t) {
+  const c = queue[cur];
+  state[c.idx] = (t === "know" ? "know" : "weak");
+  localStorage.setItem("ielts_vocab_20260726", JSON.stringify(state));
+  cur++;
+  render();
+}
+
+function updateStats() {
+  const kn = Object.values(state).filter(v=>v==="know").length;
+  const wk = Object.values(state).filter(v=>v==="weak").length;
+  const lf = 150 - kn - wk;
+  document.getElementById("kn").textContent = kn;
+  document.getElementById("wk").textContent = wk;
+  document.getElementById("lf").textContent = lf;
+  document.getElementById("pg").style.width = ((kn+wk)/150*100) + "%";
+}
+
+function showDone() {
+  document.getElementById("deck").style.display = "none";
+  document.getElementById("done").classList.add("show");
+  const kn = Object.values(state).filter(v=>v==="know").length;
+  const wk = Object.values(state).filter(v=>v==="weak").length;
+  document.getElementById("doneTtl").textContent = wk > 0 ? `今日 150 词完成! 还有 ${wk} 张不熟` : "今日 150 词全掌握 🎉";
+  document.getElementById("doneSub").textContent = `知道 ${kn} · 不熟 ${wk}`;
+}
+
+function reviewWeak() {
+  queue = CARDS.map((c,i)=>({...c,idx:i})).filter(c => state[c.idx] === "weak");
+  if (queue.length === 0) { alert("没有不熟的卡!"); return; }
+  cur = 0;
+  document.getElementById("done").classList.remove("show");
+  document.getElementById("deck").style.display = "";
+  render();
+}
+
+function resetAll() {
+  if (!confirm("清空今日进度,重新开始?")) return;
+  localStorage.removeItem("ielts_vocab_20260726");
+  state = {};
+  queue = CARDS.map((c,i)=>({...c,idx:i}));
+  cur = 0;
+  document.getElementById("done").classList.remove("show");
+  document.getElementById("deck").style.display = "";
+  render();
+}
+
+render();
+</script>
+</body>
+</html>
