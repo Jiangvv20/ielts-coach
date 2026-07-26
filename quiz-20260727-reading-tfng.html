@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#2563eb">
+<title>Day 68 &#183; Reading T/F/NG &#183; 全球淡水危机</title>
+<style>
+  :root {
+    --bg: #ffffff; --fg: #1a1a1a; --muted: #6b7280;
+    --accent: #2563eb; --ok: #059669; --err: #dc2626;
+    --card: #f9fafb; --border: #e5e7eb;
+    --nav-bg: rgba(255,255,255,0.92);
+    --header-bg: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f172a; --fg: #f1f5f9; --muted: #94a3b8;
+      --accent: #60a5fa; --ok: #34d399; --err: #f87171;
+      --card: #1e293b; --border: #334155;
+      --nav-bg: rgba(15,23,42,0.92);
+      --header-bg: linear-gradient(135deg, #1e40af 0%, #6b21a8 100%);
+    }
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg); }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif;
+    line-height: 1.6;
+    min-height: 100vh;
+    padding-bottom: calc(64px + env(safe-area-inset-bottom, 0));
+  }
+  .app-header {
+    background: var(--header-bg); color: white;
+    padding: calc(env(safe-area-inset-top, 16px) + 12px) 16px 14px;
+    position: sticky; top: 0; z-index: 20;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .back-btn {
+    background: rgba(255,255,255,0.18); border: none; color: white;
+    width: 34px; height: 34px; border-radius: 10px;
+    font-size: 1.1rem; cursor: pointer; flex-shrink: 0;
+    text-decoration: none; display: flex; align-items: center; justify-content: center;
+  }
+  .app-header .ttl {
+    font-size: 1rem; font-weight: 700;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .app-header .sub {
+    font-size: 0.72rem; opacity: 0.85; margin-top: 1px;
+    letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  main { max-width: 720px; margin: 0 auto; padding: 16px; }
+  .progress {
+    height: 6px; background: var(--border); border-radius: 3px;
+    margin-bottom: 16px; overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%; background: var(--accent);
+    transition: width 0.3s ease;
+  }
+  .passage {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 14px 16px; margin-bottom: 16px;
+    font-size: 0.95rem; line-height: 1.75;
+  }
+  .passage h3 { margin: 0 0 10px; font-size: 0.78rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 700; }
+  .passage h4 { margin: 0 0 10px; font-size: 1rem; font-weight: 700; color: var(--fg); }
+  .passage p { margin: 0 0 10px; }
+  .passage p:last-child { margin-bottom: 0; }
+  .question {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 16px; margin-bottom: 14px;
+  }
+  .q-num {
+    color: var(--muted); font-size: 0.78rem;
+    font-family: "SF Mono", Menlo, monospace; margin-bottom: 6px;
+    text-transform: uppercase; letter-spacing: 0.04em;
+  }
+  .q-text { font-size: 1rem; margin-bottom: 12px; font-weight: 500; line-height: 1.5; }
+  .options { display: flex; flex-direction: column; gap: 8px; }
+  .option {
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 8px; padding: 12px 14px;
+    cursor: pointer; font-size: 0.95rem; text-align: left;
+    color: var(--fg); font-family: inherit;
+  }
+  .option.selected { border-color: var(--accent); background: rgba(37, 99, 235, 0.08); }
+  .option.correct { border-color: var(--ok); background: rgba(5, 150, 105, 0.1); }
+  .option.wrong { border-color: var(--err); background: rgba(220, 38, 38, 0.1); }
+  .blank-input {
+    width: 100%; background: var(--bg);
+    border: 1px solid var(--border); border-radius: 8px;
+    padding: 10px 12px; font-size: 1rem;
+    color: var(--fg); font-family: inherit;
+  }
+  .blank-input.correct { border-color: var(--ok); }
+  .blank-input.wrong { border-color: var(--err); }
+  .explanation {
+    margin-top: 10px; padding: 10px 12px;
+    background: var(--bg); border-left: 3px solid var(--accent);
+    border-radius: 4px; font-size: 0.9rem; color: var(--muted);
+    display: none; line-height: 1.6;
+  }
+  .explanation.show { display: block; }
+  .explanation .answer { color: var(--ok); font-weight: 600; margin-bottom: 4px; }
+  .actions { display: flex; gap: 10px; margin-top: 20px; }
+  .btn {
+    flex: 1; padding: 12px;
+    border: none; border-radius: 10px;
+    font-size: 1rem; font-weight: 600; cursor: pointer;
+    font-family: inherit;
+  }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-secondary { background: var(--card); color: var(--fg); border: 1px solid var(--border); }
+  .result {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 20px;
+    text-align: center; margin-top: 20px; display: none;
+  }
+  .result.show { display: block; }
+  .score { font-size: 2.5rem; font-weight: 700; color: var(--accent); }
+  .score-label { color: var(--muted); font-size: 0.9rem; margin-top: 4px; }
+  .tabbar {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: var(--nav-bg);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    border-top: 1px solid var(--border);
+    display: flex;
+    padding-bottom: env(safe-area-inset-bottom, 0);
+    z-index: 30;
+  }
+  .tab-btn {
+    flex: 1; background: transparent; border: none;
+    padding: 10px 4px 8px; color: var(--muted); font-size: 0.68rem;
+    cursor: pointer;
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    font-family: inherit; text-decoration: none;
+  }
+  .tab-btn .icon { font-size: 1.25rem; line-height: 1; }
+  .tab-btn.active { color: var(--accent); }
+  .tip-box {
+    background: rgba(37,99,235,0.06); border: 1px solid rgba(37,99,235,0.2);
+    border-radius: 10px; padding: 10px 14px; margin-bottom: 16px;
+    font-size: 0.85rem; color: var(--muted); line-height: 1.6;
+  }
+  .tip-box strong { color: var(--fg); }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <a class="back-btn" href="index.html#quizzes">&#8592;</a>
+  <div style="flex:1;min-width:0;">
+    <div class="ttl">Reading T/F/NG &#183; &#20840;&#29699;&#28082;&#27700;&#21025;&#26426;</div>
+    <div class="sub">Day 68 &#183; 10 &#39064; &#183; ~12 &#20998;&#38047;</div>
+  </div>
+</header>
+
+<main>
+
+  <div class="progress"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+
+  <div class="tip-box">
+    <strong>&#25968;&#39064;&#25216;&#24039;</strong>: T/F/NG &#20165;&#30475;&#21407;&#25991;&#65292;&#19981;&#29992;&#24120;&#35782;&#21028;&#26029;&#12290;True=&#21407;&#25991;&#30452;&#25509;&#25903;&#25345;&#65307;False=&#21407;&#25991;&#30452;&#25509;&#30456;&#21453;&#65307;NG=&#26410;&#25552;&#21450;&#25110;&#19981;&#33021;&#21028;&#26029;&#12290;
+  </div>
+
+  <div class="passage">
+    <h3>&#36827;&#21010; &middot; Passage (600+ words)</h3>
+    <h4>The Global Freshwater Crisis: Scarcity, Overuse, and the Path Forward</h4>
+    <p>Of all the water on Earth, approximately 97.5 per cent is saltwater found in the oceans. The remaining 2.5 per cent is freshwater, but roughly 70 per cent of that is locked in glaciers and ice caps, rendering it practically inaccessible. Only around 0.3 per cent of all freshwater on Earth is found in surface sources — rivers, lakes, and reservoirs — that are directly accessible for human use. Groundwater stored in underground aquifers accounts for most of the rest, yet extraction rates in many regions far exceed the natural recharge rate, meaning that once depleted, these reserves may take thousands of years to recover.</p>
+    <p>The Ogallala Aquifer beneath the Great Plains of the United States exemplifies this challenge. Since large-scale irrigation began in the mid-twentieth century, water levels in parts of the aquifer have dropped by more than 60 metres. Scientists project that, at current extraction rates, economically viable portions of the aquifer could be exhausted within 50 years, threatening the agricultural output of a region that produces a significant share of the world's wheat and beef. Similar stories of unsustainable groundwater use are emerging in northern India, the Middle East, and parts of northern China.</p>
+    <p>Climate change is compounding the crisis. Rising global temperatures are altering precipitation patterns, causing some regions to experience intensified droughts while others face more severe flooding. Glacial retreat is particularly alarming: billions of people in South and Central Asia depend on glacial meltwater for seasonal freshwater supplies, and as glaciers shrink, this reliable source is diminishing. Sea-level rise is simultaneously threatening coastal freshwater reserves through salinisation — the intrusion of saltwater into groundwater and agricultural land.</p>
+    <p>Demand-side pressures are equally daunting. Agriculture accounts for roughly 70 per cent of global freshwater withdrawals, with much of that water applied inefficiently through flood irrigation. Industrial processes and cooling systems for power plants consume a further 20 per cent. Municipal water systems, which serve urban households, account for only around 10 per cent — yet urban populations are the most vocal in demanding solutions, creating a political dynamic that often diverts attention from agricultural overuse.</p>
+    <p>A range of technological and policy solutions exists. Drip irrigation, which delivers water directly to plant roots, can reduce agricultural water consumption by 30 to 60 per cent compared with traditional flood irrigation, and its adoption has expanded considerably in water-scarce regions such as Israel and Spain. Desalination — the removal of salt from seawater to produce potable water — has become economically viable in energy-rich coastal nations, though it remains expensive and energy-intensive compared with conventional water sources. Water pricing mechanisms, which charge consumers based on actual use, have consistently proved effective at reducing waste; cities that have introduced tiered pricing structures have seen per-capita consumption fall by 15 to 25 per cent.</p>
+    <p>On the international front, shared river systems frequently generate geopolitical tension. The Nile, the Mekong, and the Jordan each flow through multiple nations with competing claims on their waters, and as climate-induced scarcity intensifies, disputes over allocation are likely to escalate. Legal frameworks for managing transboundary rivers remain incomplete, and some analysts warn that water scarcity could become a significant driver of conflict in the coming decades. Others, however, point to successful cooperation agreements — such as the Indus Waters Treaty between India and Pakistan, which has held for over 60 years despite repeated political crises — as evidence that states can and do find pragmatic solutions to shared resource challenges.</p>
+    <p>Ultimately, solving the freshwater crisis requires a paradigm shift: treating water as the finite, irreplaceable resource it is rather than a commodity to be exploited without regard for future generations. This shift demands investment in technology, reform of agricultural incentives, stronger international governance, and a change in public attitudes that places water conservation at the heart of sustainable development.</p>
+  </div>
+
+  <div id="questions">
+
+    <div class="question" data-type="mcq" data-answer="B">
+      <div class="q-num">Q01 &middot; T/F/NG</div>
+      <div class="q-text">Approximately 2.5 per cent of all water on Earth is freshwater, and most of it is directly accessible in rivers and lakes.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#27491;&#30830;&#31572;&#26696;: B (False)</div>
+        &#21407;&#25991;&#35828; 2.5% &#26159;&#28082;&#27700;&#65288;&#27491;&#30830;&#65289;&#65292;&#20294;&#30452;&#25509;&#21487;&#29992;&#30340;&#20165;&#23601;&#26159; 0.3% &#8212; &#30446;&#31216; "most of it" &#21487;&#30452;&#25509;&#33719;&#21462;&#19982;&#21407;&#25991;&#30456;&#30697;&#12290;
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="A">
+      <div class="q-num">Q02 &middot; T/F/NG</div>
+      <div class="q-text">The Ogallala Aquifer has experienced a drop of more than 60 metres in some areas since intensive irrigation began.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#27491;&#30830;&#31572;&#26696;: A (True)</div>
+        &#21407;&#25991;&#30452;&#25509;&#35829;: "water levels in parts of the aquifer have dropped by more than 60 metres." &#23436;&#20840;&#25903;&#25345;&#12290;
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="C">
+      <div class="q-num">Q03 &middot; T/F/NG</div>
+      <div class="q-text">The Ogallala Aquifer will be completely exhausted within the next 20 years if current extraction rates continue.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#27491;&#30830;&#31572;&#26696;: C (Not Given)</div>
+        &#21407;&#25991;&#35828; "within 50 years", &#32780;&#19988;&#26159; "economically viable portions" &#32467;&#26463;&#65292;&#19981;&#26159; "completely exhausted within 20 years"&#12290;&#20004;&#28857;&#37117;&#19982;&#39064;&#30446;&#19981;&#31526;&#12290;
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="A">
+      <div class="q-num">Q04 &middot; T/F/NG</div>
+      <div class="q-text">Agriculture is responsible for the largest share of global freshwater withdrawals.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#27491;&#30830;&#31572;&#26696;: A (True)</div>
+        &#21407;&#25991;&#35829;: "Agriculture accounts for roughly 70 per cent of global freshwater withdrawals." &#26368;&#22823;&#20221;&#39069;&#65292;&#23436;&#20840;&#25903;&#25345;&#12290;
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="B">
+      <div class="q-num">Q05 &middot; T/F/NG</div>
+      <div class="q-text">Desalination is cheaper and less energy-intensive than conventional water supply methods.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#27491;&#30830;&#31572;&#26696;: B (False)</div>
+        &#21407;&#25991;&#35829; desalination "remains expensive and energy-intensive compared with conventional water sources" &#8212; &#19982;&#39064;&#30446;&#38598;&#30452;&#25509;&#30456;&#30697;&#12290;
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="A">
+      <div class="q-num">Q06 &middot; T/F/NG</div>
+      <div class="q-text">Cities that have implemented tiered water pricing have seen per-capita consumption decrease.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#27491;&#30830;&#31572;&#26696;: A (True)</div>
+        &#21407;&#25991;&#35829;: "cities that have introduced tiered pricing structures have seen per-capita consumption fall by 15 to 25 per cent." &#26688;&#25910;&#25903;&#25345;&#12290;
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="C">
+      <div class="q-num">Q07 &middot; T/F/NG</div>
+      <div class="q-text">The Indus Waters Treaty has been widely praised by international legal scholars as the most successful water-sharing agreement in history.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">&#27491;&#30830;&#31572;&#26696;: C (Not Given)</div>
+        &#21407;&#25991;&#25552;&#21040; Indus Waters Treaty &#20197;&#35828;&#26126;&#21512;&#20316;&#26159;&#21487;&#33021;&#30340;&#65292;&#20294;&#20174;&#26410;&#35831;&#36827;&#22269;&#38469;&#27861;&#23398;&#23398;&#32773;&#30340;&#35780;&#20215;&#25110;"&#26368;&#25104;&#21151;"&#30340;&#35265;&#35299;&#12290;
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="aquifer">
+      <div class="q-num">Q08 &middot; &#35789;&#27719;&#22635;&#31354;</div>
+      <div class="q-text">An underground layer of water-bearing rock that holds and transmits groundwater is called an ____. (&#21547;&#27700;&#23618;)</div>
+      <input class="blank-input" placeholder="&#38190;&#20837;&#31572;&#26696;">
+      <div class="explanation">
+        <div class="answer">&#27491;&#30830;&#31572;&#26696;: aquifer</div>
+        aquifer = &#21547;&#27700;&#23618;&#12290;&#25454; Band 7+ &#39640;&#39057;&#35789;&#27719;&#65292;&#25935;&#26080;&#20851;&#30340;&#25345;&#32508;&#26989;&#32435;&#30340;&#21010;&#20844;&#22992;&#21327;&#31574;&#20013;&#38319;&#30340;&#20851;&#38190;&#35789;&#12290;
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="salinisation">
+      <div class="q-num">Q09 &middot; &#35789;&#27719;&#22635;&#31354;</div>
+      <div class="q-text">The process by which soil or groundwater becomes increasingly salty, often due to seawater intrusion, is called ____. (&#30418;&#30906;&#21270;)</div>
+      <input class="blank-input" placeholder="&#38190;&#20837;&#31572;&#26696;">
+      <div class="explanation">
+        <div class="answer">&#27491;&#30830;&#31572;&#26696;: salinisation (&#20063;&#25509;&#21463; salinization)</div>
+        salinisation = &#22303;&#22320;/&#22320;&#19979;&#27700;&#30418;&#30906;&#21270;&#12290;&#21407;&#25991;&#20013;&#21152;&#31895;: "salinisation — the intrusion of saltwater into groundwater and agricultural land."
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="desalination">
+      <div class="q-num">Q10 &middot; &#25214;&#25335;&#22635;&#31354;</div>
+      <div class="q-text">The technology used to remove salt from seawater to make it drinkable is known as ____. (&#28023;&#27700;&#28081;&#21270;)</div>
+      <input class="blank-input" placeholder="&#38190;&#20837;&#31572;&#26696;">
+      <div class="explanation">
+        <div class="answer">&#27491;&#30830;&#31572;&#26696;: desalination</div>
+        desalination = &#28023;&#27700;&#28081;&#21270;&#12290;&#21407;&#25991;&#35829;: "Desalination — the removal of salt from seawater to produce potable water."
+      </div>
+    </div>
+
+  </div>
+
+  <div class="actions">
+    <button class="btn btn-secondary" onclick="resetQuiz()">&#37325;&#20570;</button>
+    <button class="btn btn-primary" onclick="submitQuiz()">&#25제&#20132;&#23545;&#31572;</button>
+  </div>
+
+  <div class="result" id="result">
+    <div class="score" id="scoreNum">--</div>
+    <div class="score-label">&#27491;&#30830;&#29575;</div>
+    <div id="scoreDetail" style="margin-top:10px;color:var(--muted);"></div>
+    <div style="margin-top:12px;font-size:0.85rem;color:var(--muted);">&#19979;&#19968;&#27493;: &#23558;&#38169;&#39064;&#35789;&#27719;&#25239;&#20837;&#35789;&#21345;&#22797;&#20064;&#65292;&#25110;&#29992; <code style="background:var(--card);padding:1px 5px;border-radius:3px;font-size:0.8rem;">/ielts practice grade</code> &#22312; Mac &#36827;&#34892;&#28207;&#35270;&#12290;</div>
+  </div>
+
+</main>
+
+<nav class="tabbar">
+  <a class="tab-btn" href="index.html#home"><span class="icon">&#127968;</span>&#27010;&#35272;</a>
+  <a class="tab-btn" href="index.html#materials"><span class="icon">&#128250;</span>&#26448;&#26009;</a>
+  <a class="tab-btn active" href="index.html#quizzes"><span class="icon">&#9999;&#65039;</span>&#27979;&#39564;</a>
+  <a class="tab-btn" href="index.html#plan"><span class="icon">&#128203;</span>&#35745;&#21010;</a>
+</nav>
+
+<script>
+  document.querySelectorAll(".option").forEach(opt => {
+    opt.addEventListener("click", () => {
+      const q = opt.closest(".question");
+      q.querySelectorAll(".option").forEach(o => o.classList.remove("selected"));
+      opt.classList.add("selected");
+      q.dataset.userAnswer = opt.dataset.key;
+      updateProgress();
+    });
+  });
+
+  document.querySelectorAll(".blank-input").forEach(inp => {
+    inp.addEventListener("input", () => {
+      inp.closest(".question").dataset.userAnswer = inp.value.trim();
+      updateProgress();
+    });
+  });
+
+  function updateProgress() {
+    const total = document.querySelectorAll(".question").length;
+    const done = document.querySelectorAll(".question[data-user-answer]").length;
+    document.getElementById("progressFill").style.width = (done/total*100) + "%";
+  }
+
+  function submitQuiz() {
+    let correct = 0, total = 0;
+    document.querySelectorAll(".question").forEach(q => {
+      total++;
+      const userAns = (q.dataset.userAnswer || "").toLowerCase().trim();
+      const correctAns = q.dataset.answer.toLowerCase();
+      let isCorrect = false;
+      if (q.dataset.type === "blank") {
+        const alts = {"salinisation":["salinization"],"desalination":[],"aquifer":[]};
+        isCorrect = userAns === correctAns || (alts[correctAns] && alts[correctAns].includes(userAns));
+      } else {
+        isCorrect = userAns === correctAns;
+      }
+      if (isCorrect) correct++;
+
+      if (q.dataset.type === "mcq") {
+        q.querySelectorAll(".option").forEach(o => {
+          if (o.dataset.key.toLowerCase() === correctAns) o.classList.add("correct");
+          else if (o.dataset.key.toLowerCase() === userAns && !isCorrect) o.classList.add("wrong");
+        });
+      } else if (q.dataset.type === "blank") {
+        const inp = q.querySelector(".blank-input");
+        inp.classList.add(isCorrect ? "correct" : "wrong");
+      }
+      q.querySelector(".explanation")?.classList.add("show");
+    });
+
+    const result = document.getElementById("result");
+    const pct = Math.round(correct/total*100);
+    document.getElementById("scoreNum").textContent = pct + "%";
+    document.getElementById("scoreDetail").textContent = `${correct} / ${total} 正确`;
+    result.classList.add("show");
+    result.scrollIntoView({behavior:"smooth"});
+  }
+
+  function resetQuiz() {
+    document.querySelectorAll(".question").forEach(q => {
+      delete q.dataset.userAnswer;
+      q.querySelectorAll(".option").forEach(o => o.classList.remove("selected","correct","wrong"));
+      const inp = q.querySelector(".blank-input");
+      if (inp) { inp.value = ""; inp.classList.remove("correct","wrong"); }
+      q.querySelector(".explanation")?.classList.remove("show");
+    });
+    document.getElementById("result").classList.remove("show");
+    document.getElementById("progressFill").style.width = "0%";
+  }
+</script>
+
+</body>
+</html>
