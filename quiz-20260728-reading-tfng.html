@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#2563eb">
+<title>测验 · Reading T/F/NG · Day 69</title>
+<style>
+  :root {
+    --bg: #ffffff; --fg: #1a1a1a; --muted: #6b7280;
+    --accent: #2563eb; --ok: #059669; --err: #dc2626;
+    --card: #f9fafb; --border: #e5e7eb;
+    --nav-bg: rgba(255,255,255,0.92);
+    --header-bg: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f172a; --fg: #f1f5f9; --muted: #94a3b8;
+      --accent: #60a5fa; --ok: #34d399; --err: #f87171;
+      --card: #1e293b; --border: #334155;
+      --nav-bg: rgba(15,23,42,0.92);
+      --header-bg: linear-gradient(135deg, #1e40af 0%, #6b21a8 100%);
+    }
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg); }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif;
+    line-height: 1.6;
+    min-height: 100vh;
+    padding-bottom: calc(64px + env(safe-area-inset-bottom, 0));
+  }
+  .app-header {
+    background: var(--header-bg); color: white;
+    padding: calc(env(safe-area-inset-top, 16px) + 12px) 16px 14px;
+    position: sticky; top: 0; z-index: 20;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .back-btn {
+    background: rgba(255,255,255,0.18); border: none; color: white;
+    width: 34px; height: 34px; border-radius: 10px;
+    font-size: 1.1rem; cursor: pointer; flex-shrink: 0;
+    text-decoration: none; display: flex; align-items: center; justify-content: center;
+  }
+  .app-header .ttl { font-size: 1rem; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .app-header .sub { font-size: 0.72rem; opacity: 0.85; margin-top: 1px; letter-spacing: 0.04em; text-transform: uppercase; }
+  main { max-width: 720px; margin: 0 auto; padding: 16px; }
+  .progress { height: 6px; background: var(--border); border-radius: 3px; margin-bottom: 16px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--accent); transition: width 0.3s ease; }
+  .passage {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 14px 16px; margin-bottom: 16px;
+    font-size: 0.95rem; line-height: 1.7;
+  }
+  .passage h3 { margin: 0 0 8px; font-size: 0.78rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+  .passage h4 { margin: 0 0 10px; font-size: 1rem; font-weight: 700; color: var(--fg); }
+  .question {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 16px; margin-bottom: 14px;
+  }
+  .q-num { color: var(--muted); font-size: 0.78rem; font-family: "SF Mono", Menlo, monospace; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.04em; }
+  .q-text { font-size: 1rem; margin-bottom: 12px; font-weight: 500; }
+  .options { display: flex; flex-direction: column; gap: 8px; }
+  .option { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; cursor: pointer; font-size: 0.95rem; text-align: left; color: var(--fg); font-family: inherit; }
+  .option.selected { border-color: var(--accent); background: rgba(37,99,235,0.08); }
+  .option.correct { border-color: var(--ok); background: rgba(5,150,105,0.1); }
+  .option.wrong { border-color: var(--err); background: rgba(220,38,38,0.1); }
+  .blank-input { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; font-size: 1rem; color: var(--fg); font-family: inherit; }
+  .blank-input.correct { border-color: var(--ok); }
+  .blank-input.wrong { border-color: var(--err); }
+  .explanation { margin-top: 10px; padding: 10px 12px; background: var(--bg); border-left: 3px solid var(--accent); border-radius: 4px; font-size: 0.9rem; color: var(--muted); display: none; }
+  .explanation.show { display: block; }
+  .explanation .answer { color: var(--ok); font-weight: 600; }
+  .actions { display: flex; gap: 10px; margin-top: 20px; }
+  .btn { flex: 1; padding: 12px; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; font-family: inherit; }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-secondary { background: var(--card); color: var(--fg); border: 1px solid var(--border); }
+  .result { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; text-align: center; margin-top: 20px; display: none; }
+  .result.show { display: block; }
+  .score { font-size: 2.5rem; font-weight: 700; color: var(--accent); }
+  .score-label { color: var(--muted); font-size: 0.9rem; margin-top: 4px; }
+  .tabbar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--nav-bg); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px); border-top: 1px solid var(--border); display: flex; padding-bottom: env(safe-area-inset-bottom, 0); z-index: 30; }
+  .tab-btn { flex: 1; background: transparent; border: none; padding: 10px 4px 8px; color: var(--muted); font-size: 0.68rem; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 3px; font-family: inherit; text-decoration: none; }
+  .tab-btn .icon { font-size: 1.25rem; line-height: 1; }
+  .tab-btn.active { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <a class="back-btn" href="index.html#quizzes">&#8592;</a>
+  <div style="flex:1;min-width:0;">
+    <div class="ttl">Reading T/F/NG &middot; 绿色建筑与净零目标</div>
+    <div class="sub">Day 69 &middot; 7 题 T/F/NG + 3 题词汇 &middot; ~10 分钟</div>
+  </div>
+</header>
+
+<main>
+
+  <div class="progress"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+
+  <div class="passage">
+    <h3>Passage &middot; Reading Extract (~620 words)</h3>
+    <h4>Green Buildings: From Energy Guzzlers to Net-Zero Champions</h4>
+    <p>The built environment is responsible for approximately 40% of global energy consumption and nearly 30% of annual CO2 emissions when construction activity is included. For decades, buildings were designed and constructed with little regard for energy performance, resulting in enormous stocks of inefficient housing, offices and industrial facilities that continue to consume excessive energy. Today, however, a global revolution in green building is under way, driven by tightening regulations, falling costs of clean technology and rising awareness of the climate emergency.</p>
+    <p>At the core of the green building movement is the concept of the building envelope — the physical barrier separating the interior from the external environment. A well-designed envelope, featuring high levels of insulation, triple-glazed windows and exceptional airtightness, can reduce a building's heating and cooling demand by up to 80% compared with conventional construction. Passive house standards, pioneered in Germany in the 1990s, have demonstrated that buildings can achieve this level of performance while maintaining comfortable indoor climates without conventional heating systems. Critics initially dismissed such standards as applicable only to cold northern climates, yet certified passive house projects now exist in tropical, subtropical and arid environments.</p>
+    <p>Beyond the envelope, daylighting — the strategic placement of windows, skylights and light shelves to maximise natural illumination — can dramatically cut electricity demand for artificial lighting, which accounts for roughly 15% of a typical commercial building's energy use. Combined with occupancy sensors and automated shading, modern daylighting systems can reduce lighting energy consumption by 50–70% relative to standard designs.</p>
+    <p>The embodied carbon of construction materials presents a separate but equally important challenge. Concrete and steel together account for around 15% of global CO2 emissions. Cross-laminated timber (CLT) is emerging as a compelling alternative: it is structurally comparable to concrete for mid-rise buildings, sequesters carbon during the tree's growth phase, and produces far lower embodied carbon across its lifecycle. A 2024 study found that replacing concrete with CLT in a typical eight-storey office building reduced embodied carbon by approximately 60%.</p>
+    <p>Green building certification systems such as BREEAM in the United Kingdom and LEED in North America have played a significant role in raising industry standards. Buildings achieving the highest certification tiers — BREEAM Outstanding or LEED Platinum — are required to demonstrate not only energy efficiency but also water conservation, materials health and occupant wellbeing. Critics argue, however, that these voluntary schemes do not go far enough: a building can achieve LEED Gold certification while still consuming more energy than a well-built conventional structure in some contexts, because the rating systems reward relative improvements rather than absolute performance.</p>
+    <p>The most ambitious target in green building is net-zero energy: a building that generates as much energy as it consumes over the course of a year, typically through building-integrated photovoltaic panels or connection to a renewable-powered district heating network. While net-zero buildings remain a small fraction of the global stock, their numbers are growing rapidly. The International Energy Agency estimates that all new buildings must be net-zero ready by 2030 if the construction sector is to align with a 1.5°C warming pathway. Meeting this target will require not only technical innovation but also substantial reform of building codes, planning systems and financial incentives, alongside a dramatic scaling-up of the retrofit programmes needed to address the vast stock of existing inefficient buildings.</p>
+  </div>
+
+  <div id="questions">
+
+    <div class="question" data-type="mcq" data-answer="A">
+      <div class="q-num">Q01 &middot; T/F/NG</div>
+      <div class="q-text">The built environment accounts for approximately 40% of global energy consumption.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">正确答案: A (True)</div>
+        原文首句: "The built environment is responsible for approximately 40% of global energy consumption"，与题目完全一致。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="B">
+      <div class="q-num">Q02 &middot; T/F/NG</div>
+      <div class="q-text">Passive house standards were first developed in the United States in the 1990s.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">正确答案: B (False)</div>
+        原文: "Passive house standards, pioneered in <strong>Germany</strong> in the 1990s"，而题目称美国，与事实相反。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="C">
+      <div class="q-num">Q03 &middot; T/F/NG</div>
+      <div class="q-text">Passive house buildings are more popular in Europe than in any other continent.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">正确答案: C (Not Given)</div>
+        原文只说被动式建筑存在于多种气候中，但未比较各大洲的数量或普及度。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="A">
+      <div class="q-num">Q04 &middot; T/F/NG</div>
+      <div class="q-text">Artificial lighting typically accounts for around 15% of a commercial building's energy use.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">正确答案: A (True)</div>
+        原文: "accounts for roughly 15% of a typical commercial building's energy use"，与题目一致。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="B">
+      <div class="q-num">Q05 &middot; T/F/NG</div>
+      <div class="q-text">Concrete and steel together produce more than 30% of global CO2 emissions.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">正确答案: B (False)</div>
+        原文: "Concrete and steel together account for around <strong>15%</strong> of global CO2 emissions"，题目说超过30%，数字错误。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="A">
+      <div class="q-num">Q06 &middot; T/F/NG</div>
+      <div class="q-text">According to a 2024 study, replacing concrete with CLT in an eight-storey office building can cut embodied carbon by around 60%.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">正确答案: A (True)</div>
+        原文: "A 2024 study found that replacing concrete with CLT in a typical eight-storey office building reduced embodied carbon by approximately 60%"，与题目完全对应。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="C">
+      <div class="q-num">Q07 &middot; T/F/NG</div>
+      <div class="q-text">BREEAM and LEED certification schemes are used in more than 50 countries.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">正确答案: C (Not Given)</div>
+        原文提到BREEAM在英国、LEED在北美，但未说明两者覆盖的国家总数。
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="airtightness">
+      <div class="q-num">Q08 &middot; 词汇填空</div>
+      <div class="q-text">High levels of insulation, triple-glazed windows and exceptional ____ can reduce a building's heating and cooling demand by up to 80%. (中文提示: 气密性)</div>
+      <input class="blank-input" placeholder="键入答案 (一个词)">
+      <div class="explanation">
+        <div class="answer">正确答案: airtightness</div>
+        原文: "high levels of insulation, triple-glazed windows and exceptional airtightness". Band 7+ 词汇，今日词卡收录。
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="embodied">
+      <div class="q-num">Q09 &middot; 词汇填空</div>
+      <div class="q-text">The ____ carbon of construction materials presents a separate challenge from operational energy use. (中文提示: 隐含的/内含的)</div>
+      <input class="blank-input" placeholder="键入答案 (一个词)">
+      <div class="explanation">
+        <div class="answer">正确答案: embodied</div>
+        原文: "The <strong>embodied</strong> carbon of construction materials presents a separate but equally important challenge." 关键学术词汇。
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="retrofit">
+      <div class="q-num">Q10 &middot; 词汇填空</div>
+      <div class="q-text">Meeting net-zero targets will require a dramatic scaling-up of the ____ programmes needed for existing inefficient buildings. (中文提示: 翻新改造)</div>
+      <input class="blank-input" placeholder="键入答案 (一个词)">
+      <div class="explanation">
+        <div class="answer">正确答案: retrofit</div>
+        原文: "a dramatic scaling-up of the <strong>retrofit</strong> programmes needed to address the vast stock of existing inefficient buildings." 雅思高频词。
+      </div>
+    </div>
+
+  </div>
+
+  <div class="actions">
+    <button class="btn btn-secondary" onclick="resetQuiz()">重做</button>
+    <button class="btn btn-primary" onclick="submitQuiz()">提交对答</button>
+  </div>
+
+  <div class="result" id="result">
+    <div class="score" id="scoreNum">--</div>
+    <div class="score-label">正确率</div>
+    <div id="scoreDetail" style="margin-top:10px;color:var(--muted);"></div>
+    <div style="margin-top:12px;font-size:0.85rem;color:var(--muted);">
+      Band 7 目标: ≥70% | Band 8 目标: ≥90%<br>
+      本题关键词: airtightness / embodied carbon / CLT / net-zero building / BREEAM
+    </div>
+  </div>
+
+</main>
+
+<nav class="tabbar">
+  <a class="tab-btn" href="index.html#home"><span class="icon">&#127968;</span>概览</a>
+  <a class="tab-btn" href="index.html#materials"><span class="icon">&#128250;</span>材料</a>
+  <a class="tab-btn active" href="index.html#quizzes"><span class="icon">&#9999;&#65039;</span>测验</a>
+  <a class="tab-btn" href="index.html#plan"><span class="icon">&#128203;</span>计划</a>
+</nav>
+
+<script>
+  document.querySelectorAll(".option").forEach(opt => {
+    opt.addEventListener("click", () => {
+      const q = opt.closest(".question");
+      q.querySelectorAll(".option").forEach(o => o.classList.remove("selected"));
+      opt.classList.add("selected");
+      q.dataset.userAnswer = opt.dataset.key;
+      updateProgress();
+    });
+  });
+
+  document.querySelectorAll(".blank-input").forEach(inp => {
+    inp.addEventListener("input", () => {
+      inp.closest(".question").dataset.userAnswer = inp.value.trim();
+      updateProgress();
+    });
+  });
+
+  function updateProgress() {
+    const total = document.querySelectorAll(".question").length;
+    const done = document.querySelectorAll(".question[data-user-answer]").length;
+    document.getElementById("progressFill").style.width = (done / total * 100) + "%";
+  }
+
+  function submitQuiz() {
+    let correct = 0, total = 0;
+    document.querySelectorAll(".question").forEach(q => {
+      total++;
+      const userAns = (q.dataset.userAnswer || "").toLowerCase().trim();
+      const correctAns = q.dataset.answer.toLowerCase();
+      const isCorrect = userAns === correctAns;
+      if (isCorrect) correct++;
+
+      if (q.dataset.type === "mcq") {
+        q.querySelectorAll(".option").forEach(o => {
+          if (o.dataset.key.toLowerCase() === correctAns) o.classList.add("correct");
+          else if (o.dataset.key.toLowerCase() === userAns && !isCorrect) o.classList.add("wrong");
+        });
+      } else if (q.dataset.type === "blank") {
+        const inp = q.querySelector(".blank-input");
+        inp.classList.add(isCorrect ? "correct" : "wrong");
+      }
+      q.querySelector(".explanation")?.classList.add("show");
+    });
+
+    const result = document.getElementById("result");
+    const pct = Math.round(correct / total * 100);
+    document.getElementById("scoreNum").textContent = pct + "%";
+    document.getElementById("scoreDetail").textContent = correct + " / " + total + " 正确";
+    result.classList.add("show");
+    result.scrollIntoView({ behavior: "smooth" });
+  }
+
+  function resetQuiz() {
+    document.querySelectorAll(".question").forEach(q => {
+      delete q.dataset.userAnswer;
+      q.querySelectorAll(".option").forEach(o => o.classList.remove("selected", "correct", "wrong"));
+      const inp = q.querySelector(".blank-input");
+      if (inp) { inp.value = ""; inp.classList.remove("correct", "wrong"); }
+      q.querySelector(".explanation")?.classList.remove("show");
+    });
+    document.getElementById("result").classList.remove("show");
+    document.getElementById("progressFill").style.width = "0%";
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+</script>
+</body>
+</html>

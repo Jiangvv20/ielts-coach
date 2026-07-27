@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#2563eb">
+<title>今日 150 词 · 2026-07-28 · Environment</title>
+<style>
+  :root {
+    --bg: #ffffff; --fg: #1a1a1a; --muted: #6b7280;
+    --accent: #2563eb; --ok: #059669; --warn: #d97706;
+    --card: #f9fafb; --border: #e5e7eb;
+    --nav-bg: rgba(255,255,255,0.92);
+    --header-bg: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f172a; --fg: #f1f5f9; --muted: #94a3b8;
+      --accent: #60a5fa; --ok: #34d399; --warn: #fbbf24;
+      --card: #1e293b; --border: #334155;
+      --nav-bg: rgba(15,23,42,0.92);
+      --header-bg: linear-gradient(135deg, #1e40af 0%, #6b21a8 100%);
+    }
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg); }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif;
+    line-height: 1.5;
+    min-height: 100vh;
+    padding-bottom: calc(64px + env(safe-area-inset-bottom, 0));
+  }
+  .app-header {
+    background: var(--header-bg); color: white;
+    padding: calc(env(safe-area-inset-top, 16px) + 12px) 16px 14px;
+    position: sticky; top: 0; z-index: 20;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .back-btn {
+    background: rgba(255,255,255,0.18); border: none; color: white;
+    width: 34px; height: 34px; border-radius: 10px;
+    font-size: 1.1rem; cursor: pointer; flex-shrink: 0;
+    text-decoration: none; display: flex; align-items: center; justify-content: center;
+  }
+  .app-header .ttl { font-size: 1rem; font-weight: 700; }
+  .app-header .sub {
+    font-size: 0.72rem; opacity: 0.85; margin-top: 1px;
+    letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  .stats {
+    background: var(--card); padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px; text-align: center;
+  }
+  .stat .num { font-size: 1.4rem; font-weight: 700; }
+  .stat .num.know { color: var(--ok); }
+  .stat .num.weak { color: var(--warn); }
+  .stat .num.left { color: var(--accent); }
+  .stat .lbl { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; margin-top: 2px; }
+  .progress-bar { height: 4px; background: var(--border); overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--accent); transition: width 0.3s; }
+  .card-stage { margin: 24px 16px; perspective: 1000px; }
+  .card-3d {
+    position: relative; width: 100%; min-height: 260px;
+    transform-style: preserve-3d; transition: transform 0.5s; cursor: pointer;
+  }
+  .card-3d.flipped { transform: rotateY(180deg); }
+  .face {
+    position: absolute; width: 100%; height: 100%;
+    backface-visibility: hidden; -webkit-backface-visibility: hidden;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 18px; padding: 24px 20px;
+    display: flex; flex-direction: column; justify-content: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .face.front { text-align: center; }
+  .face.front .word { font-size: 2rem; font-weight: 700; color: var(--accent); margin-bottom: 8px; word-break: break-word; }
+  .face.front .pos { color: var(--muted); font-size: 0.95rem; font-style: italic; }
+  .face.front .hint { margin-top: 28px; color: var(--muted); font-size: 0.82rem; }
+  .face.back { transform: rotateY(180deg); }
+  .face.back .zh { font-size: 1.3rem; font-weight: 600; color: var(--accent); margin-bottom: 12px; }
+  .face.back .collo { background: var(--bg); padding: 8px 12px; border-radius: 8px; font-size: 0.92rem; color: var(--fg); margin-bottom: 10px; border-left: 3px solid var(--accent); }
+  .face.back .ex { font-size: 0.95rem; font-style: italic; color: var(--fg); line-height: 1.6; }
+  .face.back .ex strong { color: var(--accent); font-style: normal; }
+  .speaker { position: absolute; top: 14px; right: 14px; width: 36px; height: 36px; border-radius: 50%; background: var(--bg); border: 1px solid var(--border); cursor: pointer; font-size: 1.1rem; padding: 0; color: var(--accent); }
+  .view-toggle { display: flex; padding: 12px 16px 0; gap: 8px; }
+  .view-toggle button { flex: 1; padding: 8px; background: var(--card); border: 1px solid var(--border); border-radius: 8px; color: var(--muted); font-size: 0.85rem; cursor: pointer; font-family: inherit; }
+  .view-toggle button.active { background: var(--accent); color: white; border-color: var(--accent); }
+  .list-view { display: none; padding: 12px 16px 24px; }
+  .list-view.active { display: block; }
+  .list-row { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-bottom: 1px solid var(--border); background: var(--card); border-radius: 8px; margin-bottom: 6px; }
+  .list-row .num { flex-shrink: 0; width: 28px; color: var(--muted); font-size: 0.72rem; font-family: "SF Mono", Menlo, monospace; }
+  .list-row .word { flex: 1; min-width: 0; }
+  .list-row .w { font-weight: 600; font-size: 0.95rem; color: var(--fg); }
+  .list-row .w.knew { color: var(--ok); }
+  .list-row .w.weak { color: var(--warn); }
+  .list-row .zh { font-size: 0.78rem; color: var(--muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .list-row .spk { flex-shrink: 0; width: 32px; height: 32px; border-radius: 50%; background: var(--bg); border: 1px solid var(--border); cursor: pointer; color: var(--accent); font-size: 0.9rem; padding: 0; }
+  .list-row .mk { flex-shrink: 0; width: 24px; text-align: center; color: var(--muted); }
+  .list-row .mk.know { color: var(--ok); }
+  .list-row .mk.weak { color: var(--warn); }
+  .curriculum-note { margin: 16px; padding: 12px 14px; background: var(--card); border-left: 3px solid var(--accent); border-radius: 8px; font-size: 0.82rem; color: var(--muted); line-height: 1.5; }
+  .curriculum-note strong { color: var(--fg); }
+  .actions { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; padding: 0 16px; }
+  .btn { padding: 14px 8px; border: 1px solid var(--border); border-radius: 12px; background: var(--card); color: var(--fg); font-size: 0.95rem; font-weight: 600; cursor: pointer; font-family: inherit; -webkit-tap-highlight-color: transparent; }
+  .btn .ico { display: block; font-size: 1.4rem; margin-bottom: 2px; }
+  .btn.weak { color: var(--warn); }
+  .btn.weak:active { background: rgba(217,119,6,0.1); }
+  .btn.flip { color: var(--accent); }
+  .btn.flip:active { background: rgba(37,99,235,0.1); }
+  .btn.know { color: var(--ok); }
+  .btn.know:active { background: rgba(5,150,105,0.1); }
+  .meta { text-align: center; color: var(--muted); font-size: 0.78rem; margin-top: 20px; }
+  .tabbar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--nav-bg); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px); border-top: 1px solid var(--border); display: flex; padding-bottom: env(safe-area-inset-bottom, 0); z-index: 30; }
+  .tab-btn { flex: 1; background: transparent; border: none; padding: 10px 4px 8px; color: var(--muted); font-size: 0.68rem; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 3px; font-family: inherit; text-decoration: none; }
+  .tab-btn .icon { font-size: 1.25rem; line-height: 1; }
+  .tab-btn.active { color: var(--accent); }
+  .done-screen { text-align: center; padding: 60px 24px; display: none; }
+  .done-screen.show { display: block; }
+  .done-screen .big { font-size: 4rem; }
+  .done-screen .ttl { font-size: 1.3rem; font-weight: 700; margin: 8px 0; }
+  .done-screen .sub { color: var(--muted); margin-bottom: 24px; }
+  .done-screen button { background: var(--accent); color: white; border: none; padding: 12px 24px; border-radius: 12px; font-size: 0.95rem; font-weight: 600; cursor: pointer; font-family: inherit; margin: 4px; }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <a class="back-btn" href="index.html#home">&#8592;</a>
+  <div style="flex:1;">
+    <div class="ttl">今日 150 词 &middot; Environment</div>
+    <div class="sub">2026-07-28 &middot; Day 69</div>
+  </div>
+</header>
+
+<div class="stats">
+  <div class="stat"><div class="num know" id="kn">0</div><div class="lbl">知道</div></div>
+  <div class="stat"><div class="num weak" id="wk">0</div><div class="lbl">不熟</div></div>
+  <div class="stat"><div class="num left" id="lf">150</div><div class="lbl">剩余</div></div>
+</div>
+<div class="progress-bar"><div class="progress-fill" id="pg" style="width:0%"></div></div>
+
+<div class="view-toggle">
+  <button id="vtFlash" class="active" onclick="setView('flash')">&#128199; 卡片</button>
+  <button id="vtList" onclick="setView('list')">&#128203; 列表</button>
+</div>
+
+<div id="deck">
+  <div class="card-stage">
+    <div class="card-3d" id="card" onclick="flip()">
+      <div class="face front">
+        <button class="speaker" onclick="event.stopPropagation();speak(document.getElementById('w').textContent)">&#128266;</button>
+        <div class="word" id="w">&#8212;</div>
+        <div class="pos" id="p">&#8212;</div>
+        <div class="hint">轻触卡片 &middot; 翻看释义</div>
+      </div>
+      <div class="face back">
+        <button class="speaker" onclick="event.stopPropagation();speak(document.getElementById('w').textContent)">&#128266;</button>
+        <div class="zh" id="zh">&#8212;</div>
+        <div class="collo" id="cl">&#8212;</div>
+        <div class="ex" id="ex">&#8212;</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="btn weak" onclick="mark('weak')"><span class="ico">&#128543;</span>不熟</button>
+    <button class="btn flip" onclick="flip()"><span class="ico">&#128260;</span>翻转</button>
+    <button class="btn know" onclick="mark('know')"><span class="ico">&#9989;</span>知道</button>
+  </div>
+
+  <div class="meta" id="meta">1 / 150 &middot; 今日主题 Environment Day 6 (Cycle 2)</div>
+</div>
+
+<div class="list-view" id="listView">
+  <div id="listBody"></div>
+</div>
+
+<div class="curriculum-note">
+  <strong>今日主题</strong>: Environment Day 6 (Cycle 2) &middot; <strong>低碳交通 / 绿色建筑节能 / 可持续消费 / 循环经济 / 新兴清洁技术 / 环境经济学</strong><br>
+  词汇为 Band 7+ 难度，每条含词性 &middot; 中文 &middot; 搭配 &middot; 例句。
+</div>
+
+<div class="done-screen" id="done">
+  <div class="big">&#127881;</div>
+  <div class="ttl" id="doneTtl">今日 150 词完成!</div>
+  <div class="sub" id="doneSub">知道 0 &middot; 不熟 0</div>
+  <button onclick="resetAll()">重新开始</button>
+  <button onclick="reviewWeak()">只复习不熟</button>
+  <button onclick="location.href='index.html'">回主页</button>
+</div>
+
+<nav class="tabbar">
+  <a class="tab-btn active" href="index.html#home"><span class="icon">&#127968;</span>概览</a>
+  <a class="tab-btn" href="index.html#materials"><span class="icon">&#128250;</span>材料</a>
+  <a class="tab-btn" href="index.html#quizzes"><span class="icon">&#9999;&#65039;</span>测验</a>
+  <a class="tab-btn" href="index.html#plan"><span class="icon">&#128203;</span>计划</a>
+</nav>
+
+<script>
+const CARDS = [
+{"w":"modal shift","p":"n.","zh":"交通方式转变 (从私家车转向公共交通)","cl":"achieve a modal shift away from cars","ex":"Urban planners are working to achieve a <strong>modal shift</strong> away from private cars."},
+{"w":"intermodal","p":"adj.","zh":"多式联运的","cl":"intermodal transport network","ex":"An <strong>intermodal</strong> transport network links buses, trains and cycling."},
+{"w":"carpooling","p":"n.","zh":"拼车","cl":"promote carpooling schemes","ex":"Employers are promoting <strong>carpooling</strong> schemes to cut commuter emissions."},
+{"w":"cycleway","p":"n.","zh":"自行车专用道","cl":"build protected cycleways","ex":"The city invested in protected <strong>cycleways</strong> to encourage safe cycling."},
+{"w":"pedestrianise","p":"v.","zh":"将…改为步行区","cl":"pedestrianise the city centre","ex":"Authorities plan to <strong>pedestrianise</strong> the high street to reduce pollution."},
+{"w":"micromobility","p":"n.","zh":"微出行 (电动滑板车/电动自行车等)","cl":"expand micromobility options","ex":"Cities are expanding <strong>micromobility</strong> options including e-scooters and cargo bikes."},
+{"w":"fleet electrification","p":"n.","zh":"车队电气化","cl":"accelerate fleet electrification","ex":"Logistics companies are accelerating <strong>fleet electrification</strong> to meet net-zero targets."},
+{"w":"congestion","p":"n.","zh":"交通拥堵","cl":"ease traffic congestion","ex":"A congestion charge helped ease <strong>congestion</strong> in central London."},
+{"w":"last-mile delivery","p":"n.","zh":"最后一公里配送","cl":"solve last-mile delivery challenges","ex":"Electric cargo bikes offer a clean solution to <strong>last-mile delivery</strong> in cities."},
+{"w":"ride-hailing","p":"n.","zh":"网约车","cl":"regulate ride-hailing platforms","ex">Governments are beginning to regulate <strong>ride-hailing</strong> platforms on emissions grounds."},
+{"w":"transit hub","p":"n.","zh":"交通枢纽","cl":"develop a multimodal transit hub","ex":"The new <strong>transit hub</strong> connects rail, bus and cycle hire in one place."},
+{"w":"park-and-ride","p":"n.","zh":"停车换乘 (P+R)","cl":"use the park-and-ride facility","ex":"Commuters leave their cars at the <strong>park-and-ride</strong> and take the bus downtown."},
+{"w":"zero-emission zone","p":"n.","zh":"零排放区","cl":"designate a zero-emission zone","ex":"The city designated a <strong>zero-emission zone</strong> in the historic centre."},
+{"w":"vehicle-to-grid","p":"n.","zh":"车辆到电网 (V2G)","cl":"vehicle-to-grid technology","ex":"<strong>Vehicle-to-grid</strong> technology lets EV batteries supply power during peak demand."},
+{"w":"range anxiety","p":"n.","zh":"续航焦虑","cl":"overcome range anxiety","ex":"Expanding charging networks is key to overcoming <strong>range anxiety</strong> among drivers."},
+{"w":"charging infrastructure","p":"n.","zh":"充电基础设施","cl":"roll out charging infrastructure","ex":"Widespread adoption of EVs depends on rolling out <strong>charging infrastructure</strong>."},
+{"w":"rapid transit","p":"n.","zh":"快速公共交通","cl":"build a rapid transit corridor","ex":"Bus rapid transit offers affordable <strong>rapid transit</strong> for developing cities."},
+{"w":"mobility-as-a-service","p":"n.","zh":"出行即服务 (MaaS)","cl":"adopt a mobility-as-a-service model","ex":"<strong>Mobility-as-a-service</strong> integrates public and private transport into one subscription."},
+{"w":"e-mobility","p":"n.","zh":"电动出行生态系统","cl":"invest in e-mobility","ex">Countries investing in <strong>e-mobility</strong> are cutting both emissions and fuel imports."},
+{"w":"arterial road","p":"n.","zh":"干线道路","cl":"widen an arterial road","ex":"Widening the <strong>arterial road</strong> alone will not solve long-term congestion."},
+{"w":"BREEAM","p":"n.","zh":"英国绿色建筑评估标准","cl":"achieve BREEAM Excellent rating","ex":"The new office block achieved a <strong>BREEAM</strong> Excellent rating for sustainability."},
+{"w":"thermal mass","p":"n.","zh":"热质量 (储热材料特性)","cl":"exploit thermal mass for cooling","ex":"Concrete floors exploit <strong>thermal mass</strong> to keep buildings cool during the day."},
+{"w":"daylighting","p":"n.","zh":"采光设计","cl":"maximise daylighting potential","ex":"Good <strong>daylighting</strong> design reduces reliance on artificial lighting dramatically."},
+{"w":"greywater","p":"n.","zh":"中水 (废水再利用)","cl":"recycle greywater for irrigation","ex"><strong>Greywater</strong> from sinks and showers can be recycled to flush toilets."},
+{"w":"rainwater harvesting","p":"n.","zh":"雨水收集","cl":"install a rainwater harvesting system","ex":"<strong>Rainwater harvesting</strong> systems supply up to 50% of a building's non-potable water needs."},
+{"w":"cross-laminated timber","p":"n.","zh":"正交胶合木 (CLT)","cl":"build with cross-laminated timber","ex":"Architects are building tall structures with <strong>cross-laminated timber</strong> to cut embodied carbon."},
+{"w":"natural ventilation","p":"n.","zh":"自然通风","cl":"rely on natural ventilation","ex":"The school was designed to rely entirely on <strong>natural ventilation</strong>, eliminating air conditioning."},
+{"w":"building envelope","p":"n.","zh":"建筑围护结构","cl":"improve the building envelope","ex":"A well-insulated <strong>building envelope</strong> is the first step in cutting energy bills."},
+{"w":"U-value","p":"n.","zh":"热传导系数 (越低越好)","cl":"achieve a low U-value","ex":"Triple-glazed windows achieve a far lower <strong>U-value</strong> than single-glazed alternatives."},
+{"w":"airtightness","p":"n.","zh":"气密性","cl":"test airtightness levels","ex":"High <strong>airtightness</strong> prevents drafts and reduces heating demand substantially."},
+{"w":"thermal bridging","p":"n.","zh":"热桥 (热量泄漏路径)","cl":"eliminate thermal bridging","ex":"Architects use insulated fixings to eliminate <strong>thermal bridging</strong> in external walls."},
+{"w":"bioclimatic design","p":"n.","zh":"生物气候设计","cl":"apply bioclimatic design principles","ex"><strong>Bioclimatic design</strong> adapts a building's orientation and form to local weather patterns."},
+{"w":"overheating","p":"n.","zh":"室内过热","cl":"manage overheating risk","ex":"Climate change is increasing the <strong>overheating</strong> risk in poorly designed urban homes."},
+{"w":"adaptive facade","p":"n.","zh":"自适应外立面","cl":"an adaptive facade system","ex":"An <strong>adaptive facade</strong> adjusts its shading automatically to reduce solar gain."},
+{"w":"phase change material","p":"n.","zh":"相变材料 (储热)","cl":"integrate phase change material","ex"><strong>Phase change material</strong> in wall panels absorbs heat during the day and releases it at night."},
+{"w":"mass timber","p":"n.","zh":"大规模木构建筑材料","cl":"a mass timber structure","ex">Tall <strong>mass timber</strong> buildings store carbon and perform well under seismic stress."},
+{"w":"net-zero building","p":"n.","zh":"净零能耗建筑","cl":"certify a net-zero building","ex">A <strong>net-zero building</strong> generates as much energy as it consumes over a year."},
+{"w":"embodied energy","p":"n.","zh":"隐含能源 (生产材料所用能源)","cl":"calculate embodied energy","ex">Designers now calculate <strong>embodied energy</strong> alongside operational energy in assessments."},
+{"w":"building-integrated photovoltaic","p":"n.","zh":"建筑一体化光伏 (BIPV)","cl":"install building-integrated photovoltaic panels","ex"><strong>Building-integrated photovoltaic</strong> roof tiles generate power without altering the building's appearance."},
+{"w":"green roof","p":"n.","zh":"绿色屋顶 (种植屋顶)","cl":"install a green roof","ex">A <strong>green roof</strong> reduces stormwater runoff and insulates the building below."},
+{"w":"slow fashion","p":"n.","zh":"慢时尚 (注重质量与耐用性)","cl":"embrace the slow fashion movement","ex"><strong>Slow fashion</strong> emphasises quality, durability and ethical production over rapid trend cycles."},
+{"w":"fast fashion","p":"n.","zh":"快时尚","cl":"the environmental cost of fast fashion","ex"><strong>Fast fashion</strong> generates massive textile waste and consumes vast quantities of water."},
+{"w":"textile","p":"n.","zh":"纺织品","cl":"textile waste / recycled textiles","ex">Synthetic <strong>textiles</strong> shed microfibres that enter waterways and the food chain."},
+{"w":"microfibre pollution","p":"n.","zh":"微纤维污染","cl":"tackle microfibre pollution","ex"><strong>Microfibre pollution</strong> from washing machines is now found in remote ocean sediments."},
+{"w":"second-hand","p":"adj.","zh":"二手的","cl":"buy second-hand clothing","ex">Buying <strong>second-hand</strong> clothing is one of the most effective ways to reduce fashion's footprint."},
+{"w":"resale market","p":"n.","zh":"二手市场","cl":"the booming resale market","ex">The online <strong>resale market</strong> for clothing has grown faster than new retail in recent years."},
+{"w":"rental model","p":"n.","zh":"租赁商业模式","cl":"adopt a rental model for clothing","ex">Some designers are shifting to a <strong>rental model</strong>, retaining ownership and reducing waste."},
+{"w":"sufficiency","p":"n.","zh":"适度消费 (够用就好)","cl":"a culture of sufficiency","ex">Environmentalists argue that <strong>sufficiency</strong> — consuming only what you need — is more sustainable than efficiency alone."},
+{"w":"post-growth","p":"adj.","zh":"后增长的 (超越GDP增长的经济模式)","cl":"a post-growth economy","ex">A <strong>post-growth</strong> economy would measure success by wellbeing and equity, not GDP."},
+{"w":"consumption footprint","p":"n.","zh":"消费足迹","cl":"shrink your consumption footprint","ex">Switching to plant-based diets can dramatically shrink one's <strong>consumption footprint</strong>."},
+{"w":"sharing platform","p":"n.","zh":"共享平台","cl":"use a sharing platform","ex"><strong>Sharing platforms</strong> for tools, cars and clothes reduce the need to buy new goods."},
+{"w":"freecycle","p":"v./n.","zh":"免费交换 (闲置物品)","cl":"freecycle unused items","ex">She <strong>freecycled</strong> her old furniture to neighbours rather than sending it to landfill."},
+{"w":"repair culture","p":"n.","zh":"修复文化 (倡导修缮而非丢弃)","cl":"nurture a repair culture","ex">Repair cafés are helping to build a <strong>repair culture</strong> in communities across Europe."},
+{"w":"waste hierarchy","p":"n.","zh":"废弃物层级 (减量>再用>再生>处理)","cl":"apply the waste hierarchy","ex">The <strong>waste hierarchy</strong> prioritises prevention, then reuse, then recycling, before disposal."},
+{"w":"product lifespan","p":"n.","zh":"产品使用寿命","cl":"extend product lifespan","ex">Regulations are being introduced to mandate longer <strong>product lifespans</strong> for electronics."},
+{"w":"durability","p":"n.","zh":"耐用性","cl":"prioritise durability over style","ex">Consumers who prioritise <strong>durability</strong> over price tend to generate far less waste."},
+{"w":"longevity","p":"n.","zh":"长久使用性","cl":"design for longevity","ex">Designing for <strong>longevity</strong> is the foundation of sustainable product strategy."},
+{"w":"pre-loved","p":"adj.","zh":"二手的 (委婉说法)","cl":"pre-loved fashion","ex">The term 'pre-loved' is reshaping attitudes to buying <strong>second-hand</strong> clothing."},
+{"w":"ethical consumerism","p":"n.","zh":"道德消费主义","cl":"a rise in ethical consumerism","ex"><strong>Ethical consumerism</strong> is driving demand for fair-trade and organic products."},
+{"w":"minimalism","p":"n.","zh":"极简主义生活方式","cl":"embrace minimalism","ex"><strong>Minimalism</strong> challenges the consumer culture that drives overconsumption and waste."},
+{"w":"industrial symbiosis","p":"n.","zh":"工业共生 (企业互换废物/资源)","cl":"develop industrial symbiosis networks","ex">In <strong>industrial symbiosis</strong>, one company's waste becomes another's raw material."},
+{"w":"chemical recycling","p":"n.","zh":"化学回收 (将聚合物还原为单体)","cl":"invest in chemical recycling plants","ex"><strong>Chemical recycling</strong> can break down plastics that are impossible to mechanically recycle."},
+{"w":"material flow analysis","p":"n.","zh":"物质流分析","cl":"conduct a material flow analysis","ex">A <strong>material flow analysis</strong> reveals where resources enter, move through and exit the economy."},
+{"w":"life cycle assessment","p":"n.","zh":"生命周期评估 (LCA)","cl":"perform a life cycle assessment","ex">A <strong>life cycle assessment</strong> measures a product's environmental impact from cradle to grave."},
+{"w":"design for disassembly","p":"n.","zh":"拆解设计 (便于回收)","cl":"adopt design for disassembly","ex"><strong>Design for disassembly</strong> ensures smartphones can be taken apart and their parts recovered."},
+{"w":"take-back scheme","p":"n.","zh":"回收计划 (制造商回收旧产品)","cl":"join the take-back scheme","ex">The brand's <strong>take-back scheme</strong> allows customers to return worn garments for recycling."},
+{"w":"product-as-a-service","p":"n.","zh":"产品即服务 (PaaS)","cl":"a product-as-a-service model","ex">Under a <strong>product-as-a-service</strong> model, customers pay for lighting rather than buying bulbs."},
+{"w":"refurbishment","p":"n.","zh":"翻新修复","cl":"commercial refurbishment projects","ex"><strong>Refurbishment</strong> of older buildings produces far less embodied carbon than demolition and rebuilding."},
+{"w":"bio-based material","p":"n.","zh":"生物基材料","cl":"switch to bio-based materials","ex"><strong>Bio-based materials</strong> derived from crops can replace petroleum-based plastics in packaging."},
+{"w":"closed-loop recycling","p":"n.","zh":"闭环回收 (同类材料循环)","cl":"achieve closed-loop recycling","ex"><strong>Closed-loop recycling</strong> turns aluminium cans back into cans indefinitely without quality loss."},
+{"w":"green hydrogen","p":"n.","zh":"绿氢 (可再生能源制氢)","cl":"scale up green hydrogen production","ex">Governments are funding projects to scale up <strong>green hydrogen</strong> production using offshore wind."},
+{"w":"electrolysis","p":"n.","zh":"电解","cl":"water electrolysis to produce hydrogen","ex"><strong>Electrolysis</strong> uses renewable electricity to split water into hydrogen and oxygen."},
+{"w":"proton exchange membrane","p":"n.","zh":"质子交换膜 (PEM, 燃料电池核心部件)","cl":"proton exchange membrane electrolyser","ex">A <strong>proton exchange membrane</strong> electrolyser can rapidly respond to variable renewable energy supply."},
+{"w":"solid-state battery","p":"n.","zh":"固态电池","cl":"develop solid-state battery technology","ex"><strong>Solid-state batteries</strong> promise higher energy density and faster charging than lithium-ion cells."},
+{"w":"perovskite solar cell","p":"n.","zh":"钙钛矿太阳能电池","cl":"commercialise perovskite solar cells","ex"><strong>Perovskite solar cells</strong> have achieved efficiencies above 25% in laboratory conditions."},
+{"w":"floating solar","p":"n.","zh":"漂浮式太阳能","cl":"install floating solar arrays","ex"><strong>Floating solar</strong> on reservoirs generates power while reducing water evaporation."},
+{"w":"tidal stream generator","p":"n.","zh":"潮流发电机","cl":"deploy tidal stream generators","ex"><strong>Tidal stream generators</strong> harness the kinetic energy of ocean currents reliably."},
+{"w":"wave energy converter","p":"n.","zh":"波浪能转换器","cl":"a wave energy converter device","ex">A <strong>wave energy converter</strong> transforms the oscillation of ocean waves into electricity."},
+{"w":"district heating","p":"n.","zh":"集中供热网络","cl":"connect to the district heating network","ex"><strong>District heating</strong> powered by geothermal or waste heat can decarbonise entire neighbourhoods."},
+{"w":"power-to-X","p":"n.","zh":"电能转化 (电转气/电转液等)","cl":"power-to-X technology","ex"><strong>Power-to-X</strong> converts surplus renewable electricity into hydrogen, ammonia or synthetic fuels."},
+{"w":"demand response","p":"n.","zh":"需求响应 (电网调节)","cl":"participate in demand response","ex"><strong>Demand response</strong> programmes reward consumers for reducing electricity use at peak times."},
+{"w":"green ammonia","p":"n.","zh":"绿氨 (可再生氢合成)","cl":"produce green ammonia at scale","ex"><strong>Green ammonia</strong> could decarbonise fertiliser production and serve as a shipping fuel."},
+{"w":"direct air capture","p":"n.","zh":"直接空气捕获 (DAC)","cl":"direct air capture plants","ex"><strong>Direct air capture</strong> plants extract CO2 directly from the atmosphere for permanent storage."},
+{"w":"energy harvesting","p":"n.","zh":"能量收集 (利用环境中的微能量)","cl":"piezoelectric energy harvesting","ex"><strong>Energy harvesting</strong> from vibrations and heat could power remote sensors without batteries."},
+{"w":"synthetic fuel","p":"n.","zh":"合成燃料 (e-fuel)","cl":"produce synthetic fuel from captured CO2","ex"><strong>Synthetic fuels</strong> made from captured CO2 and renewable hydrogen could power long-haul aviation."},
+{"w":"Pigouvian tax","p":"n.","zh":"庇古税 (对负外部性征税)","cl":"introduce a Pigouvian tax on emissions","ex">A <strong>Pigouvian tax</strong> on carbon internalises the social cost of greenhouse gas emissions."},
+{"w":"market failure","p":"n.","zh":"市场失灵","cl":"correct market failure","ex">Climate change is a classic case of <strong>market failure</strong>, where prices don't reflect true costs."},
+{"w":"negative externality","p":"n.","zh":"负外部性","cl":"generate negative externalities","ex">Pollution is a <strong>negative externality</strong> imposed on society by producers who bear none of its cost."},
+{"w":"social cost of carbon","p":"n.","zh":"碳的社会成本","cl":"estimate the social cost of carbon","ex">The <strong>social cost of carbon</strong> reflects all economic harm caused by emitting one tonne of CO2."},
+{"w":"marginal abatement cost","p":"n.","zh":"边际减排成本","cl":"marginal abatement cost curve","ex">The <strong>marginal abatement cost</strong> rises steeply once the cheapest emission-reduction options are exhausted."},
+{"w":"tradeable permit","p":"n.","zh":"可交易排放许可证","cl":"allocate tradeable permits","ex">Companies can buy and sell <strong>tradeable permits</strong> to keep total emissions within the cap."},
+{"w":"full-cost accounting","p":"n.","zh":"全成本核算 (含环境成本)","cl":"adopt full-cost accounting","ex"><strong>Full-cost accounting</strong> reveals that fossil fuels are far more expensive than their market price suggests."},
+{"w":"natural capital accounting","p":"n.","zh":"自然资本核算","cl":"integrate natural capital accounting","ex"><strong>Natural capital accounting</strong> assigns monetary values to forests, rivers and clean air."},
+{"w":"green GDP","p":"n.","zh":"绿色GDP (扣除环境损耗)","cl":"calculate green GDP","ex"><strong>Green GDP</strong> subtracts environmental degradation from conventional GDP figures."},
+{"w":"genuine progress indicator","p":"n.","zh":"真实进步指标 (GPI)","cl":"use the genuine progress indicator","ex">The <strong>genuine progress indicator</strong> adjusts GDP for inequality, crime and environmental loss."},
+{"w":"Coase theorem","p":"n.","zh":"科斯定理 (产权清晰则私人协商可解决外部性)","cl":"the Coase theorem in environmental economics","ex">The <strong>Coase theorem</strong> argues that clearly defined property rights enable private bargaining over pollution."},
+{"w":"environmental Kuznets curve","p":"n.","zh":"环境库兹涅茨曲线","cl":"test the environmental Kuznets curve","ex">The <strong>environmental Kuznets curve</strong> suggests pollution first rises then falls as incomes grow."},
+{"w":"biodiversity offsetting","p":"n.","zh":"生物多样性抵消 (异地补偿)","cl":"require biodiversity offsetting","ex"><strong>Biodiversity offsetting</strong> allows developers to compensate for habitat loss by restoring land elsewhere."},
+{"w":"payment for ecosystem services","p":"n.","zh":"生态系统服务付费 (PES)","cl":"a payment for ecosystem services scheme","ex">A <strong>payment for ecosystem services</strong> scheme pays farmers to maintain wetlands on their land."},
+{"w":"risk-adjusted return","p":"n.","zh":"风险调整后回报","cl":"evaluate risk-adjusted returns on green bonds","ex">Investors compare the <strong>risk-adjusted return</strong> on green bonds against conventional assets."},
+{"w":"curb emissions significantly","p":"v.+adv.","zh":"大幅减少排放","cl":"curb emissions significantly by 2035","ex":"Nations have pledged to <strong>curb emissions significantly</strong> by 2035 under the new framework."},
+{"w":"set ambitious climate targets","p":"collocn.","zh":"设定雄心勃勃的气候目标","cl":"set ambitious climate targets and deliver on them","ex":"It is one thing to <strong>set ambitious climate targets</strong>; it is another to deliver on them."},
+{"w":"achieve net-zero status","p":"collocn.","zh":"实现净零碳排放","cl":"achieve net-zero status by 2050","ex":"The company pledged to <strong>achieve net-zero status</strong> by 2050 across its entire supply chain."},
+{"w":"phased approach to decarbonisation","p":"collocn.","zh":"分阶段脱碳","cl":"adopt a phased approach to decarbonisation","ex":"A <strong>phased approach to decarbonisation</strong> allows industry to adapt without economic disruption."},
+{"w":"transition to clean energy","p":"collocn.","zh":"转向清洁能源","cl":"accelerate the transition to clean energy","ex":"Investment is critical to accelerating the <strong>transition to clean energy</strong>."},
+{"w":"build sustainable supply chains","p":"collocn.","zh":"建立可持续供应链","cl":"build sustainable supply chains from source","ex":"Corporations are under pressure to <strong>build sustainable supply chains</strong> from source to shelf."},
+{"w":"adopt circular design principles","p":"collocn.","zh":"采用循环设计原则","cl":"adopt circular design principles industry-wide","ex":"Forward-thinking brands <strong>adopt circular design principles</strong> to eliminate waste before it arises."},
+{"w":"internalise environmental costs","p":"collocn.","zh":"将环境成本内部化","cl":"internalise environmental costs through pricing","ex":"Carbon taxes <strong>internalise environmental costs</strong> that markets otherwise ignore."},
+{"w":"mobilise green finance","p":"collocn.","zh":"动员绿色金融","cl":"mobilise green finance at scale","ex":"Only by mobilising <strong>green finance at scale</strong> can we close the climate investment gap."},
+{"w":"foster a culture of repair","p":"collocn.","zh":"培育修缮文化","cl":"foster a culture of repair and reuse","ex">Schools can help <strong>foster a culture of repair</strong> by teaching basic maintenance skills."},
+{"w":"address the energy trilemma","p":"collocn.","zh":"应对能源三难困境 (安全/可负担/可持续)","cl":"address the energy trilemma simultaneously","ex">Policy must <strong>address the energy trilemma</strong> of security, affordability and sustainability at once."},
+{"w":"unlock the potential of renewables","p":"collocn.","zh":"释放可再生能源潜力","cl":"unlock the potential of renewables through storage","ex">Grid-scale storage is needed to <strong>unlock the potential of renewables</strong> fully."},
+{"w":"slash energy consumption","p":"collocn.","zh":"大幅削减能耗","cl":"slash energy consumption in buildings","ex">Smart controls and better insulation can <strong>slash energy consumption</strong> in existing buildings by 40%."},
+{"w":"retrofit older buildings","p":"collocn.","zh":"改造旧建筑 (节能改造)","cl":"retrofit older buildings with insulation","ex":"Governments must fund programmes to <strong>retrofit older buildings</strong> with insulation and heat pumps."},
+{"w":"green the supply chain","p":"collocn.","zh":"使供应链绿色化","cl":"green the supply chain from raw materials onward","ex">Firms are being pushed to <strong>green the supply chain</strong> in response to investor demands."},
+{"w":"put a price on pollution","p":"collocn.","zh":"给污染定价","cl":"put a price on pollution through carbon taxes","ex">The most efficient way to cut emissions is to <strong>put a price on pollution</strong>."},
+{"w":"bear the cost of inaction","p":"collocn.","zh":"承担不作为的代价","cl":"bear the cost of inaction on climate","ex">Future generations will <strong>bear the cost of inaction</strong> on climate far more than we do today."},
+{"w":"champion sustainable consumption","p":"collocn.","zh":"倡导可持续消费","cl":"champion sustainable consumption policies","ex">Governments must <strong>champion sustainable consumption</strong> policies alongside clean production."},
+{"w":"overhaul the regulatory framework","p":"collocn.","zh":"彻底改革监管框架","cl":"overhaul the regulatory framework for transport","ex">Decarbonising transport will require an <strong>overhaul of the regulatory framework</strong>."},
+{"w":"harness untapped renewable potential","p":"collocn.","zh":"利用尚未开发的可再生能源潜力","cl":"harness untapped renewable potential in remote regions","ex">Offshore wind could <strong>harness untapped renewable potential</strong> in regions with no land for turbines."},
+{"w":"pioneer low-carbon solutions","p":"collocn.","zh":"开创低碳解决方案","cl":"pioneer low-carbon solutions in industry","ex">Early movers who <strong>pioneer low-carbon solutions</strong> gain a significant competitive advantage."},
+{"w":"cut transport-related emissions","p":"collocn.","zh":"削减交通相关排放","cl":"cut transport-related emissions by half","ex">Electric vehicles alone cannot <strong>cut transport-related emissions</strong> without modal shift."},
+{"w":"electrify the transport sector","p":"collocn.","zh":"推动交通行业电气化","cl":"electrify the transport sector by 2040","ex">The roadmap aims to fully <strong>electrify the transport sector</strong> within two decades."},
+{"w":"every cloud has a silver lining","p":"idiom","zh":"祸福相依，坏事中有好事","cl":"as they say, every cloud has a silver lining","ex":"The pandemic accelerated remote working — as they say, <strong>every cloud has a silver lining</strong>."},
+{"w":"the ball is in sb's court","p":"idiom","zh":"该某人采取行动了","cl":"the ball is now in the government's court","ex":"With the report published, <strong>the ball is now in the government's court</strong> to act."},
+{"w":"put one's money where one's mouth is","p":"idiom","zh":"说到做到；用行动证明","cl":"it's time to put money where their mouths are","ex":"If corporations are serious about net zero, it's time to <strong>put money where their mouths are</strong>."},
+{"w":"the clock is ticking","p":"idiom","zh":"时间紧迫","cl":"the clock is ticking on climate action","ex":"Scientists warn that <strong>the clock is ticking</strong> on climate action with little room left."},
+{"w":"actions speak louder than words","p":"idiom","zh":"行动胜于言辞","cl":"on sustainability, actions speak louder than words","ex":"On sustainability, <strong>actions speak louder than words</strong> — pledges must be backed by targets."},
+{"w":"you reap what you sow","p":"idiom","zh":"种瓜得瓜，种豆得豆","cl":"we reap what we sow environmentally","ex":"If we continue to exploit natural resources recklessly, we will <strong>reap what we sow</strong>."},
+{"w":"a paradigm shift is under way in...","p":"stem","zh":"……领域正在发生范式转变","cl":"a paradigm shift is under way in energy production","ex":"<strong>A paradigm shift is under way in</strong> how cities approach transport — away from cars, towards people."},
+{"w":"The evidence is unambiguous:","p":"stem","zh":"证据明确无误：……","cl":"The evidence is unambiguous: action is needed now","ex":"<strong>The evidence is unambiguous:</strong> building emissions must fall by 50% by 2030 to meet climate goals."},
+{"w":"Only by X can we hope to Y.","p":"stem","zh":"只有通过X，我们才能希望实现Y","cl":"Only by electrifying transport can we hope to meet targets","ex":"<strong>Only by</strong> radically redesigning our cities <strong>can we hope to</strong> create a truly sustainable future."},
+{"w":"The transition to X is not optional but inevitable.","p":"stem","zh":"向X的转型不是可选的，而是必然的","cl":"The transition to renewables is not optional but inevitable","ex":"<strong>The transition to</strong> a low-carbon economy <strong>is not optional but inevitable</strong> — the only question is speed."},
+{"w":"What we need is not X alone, but X combined with Y.","p":"stem","zh":"我们需要的不仅是X，而是X与Y的结合","cl":"not technology alone, but behaviour change combined with policy","ex":"<strong>What we need is not</strong> clean technology alone, <strong>but</strong> behaviour change <strong>combined with</strong> bold policy."},
+{"w":"Unless X is addressed urgently, Y will become irreversible.","p":"stem","zh":"除非紧急解决X，否则Y将变得不可逆转","cl":"Unless emissions are cut, warming will become irreversible","ex":"<strong>Unless</strong> overconsumption <strong>is addressed urgently</strong>, the loss of biodiversity <strong>will become irreversible</strong>."},
+{"w":"The onus is on X to demonstrate...","p":"stem","zh":"X有责任证明……","cl":"The onus is on industry to demonstrate real progress","ex":"<strong>The onus is on</strong> governments <strong>to demonstrate</strong> that their climate pledges are more than rhetoric."},
+{"w":"In the final analysis, ... boils down to...","p":"stem","zh":"归根结底……归结为……","cl":"In the final analysis, sustainability boils down to choices","ex":"<strong>In the final analysis</strong>, the climate crisis <strong>boils down to</strong> a collective failure of political will."},
+{"w":"We can afford neither complacency nor despair.","p":"stem","zh":"我们既不能自满，也不能绝望","cl":"We can afford neither complacency nor despair on the environment","ex":"Faced with the scale of the crisis, <strong>we can afford neither complacency nor despair</strong>."},
+{"w":"The decisions we make today will echo for generations to come.","p":"stem","zh":"我们今天做出的决定将影响几代人","cl":"The decisions we make today will echo for generations","ex":"<strong>The decisions we make today</strong> on energy, land and consumption <strong>will echo for generations to come</strong>."}
+];
+
+const KEY = "ielts_vocab_20260728";
+let state = JSON.parse(localStorage.getItem(KEY) || "{}");
+let deck = state.deck || shuffle([...Array(CARDS.length).keys()]);
+let idx = state.idx || 0;
+let know = state.know || 0;
+let weak = state.weak || 0;
+let marks = state.marks || {};
+let flipped = false;
+let currentView = 'flash';
+
+function save() {
+  localStorage.setItem(KEY, JSON.stringify({deck, idx, know, weak, marks}));
+}
+
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function speak(text) {
+  if (!window.speechSynthesis) return;
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = 'en-GB'; u.rate = 0.9;
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(u);
+}
+
+function render() {
+  const remaining = deck.slice(idx);
+  const left = remaining.length;
+  document.getElementById('kn').textContent = know;
+  document.getElementById('wk').textContent = weak;
+  document.getElementById('lf').textContent = left;
+  document.getElementById('pg').style.width = ((CARDS.length - left) / CARDS.length * 100) + '%';
+
+  if (left === 0) {
+    document.getElementById('deck').style.display = 'none';
+    const done = document.getElementById('done');
+    done.classList.add('show');
+    document.getElementById('doneSub').textContent = '知道 ' + know + ' · 不熟 ' + weak;
+    return;
+  }
+
+  const c = CARDS[deck[idx]];
+  document.getElementById('w').textContent = c.w;
+  document.getElementById('p').textContent = c.p;
+  document.getElementById('zh').textContent = c.zh;
+  document.getElementById('cl').textContent = c.cl;
+  document.getElementById('ex').innerHTML = c.ex;
+  document.getElementById('meta').textContent = (idx + 1) + ' / ' + CARDS.length + ' · 今日主题 Environment Day 6 (Cycle 2)';
+  document.getElementById('card').classList.remove('flipped');
+  flipped = false;
+}
+
+function flip() {
+  const card = document.getElementById('card');
+  flipped = !flipped;
+  card.classList.toggle('flipped', flipped);
+}
+
+function mark(type) {
+  if (idx >= deck.length) return;
+  const cardIdx = deck[idx];
+  marks[cardIdx] = type;
+  if (type === 'know') know++;
+  else weak++;
+  idx++;
+  save();
+  render();
+  if (currentView === 'list') buildList();
+}
+
+function setView(v) {
+  currentView = v;
+  document.getElementById('vtFlash').classList.toggle('active', v === 'flash');
+  document.getElementById('vtList').classList.toggle('active', v === 'list');
+  document.getElementById('deck').style.display = v === 'flash' ? 'block' : 'none';
+  const lv = document.getElementById('listView');
+  lv.style.display = v === 'list' ? 'block' : 'none';
+  lv.classList.toggle('active', v === 'list');
+  if (v === 'list') buildList();
+}
+
+function buildList() {
+  const body = document.getElementById('listBody');
+  body.innerHTML = CARDS.map((c, i) => {
+    const m = marks[i] || '';
+    return '<div class="list-row"><div class="num">' + (i+1) + '</div>' +
+      '<div class="word"><div class="w' + (m === 'know' ? ' knew' : m === 'weak' ? ' weak' : '') + '">' + c.w + '</div>' +
+      '<div class="zh">' + c.zh + '</div></div>' +
+      '<button class="spk" onclick="speak(\'' + c.w.replace(/'/g, "\\'") + '\')">&#128266;</button>' +
+      '<div class="mk' + (m === 'know' ? ' know' : m === 'weak' ? ' weak' : '') + '">' + (m === 'know' ? '&#9989;' : m === 'weak' ? '&#128543;' : '') + '</div></div>';
+  }).join('');
+}
+
+function resetAll() {
+  deck = shuffle([...Array(CARDS.length).keys()]);
+  idx = 0; know = 0; weak = 0; marks = {};
+  save();
+  document.getElementById('done').classList.remove('show');
+  document.getElementById('deck').style.display = 'block';
+  render();
+}
+
+function reviewWeak() {
+  const weakCards = Object.entries(marks).filter(([,v]) => v === 'weak').map(([k]) => parseInt(k));
+  if (weakCards.length === 0) { alert('没有标记为不熟的词'); return; }
+  deck = shuffle(weakCards);
+  idx = 0; know = 0; weak = 0; marks = {};
+  save();
+  document.getElementById('done').classList.remove('show');
+  document.getElementById('deck').style.display = 'block';
+  render();
+}
+
+render();
+</script>
+</body>
+</html>
