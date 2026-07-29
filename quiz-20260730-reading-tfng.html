@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#2563eb">
+<title>测验 · Reading T/F/NG · Day 71</title>
+<style>
+  :root {
+    --bg: #ffffff; --fg: #1a1a1a; --muted: #6b7280;
+    --accent: #2563eb; --ok: #059669; --err: #dc2626;
+    --card: #f9fafb; --border: #e5e7eb;
+    --nav-bg: rgba(255,255,255,0.92);
+    --header-bg: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f172a; --fg: #f1f5f9; --muted: #94a3b8;
+      --accent: #60a5fa; --ok: #34d399; --err: #f87171;
+      --card: #1e293b; --border: #334155;
+      --nav-bg: rgba(15,23,42,0.92);
+      --header-bg: linear-gradient(135deg, #1e40af 0%, #6b21a8 100%);
+    }
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg); }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif;
+    line-height: 1.6;
+    min-height: 100vh;
+    padding-bottom: calc(64px + env(safe-area-inset-bottom, 0));
+  }
+  .app-header {
+    background: var(--header-bg); color: white;
+    padding: calc(env(safe-area-inset-top, 16px) + 12px) 16px 14px;
+    position: sticky; top: 0; z-index: 20;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .back-btn {
+    background: rgba(255,255,255,0.18); border: none; color: white;
+    width: 34px; height: 34px; border-radius: 10px;
+    font-size: 1.1rem; cursor: pointer; flex-shrink: 0;
+    text-decoration: none; display: flex; align-items: center; justify-content: center;
+  }
+  .app-header .ttl { font-size: 1rem; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .app-header .sub { font-size: 0.72rem; opacity: 0.85; margin-top: 1px; letter-spacing: 0.04em; text-transform: uppercase; }
+  main { max-width: 720px; margin: 0 auto; padding: 16px; }
+  .progress { height: 6px; background: var(--border); border-radius: 3px; margin-bottom: 16px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--accent); transition: width 0.3s ease; }
+  .passage {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 14px 16px; margin-bottom: 16px;
+    font-size: 0.95rem; line-height: 1.7;
+  }
+  .passage h3 { margin: 0 0 8px; font-size: 0.78rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+  .passage h4 { margin: 0 0 10px; font-size: 1rem; font-weight: 700; color: var(--fg); }
+  .question {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 16px; margin-bottom: 14px;
+  }
+  .q-num { color: var(--muted); font-size: 0.78rem; font-family: "SF Mono", Menlo, monospace; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.04em; }
+  .q-text { font-size: 1rem; margin-bottom: 12px; font-weight: 500; }
+  .options { display: flex; flex-direction: column; gap: 8px; }
+  .option { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; cursor: pointer; font-size: 0.95rem; text-align: left; color: var(--fg); font-family: inherit; }
+  .option.selected { border-color: var(--accent); background: rgba(37,99,235,0.08); }
+  .option.correct { border-color: var(--ok); background: rgba(5,150,105,0.1); }
+  .option.wrong { border-color: var(--err); background: rgba(220,38,38,0.1); }
+  .blank-input { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; font-size: 1rem; color: var(--fg); font-family: inherit; }
+  .blank-input.correct { border-color: var(--ok); }
+  .blank-input.wrong { border-color: var(--err); }
+  .explanation { margin-top: 10px; padding: 10px 12px; background: var(--bg); border-left: 3px solid var(--accent); border-radius: 4px; font-size: 0.9rem; color: var(--muted); display: none; }
+  .explanation.show { display: block; }
+  .explanation .answer { color: var(--ok); font-weight: 600; }
+  .actions { display: flex; gap: 10px; margin-top: 20px; }
+  .btn { flex: 1; padding: 12px; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; font-family: inherit; }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-secondary { background: var(--card); color: var(--fg); border: 1px solid var(--border); }
+  .result { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; text-align: center; margin-top: 20px; display: none; }
+  .result.show { display: block; }
+  .score { font-size: 2.5rem; font-weight: 700; color: var(--accent); }
+  .score-label { color: var(--muted); font-size: 0.9rem; margin-top: 4px; }
+  .tabbar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--nav-bg); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px); border-top: 1px solid var(--border); display: flex; padding-bottom: env(safe-area-inset-bottom, 0); z-index: 30; }
+  .tab-btn { flex: 1; background: transparent; border: none; padding: 10px 4px 8px; color: var(--muted); font-size: 0.68rem; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 3px; font-family: inherit; text-decoration: none; }
+  .tab-btn .icon { font-size: 1.25rem; line-height: 1; }
+  .tab-btn.active { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <a class="back-btn" href="index.html#quizzes">&#8592;</a>
+  <div style="flex:1;min-width:0;">
+    <div class="ttl">Reading T/F/NG &middot; AI 与劳动力市场的未来</div>
+    <div class="sub">Day 71 &middot; 7 题 T/F/NG + 3 题词汇 &middot; ~10 分钟</div>
+  </div>
+</header>
+
+<main>
+
+  <div class="progress"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+
+  <div class="passage">
+    <h3>Passage &middot; Reading Extract (~620 words)</h3>
+    <h4>The Automation of Work: Promise, Disruption, and the Human Response</h4>
+    <p>For much of human history, technological change has been associated with a net expansion of employment. The mechanisation of agriculture displaced farm labourers, but factory jobs absorbed the surplus; the automation of manufacturing reduced assembly-line workers, but demand for service employment grew. Today, however, artificial intelligence presents a challenge that appears qualitatively different. Unlike earlier technologies that primarily substituted for physical labour, modern AI systems — and in particular large language models capable of generating text, code and analysis — are encroaching on domains previously thought to require uniquely human cognitive abilities.</p>
+    <p>A widely cited 2023 study by economists at Princeton, New York University and the University of Pennsylvania found that approximately 19% of American workers are in occupations where at least 50% of tasks are exposed to automation by current AI capabilities. The study notably found that higher-income, college-educated workers faced greater exposure than was widely assumed: lawyers, accountants, financial analysts and even software engineers are among the professions facing significant task displacement. Manufacturing workers, by contrast, faced relatively lower exposure because their work involves physical manipulation in unstructured environments — tasks that remain difficult for robots.</p>
+    <p>Proponents of AI argue that productivity gains will generate wealth that creates new categories of employment, just as previous waves of automation did. Historical evidence lends some support to this view: mechanised looms destroyed handweaving jobs but created an enormous textile industry; the personal computer eliminated typing pools but created millions of roles in software development, digital marketing and data analysis. The pace of AI-driven change, however, is faster than previous transitions. Where earlier technological shifts unfolded over decades, allowing workers time to retrain and labour markets to adjust, AI capabilities are advancing on a timescale of months.</p>
+    <p>The policy debate has coalesced around three responses. The first is investment in education and lifelong learning, enabling workers to move into roles that complement rather than compete with AI — creative work, complex judgement, empathy-intensive occupations. The second is regulatory intervention: mandating human oversight of AI in high-stakes decisions, restricting the use of algorithms in hiring and credit assessment, and requiring companies to conduct impact assessments before deploying AI systems at scale. The third is redistributive policy: proposals range from taxing automated labour productivity to fund retraining programmes, to more radical ideas such as a universal basic income financed by a levy on AI-generated profits.</p>
+    <p>Critics of the last approach argue that taxing automation would reduce the incentive to innovate, slowing the productivity growth on which long-term prosperity depends. Others counter that without deliberate policy intervention, the gains from AI will accrue primarily to capital owners and highly skilled workers, widening inequality rather than broadly raising living standards. Both sides agree on one point: passive reliance on market adjustment alone is insufficient given the speed and breadth of the coming disruption.</p>
+    <p>What is clear is that the consequences of AI for work will not be uniform across societies. Nations with strong vocational training systems, robust social safety nets and flexible labour markets are better positioned to manage the transition. Those with fragmented educational provision, weak institutional capacity or highly stratified labour markets face a far more difficult adjustment. In either case, the decisions made by governments, businesses and individuals over the next decade will shape the distribution of AI's benefits and burdens for generations to come.</p>
+  </div>
+
+  <div id="questions">
+
+    <div class="question" data-type="mcq" data-answer="A">
+      <div class="q-num">Q01 &middot; T/F/NG</div>
+      <div class="q-text">According to a 2023 study, around 19% of American workers are in jobs where at least half of tasks are exposed to current AI automation.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">正确答案: A (True)</div>
+        原文第二段: "approximately 19% of American workers are in occupations where at least 50% of tasks are exposed to automation by current AI capabilities"，与题目完全一致。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="B">
+      <div class="q-num">Q02 &middot; T/F/NG</div>
+      <div class="q-text">The 2023 study found that manufacturing workers face higher AI exposure than lawyers and financial analysts.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">正确答案: B (False)</div>
+        原文: "Manufacturing workers, by contrast, faced <strong>relatively lower</strong> exposure" — 蓝领工人暴露程度反而较低，题目说法与事实相反。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="C">
+      <div class="q-num">Q03 &middot; T/F/NG</div>
+      <div class="q-text">The majority of OECD nations have already introduced legislation specifically to manage the impact of AI on employment.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">正确答案: C (Not Given)</div>
+        原文讨论了政策选项，但未提及具体有多少国家已立法。题目信息在文章中未出现。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="A">
+      <div class="q-num">Q04 &middot; T/F/NG</div>
+      <div class="q-text">The pace of AI-driven change is faster than previous waves of technological automation.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">正确答案: A (True)</div>
+        原文第三段: "The pace of AI-driven change, however, is faster than previous transitions. Where earlier technological shifts unfolded over decades…AI capabilities are advancing on a timescale of months." 与题目一致。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="C">
+      <div class="q-num">Q05 &middot; T/F/NG</div>
+      <div class="q-text">Germany is cited in the passage as an example of a country well prepared to manage the AI transition.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">正确答案: C (Not Given)</div>
+        原文最后一段提到了"strong vocational training systems"等特征，但没有点名任何具体国家。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="A">
+      <div class="q-num">Q06 &middot; T/F/NG</div>
+      <div class="q-text">Investment in lifelong learning is identified in the passage as one of the recommended policy responses to AI disruption.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">正确答案: A (True)</div>
+        原文第四段: "The first is investment in education and <strong>lifelong learning</strong>, enabling workers to move into roles that complement rather than compete with AI." 与题目直接对应。
+      </div>
+    </div>
+
+    <div class="question" data-type="mcq" data-answer="B">
+      <div class="q-num">Q07 &middot; T/F/NG</div>
+      <div class="q-text">The passage suggests that passive reliance on market adjustment will be sufficient to manage the disruption caused by AI.</div>
+      <div class="options">
+        <button class="option" data-key="A">A. True</button>
+        <button class="option" data-key="B">B. False</button>
+        <button class="option" data-key="C">C. Not Given</button>
+      </div>
+      <div class="explanation">
+        <div class="answer">正确答案: B (False)</div>
+        原文第五段明确指出: "passive reliance on market adjustment alone is <strong>insufficient</strong> given the speed and breadth of the coming disruption." 与题目说法相反。
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="displacement">
+      <div class="q-num">Q08 &middot; 词汇填空</div>
+      <div class="q-text">Lawyers, accountants and software engineers are among the professions facing significant task ____. (中文提示: 取代·被替代)</div>
+      <input class="blank-input" placeholder="键入答案 (一个词)">
+      <div class="explanation">
+        <div class="answer">正确答案: displacement</div>
+        原文第二段: "lawyers, accountants, financial analysts and even software engineers are among the professions facing significant task <strong>displacement</strong>." 今日词卡核心词汇。
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="automation">
+      <div class="q-num">Q09 &middot; 词汇填空</div>
+      <div class="q-text">The ____ of manufacturing reduced assembly-line workers, but demand for service employment grew. (中文提示: 自动化)</div>
+      <input class="blank-input" placeholder="键入答案 (一个词)">
+      <div class="explanation">
+        <div class="answer">正确答案: automation</div>
+        原文首段: "the <strong>automation</strong> of manufacturing reduced assembly-line workers, but demand for service employment grew." Band 7+ 核心词。
+      </div>
+    </div>
+
+    <div class="question" data-type="blank" data-answer="algorithms">
+      <div class="q-num">Q10 &middot; 词汇填空</div>
+      <div class="q-text">One policy response is restricting the use of ____ in hiring and credit assessment. (中文提示: 算法，复数)</div>
+      <input class="blank-input" placeholder="键入答案 (一个词)">
+      <div class="explanation">
+        <div class="answer">正确答案: algorithms</div>
+        原文第四段: "restricting the use of <strong>algorithms</strong> in hiring and credit assessment." 今日词卡核心词汇，注意复数。
+      </div>
+    </div>
+
+  </div>
+
+  <div class="actions">
+    <button class="btn btn-secondary" onclick="resetQuiz()">重做</button>
+    <button class="btn btn-primary" onclick="submitQuiz()">提交对答</button>
+  </div>
+
+  <div class="result" id="result">
+    <div class="score" id="scoreNum">--</div>
+    <div class="score-label">正确率</div>
+    <div id="scoreDetail" style="margin-top:10px;color:var(--muted);"></div>
+    <div style="margin-top:12px;font-size:0.85rem;color:var(--muted);">
+      Band 7 目标: &ge;70% | Band 8 目标: &ge;90%<br>
+      本题关键词: automation / displacement / algorithms / lifelong learning / algorithmic bias
+    </div>
+  </div>
+
+</main>
+
+<nav class="tabbar">
+  <a class="tab-btn" href="index.html#home"><span class="icon">&#127968;</span>概览</a>
+  <a class="tab-btn" href="index.html#materials"><span class="icon">&#128250;</span>材料</a>
+  <a class="tab-btn active" href="index.html#quizzes"><span class="icon">&#9999;&#65039;</span>测验</a>
+  <a class="tab-btn" href="index.html#plan"><span class="icon">&#128203;</span>计划</a>
+</nav>
+
+<script>
+  document.querySelectorAll(".option").forEach(opt => {
+    opt.addEventListener("click", () => {
+      const q = opt.closest(".question");
+      q.querySelectorAll(".option").forEach(o => o.classList.remove("selected"));
+      opt.classList.add("selected");
+      q.dataset.userAnswer = opt.dataset.key;
+      updateProgress();
+    });
+  });
+
+  document.querySelectorAll(".blank-input").forEach(inp => {
+    inp.addEventListener("input", () => {
+      inp.closest(".question").dataset.userAnswer = inp.value.trim();
+      updateProgress();
+    });
+  });
+
+  function updateProgress() {
+    const total = document.querySelectorAll(".question").length;
+    const done = document.querySelectorAll(".question[data-user-answer]").length;
+    document.getElementById("progressFill").style.width = (done / total * 100) + "%";
+  }
+
+  function submitQuiz() {
+    let correct = 0, total = 0;
+    document.querySelectorAll(".question").forEach(q => {
+      total++;
+      const userAns = (q.dataset.userAnswer || "").toLowerCase().trim();
+      const correctAns = q.dataset.answer.toLowerCase();
+      const isCorrect = userAns === correctAns;
+      if (isCorrect) correct++;
+
+      if (q.dataset.type === "mcq") {
+        q.querySelectorAll(".option").forEach(o => {
+          if (o.dataset.key.toLowerCase() === correctAns) o.classList.add("correct");
+          else if (o.dataset.key.toLowerCase() === userAns && !isCorrect) o.classList.add("wrong");
+        });
+      } else if (q.dataset.type === "blank") {
+        const inp = q.querySelector(".blank-input");
+        inp.classList.add(isCorrect ? "correct" : "wrong");
+      }
+      q.querySelector(".explanation")?.classList.add("show");
+    });
+
+    const result = document.getElementById("result");
+    const pct = Math.round(correct / total * 100);
+    document.getElementById("scoreNum").textContent = pct + "%";
+    document.getElementById("scoreDetail").textContent = correct + " / " + total + " 正确";
+    result.classList.add("show");
+    result.scrollIntoView({ behavior: "smooth" });
+  }
+
+  function resetQuiz() {
+    document.querySelectorAll(".question").forEach(q => {
+      delete q.dataset.userAnswer;
+      q.querySelectorAll(".option").forEach(o => o.classList.remove("selected", "correct", "wrong"));
+      const inp = q.querySelector(".blank-input");
+      if (inp) { inp.value = ""; inp.classList.remove("correct", "wrong"); }
+      q.querySelector(".explanation")?.classList.remove("show");
+    });
+    document.getElementById("result").classList.remove("show");
+    document.getElementById("progressFill").style.width = "0%";
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+</script>
+</body>
+</html>
