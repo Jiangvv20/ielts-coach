@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#2563eb">
+<title>今日 150 词 · 2026-08-01 · Technology</title>
+<style>
+  :root {
+    --bg: #ffffff; --fg: #1a1a1a; --muted: #6b7280;
+    --accent: #2563eb; --ok: #059669; --warn: #d97706;
+    --card: #f9fafb; --border: #e5e7eb;
+    --nav-bg: rgba(255,255,255,0.92);
+    --header-bg: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f172a; --fg: #f1f5f9; --muted: #94a3b8;
+      --accent: #60a5fa; --ok: #34d399; --warn: #fbbf24;
+      --card: #1e293b; --border: #334155;
+      --nav-bg: rgba(15,23,42,0.92);
+      --header-bg: linear-gradient(135deg, #1e40af 0%, #6b21a8 100%);
+    }
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg); }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif;
+    line-height: 1.5;
+    min-height: 100vh;
+    padding-bottom: calc(64px + env(safe-area-inset-bottom, 0));
+  }
+  .app-header {
+    background: var(--header-bg); color: white;
+    padding: calc(env(safe-area-inset-top, 16px) + 12px) 16px 14px;
+    position: sticky; top: 0; z-index: 20;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .back-btn {
+    background: rgba(255,255,255,0.18); border: none; color: white;
+    width: 34px; height: 34px; border-radius: 10px;
+    font-size: 1.1rem; cursor: pointer; flex-shrink: 0;
+    text-decoration: none; display: flex; align-items: center; justify-content: center;
+  }
+  .app-header .ttl { font-size: 1rem; font-weight: 700; }
+  .app-header .sub {
+    font-size: 0.72rem; opacity: 0.85; margin-top: 1px;
+    letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  .stats {
+    background: var(--card); padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px; text-align: center;
+  }
+  .stat .num { font-size: 1.4rem; font-weight: 700; }
+  .stat .num.know { color: var(--ok); }
+  .stat .num.weak { color: var(--warn); }
+  .stat .num.left { color: var(--accent); }
+  .stat .lbl { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; margin-top: 2px; }
+  .progress-bar { height: 4px; background: var(--border); overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--accent); transition: width 0.3s; }
+  .card-stage { margin: 24px 16px; perspective: 1000px; }
+  .card-3d {
+    position: relative; width: 100%; min-height: 260px;
+    transform-style: preserve-3d; transition: transform 0.5s; cursor: pointer;
+  }
+  .card-3d.flipped { transform: rotateY(180deg); }
+  .face {
+    position: absolute; width: 100%; height: 100%;
+    backface-visibility: hidden; -webkit-backface-visibility: hidden;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 18px; padding: 24px 20px;
+    display: flex; flex-direction: column; justify-content: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .face.front { text-align: center; }
+  .face.front .word { font-size: 2rem; font-weight: 700; color: var(--accent); margin-bottom: 8px; word-break: break-word; }
+  .face.front .pos { color: var(--muted); font-size: 0.95rem; font-style: italic; }
+  .face.front .hint { margin-top: 28px; color: var(--muted); font-size: 0.82rem; }
+  .face.back { transform: rotateY(180deg); }
+  .face.back .zh { font-size: 1.3rem; font-weight: 600; color: var(--accent); margin-bottom: 12px; }
+  .face.back .collo { background: var(--bg); padding: 8px 12px; border-radius: 8px; font-size: 0.92rem; color: var(--fg); margin-bottom: 10px; border-left: 3px solid var(--accent); }
+  .face.back .ex { font-size: 0.95rem; font-style: italic; color: var(--fg); line-height: 1.6; }
+  .face.back .ex strong { color: var(--accent); font-style: normal; }
+  .speaker { position: absolute; top: 14px; right: 14px; width: 36px; height: 36px; border-radius: 50%; background: var(--bg); border: 1px solid var(--border); cursor: pointer; font-size: 1.1rem; padding: 0; color: var(--accent); }
+  .view-toggle { display: flex; padding: 12px 16px 0; gap: 8px; }
+  .view-toggle button { flex: 1; padding: 8px; background: var(--card); border: 1px solid var(--border); border-radius: 8px; color: var(--muted); font-size: 0.85rem; cursor: pointer; font-family: inherit; }
+  .view-toggle button.active { background: var(--accent); color: white; border-color: var(--accent); }
+  .list-view { display: none; padding: 12px 16px 24px; }
+  .list-view.active { display: block; }
+  .list-row { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-bottom: 1px solid var(--border); background: var(--card); border-radius: 8px; margin-bottom: 6px; }
+  .list-row .num { flex-shrink: 0; width: 28px; color: var(--muted); font-size: 0.72rem; font-family: "SF Mono", Menlo, monospace; }
+  .list-row .word { flex: 1; min-width: 0; }
+  .list-row .w { font-weight: 600; font-size: 0.95rem; color: var(--fg); }
+  .list-row .w.knew { color: var(--ok); }
+  .list-row .w.weak { color: var(--warn); }
+  .list-row .zh { font-size: 0.78rem; color: var(--muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .list-row .spk { flex-shrink: 0; width: 32px; height: 32px; border-radius: 50%; background: var(--bg); border: 1px solid var(--border); cursor: pointer; color: var(--accent); font-size: 0.9rem; padding: 0; }
+  .list-row .mk { flex-shrink: 0; width: 24px; text-align: center; color: var(--muted); }
+  .list-row .mk.know { color: var(--ok); }
+  .list-row .mk.weak { color: var(--warn); }
+  .curriculum-note { margin: 16px; padding: 12px 14px; background: var(--card); border-left: 3px solid var(--accent); border-radius: 8px; font-size: 0.82rem; color: var(--muted); line-height: 1.5; }
+  .curriculum-note strong { color: var(--fg); }
+  .actions { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; padding: 0 16px; }
+  .btn { padding: 14px 8px; border: 1px solid var(--border); border-radius: 12px; background: var(--card); color: var(--fg); font-size: 0.95rem; font-weight: 600; cursor: pointer; font-family: inherit; -webkit-tap-highlight-color: transparent; }
+  .btn .ico { display: block; font-size: 1.4rem; margin-bottom: 2px; }
+  .btn.weak { color: var(--warn); }
+  .btn.weak:active { background: rgba(217,119,6,0.1); }
+  .btn.flip { color: var(--accent); }
+  .btn.flip:active { background: rgba(37,99,235,0.1); }
+  .btn.know { color: var(--ok); }
+  .btn.know:active { background: rgba(5,150,105,0.1); }
+  .meta { text-align: center; color: var(--muted); font-size: 0.78rem; margin-top: 20px; }
+  .tabbar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--nav-bg); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px); border-top: 1px solid var(--border); display: flex; padding-bottom: env(safe-area-inset-bottom, 0); z-index: 30; }
+  .tab-btn { flex: 1; background: transparent; border: none; padding: 10px 4px 8px; color: var(--muted); font-size: 0.68rem; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 3px; font-family: inherit; text-decoration: none; }
+  .tab-btn .icon { font-size: 1.25rem; line-height: 1; }
+  .tab-btn.active { color: var(--accent); }
+  .done-screen { text-align: center; padding: 60px 24px; display: none; }
+  .done-screen.show { display: block; }
+  .done-screen .big { font-size: 4rem; }
+  .done-screen .ttl { font-size: 1.3rem; font-weight: 700; margin: 8px 0; }
+  .done-screen .sub { color: var(--muted); margin-bottom: 24px; }
+  .done-screen button { background: var(--accent); color: white; border: none; padding: 12px 24px; border-radius: 12px; font-size: 0.95rem; font-weight: 600; cursor: pointer; font-family: inherit; margin: 4px; }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <a class="back-btn" href="index.html#home">&#8592;</a>
+  <div style="flex:1;">
+    <div class="ttl">今日 150 词 &middot; Technology</div>
+    <div class="sub">2026-08-01 &middot; Day 73</div>
+  </div>
+</header>
+
+<div class="stats">
+  <div class="stat"><div class="num know" id="kn">0</div><div class="lbl">知道</div></div>
+  <div class="stat"><div class="num weak" id="wk">0</div><div class="lbl">不熟</div></div>
+  <div class="stat"><div class="num left" id="lf">150</div><div class="lbl">剩余</div></div>
+</div>
+<div class="progress-bar"><div class="progress-fill" id="pg" style="width:0%"></div></div>
+
+<div class="view-toggle">
+  <button id="vtFlash" class="active" onclick="setView('flash')">&#128279; 卡片</button>
+  <button id="vtList" onclick="setView('list')">&#128203; 列表</button>
+</div>
+
+<div id="deck">
+  <div class="card-stage">
+    <div class="card-3d" id="card" onclick="flip()">
+      <div class="face front">
+        <button class="speaker" onclick="event.stopPropagation();speak(document.getElementById('w').textContent)">&#128266;</button>
+        <div class="word" id="w">—</div>
+        <div class="pos" id="p">—</div>
+        <div class="hint">轻触卡片 &middot; 翻看释义</div>
+      </div>
+      <div class="face back">
+        <button class="speaker" onclick="event.stopPropagation();speak(document.getElementById('w').textContent)">&#128266;</button>
+        <div class="zh" id="zh">—</div>
+        <div class="collo" id="cl">—</div>
+        <div class="ex" id="ex">—</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="btn weak" onclick="mark('weak')"><span class="ico">&#128547;</span>不熟</button>
+    <button class="btn flip" onclick="flip()"><span class="ico">&#128260;</span>翻转</button>
+    <button class="btn know" onclick="mark('know')"><span class="ico">&#9989;</span>知道</button>
+  </div>
+
+  <div class="meta" id="meta">1 / 150 &middot; Technology Day 3 (Cycle 2)</div>
+</div>
+
+<div class="list-view" id="listView">
+  <div id="listBody"></div>
+</div>
+
+<div class="curriculum-note">
+  <strong>词汇来源</strong>: 8 大主题轮换，涵盖雅思高频话题。<br>
+  Day 1-7 <strong>Education</strong> &middot; Day 8-14 <strong>Environment</strong> &middot; Day 15-21 <strong>Technology</strong> &middot; Day 22-28 <strong>Health</strong> &middot; Day 29-35 <strong>Government &amp; Society</strong> &middot; Day 36-42 <strong>Work &amp; Economy</strong> &middot; Day 43-49 <strong>Family</strong> &middot; Day 50-56 <strong>Travel &amp; Culture</strong> &middot; 之后循环。<br>
+  今日专题: <strong>物联网/可穿戴/AR-VR/区块链/量子计算/生物科技/智慧城市</strong>。词汇为 Band 7+ 难度, 每条含 词性 &middot; 中文 &middot; 搭配 &middot; 例句。
+</div>
+
+<div class="done-screen" id="done">
+  <div class="big">&#127881;</div>
+  <div class="ttl" id="doneTtl">今日 150 词完成!</div>
+  <div class="sub" id="doneSub">知道 0 &middot; 不熟 0</div>
+  <button onclick="resetAll()">重新开始</button>
+  <button onclick="reviewWeak()">只复习不熟</button>
+  <button onclick="location.href='index.html'">回主页</button>
+</div>
+
+<nav class="tabbar">
+  <a class="tab-btn active" href="index.html#home"><span class="icon">&#127968;</span>概览</a>
+  <a class="tab-btn" href="index.html#materials"><span class="icon">&#128250;</span>材料</a>
+  <a class="tab-btn" href="index.html#quizzes"><span class="icon">&#9999;&#65039;</span>测验</a>
+  <a class="tab-btn" href="index.html#plan"><span class="icon">&#128203;</span>计划</a>
+</nav>
+
+<script>
+const CARDS = [
+{"w":"wearable","p":"adj./n.","zh":"可穿戴的 / 可穿戴设备","cl":"wearable technology","ex":"<strong>Wearable</strong> technology is revolutionising personal health monitoring."},
+{"w":"sensor","p":"n.","zh":"传感器","cl":"embedded sensor","ex":"Embedded <strong>sensors</strong> track every heartbeat with precision."},
+{"w":"biometric","p":"adj.","zh":"生物特征的","cl":"biometric data","ex":"Smartwatches collect <strong>biometric</strong> data around the clock."},
+{"w":"bandwidth","p":"n.","zh":"带宽","cl":"high bandwidth","ex":"Streaming 4K video demands considerable <strong>bandwidth</strong>."},
+{"w":"connectivity","p":"n.","zh":"连通性","cl":"seamless connectivity","ex":"5G promises seamless <strong>connectivity</strong> for billions of devices."},
+{"w":"interoperable","p":"adj.","zh":"互操作的","cl":"interoperable systems","ex":"<strong>Interoperable</strong> systems can communicate across different platforms."},
+{"w":"synchronise","p":"v.","zh":"同步","cl":"synchronise data","ex":"Your phone automatically <strong>synchronises</strong> health data with the cloud."},
+{"w":"telemetry","p":"n.","zh":"遥测","cl":"real-time telemetry","ex":"The hospital uses <strong>telemetry</strong> to monitor patients remotely."},
+{"w":"latency","p":"n.","zh":"延迟","cl":"ultra-low latency","ex":"Autonomous vehicles require ultra-low <strong>latency</strong> networks."},
+{"w":"miniaturise","p":"v.","zh":"微型化","cl":"miniaturise components","ex":"Engineers have <strong>miniaturised</strong> sensors to fit inside a single chip."},
+{"w":"immersive","p":"adj.","zh":"沉浸式的","cl":"immersive experience","ex":"Virtual reality creates truly <strong>immersive</strong> educational environments."},
+{"w":"augmented","p":"adj.","zh":"增强的","cl":"augmented reality","ex":"<strong>Augmented</strong> reality overlays digital information on the physical world."},
+{"w":"simulation","p":"n.","zh":"模拟","cl":"high-fidelity simulation","ex":"Flight simulators use high-fidelity <strong>simulation</strong> to train pilots safely."},
+{"w":"haptic","p":"adj.","zh":"触觉的","cl":"haptic feedback","ex":"<strong>Haptic</strong> feedback allows users to feel virtual objects in VR."},
+{"w":"render","p":"v.","zh":"渲染","cl":"render 3D graphics","ex":"Modern GPUs can <strong>render</strong> photorealistic scenes in real time."},
+{"w":"avatar","p":"n.","zh":"虚拟形象","cl":"digital avatar","ex":"Users represent themselves through customisable <strong>avatars</strong> in the metaverse."},
+{"w":"metaverse","p":"n.","zh":"元宇宙","cl":"the metaverse","ex":"The <strong>metaverse</strong> promises a persistent, shared virtual social world."},
+{"w":"headset","p":"n.","zh":"头显 / 耳机","cl":"VR headset","ex":"Consumer VR <strong>headsets</strong> are rapidly becoming more affordable."},
+{"w":"holographic","p":"adj.","zh":"全息的","cl":"holographic display","ex":"<strong>Holographic</strong> displays may replace flat screens within a decade."},
+{"w":"spatial","p":"adj.","zh":"空间的","cl":"spatial computing","ex":"<strong>Spatial</strong> computing merges digital and physical realities seamlessly."},
+{"w":"blockchain","p":"n.","zh":"区块链","cl":"blockchain technology","ex":"<strong>Blockchain</strong> technology creates tamper-proof digital records."},
+{"w":"decentralised","p":"adj.","zh":"去中心化的","cl":"decentralised network","ex":"Bitcoin operates on a fully <strong>decentralised</strong> network."},
+{"w":"cryptocurrency","p":"n.","zh":"加密货币","cl":"invest in cryptocurrency","ex":"Many investors have poured capital into <strong>cryptocurrency</strong>."},
+{"w":"token","p":"n.","zh":"代币","cl":"digital token","ex":"The platform issues <strong>tokens</strong> to reward active community members."},
+{"w":"immutable","p":"adj.","zh":"不可篡改的","cl":"an immutable ledger","ex":"Blockchain entries are essentially <strong>immutable</strong> once confirmed."},
+{"w":"consensus","p":"n.","zh":"共识","cl":"consensus mechanism","ex":"A <strong>consensus</strong> mechanism validates each transaction on the network."},
+{"w":"volatile","p":"adj.","zh":"波动剧烈的","cl":"volatile market","ex":"Cryptocurrency markets are notoriously <strong>volatile</strong>."},
+{"w":"ledger","p":"n.","zh":"账本","cl":"distributed ledger","ex":"A distributed <strong>ledger</strong> records all transactions transparently."},
+{"w":"smart contract","p":"n.","zh":"智能合约","cl":"execute a smart contract","ex":"<strong>Smart contracts</strong> run automatically when preset conditions are met."},
+{"w":"mine","p":"v.","zh":"挖矿","cl":"mine cryptocurrency","ex":"Vast computing farms <strong>mine</strong> new coins, consuming enormous energy."},
+{"w":"quantum","p":"adj.","zh":"量子的","cl":"quantum computing","ex":"<strong>Quantum</strong> computers could render current encryption obsolete."},
+{"w":"qubit","p":"n.","zh":"量子比特","cl":"a 1000-qubit chip","ex":"A <strong>qubit</strong> can exist in multiple states simultaneously."},
+{"w":"superposition","p":"n.","zh":"叠加态","cl":"quantum superposition","ex":"<strong>Superposition</strong> allows a quantum computer to process many possibilities at once."},
+{"w":"entanglement","p":"n.","zh":"量子纠缠","cl":"quantum entanglement","ex":"<strong>Entanglement</strong> links qubits so that measuring one instantly affects the other."},
+{"w":"decoherence","p":"n.","zh":"退相干","cl":"quantum decoherence","ex":"<strong>Decoherence</strong> remains the chief obstacle to practical quantum computers."},
+{"w":"exponential","p":"adj.","zh":"指数级的","cl":"exponential speedup","ex":"Quantum algorithms offer an <strong>exponential</strong> speedup for certain problems."},
+{"w":"cryptography","p":"n.","zh":"密码学","cl":"post-quantum cryptography","ex":"Post-quantum <strong>cryptography</strong> aims to protect data against quantum attacks."},
+{"w":"algorithm","p":"n.","zh":"算法","cl":"optimisation algorithm","ex":"A novel <strong>algorithm</strong> solved the drug-design problem in minutes."},
+{"w":"computational","p":"adj.","zh":"计算的","cl":"computational power","ex":"Quantum machines offer vastly greater <strong>computational</strong> power than classical ones."},
+{"w":"breakthrough","p":"n.","zh":"突破","cl":"a landmark breakthrough","ex":"The lab announced a landmark <strong>breakthrough</strong> in qubit stability."},
+{"w":"scalable","p":"adj.","zh":"可扩展的","cl":"scalable architecture","ex":"Cloud services offer highly <strong>scalable</strong> storage and processing capacity."},
+{"w":"server","p":"n.","zh":"服务器","cl":"data centre server","ex":"Thousands of <strong>servers</strong> power a single major search engine."},
+{"w":"redundant","p":"adj.","zh":"冗余的","cl":"redundant backup","ex":"<strong>Redundant</strong> systems prevent catastrophic data loss in data centres."},
+{"w":"cache","p":"n./v.","zh":"缓存","cl":"cache data locally","ex":"Browsers <strong>cache</strong> web pages to speed up repeated visits."},
+{"w":"repository","p":"n.","zh":"存储库","cl":"code repository","ex":"All project files are stored in a shared <strong>repository</strong>."},
+{"w":"deploy","p":"v.","zh":"部署","cl":"deploy an application","ex":"Engineers can <strong>deploy</strong> software updates to millions of users instantly."},
+{"w":"microservice","p":"n.","zh":"微服务","cl":"microservice architecture","ex":"Netflix relies on a <strong>microservice</strong> architecture for scalability."},
+{"w":"migrate","p":"v.","zh":"迁移","cl":"migrate to the cloud","ex":"Many firms are rapidly <strong>migrating</strong> legacy systems to the cloud."},
+{"w":"integrate","p":"v.","zh":"整合","cl":"integrate systems","ex":"Hospitals must <strong>integrate</strong> wearable data with existing health records."},
+{"w":"iterate","p":"v.","zh":"迭代","cl":"iterate rapidly","ex":"Successful tech companies <strong>iterate</strong> rapidly based on user feedback."},
+{"w":"genomics","p":"n.","zh":"基因组学","cl":"advances in genomics","ex":"Advances in <strong>genomics</strong> are redefining personalised medicine."},
+{"w":"gene editing","p":"n.","zh":"基因编辑","cl":"CRISPR gene editing","ex":"CRISPR-based <strong>gene editing</strong> can correct inherited diseases."},
+{"w":"biotech","p":"n.","zh":"生物科技","cl":"biotech industry","ex":"The <strong>biotech</strong> industry has attracted record venture capital investment."},
+{"w":"diagnosis","p":"n.","zh":"诊断","cl":"early diagnosis","ex":"AI-assisted <strong>diagnosis</strong> can detect cancer far earlier than before."},
+{"w":"therapeutic","p":"adj.","zh":"治疗的","cl":"therapeutic application","ex":"Gene therapies have remarkable <strong>therapeutic</strong> potential for rare diseases."},
+{"w":"sequencing","p":"n.","zh":"测序","cl":"DNA sequencing","ex":"Rapid whole-genome <strong>sequencing</strong> accelerated the pandemic vaccine response."},
+{"w":"mutation","p":"n.","zh":"突变","cl":"harmful mutation","ex":"Scientists mapped <strong>mutations</strong> linked to hereditary cancers."},
+{"w":"nanomaterial","p":"n.","zh":"纳米材料","cl":"nanomaterial in drug delivery","ex":"<strong>Nanomaterials</strong> deliver drugs precisely to tumour cells."},
+{"w":"prosthetic","p":"adj./n.","zh":"假肢的 / 假肢","cl":"a prosthetic limb","ex":"Bionic <strong>prosthetics</strong> now respond to the wearer's neural signals."},
+{"w":"prototype","p":"n.","zh":"原型","cl":"build a prototype","ex":"Engineers built a working <strong>prototype</strong> of the surgical robot in weeks."},
+{"w":"smart city","p":"n.","zh":"智慧城市","cl":"build a smart city","ex":"Singapore is widely cited as a model <strong>smart city</strong>."},
+{"w":"grid","p":"n.","zh":"电网","cl":"smart grid","ex":"A <strong>smart grid</strong> adjusts electricity supply in real time."},
+{"w":"surveillance","p":"n.","zh":"监控","cl":"mass surveillance","ex":"Critics warn that smart-city sensors enable unprecedented <strong>surveillance</strong>."},
+{"w":"autonomous","p":"adj.","zh":"自主的","cl":"autonomous vehicle","ex":"<strong>Autonomous</strong> vehicles could eliminate the majority of road accidents."},
+{"w":"mobility","p":"n.","zh":"出行 / 流动性","cl":"urban mobility","ex":"Electric scooters have transformed urban <strong>mobility</strong> in major cities."},
+{"w":"drone","p":"n.","zh":"无人机","cl":"delivery drone","ex":"<strong>Drones</strong> are being trialled for last-mile parcel delivery."},
+{"w":"geospatial","p":"adj.","zh":"地理空间的","cl":"geospatial data","ex":"<strong>Geospatial</strong> data helps planners optimise traffic and land use."},
+{"w":"resilient","p":"adj.","zh":"有韧性的","cl":"a resilient network","ex":"Cities need <strong>resilient</strong> digital infrastructure to withstand cyberattacks."},
+{"w":"ecosystem","p":"n.","zh":"(科技)生态","cl":"tech ecosystem","ex":"Silicon Valley's <strong>ecosystem</strong> nurtures startups from seed to IPO."},
+{"w":"disruptive","p":"adj.","zh":"颠覆性的","cl":"disruptive innovation","ex":"Uber's <strong>disruptive</strong> model upended the global taxi industry."},
+{"w":"incumbent","p":"adj./n.","zh":"现有的 / 现有企业","cl":"incumbent businesses","ex":"<strong>Incumbent</strong> firms often struggle to respond to disruptive challengers."},
+{"w":"scalability","p":"n.","zh":"可扩展性","cl":"concern about scalability","ex":"Investors' key concern about the startup is long-term <strong>scalability</strong>."},
+{"w":"interoperability","p":"n.","zh":"互操作性","cl":"ensure interoperability","ex":"Lack of <strong>interoperability</strong> frustrates users who switch between platforms."},
+{"w":"cyberthreat","p":"n.","zh":"网络威胁","cl":"emerging cyberthreats","ex":"Governments must respond to constantly evolving <strong>cyberthreats</strong>."},
+{"w":"encrypt","p":"v.","zh":"加密","cl":"encrypt data end-to-end","ex":"Modern messaging apps <strong>encrypt</strong> all data end-to-end."},
+{"w":"vulnerability","p":"n.","zh":"漏洞","cl":"software vulnerability","ex":"A single <strong>vulnerability</strong> can expose millions of users to attack."},
+{"w":"patch","p":"v./n.","zh":"修补 / 补丁","cl":"release a security patch","ex":"The company rushed to <strong>patch</strong> the critical security flaw."},
+{"w":"firewall","p":"n.","zh":"防火墙","cl":"corporate firewall","ex":"A powerful <strong>firewall</strong> blocks most unauthorised access attempts."},
+{"w":"authenticate","p":"v.","zh":"认证","cl":"authenticate users","ex":"The system <strong>authenticates</strong> users via fingerprint scans."},
+{"w":"malware","p":"n.","zh":"恶意软件","cl":"install malware","ex":"A phishing email tricked him into installing <strong>malware</strong>."},
+{"w":"ransomware","p":"n.","zh":"勒索软件","cl":"a ransomware attack","ex":"A <strong>ransomware</strong> attack paralysed the hospital's entire network."},
+{"w":"phishing","p":"n.","zh":"网络钓鱼","cl":"phishing attempt","ex":"Never click suspicious links—it could be a <strong>phishing</strong> attempt."},
+{"w":"personalise","p":"v.","zh":"个性化","cl":"personalise recommendations","ex":"Algorithms <strong>personalise</strong> content to keep users engaged longer."},
+{"w":"frictionless","p":"adj.","zh":"无摩擦的","cl":"frictionless payment","ex":"Consumers increasingly demand <strong>frictionless</strong> payment experiences."},
+{"w":"fintech","p":"n.","zh":"金融科技","cl":"fintech disruption","ex":"<strong>Fintech</strong> firms are challenging traditional banking models."},
+{"w":"open-source","p":"adj.","zh":"开源的","cl":"open-source software","ex":"Linux is the most widely deployed <strong>open-source</strong> operating system."},
+{"w":"proprietary","p":"adj.","zh":"专有的","cl":"proprietary algorithm","ex":"Companies guard <strong>proprietary</strong> algorithms with extreme secrecy."},
+{"w":"interface","p":"n.","zh":"界面 / 接口","cl":"user interface","ex":"A well-designed <strong>interface</strong> greatly reduces friction for users."},
+{"w":"throughput","p":"n.","zh":"吞吐量","cl":"data throughput","ex":"High <strong>throughput</strong> is essential for real-time video streaming."},
+{"w":"iteration","p":"n.","zh":"迭代","cl":"rapid iteration","ex":"Rapid <strong>iteration</strong> is at the heart of agile software development."},
+{"w":"disintermediate","p":"v.","zh":"去中介化","cl":"disintermediate banks","ex":"Fintech companies <strong>disintermediate</strong> traditional lending institutions."},
+{"w":"precision","p":"n.","zh":"精确性","cl":"precision medicine","ex":"<strong>Precision</strong> medicine tailors treatment to each patient's genome."},
+{"w":"transparent","p":"adj.","zh":"透明的","cl":"transparent algorithm","ex":"Consumers demand more <strong>transparent</strong> algorithmic decision-making."},
+{"w":"proliferate","p":"v.","zh":"激增","cl":"proliferate rapidly","ex":"Cheap smartphones have <strong>proliferated</strong> across the developing world."},
+{"w":"payload","p":"n.","zh":"有效载荷","cl":"satellite payload","ex":"Each satellite carries a sophisticated <strong>payload</strong> of sensors."},
+{"w":"fifth-generation network","p":"n.","zh":"第五代网络 (5G)","cl":"5G network rollout","ex":"The <strong>fifth-generation network</strong> rollout will unlock driverless transport and smart factories."},
+{"w":"Internet of Things","p":"n.","zh":"物联网","cl":"Internet of Things devices","ex":"The <strong>Internet of Things</strong> connects everyday objects to the digital world."},
+{"w":"digital twin","p":"n.","zh":"数字孪生","cl":"a digital twin of the factory","ex":"Engineers built a <strong>digital twin</strong> to simulate factory performance before construction."},
+{"w":"edge computing","p":"n.","zh":"边缘计算","cl":"adopt edge computing","ex":"<strong>Edge computing</strong> processes data closer to the source, slashing latency."},
+{"w":"neural network","p":"n.","zh":"神经网络","cl":"train a neural network","ex":"A deep <strong>neural network</strong> learned to identify cancerous cells in scans."},
+{"w":"large language model","p":"n.","zh":"大语言模型","cl":"a large language model","ex":"A <strong>large language model</strong> can generate human-quality text at scale."},
+{"w":"deepfake","p":"n.","zh":"深度伪造","cl":"a deepfake video","ex":"<strong>Deepfake</strong> videos have become a serious misinformation threat."},
+{"w":"supply chain","p":"n.","zh":"供应链","cl":"disrupt the supply chain","ex":"<strong>Supply chain</strong> disruptions exposed the fragility of global trade."},
+{"w":"predictive analytics","p":"n.","zh":"预测分析","cl":"use predictive analytics","ex":"Retailers use <strong>predictive analytics</strong> to anticipate consumer demand."},
+{"w":"tech stack","p":"n.","zh":"技术栈","cl":"modernise the tech stack","ex":"Modernising the <strong>tech stack</strong> required a year-long engineering effort."},
+{"w":"zero-day exploit","p":"n.","zh":"零日漏洞利用","cl":"a zero-day exploit","ex":"A <strong>zero-day exploit</strong> was used to breach the defence contractor."},
+{"w":"digital transformation","p":"n.","zh":"数字化转型","cl":"accelerate digital transformation","ex":"<strong>Digital transformation</strong> is now a board-level strategic priority."},
+{"w":"net neutrality","p":"n.","zh":"网络中立","cl":"uphold net neutrality","ex":"ISPs are lobbying aggressively to end <strong>net neutrality</strong> rules."},
+{"w":"low earth orbit","p":"n.","zh":"近地轨道","cl":"low earth orbit satellite","ex":"A constellation of <strong>low earth orbit</strong> satellites delivers global broadband coverage."},
+{"w":"battery storage","p":"n.","zh":"储能","cl":"large-scale battery storage","ex":"Large-scale <strong>battery storage</strong> is crucial for integrating renewable energy."},
+{"w":"mixed reality","p":"n.","zh":"混合现实","cl":"mixed reality headset","ex":"A <strong>mixed reality</strong> headset overlays holograms onto the real environment."},
+{"w":"regulatory sandbox","p":"n.","zh":"监管沙盒","cl":"operate in a regulatory sandbox","ex":"<strong>Regulatory sandboxes</strong> let fintech firms test innovations under relaxed oversight."},
+{"w":"data sovereignty","p":"n.","zh":"数据主权","cl":"assert data sovereignty","ex":"Nations are asserting <strong>data sovereignty</strong> over data generated within their borders."},
+{"w":"carbon-neutral","p":"adj.","zh":"碳中和的","cl":"become carbon-neutral","ex":"Leading tech giants have pledged to become <strong>carbon-neutral</strong> by 2030."},
+{"w":"non-fungible token","p":"n.","zh":"非同质化代币","cl":"mint an NFT","ex":"A digital artwork was sold as a <strong>non-fungible token</strong> for millions of dollars."},
+{"w":"proof of concept","p":"n.","zh":"概念验证","cl":"develop a proof of concept","ex":"Engineers delivered a working <strong>proof of concept</strong> within six weeks."},
+{"w":"venture capital","p":"n.","zh":"风险投资","cl":"raise venture capital","ex":"The startup raised $80 million in <strong>venture capital</strong> in its Series B round."},
+{"w":"first mover advantage","p":"n.","zh":"先发优势","cl":"exploit first mover advantage","ex":"<strong>First mover advantage</strong> can be decisive in winner-takes-all technology markets."},
+{"w":"on the cutting edge","p":"idiom","zh":"处于技术前沿","cl":"be on the cutting edge","ex":"Our research lab is firmly <strong>on the cutting edge</strong> of quantum computing."},
+{"w":"push the envelope","p":"idiom","zh":"突破极限","cl":"push the technological envelope","ex":"SpaceX continues to <strong>push the envelope</strong> in reusable rocket design."},
+{"w":"roll out","p":"phrasal v.","zh":"推出 / 部署","cl":"roll out a product","ex":"The company will <strong>roll out</strong> its AI assistant globally next quarter."},
+{"w":"scale up","p":"phrasal v.","zh":"扩大规模","cl":"scale up production","ex":"The factory is <strong>scaling up</strong> chip production to meet surging demand."},
+{"w":"phase out","p":"phrasal v.","zh":"逐步淘汰","cl":"phase out legacy systems","ex":"Legacy systems are being <strong>phased out</strong> in favour of cloud-native alternatives."},
+{"w":"keep pace with","p":"phrase","zh":"跟上 (步伐)","cl":"keep pace with change","ex":"Governments struggle to <strong>keep pace with</strong> the speed of technological change."},
+{"w":"stay ahead of the curve","p":"idiom","zh":"领先于时代","cl":"stay ahead of the curve","ex":"Constant upskilling helps professionals <strong>stay ahead of the curve</strong>."},
+{"w":"a double-edged sword","p":"idiom","zh":"一把双刃剑","cl":"technology is a double-edged sword","ex":"Social media is <strong>a double-edged sword</strong>: it connects and divides in equal measure."},
+{"w":"bridge the gap","p":"phrase","zh":"弥合差距","cl":"bridge the digital gap","ex":"Technology can help <strong>bridge the gap</strong> between underserved and prosperous communities."},
+{"w":"plug and play","p":"idiom","zh":"即插即用","cl":"a plug-and-play solution","ex":"The device is truly <strong>plug and play</strong>—no setup or installation required."},
+{"w":"go viral","p":"phrasal v.","zh":"病毒式传播","cl":"go viral on social media","ex":"The clever campaign <strong>went viral</strong> within hours of being posted online."},
+{"w":"ramp up","p":"phrasal v.","zh":"加快 / 提升","cl":"ramp up investment","ex":"Governments are rapidly <strong>ramping up</strong> investment in clean energy technology."},
+{"w":"pivot","p":"v./n.","zh":"转型 / 改变方向","cl":"pivot to a new model","ex":"When the first product failed, the team boldly <strong>pivoted</strong> to a new business model."},
+{"w":"hack together","p":"phrasal v.","zh":"快速拼凑","cl":"hack together a prototype","ex":"Two engineers <strong>hacked together</strong> a working prototype over a single weekend."},
+{"w":"there is no silver bullet","p":"sentence stem","zh":"没有万能解法","cl":"no silver bullet to cybercrime","ex":"When it comes to cybersecurity, <strong>there is no silver bullet</strong>—defence requires multiple layers."},
+{"w":"it is no exaggeration to say","p":"sentence stem","zh":"毫不夸张地说","cl":"it is no exaggeration to say AI will reshape","ex":"<strong>It is no exaggeration to say that</strong> AI will reshape every industry within a generation."},
+{"w":"the pace of change shows no sign of slowing","p":"sentence stem","zh":"变革步伐毫无放缓迹象","cl":"the pace of tech change","ex":"<strong>The pace of change shows no sign of slowing</strong>—organisations that fail to adapt risk obsolescence."}
+];
+
+let state = JSON.parse(localStorage.getItem("ielts_vocab_20260801") || "{}");
+let queue = CARDS.map((c, i) => ({...c, idx: i})).filter(c => !state[c.idx] || state[c.idx] === "review");
+let cur = 0;
+
+function speak(text) {
+  if (!text || !window.speechSynthesis) return;
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = "en-US"; u.rate = 0.85; u.pitch = 1;
+  const voices = speechSynthesis.getVoices();
+  const en = voices.find(v => /en-(US|GB)/.test(v.lang) && /Samantha|Daniel|Alex|Karen|Moira|Google US English|Google UK English/.test(v.name))
+          || voices.find(v => v.lang.startsWith("en"));
+  if (en) u.voice = en;
+  speechSynthesis.speak(u);
+}
+if (window.speechSynthesis) speechSynthesis.onvoiceschanged = () => {};
+
+function render() {
+  if (cur >= queue.length) return showDone();
+  const c = queue[cur];
+  document.getElementById("w").textContent = c.w;
+  document.getElementById("p").textContent = c.p;
+  document.getElementById("zh").textContent = c.zh;
+  document.getElementById("cl").textContent = c.cl;
+  document.getElementById("ex").innerHTML = c.ex;
+  document.getElementById("card").classList.remove("flipped");
+  document.getElementById("meta").textContent = `${cur+1} / ${queue.length} \u00b7 Technology Day 3 (Cycle 2)`;
+  updateStats();
+  setTimeout(() => speak(c.w), 150);
+}
+
+function setView(v) {
+  document.getElementById("vtFlash").classList.toggle("active", v === "flash");
+  document.getElementById("vtList").classList.toggle("active", v === "list");
+  document.getElementById("deck").style.display = v === "flash" ? "" : "none";
+  document.getElementById("listView").classList.toggle("active", v === "list");
+  if (v === "list") renderList();
+}
+
+function renderList() {
+  const body = document.getElementById("listBody");
+  body.innerHTML = CARDS.map((c, i) => {
+    const mark = state[i] || "";
+    const cls = mark === "know" ? "knew" : mark === "weak" ? "weak" : "";
+    const ico = mark === "know" ? "\u2713" : mark === "weak" ? "\u25cb" : "\u00b7";
+    const mcls = mark === "know" ? "know" : mark === "weak" ? "weak" : "";
+    return `<div class="list-row">
+      <div class="num">${String(i+1).padStart(3,'0')}</div>
+      <div class="word"><div class="w ${cls}">${c.w} <span style="color:var(--muted);font-weight:400;font-size:0.78rem;">${c.p}</span></div><div class="zh">${c.zh}</div></div>
+      <button class="spk" onclick="speak('${c.w.replace(/'/g,"\\'")}')">&#128266;</button>
+      <div class="mk ${mcls}">${ico}</div>
+    </div>`;
+  }).join("");
+}
+
+function flip() { document.getElementById("card").classList.toggle("flipped"); }
+
+function mark(t) {
+  const c = queue[cur];
+  state[c.idx] = (t === "know" ? "know" : "weak");
+  localStorage.setItem("ielts_vocab_20260801", JSON.stringify(state));
+  cur++;
+  render();
+}
+
+function updateStats() {
+  const kn = Object.values(state).filter(v=>v==="know").length;
+  const wk = Object.values(state).filter(v=>v==="weak").length;
+  const lf = 150 - kn - wk;
+  document.getElementById("kn").textContent = kn;
+  document.getElementById("wk").textContent = wk;
+  document.getElementById("lf").textContent = lf;
+  document.getElementById("pg").style.width = ((kn+wk)/150*100) + "%";
+}
+
+function showDone() {
+  document.getElementById("deck").style.display = "none";
+  document.getElementById("done").classList.add("show");
+  const kn = Object.values(state).filter(v=>v==="know").length;
+  const wk = Object.values(state).filter(v=>v==="weak").length;
+  document.getElementById("doneTtl").textContent = wk > 0 ? `今日 150 词完成! 还有 ${wk} 张不熟` : "今日 150 词全掌握 \uD83C\uDF89";
+  document.getElementById("doneSub").textContent = `知道 ${kn} \u00b7 不熟 ${wk}`;
+}
+
+function reviewWeak() {
+  queue = CARDS.map((c,i)=>({...c,idx:i})).filter(c => state[c.idx] === "weak");
+  if (queue.length === 0) { alert("没有不熟的卡!"); return; }
+  cur = 0;
+  document.getElementById("done").classList.remove("show");
+  document.getElementById("deck").style.display = "";
+  render();
+}
+
+function resetAll() {
+  if (!confirm("清空今日进度，重新开始?")) return;
+  localStorage.removeItem("ielts_vocab_20260801");
+  state = {};
+  queue = CARDS.map((c,i)=>({...c,idx:i}));
+  cur = 0;
+  document.getElementById("done").classList.remove("show");
+  document.getElementById("deck").style.display = "";
+  render();
+}
+
+render();
+</script>
+
+</body>
+</html>
