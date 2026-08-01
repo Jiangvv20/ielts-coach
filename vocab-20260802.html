@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#2563eb">
+<title>今日 150 词 · 2026-08-02 · Technology</title>
+<style>
+  :root {
+    --bg: #ffffff; --fg: #1a1a1a; --muted: #6b7280;
+    --accent: #2563eb; --ok: #059669; --warn: #d97706;
+    --card: #f9fafb; --border: #e5e7eb;
+    --nav-bg: rgba(255,255,255,0.92);
+    --header-bg: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f172a; --fg: #f1f5f9; --muted: #94a3b8;
+      --accent: #60a5fa; --ok: #34d399; --warn: #fbbf24;
+      --card: #1e293b; --border: #334155;
+      --nav-bg: rgba(15,23,42,0.92);
+      --header-bg: linear-gradient(135deg, #1e40af 0%, #6b21a8 100%);
+    }
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg); }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif;
+    line-height: 1.5;
+    min-height: 100vh;
+    padding-bottom: calc(64px + env(safe-area-inset-bottom, 0));
+  }
+  .app-header {
+    background: var(--header-bg); color: white;
+    padding: calc(env(safe-area-inset-top, 16px) + 12px) 16px 14px;
+    position: sticky; top: 0; z-index: 20;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .back-btn {
+    background: rgba(255,255,255,0.18); border: none; color: white;
+    width: 34px; height: 34px; border-radius: 10px;
+    font-size: 1.1rem; cursor: pointer; flex-shrink: 0;
+    text-decoration: none; display: flex; align-items: center; justify-content: center;
+  }
+  .app-header .ttl { font-size: 1rem; font-weight: 700; }
+  .app-header .sub {
+    font-size: 0.72rem; opacity: 0.85; margin-top: 1px;
+    letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  .stats {
+    background: var(--card); padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px; text-align: center;
+  }
+  .stat .num { font-size: 1.4rem; font-weight: 700; }
+  .stat .num.know { color: var(--ok); }
+  .stat .num.weak { color: var(--warn); }
+  .stat .num.left { color: var(--accent); }
+  .stat .lbl { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; margin-top: 2px; }
+  .progress-bar { height: 4px; background: var(--border); overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--accent); transition: width 0.3s; }
+  .card-stage { margin: 24px 16px; perspective: 1000px; }
+  .card-3d {
+    position: relative; width: 100%; min-height: 260px;
+    transform-style: preserve-3d; transition: transform 0.5s; cursor: pointer;
+  }
+  .card-3d.flipped { transform: rotateY(180deg); }
+  .face {
+    position: absolute; width: 100%; height: 100%;
+    backface-visibility: hidden; -webkit-backface-visibility: hidden;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 18px; padding: 24px 20px;
+    display: flex; flex-direction: column; justify-content: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .face.front { text-align: center; }
+  .face.front .word { font-size: 2rem; font-weight: 700; color: var(--accent); margin-bottom: 8px; word-break: break-word; }
+  .face.front .pos { color: var(--muted); font-size: 0.95rem; font-style: italic; }
+  .face.front .hint { margin-top: 28px; color: var(--muted); font-size: 0.82rem; }
+  .face.back { transform: rotateY(180deg); }
+  .face.back .zh { font-size: 1.3rem; font-weight: 600; color: var(--accent); margin-bottom: 12px; }
+  .face.back .collo { background: var(--bg); padding: 8px 12px; border-radius: 8px; font-size: 0.92rem; color: var(--fg); margin-bottom: 10px; border-left: 3px solid var(--accent); }
+  .face.back .ex { font-size: 0.95rem; font-style: italic; color: var(--fg); line-height: 1.6; }
+  .face.back .ex strong { color: var(--accent); font-style: normal; }
+  .speaker { position: absolute; top: 14px; right: 14px; width: 36px; height: 36px; border-radius: 50%; background: var(--bg); border: 1px solid var(--border); cursor: pointer; font-size: 1.1rem; padding: 0; color: var(--accent); }
+  .view-toggle { display: flex; padding: 12px 16px 0; gap: 8px; }
+  .view-toggle button { flex: 1; padding: 8px; background: var(--card); border: 1px solid var(--border); border-radius: 8px; color: var(--muted); font-size: 0.85rem; cursor: pointer; font-family: inherit; }
+  .view-toggle button.active { background: var(--accent); color: white; border-color: var(--accent); }
+  .list-view { display: none; padding: 12px 16px 24px; }
+  .list-view.active { display: block; }
+  .list-row { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-bottom: 1px solid var(--border); background: var(--card); border-radius: 8px; margin-bottom: 6px; }
+  .list-row .num { flex-shrink: 0; width: 28px; color: var(--muted); font-size: 0.72rem; font-family: "SF Mono", Menlo, monospace; }
+  .list-row .word { flex: 1; min-width: 0; }
+  .list-row .w { font-weight: 600; font-size: 0.95rem; color: var(--fg); }
+  .list-row .w.knew { color: var(--ok); }
+  .list-row .w.weak { color: var(--warn); }
+  .list-row .zh { font-size: 0.78rem; color: var(--muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .list-row .spk { flex-shrink: 0; width: 32px; height: 32px; border-radius: 50%; background: var(--bg); border: 1px solid var(--border); cursor: pointer; color: var(--accent); font-size: 0.9rem; padding: 0; }
+  .list-row .mk { flex-shrink: 0; width: 24px; text-align: center; color: var(--muted); }
+  .list-row .mk.know { color: var(--ok); }
+  .list-row .mk.weak { color: var(--warn); }
+  .curriculum-note { margin: 16px; padding: 12px 14px; background: var(--card); border-left: 3px solid var(--accent); border-radius: 8px; font-size: 0.82rem; color: var(--muted); line-height: 1.5; }
+  .curriculum-note strong { color: var(--fg); }
+  .actions { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; padding: 0 16px; }
+  .btn { padding: 14px 8px; border: 1px solid var(--border); border-radius: 12px; background: var(--card); color: var(--fg); font-size: 0.95rem; font-weight: 600; cursor: pointer; font-family: inherit; -webkit-tap-highlight-color: transparent; }
+  .btn .ico { display: block; font-size: 1.4rem; margin-bottom: 2px; }
+  .btn.weak { color: var(--warn); }
+  .btn.weak:active { background: rgba(217,119,6,0.1); }
+  .btn.flip { color: var(--accent); }
+  .btn.flip:active { background: rgba(37,99,235,0.1); }
+  .btn.know { color: var(--ok); }
+  .btn.know:active { background: rgba(5,150,105,0.1); }
+  .meta { text-align: center; color: var(--muted); font-size: 0.78rem; margin-top: 20px; }
+  .tabbar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--nav-bg); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px); border-top: 1px solid var(--border); display: flex; padding-bottom: env(safe-area-inset-bottom, 0); z-index: 30; }
+  .tab-btn { flex: 1; background: transparent; border: none; padding: 10px 4px 8px; color: var(--muted); font-size: 0.68rem; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 3px; font-family: inherit; text-decoration: none; }
+  .tab-btn .icon { font-size: 1.25rem; line-height: 1; }
+  .tab-btn.active { color: var(--accent); }
+  .done-screen { text-align: center; padding: 60px 24px; display: none; }
+  .done-screen.show { display: block; }
+  .done-screen .big { font-size: 4rem; }
+  .done-screen .ttl { font-size: 1.3rem; font-weight: 700; margin: 8px 0; }
+  .done-screen .sub { color: var(--muted); margin-bottom: 24px; }
+  .done-screen button { background: var(--accent); color: white; border: none; padding: 12px 24px; border-radius: 12px; font-size: 0.95rem; font-weight: 600; cursor: pointer; font-family: inherit; margin: 4px; }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <a class="back-btn" href="index.html#home">&#8592;</a>
+  <div style="flex:1;">
+    <div class="ttl">今日 150 词 &middot; Technology</div>
+    <div class="sub">2026-08-02 &middot; Day 74</div>
+  </div>
+</header>
+
+<div class="stats">
+  <div class="stat"><div class="num know" id="kn">0</div><div class="lbl">知道</div></div>
+  <div class="stat"><div class="num weak" id="wk">0</div><div class="lbl">不熟</div></div>
+  <div class="stat"><div class="num left" id="lf">150</div><div class="lbl">剩余</div></div>
+</div>
+<div class="progress-bar"><div class="progress-fill" id="pg" style="width:0%"></div></div>
+
+<div class="view-toggle">
+  <button id="vtFlash" class="active" onclick="setView('flash')">&#128199; 卡片</button>
+  <button id="vtList" onclick="setView('list')">&#128203; 列表</button>
+</div>
+
+<div id="deck">
+  <div class="card-stage">
+    <div class="card-3d" id="card" onclick="flip()">
+      <div class="face front">
+        <button class="speaker" onclick="event.stopPropagation();speak(document.getElementById('w').textContent)">&#128266;</button>
+        <div class="word" id="w">—</div>
+        <div class="pos" id="p">—</div>
+        <div class="hint">轻触卡片 &middot; 翻看释义</div>
+      </div>
+      <div class="face back">
+        <button class="speaker" onclick="event.stopPropagation();speak(document.getElementById('w').textContent)">&#128266;</button>
+        <div class="zh" id="zh">—</div>
+        <div class="collo" id="cl">—</div>
+        <div class="ex" id="ex">—</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="btn weak" onclick="mark('weak')"><span class="ico">&#128543;</span>不熟</button>
+    <button class="btn flip" onclick="flip()"><span class="ico">&#128260;</span>翻转</button>
+    <button class="btn know" onclick="mark('know')"><span class="ico">&#9989;</span>知道</button>
+  </div>
+
+  <div class="meta" id="meta">1 / 150 &middot; Technology Day 4 (Cycle 2)</div>
+</div>
+
+<div class="list-view" id="listView">
+  <div id="listBody"></div>
+</div>
+
+<div class="curriculum-note">
+  <strong>词汇来源</strong>: 8 天主题轮换，涵盖雅思高频话题。<br>
+  Day 1-7 <strong>Education</strong> &middot; Day 8-14 <strong>Environment</strong> &middot; Day 15-21 <strong>Technology</strong> &middot; Day 22-28 <strong>Health</strong> &middot; Day 29-35 <strong>Government &amp; Society</strong> &middot; Day 36-42 <strong>Work &amp; Economy</strong> &middot; Day 43-49 <strong>Family</strong> &middot; Day 50-56 <strong>Travel &amp; Culture</strong> &middot; 之后循环。<br>
+  今日聚焦: <strong>FinTech &amp; 数字金融 / 云计算 / 大数据 / 网络安全 / 社交媒体经济 / 跨境电商</strong>。词汇为 Band 7+ 难度，每条含 词性 &middot; 中文 &middot; 搭配 &middot; 例句。
+</div>
+
+<div class="done-screen" id="done">
+  <div class="big">&#127881;</div>
+  <div class="ttl" id="doneTtl">今日 150 词完成!</div>
+  <div class="sub" id="doneSub">知道 0 &middot; 不熟 0</div>
+  <button onclick="resetAll()">重新开始</button>
+  <button onclick="reviewWeak()">只复习不熟</button>
+  <button onclick="location.href='index.html'">回主页</button>
+</div>
+
+<nav class="tabbar">
+  <a class="tab-btn active" href="index.html#home"><span class="icon">&#127968;</span>概览</a>
+  <a class="tab-btn" href="index.html#materials"><span class="icon">&#128250;</span>材料</a>
+  <a class="tab-btn" href="index.html#quizzes"><span class="icon">&#9999;&#65039;</span>测验</a>
+  <a class="tab-btn" href="index.html#plan"><span class="icon">&#128203;</span>计划</a>
+</nav>
+
+<script>
+const CARDS = [
+{"w":"fintech","p":"n.","zh":"金融科技","cl":"the rise of fintech","ex":"The rise of <strong>fintech</strong> has forced traditional banks to innovate or lose market share."},
+{"w":"cryptocurrency","p":"n.","zh":"加密货币","cl":"invest in cryptocurrency","ex":"Many investors view <strong>cryptocurrency</strong> as a high-risk, high-reward alternative asset class."},
+{"w":"decentralise","p":"v.","zh":"去中心化","cl":"decentralise financial systems","ex":"Blockchain technology seeks to <strong>decentralise</strong> financial systems, removing institutional middlemen."},
+{"w":"tokenise","p":"v.","zh":"代币化","cl":"tokenise real-world assets","ex":"Start-ups are exploring ways to <strong>tokenise</strong> real-world assets such as property and art."},
+{"w":"digital wallet","p":"n.","zh":"数字钱包","cl":"store funds in a digital wallet","ex":"Mobile <strong>digital wallets</strong> now account for over a third of all global consumer payments."},
+{"w":"contactless","p":"adj.","zh":"非接触式的","cl":"contactless payment","ex"><strong>Contactless</strong> payment technology has dramatically accelerated the shift away from physical cash."},
+{"w":"remittance","p":"n.","zh":"汇款","cl":"cross-border remittance","ex":"Migrant workers rely on affordable <strong>remittance</strong> services to support families in their home countries."},
+{"w":"stablecoin","p":"n.","zh":"稳定币","cl":"peg a stablecoin to the dollar","ex":"Unlike Bitcoin, a <strong>stablecoin</strong> is designed to maintain a fixed value relative to a sovereign currency."},
+{"w":"neobank","p":"n.","zh":"数字银行（新型）","cl":"open an account with a neobank","ex":"<strong>Neobanks</strong> operate entirely online without physical branches, offering lower fees and faster onboarding."},
+{"w":"open banking","p":"n.","zh":"开放银行","cl":"implement open banking standards","ex":"<strong>Open banking</strong> regulations compel banks to share customer data with authorised third parties via secure interfaces."},
+{"w":"payment gateway","p":"n.","zh":"支付网关","cl":"integrate a payment gateway","ex":"Online merchants integrate a <strong>payment gateway</strong> to securely process credit card and digital wallet transactions."},
+{"w":"merchant","p":"n.","zh":"商家；商人","cl":"a small merchant","ex":"Fees charged to <strong>merchants</strong> on each transaction fund the business models of many payment platforms."},
+{"w":"yield","p":"n./v.","zh":"收益；产生收益","cl":"generate yield","ex":"DeFi protocols offer far higher <strong>yield</strong> than traditional savings accounts, albeit with far greater risk."},
+{"w":"portfolio","p":"n.","zh":"投资组合","cl":"diversify a portfolio","ex":"A well-diversified <strong>portfolio</strong> balances risk across multiple asset classes, reducing exposure to any single market."},
+{"w":"volatility","p":"n.","zh":"波动性","cl":"price volatility","ex":"The extreme <strong>volatility</strong> of crypto assets deters many institutional investors despite their potential returns."},
+{"w":"liquidity","p":"n.","zh":"流动性","cl":"ensure market liquidity","ex":"Central banks manage <strong>liquidity</strong> carefully to prevent credit crunches from spiralling into financial crises."},
+{"w":"collateral","p":"n.","zh":"抵押品","cl":"post collateral","ex":"Borrowers must post adequate <strong>collateral</strong> before accessing loans on decentralised finance platforms."},
+{"w":"default","p":"n./v.","zh":"违约","cl":"default on a loan","ex":"Rising unemployment significantly increases the probability that over-leveraged borrowers will <strong>default</strong> on loans."},
+{"w":"insolvency","p":"n.","zh":"资不抵债；破产","cl":"face insolvency","ex":"Several crypto exchanges faced <strong>insolvency</strong> during the market downturn, wiping out billions in user funds."},
+{"w":"regulatory sandbox","p":"n.","zh":"监管沙盒","cl":"operate in a regulatory sandbox","ex":"The UK's FCA pioneered the <strong>regulatory sandbox</strong> model, allowing fintech firms to test innovations under relaxed rules."},
+{"w":"KYC","p":"n.","zh":"了解你的客户（身份核查）","cl":"comply with KYC requirements","ex":"All licensed financial institutions must perform thorough <strong>KYC</strong> checks to prevent money laundering and fraud."},
+{"w":"AML","p":"n.","zh":"反洗钱","cl":"enforce AML controls","ex":"Robust <strong>AML</strong> controls are a legal obligation for every financial institution operating in regulated markets."},
+{"w":"robo-advisor","p":"n.","zh":"智能投顾","cl":"use a robo-advisor","ex":"A <strong>robo-advisor</strong> automates investment decisions based on the user's stated risk tolerance and financial goals."},
+{"w":"peer-to-peer lending","p":"n.","zh":"点对点借贷","cl":"participate in P2P lending","ex":"<strong>Peer-to-peer lending</strong> platforms match borrowers directly with investors, bypassing traditional banking intermediaries."},
+{"w":"crowdfunding","p":"n.","zh":"众筹","cl":"launch a crowdfunding campaign","ex":"Early-stage start-ups often raise initial capital through <strong>crowdfunding</strong> platforms before seeking institutional investment."},
+{"w":"smart contract","p":"n.","zh":"智能合约","cl":"execute a smart contract","ex":"A <strong>smart contract</strong> automatically enforces the terms of an agreement without requiring a human intermediary."},
+{"w":"DeFi","p":"n.","zh":"去中心化金融","cl":"participate in DeFi","ex":"<strong>DeFi</strong> protocols allow users to borrow, lend, and trade assets without relying on any institutional sponsor."},
+{"w":"NFT","p":"n.","zh":"非同质化代币","cl":"mint an NFT","ex":"The <strong>NFT</strong> market collapsed as speculative enthusiasm evaporated and the underlying value proposition was questioned."},
+{"w":"digital asset","p":"n.","zh":"数字资产","cl":"regulate digital assets","ex":"Regulators worldwide are developing frameworks to classify and oversee the rapidly growing market for <strong>digital assets</strong>."},
+{"w":"financial inclusion","p":"n.","zh":"金融普惠","cl":"drive financial inclusion","ex":"Mobile banking has driven <strong>financial inclusion</strong> in Sub-Saharan Africa, bringing millions into the formal economy."},
+{"w":"underbanked","p":"adj.","zh":"缺乏银行服务的","cl":"serve the underbanked","ex":"Fintech companies aim to serve <strong>underbanked</strong> communities that traditional banks have historically deemed unprofitable."},
+{"w":"interchange fee","p":"n.","zh":"交换费","cl":"charge an interchange fee","ex":"Card networks collect <strong>interchange fees</strong> from merchants on every transaction, often without merchants fully understanding the cost."},
+{"w":"escrow","p":"n./v.","zh":"第三方托管","cl":"hold funds in escrow","ex":"In property transactions, buyer funds are held in <strong>escrow</strong> until all contractual conditions have been satisfied."},
+{"w":"chargeback","p":"n.","zh":"拒付；退款申诉","cl":"dispute a chargeback","ex":"High <strong>chargeback</strong> rates signal fraud risk and can lead payment processors to terminate a merchant's account."},
+{"w":"float","p":"n.","zh":"资金浮存","cl":"earn income on the float","ex":"Payment platforms earn significant interest income on the <strong>float</strong>—the pool of customer balances held overnight."},
+{"w":"SaaS","p":"n.","zh":"软件即服务","cl":"subscribe to a SaaS platform","ex":"Most modern enterprise tools are delivered as <strong>SaaS</strong>, eliminating the need for local installation and maintenance."},
+{"w":"serverless","p":"adj.","zh":"无服务器的","cl":"adopt a serverless architecture","ex":"A <strong>serverless</strong> architecture allows developers to run code without provisioning or managing physical server infrastructure."},
+{"w":"containerise","p":"v.","zh":"容器化","cl":"containerise the application","ex":"Engineering teams <strong>containerise</strong> applications to ensure consistent performance across development, testing, and production environments."},
+{"w":"microservice","p":"n.","zh":"微服务","cl":"build using microservices","ex":"Breaking a monolithic application into <strong>microservices</strong> improves scalability, fault isolation, and independent deployment."},
+{"w":"API","p":"n.","zh":"应用程序接口","cl":"expose a public API","ex":"A well-documented public <strong>API</strong> allows third-party developers to build products and services on your platform."},
+{"w":"deploy","p":"v.","zh":"部署","cl":"deploy to production","ex":"Continuous integration pipelines allow engineers to <strong>deploy</strong> validated updates to production multiple times each day."},
+{"w":"migrate","p":"v.","zh":"迁移","cl":"migrate to the cloud","ex":"Many enterprises are actively <strong>migrating</strong> legacy on-premises workloads to the cloud to reduce capital expenditure."},
+{"w":"redundancy","p":"n.","zh":"冗余（系统）","cl":"build in redundancy","ex":"Cloud providers engineer <strong>redundancy</strong> into every layer of their data centres to ensure continuous service availability."},
+{"w":"uptime","p":"n.","zh":"正常运行时间","cl":"guarantee 99.9% uptime","ex":"Enterprise service-level agreements typically guarantee <strong>uptime</strong> of at least 99.9%, equating to less than nine hours of downtime per year."},
+{"w":"edge computing","p":"n.","zh":"边缘计算","cl":"process data at the edge","ex":"<strong>Edge computing</strong> reduces latency by processing data close to its source rather than routing it to a distant data centre."},
+{"w":"throughput","p":"n.","zh":"吞吐量","cl":"maximise network throughput","ex":"Engineers optimise database architecture to maximise <strong>throughput</strong> under the surges of peak demand."},
+{"w":"cache","p":"n./v.","zh":"缓存","cl":"cache frequently accessed data","ex":"Serving pages from a <strong>cache</strong> dramatically reduces server load and cuts response times for end users."},
+{"w":"sandbox","p":"n.","zh":"沙盒（测试环境）","cl":"test in a sandbox","ex":"Developers always test new features in a <strong>sandbox</strong> environment before exposing them to real users in production."},
+{"w":"load balancing","p":"n.","zh":"负载均衡","cl":"implement load balancing","ex":"<strong>Load balancing</strong> distributes incoming traffic evenly across multiple servers, preventing any single node from becoming a bottleneck."},
+{"w":"agile","p":"adj.","zh":"敏捷的（开发方法）","cl":"adopt agile methodology","ex":"<strong>Agile</strong> development teams deliver software in short sprints and adapt quickly based on user feedback and changing requirements."},
+{"w":"iterate","p":"v.","zh":"迭代","cl":"iterate rapidly based on feedback","ex":"The most successful product teams <strong>iterate</strong> continuously based on real data rather than internal assumptions."},
+{"w":"open-source","p":"adj.","zh":"开源的","cl":"contribute to open-source projects","ex"><strong>Open-source</strong> software is developed collaboratively by communities of volunteers and made freely available to all."},
+{"w":"repository","p":"n.","zh":"代码库","cl":"commit code to the repository","ex":"All source code is version-controlled in a central <strong>repository</strong> accessible to every member of the engineering team."},
+{"w":"pipeline","p":"n.","zh":"数据/开发管道","cl":"build a CI/CD pipeline","ex":"A CI/CD <strong>pipeline</strong> automates the testing and deployment of code every time a developer commits new changes."},
+{"w":"prototype","p":"n./v.","zh":"原型；制作原型","cl":"build a rapid prototype","ex":"Teams <strong>prototype</strong> new features quickly and cheaply before committing significant engineering resources to full development."},
+{"w":"dataset","p":"n.","zh":"数据集","cl":"train on a large dataset","ex":"Machine learning models require large, clean, and well-labelled <strong>datasets</strong> to achieve reliable predictive accuracy."},
+{"w":"metadata","p":"n.","zh":"元数据","cl":"analyse metadata","ex":"Even without reading message content, <strong>metadata</strong> alone can reveal detailed patterns of communication and social behaviour."},
+{"w":"query","p":"n./v.","zh":"查询","cl":"run a database query","ex":"A well-optimised <strong>query</strong> can retrieve precise results from a database containing hundreds of millions of records in milliseconds."},
+{"w":"real-time analytics","p":"n.","zh":"实时分析","cl":"enable real-time analytics","ex":"<strong>Real-time analytics</strong> allows e-commerce teams to respond to customer behaviour—such as abandoned carts—as it happens."},
+{"w":"data warehouse","p":"n.","zh":"数据仓库","cl":"build a centralised data warehouse","ex":"Enterprises consolidate data from dozens of systems into a single <strong>data warehouse</strong> to enable cross-functional analysis."},
+{"w":"scrape","p":"v.","zh":"抓取（数据）","cl":"scrape publicly available data","ex":"Researchers <strong>scrape</strong> public websites and forums to collect training data for large language models."},
+{"w":"visualise","p":"v.","zh":"可视化","cl":"visualise trends in a dashboard","ex":"Dashboards <strong>visualise</strong> complex data as intuitive charts and graphs that non-technical stakeholders can act on."},
+{"w":"correlation","p":"n.","zh":"相关性","cl":"identify a strong correlation","ex":"Data scientists surface <strong>correlations</strong> between variables that reveal opportunities or predict risks before they materialise."},
+{"w":"anomaly detection","p":"n.","zh":"异常检测","cl":"apply anomaly detection","ex":"Banks deploy <strong>anomaly detection</strong> systems to flag unusual transactions in real time and prevent fraudulent activity."},
+{"w":"predictive analytics","p":"n.","zh":"预测分析","cl":"leverage predictive analytics","ex":"Retailers use <strong>predictive analytics</strong> to forecast seasonal demand and optimise inventory levels across their distribution network."},
+{"w":"sentiment analysis","p":"n.","zh":"情感分析","cl":"run sentiment analysis","ex":"Brand managers run <strong>sentiment analysis</strong> on social media streams to gauge public opinion after a product launch."},
+{"w":"clustering","p":"n.","zh":"聚类","cl":"perform clustering on customer data","ex"><strong>Clustering</strong> algorithms group customers with similar behaviours, enabling precision targeting in marketing campaigns."},
+{"w":"dashboard","p":"n.","zh":"数据仪表板","cl":"build an analytics dashboard","ex":"A live <strong>dashboard</strong> gives executives a single, consolidated view of all key performance indicators across the business."},
+{"w":"bandwidth","p":"n.","zh":"带宽","cl":"increase network bandwidth","ex":"Streaming platforms require enormous <strong>bandwidth</strong> to serve high-definition content to millions of simultaneous viewers."},
+{"w":"ransomware","p":"n.","zh":"勒索软件","cl":"fall victim to a ransomware attack","ex":"Hospitals have increasingly fallen victim to <strong>ransomware</strong> attacks that encrypt patient records and demand payment for decryption."},
+{"w":"phishing","p":"n.","zh":"网络钓鱼","cl":"detect a phishing email","ex":"A convincing <strong>phishing</strong> email tricked the employee into clicking a malicious link and disclosing login credentials."},
+{"w":"malware","p":"n.","zh":"恶意软件","cl":"deploy malware","ex":"The attackers deployed sophisticated <strong>malware</strong> that established persistent access to the company's network over several months."},
+{"w":"vulnerability","p":"n.","zh":"（系统）漏洞","cl":"exploit a vulnerability","ex":"Hackers exploited a critical <strong>vulnerability</strong> in the payment system's authentication code to steal card data."},
+{"w":"firewall","p":"n.","zh":"防火墙","cl":"configure a firewall","ex":"A properly configured <strong>firewall</strong> blocks unauthorised inbound traffic while permitting legitimate users to access services."},
+{"w":"encrypt","p":"v.","zh":"加密","cl":"encrypt sensitive data","ex":"Organisations must <strong>encrypt</strong> all sensitive personal data, both in transit across networks and at rest in storage."},
+{"w":"zero-trust","p":"adj.","zh":"零信任的（安全架构）","cl":"adopt a zero-trust architecture","ex":"A <strong>zero-trust</strong> security model assumes no user or device is inherently trustworthy, requiring continuous verification."},
+{"w":"patch","p":"n./v.","zh":"补丁；修补漏洞","cl":"apply a security patch","ex":"Failing to <strong>patch</strong> known software vulnerabilities promptly is among the most common causes of serious data breaches."},
+{"w":"two-factor authentication","p":"n.","zh":"双重认证","cl":"enable two-factor authentication","ex":"Enabling <strong>two-factor authentication</strong> dramatically reduces the risk of unauthorised access, even if a password is compromised."},
+{"w":"data breach","p":"n.","zh":"数据泄露","cl":"suffer a data breach","ex":"The <strong>data breach</strong> exposed the names, addresses, and financial details of over fifty million customers."},
+{"w":"social engineering","p":"n.","zh":"社会工程学（黑客术语）","cl":"use social engineering tactics","ex":"Attackers often use <strong>social engineering</strong>—manipulating employees psychologically—rather than technical exploits to gain network access."},
+{"w":"penetration testing","p":"n.","zh":"渗透测试","cl":"conduct penetration testing","ex":"Companies commission ethical hackers to conduct <strong>penetration testing</strong> and identify security weaknesses before real attackers do."},
+{"w":"access control","p":"n.","zh":"访问控制","cl":"tighten access control","ex":"Strict <strong>access control</strong> policies ensure that employees can only access data and systems relevant to their specific role."},
+{"w":"end-to-end encryption","p":"n.","zh":"端对端加密","cl":"implement end-to-end encryption","ex":"Messaging applications use <strong>end-to-end encryption</strong> so that only the sender and intended recipient can read the message."},
+{"w":"threat actor","p":"n.","zh":"威胁行为者","cl":"identify the threat actor","ex":"Security analysts work to identify the <strong>threat actors</strong> behind sophisticated attacks and attribute them to nation-state groups."},
+{"w":"influencer","p":"n.","zh":"网红；意见领袖","cl":"partner with an influencer","ex":"Brands partner with <strong>influencers</strong> to reach niche audiences more authentically than through conventional advertising."},
+{"w":"monetise","p":"v.","zh":"变现","cl":"monetise content","ex":"Many creators amass large audiences but struggle to <strong>monetise</strong> them effectively beyond basic advertising revenue."},
+{"w":"engagement rate","p":"n.","zh":"互动率","cl":"measure engagement rate","ex":"A high <strong>engagement rate</strong> demonstrates that content resonates deeply, making the creator valuable to brand partners."},
+{"w":"content creator","p":"n.","zh":"内容创作者","cl":"become a full-time content creator","ex":"The proliferation of short-form video platforms has made it easier than ever to become a full-time <strong>content creator</strong>."},
+{"w":"algorithm-driven","p":"adj.","zh":"算法驱动的","cl":"an algorithm-driven feed","ex":"An <strong>algorithm-driven</strong> content feed optimises for time-on-app rather than for the user's long-term wellbeing."},
+{"w":"echo chamber","p":"n.","zh":"信息茧房；回音壁","cl":"trap users in an echo chamber","ex":"Recommendation algorithms can inadvertently trap users in an <strong>echo chamber</strong> of one-sided views and reinforcing content."},
+{"w":"misinformation","p":"n.","zh":"错误信息","cl":"combat misinformation","ex":"Social media platforms have pledged significant resources to combating <strong>misinformation</strong>, with mixed results."},
+{"w":"demonetise","p":"v.","zh":"取消货币化（撤广告）","cl":"demonetise a channel","ex":"The creator's channel was <strong>demonetised</strong> after several videos were found to violate the platform's advertising policies."},
+{"w":"aggregator","p":"n.","zh":"聚合平台","cl":"function as a content aggregator","ex":"News <strong>aggregators</strong> curate headlines from multiple publishers, often without compensating the original source."},
+{"w":"subscription model","p":"n.","zh":"订阅制","cl":"switch to a subscription model","ex":"Many news organisations have adopted a <strong>subscription model</strong> to replace the collapsing advertising revenue."},
+{"w":"freemium","p":"n./adj.","zh":"免费增值模式","cl":"offer a freemium tier","ex":"The app's <strong>freemium</strong> model gives basic features for free while charging a monthly fee for premium functionality."},
+{"w":"micro-influencer","p":"n.","zh":"小众网红","cl":"work with a micro-influencer","ex":"<strong>Micro-influencers</strong> with 10,000–100,000 followers often deliver higher conversion rates than celebrities with millions."},
+{"w":"short-form video","p":"n.","zh":"短视频","cl":"optimise for short-form video","ex":"The dominance of <strong>short-form video</strong> has fundamentally reshaped how brands communicate with younger consumers."},
+{"w":"virality","p":"n.","zh":"病毒式传播性","cl":"engineer virality","ex":"Marketers study the mechanics of <strong>virality</strong>—why certain content spreads exponentially while comparable content stagnates."},
+{"w":"attention economy","p":"n.","zh":"注意力经济","cl":"compete in the attention economy","ex":"Social platforms operate in the <strong>attention economy</strong>, monetising every second of user focus through targeted advertising."},
+{"w":"marketplace","p":"n.","zh":"数字市场；平台","cl":"list products on a marketplace","ex":"Third-party sellers list millions of products on the online <strong>marketplace</strong> and fulfil orders directly from their own warehouses."},
+{"w":"cross-border e-commerce","p":"n.","zh":"跨境电商","cl":"expand into cross-border e-commerce","ex":"<strong>Cross-border e-commerce</strong> allows consumers in one country to purchase goods from overseas retailers with near-seamless convenience."},
+{"w":"fulfilment","p":"n.","zh":"订单履行","cl":"outsource fulfilment to a third party","ex":"Large retailers increasingly outsource <strong>fulfilment</strong> to specialist logistics providers to reduce cost and improve delivery speed."},
+{"w":"inventory management","p":"n.","zh":"库存管理","cl":"optimise inventory management","ex":"Real-time <strong>inventory management</strong> systems prevent both costly stockouts and the equally costly accumulation of excess stock."},
+{"w":"conversion rate","p":"n.","zh":"转化率","cl":"improve the conversion rate","ex":"A redesigned checkout experience lifted the site's <strong>conversion rate</strong> by 18 percent within two months of launch."},
+{"w":"customer acquisition cost","p":"n.","zh":"获客成本","cl":"reduce customer acquisition cost","ex":"Rising digital advertising prices are driving up <strong>customer acquisition costs</strong>, squeezing margins for e-commerce brands."},
+{"w":"personalisation","p":"n.","zh":"个性化（推荐）","cl":"deliver personalisation at scale","ex":"Advanced <strong>personalisation</strong> engines serve each shopper a unique experience based on their browsing and purchase history."},
+{"w":"recommendation engine","p":"n.","zh":"推荐引擎","cl":"power a recommendation engine","ex":"Amazon's <strong>recommendation engine</strong> is credited with generating approximately 35% of its total revenue."},
+{"w":"super-app","p":"n.","zh":"超级应用","cl":"build a super-app","ex":"WeChat pioneered the <strong>super-app</strong> model, combining messaging, payments, shopping, and services in a single platform."},
+{"w":"churn","p":"n./v.","zh":"用户流失（率）","cl":"reduce customer churn","ex":"SaaS companies obsess over reducing <strong>churn</strong> because retaining an existing customer costs far less than acquiring a new one."},
+{"w":"drive digital transformation","p":"phrase","zh":"推动数字化转型","cl":"drive digital transformation across the organisation","ex":"CEOs who fail to <strong>drive digital transformation</strong> risk being displaced by leaner, more technologically agile competitors."},
+{"w":"harness the power of data","p":"phrase","zh":"利用数据的力量","cl":"harness the power of data effectively","ex":"Organisations that can <strong>harness the power of data</strong> gain a decisive and sustainable competitive advantage."},
+{"w":"seamless user experience","p":"phrase","zh":"无缝用户体验","cl":"deliver a seamless user experience","ex":"Delivering a <strong>seamless user experience</strong> across every device and touchpoint is now the minimum expectation for digital products."},
+{"w":"scale up operations","p":"phrasal v.","zh":"扩大规模","cl":"scale up operations rapidly","ex":"Successful start-ups <strong>scale up operations</strong> rapidly once they have validated product-market fit with early adopters."},
+{"w":"disruptive innovation","p":"phrase","zh":"颠覆性创新","cl":"a wave of disruptive innovation","ex">The fintech sector has unleashed a wave of <strong>disruptive innovation</strong> that rendered legacy banking models increasingly obsolete."},
+{"w":"proof of concept","p":"phrase","zh":"概念验证","cl":"build a proof of concept","ex":"The engineering team built a <strong>proof of concept</strong> to demonstrate feasibility before the board approved full investment."},
+{"w":"minimum viable product","p":"phrase","zh":"最小可行产品（MVP）","cl":"release a minimum viable product","ex":"The startup released a <strong>minimum viable product</strong> to gather real-world user feedback before committing to full development."},
+{"w":"first-mover advantage","p":"phrase","zh":"先发优势","cl":"capitalise on first-mover advantage","ex":"Capitalising on <strong>first-mover advantage</strong> requires not just speed but also the ability to execute at scale."},
+{"w":"lock-in effect","p":"phrase","zh":"锁定效应","cl":"exploit the lock-in effect","ex":"Platform ecosystems exploit the <strong>lock-in effect</strong> to retain users even when rival services offer comparable or superior features."},
+{"w":"go-to-market strategy","p":"phrase","zh":"市场进入策略","cl":"craft a go-to-market strategy","ex":"A well-crafted <strong>go-to-market strategy</strong> determines precisely how a new product will reach and convert its target customers."},
+{"w":"frictionless payment","p":"phrase","zh":"无摩擦支付","cl":"enable frictionless payment","ex":"Consumers now expect <strong>frictionless payment</strong> — a single tap or scan — and abandon any checkout that introduces unnecessary steps."},
+{"w":"data-driven","p":"adj.","zh":"数据驱动的","cl":"adopt a data-driven approach","ex":"The most consistently successful digital businesses are resolutely <strong>data-driven</strong> in every strategic decision they make."},
+{"w":"tech-savvy","p":"adj.","zh":"精通技术的","cl":"a tech-savvy consumer base","ex"><strong>Tech-savvy</strong> consumers demand sophisticated, personalised digital experiences from every brand they choose to engage with."},
+{"w":"pivot","p":"v./n.","zh":"转型（商业策略）","cl":"pivot the business model","ex":"When growth stalled in B2C, the start-up chose to <strong>pivot</strong> to an enterprise SaaS model with recurring revenue."},
+{"w":"roll out","p":"phrasal v.","zh":"推出；部署（新功能）","cl":"roll out a new feature","ex":"The payment processor will <strong>roll out</strong> biometric authentication to all users across Europe next quarter."},
+{"w":"opt in","p":"phrasal v.","zh":"选择加入","cl":"opt in to data sharing","ex":"Under the new privacy regulations, users must actively <strong>opt in</strong> before their data can be shared with third parties."},
+{"w":"tap into","p":"phrasal v.","zh":"挖掘；利用（市场/资源）","cl":"tap into an emerging market","ex":"Fintech companies are racing to <strong>tap into</strong> the enormous unbanked population across South and Southeast Asia."},
+{"w":"onboard","p":"v.","zh":"引导加入（用户/员工）","cl":"onboard new users quickly","ex":"The app <strong>onboards</strong> new users through an interactive guided tutorial that takes under three minutes to complete."},
+{"w":"network effects","p":"n.","zh":"网络效应","cl":"benefit from strong network effects","ex":"The platform benefits from powerful <strong>network effects</strong>: each new user increases its value for all existing participants."},
+{"w":"a game changer","p":"idiom","zh":"改变游戏规则的事物","cl":"prove to be a game changer","ex":"Contactless payment proved to be <strong>a game changer</strong> for retail, transforming how millions of consumers transact every day."},
+{"w":"the tip of the iceberg","p":"idiom","zh":"冰山一角","cl":"merely the tip of the iceberg","ex":"Current fintech disruption is <strong>merely the tip of the iceberg</strong> compared with the transformation that AI will ultimately enable."},
+{"w":"stay ahead of the curve","p":"idiom","zh":"保持领先","cl":"stay ahead of the curve in fintech","ex":"Continuous upskilling is the only reliable way to <strong>stay ahead of the curve</strong> in such a rapidly evolving technological field."},
+{"w":"cut through the noise","p":"idiom","zh":"从嘈杂中脱颖而出","cl":"cut through the noise in a saturated market","ex":"In a saturated digital marketplace, brands must find genuinely distinctive ways to <strong>cut through the noise</strong> and capture attention."},
+{"w":"bridge the gap","p":"idiom","zh":"弥合差距","cl":"bridge the financial inclusion gap","ex":"Mobile banking services <strong>bridge the gap</strong> for remote and rural communities that lack access to physical bank branches."},
+{"w":"in real time","p":"adv. phrase","zh":"实时地","cl":"process transactions in real time","ex":"Blockchain transactions are verified <strong>in real time</strong>, removing the delays inherent in traditional international wire transfers."},
+{"w":"be at the forefront of","p":"phrase","zh":"处于...前沿","cl":"be at the forefront of fintech innovation","ex":"Singapore has deliberately positioned itself <strong>at the forefront of</strong> fintech regulation and digital banking innovation in Asia."},
+{"w":"keep pace with","p":"phrasal v.","zh":"跟上...的步伐","cl":"keep pace with technological change","ex":"Financial regulators are perpetually struggling to <strong>keep pace with</strong> the rapid and unpredictable evolution of decentralised finance."},
+{"w":"move fast and break things","p":"phrase","zh":"快速行动，打破常规","cl":"the ethos of 'move fast and break things'","ex":"The Silicon Valley ethos of '<strong>move fast and break things</strong>' is increasingly questioned in contexts where failures cause real harm."},
+{"w":"a level playing field","p":"idiom","zh":"公平竞争环境","cl":"create a level playing field","ex":"Regulators aim to create <strong>a level playing field</strong> between established incumbent banks and agile fintech challengers."},
+{"w":"raise the bar","p":"idiom","zh":"提高标准","cl":"raise the bar for consumer expectations","ex":"Each successive generation of payment technology <strong>raises the bar</strong> for what consumers consider a minimally acceptable experience."},
+{"w":"it is no exaggeration to say that","p":"sentence stem","zh":"说...并不夸张","cl":"it is no exaggeration to say that X has transformed...","ex":"<strong>It is no exaggeration to say that</strong> the smartphone has become the primary interface between individuals and the global financial system."},
+{"w":"far from being a passing trend","p":"sentence stem","zh":"远非一时的潮流","cl":"far from being a passing trend, X represents...","ex":"<strong>Far from being a passing trend</strong>, the decentralisation of finance represents a fundamental restructuring of longstanding economic institutions."},
+{"w":"this raises fundamental questions about","p":"sentence stem","zh":"这引发了关于...的根本性问题","cl":"this raises fundamental questions about fairness","ex":"The rise of AI-driven credit scoring <strong>raises fundamental questions about</strong> algorithmic bias and systemic unfairness in lending decisions."},
+{"w":"the proliferation of X has transformed","p":"sentence stem","zh":"X的扩散已改变了...","cl":"the proliferation of mobile apps has transformed commerce","ex":"<strong>The proliferation of</strong> mobile payment apps <strong>has transformed</strong> cash-dependent societies into digital-first economies within a single decade."},
+{"w":"a double-edged sword","p":"idiom","zh":"双刃剑","cl":"prove to be a double-edged sword","ex":"Data aggregation proves <strong>a double-edged sword</strong>: it enables powerful personalisation but simultaneously creates profound privacy risks."},
+{"w":"on the horizon","p":"idiom","zh":"即将到来的","cl":"with X on the horizon","ex":"With central bank digital currencies firmly <strong>on the horizon</strong>, the global banking landscape is set for yet another seismic shift."},
+{"w":"there is no one-size-fits-all solution","p":"idiom","zh":"没有放之四海而皆准的解决方案","cl":"there is no one-size-fits-all solution to regulating X","ex":"When it comes to digital asset regulation, <strong>there is no one-size-fits-all solution</strong> given the vast diversity of national contexts."}
+];
+
+let state = JSON.parse(localStorage.getItem("ielts_vocab_20260802") || "{}");
+let queue = CARDS.map((c, i) => ({...c, idx: i})).filter(c => !state[c.idx] || state[c.idx] === "review");
+let cur = 0;
+
+function speak(text) {
+  if (!text || !window.speechSynthesis) return;
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = "en-US"; u.rate = 0.85; u.pitch = 1;
+  const voices = speechSynthesis.getVoices();
+  const en = voices.find(v => /en-(US|GB)/.test(v.lang) && /Samantha|Daniel|Alex|Karen|Moira|Google US English|Google UK English/.test(v.name))
+          || voices.find(v => v.lang.startsWith("en"));
+  if (en) u.voice = en;
+  speechSynthesis.speak(u);
+}
+if (window.speechSynthesis) speechSynthesis.onvoiceschanged = () => {};
+
+function render() {
+  if (cur >= queue.length) return showDone();
+  const c = queue[cur];
+  document.getElementById("w").textContent = c.w;
+  document.getElementById("p").textContent = c.p;
+  document.getElementById("zh").textContent = c.zh;
+  document.getElementById("cl").textContent = c.cl;
+  document.getElementById("ex").innerHTML = c.ex;
+  document.getElementById("card").classList.remove("flipped");
+  document.getElementById("meta").textContent = `${cur+1} / ${queue.length} \u00b7 Technology Day 4`;
+  updateStats();
+  setTimeout(() => speak(c.w), 150);
+}
+
+function setView(v) {
+  document.getElementById("vtFlash").classList.toggle("active", v === "flash");
+  document.getElementById("vtList").classList.toggle("active", v === "list");
+  document.getElementById("deck").style.display = v === "flash" ? "" : "none";
+  document.getElementById("listView").classList.toggle("active", v === "list");
+  if (v === "list") renderList();
+}
+
+function renderList() {
+  const body = document.getElementById("listBody");
+  body.innerHTML = CARDS.map((c, i) => {
+    const mark = state[i] || "";
+    const cls = mark === "know" ? "knew" : mark === "weak" ? "weak" : "";
+    const ico = mark === "know" ? "✓" : mark === "weak" ? "○" : "·";
+    const mcls = mark === "know" ? "know" : mark === "weak" ? "weak" : "";
+    return `<div class="list-row">
+      <div class="num">${String(i+1).padStart(3,'0')}</div>
+      <div class="word"><div class="w ${cls}">${c.w} <span style="color:var(--muted);font-weight:400;font-size:0.78rem;">${c.p}</span></div><div class="zh">${c.zh}</div></div>
+      <button class="spk" onclick="speak('${c.w.replace(/'/g,"\\'")}')">🔊</button>
+      <div class="mk ${mcls}">${ico}</div>
+    </div>`;
+  }).join("");
+}
+
+function flip() { document.getElementById("card").classList.toggle("flipped"); }
+
+function mark(t) {
+  const c = queue[cur];
+  state[c.idx] = (t === "know" ? "know" : "weak");
+  localStorage.setItem("ielts_vocab_20260802", JSON.stringify(state));
+  cur++;
+  render();
+}
+
+function updateStats() {
+  const kn = Object.values(state).filter(v=>v==="know").length;
+  const wk = Object.values(state).filter(v=>v==="weak").length;
+  const lf = 150 - kn - wk;
+  document.getElementById("kn").textContent = kn;
+  document.getElementById("wk").textContent = wk;
+  document.getElementById("lf").textContent = lf;
+  document.getElementById("pg").style.width = ((kn+wk)/150*100) + "%";
+}
+
+function showDone() {
+  document.getElementById("deck").style.display = "none";
+  document.getElementById("done").classList.add("show");
+  const kn = Object.values(state).filter(v=>v==="know").length;
+  const wk = Object.values(state).filter(v=>v==="weak").length;
+  document.getElementById("doneTtl").textContent = wk > 0 ? `今日 150 词完成! 还有 ${wk} 张不熟` : "今日 150 词全掌握 🎉";
+  document.getElementById("doneSub").textContent = `知道 ${kn} · 不熟 ${wk}`;
+}
+
+function reviewWeak() {
+  queue = CARDS.map((c,i)=>({...c,idx:i})).filter(c => state[c.idx] === "weak");
+  if (queue.length === 0) { alert("没有不熟的卡!"); return; }
+  cur = 0;
+  document.getElementById("done").classList.remove("show");
+  document.getElementById("deck").style.display = "";
+  render();
+}
+
+function resetAll() {
+  if (!confirm("清空今日进度，重新开始?")) return;
+  localStorage.removeItem("ielts_vocab_20260802");
+  state = {};
+  queue = CARDS.map((c,i)=>({...c,idx:i}));
+  cur = 0;
+  document.getElementById("done").classList.remove("show");
+  document.getElementById("deck").style.display = "";
+  render();
+}
+
+render();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#2563eb">
+<title>测验 · Reading T/F/NG · FinTech 与全球银行变革</title>
+<style>
+  :root {
+    --bg: #ffffff; --fg: #1a1a1a; --muted: #6b7280;
+    --accent: #2563eb; --ok: #059669; --err: #dc2626;
+    --card: #f9fafb; --border: #e5e7eb;
+    --nav-bg: rgba(255,255,255,0.92);
+    --header-bg: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f172a; --fg: #f1f5f9; --muted: #94a3b8;
+      --accent: #60a5fa; --ok: #34d399; --err: #f87171;
+      --card: #1e293b; --border: #334155;
+      --nav-bg: rgba(15,23,42,0.92);
+      --header-bg: linear-gradient(135deg, #1e40af 0%, #6b21a8 100%);
+    }
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg); }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif;
+    line-height: 1.6;
+    min-height: 100vh;
+    padding-bottom: calc(64px + env(safe-area-inset-bottom, 0));
+  }
+  .app-header {
+    background: var(--header-bg); color: white;
+    padding: calc(env(safe-area-inset-top, 16px) + 12px) 16px 14px;
+    position: sticky; top: 0; z-index: 20;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .back-btn {
+    background: rgba(255,255,255,0.18); border: none; color: white;
+    width: 34px; height: 34px; border-radius: 10px;
+    font-size: 1.1rem; cursor: pointer; flex-shrink: 0;
+    text-decoration: none; display: flex; align-items: center; justify-content: center;
+  }
+  .app-header .ttl { font-size: 1rem; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .app-header .sub { font-size: 0.72rem; opacity: 0.85; margin-top: 1px; letter-spacing: 0.04em; text-transform: uppercase; }
+  main { max-width: 720px; margin: 0 auto; padding: 16px; }
+  .progress { height: 6px; background: var(--border); border-radius: 3px; margin-bottom: 16px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--accent); transition: width 0.3s ease; }
+  .passage {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 14px 16px; margin-bottom: 16px;
+    font-size: 0.95rem; line-height: 1.7;
+  }
+  .passage h3 { margin: 0 0 8px; font-size: 0.78rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+  .question {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 16px; margin-bottom: 14px;
+  }
+  .q-num { color: var(--muted); font-size: 0.78rem; font-family: "SF Mono", Menlo, monospace; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.04em; }
+  .q-text { font-size: 1rem; margin-bottom: 12px; font-weight: 500; }
+  .options { display: flex; flex-direction: column; gap: 8px; }
+  .option {
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 8px; padding: 12px 14px;
+    cursor: pointer; font-size: 0.95rem; text-align: left;
+    color: var(--fg); font-family: inherit;
+  }
+  .option.selected { border-color: var(--accent); background: rgba(37,99,235,0.08); }
+  .option.correct { border-color: var(--ok); background: rgba(5,150,105,0.1); }
+  .option.wrong { border-color: var(--err); background: rgba(220,38,38,0.1); }
+  .blank-input {
+    width: 100%; background: var(--bg);
+    border: 1px solid var(--border); border-radius: 8px;
+    padding: 10px 12px; font-size: 1rem;
+    color: var(--fg); font-family: inherit;
+  }
+  .blank-input.correct { border-color: var(--ok); }
+  .blank-input.wrong { border-color: var(--err); }
+  .explanation {
+    margin-top: 10px; padding: 10px 12px;
+    background: var(--bg); border-left: 3px solid var(--accent);
+    border-radius: 6px; font-size: 0.88rem; color: var(--muted);
+    display: none; line-height: 1.6;
+  }
+  .explanation.show { display: block; }
+  .explanation strong { color: var(--fg); }
+  .section-label {
+    font-size: 0.78rem; font-weight: 700; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 0.08em;
+    margin: 20px 0 10px; padding: 0 4px;
+  }
+  .submit-btn {
+    width: 100%; padding: 16px; background: var(--accent); color: white;
+    border: none; border-radius: 12px; font-size: 1rem; font-weight: 600;
+    cursor: pointer; font-family: inherit; margin-top: 8px;
+  }
+  .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .score-banner {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 20px; text-align: center;
+    margin-bottom: 16px; display: none;
+  }
+  .score-banner.show { display: block; }
+  .score-banner .big { font-size: 2.5rem; font-weight: 800; color: var(--accent); }
+  .score-banner .sub { color: var(--muted); font-size: 0.9rem; margin-top: 4px; }
+  .tabbar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--nav-bg); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px); border-top: 1px solid var(--border); display: flex; padding-bottom: env(safe-area-inset-bottom, 0); z-index: 30; }
+  .tab-btn { flex: 1; background: transparent; border: none; padding: 10px 4px 8px; color: var(--muted); font-size: 0.68rem; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 3px; font-family: inherit; text-decoration: none; }
+  .tab-btn .icon { font-size: 1.25rem; line-height: 1; }
+  .tab-btn.active { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <a class="back-btn" href="index.html#quizzes">&#8592;</a>
+  <div style="flex:1;min-width:0;">
+    <div class="ttl">阅读 T/F/NG &middot; FinTech 与全球银行变革</div>
+    <div class="sub">Day 74 &middot; 2026-08-02 &middot; Technology Day 4</div>
+  </div>
+</header>
+
+<main>
+  <div class="progress"><div class="progress-fill" id="pg" style="width:0%"></div></div>
+
+  <div class="score-banner" id="scoreBanner">
+    <div class="big" id="scoreVal">-</div>
+    <div class="sub" id="scoreSub">查看每题解析 &#8595;</div>
+  </div>
+
+  <div class="passage">
+    <h3>&#128218; Reading Passage &middot; ~610 words</h3>
+    <p>Financial technology—commonly contracted to <strong>fintech</strong>—has emerged as one of the most disruptive forces in modern commerce. By combining mobile connectivity, advanced data analytics and cloud infrastructure, fintech companies have redesigned services that incumbent banks once delivered exclusively through physical branches and paper-based processes. The result is a rapidly expanding ecosystem of digital wallets, peer-to-peer lending platforms, robo-advisors and real-time cross-border remittance services that collectively processed more than USD 8 trillion in transactions in 2025.</p>
+
+    <p>The social impact of fintech is perhaps most visible in developing economies, where large proportions of adults have historically lacked access to formal banking. Mobile payment platforms operating across sub-Saharan Africa and South-East Asia have dramatically extended <strong>financial inclusion</strong> by enabling individuals without bank accounts to send money, accumulate savings and access credit directly through a smartphone. Studies conducted across seven low- and middle-income countries found that adoption of mobile money reduced the incidence of extreme poverty among rural households by a statistically significant margin, partly by smoothing income shocks that previously forced households to sell productive assets.</p>
+
+    <p>In more developed markets, the most visible consumer-facing change has been the proliferation of <strong>contactless</strong> payment methods. Near-field communication technology embedded in smartphones and payment cards now allows transactions to be completed without physical card insertion or PIN entry for amounts below a jurisdiction-specific threshold. Industry data show that contactless payments accounted for more than 65 per cent of all in-store card transactions globally by the end of 2024, driven not only by convenience but also by hygiene preferences that accelerated sharply during the pandemic years. Banks and card networks have responded by raising contactless limits, though critics note that increased transaction speed reduces the deliberate friction that historically helped consumers moderate their spending.</p>
+
+    <p>The architecture underpinning next-generation banking is increasingly <strong>decentralised</strong>. Open banking frameworks—regulatory requirements that compel traditional banks to share customer financial data with licensed third parties via standardised programming interfaces—have given rise to an entirely new class of intermediaries that aggregate accounts, analyse spending patterns and offer personalised financial products without themselves holding any deposits. Proponents argue that this model fundamentally redistributes market power from established institutions to consumers, who can switch providers with minimal friction and access best-in-class services assembled from multiple vendors. Opponents caution that data portability on this scale creates systemic vulnerabilities: a single compromised third-party application could expose the financial records of millions of customers simultaneously.</p>
+
+    <p>Regulatory authorities worldwide have adopted divergent responses to the fintech revolution. Several jurisdictions—including Singapore, the United Kingdom and Australia—have established regulatory sandboxes that permit innovative firms to test products in a live market environment with temporary exemptions from full compliance requirements, on the understanding that lessons learned will inform eventual permanent regulation. Other regulators, particularly in continental Europe, have prioritised consumer protection and systemic stability, imposing capital and operational requirements on large fintech platforms comparable to those applied to systemically important banks. The International Monetary Fund has repeatedly called for greater cross-border regulatory coordination to prevent regulatory arbitrage, whereby fintech firms incorporate in permissive jurisdictions to serve customers in more tightly regulated markets.</p>
+
+    <p>Looking ahead, the boundary between traditional banking and fintech is expected to continue dissolving. Several central banks are actively developing Central Bank Digital Currencies—state-issued digital tokens that would operate on distributed ledger infrastructure—with pilot programmes already underway in China, the eurozone and the Bahamas. Whether CBDCs complement or compete with private fintech solutions remains contested, but most analysts agree that the financial system of 2035 will be far more programmable, interoperable and consumer-directed than that of today.</p>
+  </div>
+
+  <div class="section-label">&#128218; Part A &middot; True / False / Not Given (Questions 1&ndash;6)</div>
+
+  <div class="question" id="q1">
+    <div class="q-num">Question 1 of 10</div>
+    <div class="q-text">According to the passage, fintech platforms enabled individuals without bank accounts to access financial services exclusively through desktop computers.</div>
+    <div class="options">
+      <button class="option" onclick="choose(1,'TRUE','FALSE')">TRUE</button>
+      <button class="option" onclick="choose(1,'FALSE','FALSE')">FALSE</button>
+      <button class="option" onclick="choose(1,'NOT GIVEN','FALSE')">NOT GIVEN</button>
+    </div>
+    <div class="explanation" id="exp1"><strong>Answer: FALSE.</strong> Paragraph 2 states that mobile payment platforms enabled individuals to access financial services "directly through a smartphone" — not desktop computers. The passage specifically identifies mobile, not desktop, as the delivery channel.</div>
+  </div>
+
+  <div class="question" id="q2">
+    <div class="q-num">Question 2 of 10</div>
+    <div class="q-text">Research carried out across multiple low- and middle-income countries found that mobile money adoption was associated with a measurable reduction in extreme poverty in rural areas.</div>
+    <div class="options">
+      <button class="option" onclick="choose(2,'TRUE','TRUE')">TRUE</button>
+      <button class="option" onclick="choose(2,'FALSE','TRUE')">FALSE</button>
+      <button class="option" onclick="choose(2,'NOT GIVEN','TRUE')">NOT GIVEN</button>
+    </div>
+    <div class="explanation" id="exp2"><strong>Answer: TRUE.</strong> Paragraph 2 directly states: "Studies conducted across seven low- and middle-income countries found that adoption of mobile money reduced the incidence of extreme poverty among rural households by a statistically significant margin."</div>
+  </div>
+
+  <div class="question" id="q3">
+    <div class="q-num">Question 3 of 10</div>
+    <div class="q-text">The majority of consumers in developed markets prefer contactless payments because they are more secure than traditional card transactions.</div>
+    <div class="options">
+      <button class="option" onclick="choose(3,'TRUE','NOT GIVEN')">TRUE</button>
+      <button class="option" onclick="choose(3,'FALSE','NOT GIVEN')">FALSE</button>
+      <button class="option" onclick="choose(3,'NOT GIVEN','NOT GIVEN')">NOT GIVEN</button>
+    </div>
+    <div class="explanation" id="exp3"><strong>Answer: NOT GIVEN.</strong> Paragraph 3 identifies convenience and hygiene as the drivers of contactless adoption, but says nothing about consumers preferring contactless payments for security reasons. No security comparison is made in the passage.</div>
+  </div>
+
+  <div class="question" id="q4">
+    <div class="q-num">Question 4 of 10</div>
+    <div class="q-text">Under open banking frameworks, traditional banks are permitted to keep their customer financial data private and are not obliged to share it with third parties.</div>
+    <div class="options">
+      <button class="option" onclick="choose(4,'TRUE','FALSE')">TRUE</button>
+      <button class="option" onclick="choose(4,'FALSE','FALSE')">FALSE</button>
+      <button class="option" onclick="choose(4,'NOT GIVEN','FALSE')">NOT GIVEN</button>
+    </div>
+    <div class="explanation" id="exp4"><strong>Answer: FALSE.</strong> Paragraph 4 defines open banking as "regulatory requirements that compel traditional banks to share customer financial data with licensed third parties" — the opposite of what the statement claims.</div>
+  </div>
+
+  <div class="question" id="q5">
+    <div class="q-num">Question 5 of 10</div>
+    <div class="q-text">The International Monetary Fund has called for improved coordination between regulators in different countries in response to the fintech industry.</div>
+    <div class="options">
+      <button class="option" onclick="choose(5,'TRUE','TRUE')">TRUE</button>
+      <button class="option" onclick="choose(5,'FALSE','TRUE')">FALSE</button>
+      <button class="option" onclick="choose(5,'NOT GIVEN','TRUE')">NOT GIVEN</button>
+    </div>
+    <div class="explanation" id="exp5"><strong>Answer: TRUE.</strong> Paragraph 5 states: "The International Monetary Fund has repeatedly called for greater cross-border regulatory coordination to prevent regulatory arbitrage" — directly confirming the statement.</div>
+  </div>
+
+  <div class="question" id="q6">
+    <div class="q-num">Question 6 of 10</div>
+    <div class="q-text">The author concludes that Central Bank Digital Currencies will ultimately replace all existing private fintech payment solutions by 2035.</div>
+    <div class="options">
+      <button class="option" onclick="choose(6,'TRUE','NOT GIVEN')">TRUE</button>
+      <button class="option" onclick="choose(6,'FALSE','NOT GIVEN')">FALSE</button>
+      <button class="option" onclick="choose(6,'NOT GIVEN','NOT GIVEN')">NOT GIVEN</button>
+    </div>
+    <div class="explanation" id="exp6"><strong>Answer: NOT GIVEN.</strong> The final paragraph says "Whether CBDCs complement or compete with private fintech solutions remains contested." The passage makes no prediction that CBDCs will replace private solutions — the relationship is described as unresolved.</div>
+  </div>
+
+  <div class="section-label">&#128221; Part B &middot; 词汇填空 &mdash; Vocabulary Fill-in (Questions 7&ndash;10)</div>
+  <p style="font-size:0.85rem;color:var(--muted);margin:0 0 12px;">从今日词卡中选词，填入句中空格，注意词形变化。</p>
+  <p style="font-size:0.82rem;color:var(--muted);margin:-4px 0 14px;font-style:italic;">词库: fintech &middot; financial inclusion &middot; contactless &middot; decentralised &middot; remittance &middot; regulatory sandbox</p>
+
+  <div class="question">
+    <div class="q-num">Question 7 of 10</div>
+    <div class="q-text">The start-up operates under a ________ licence, allowing it to trial its lending algorithm with real customers before full regulatory approval is granted.</div>
+    <input class="blank-input" id="b7" placeholder="输入英文单词或短语" oninput="checkBlank(7)">
+    <div class="explanation" id="exp7"><strong>Answer: fintech.</strong> The sentence describes a technology-driven financial start-up trialling a lending product — the defining activity of a fintech firm. Paragraph 1 introduces fintech as the contraction of "financial technology."</div>
+  </div>
+
+  <div class="question">
+    <div class="q-num">Question 8 of 10</div>
+    <div class="q-text">Governments in low-income countries see mobile banking as a key tool for achieving ________, bringing unbanked populations into the formal economy.</div>
+    <input class="blank-input" id="b8" placeholder="输入英文单词或短语" oninput="checkBlank(8)">
+    <div class="explanation" id="exp8"><strong>Answer: financial inclusion.</strong> "Financial inclusion" (普惠金融) refers to ensuring all individuals have access to affordable financial services. Paragraph 2 uses the term explicitly in the context of unbanked populations in developing economies.</div>
+  </div>
+
+  <div class="question">
+    <div class="q-num">Question 9 of 10</div>
+    <div class="q-text">Retailers reported a surge in ________ transactions after the pandemic, as customers grew accustomed to tapping their phones rather than entering a PIN.</div>
+    <input class="blank-input" id="b9" placeholder="输入英文单词" oninput="checkBlank(9)">
+    <div class="explanation" id="exp9"><strong>Answer: contactless.</strong> "Contactless" (非接触式) describes payments made by tapping a card or device without inserting it or entering a PIN — precisely the technology discussed in paragraph 3, whose adoption accelerated during the pandemic.</div>
+  </div>
+
+  <div class="question">
+    <div class="q-num">Question 10 of 10</div>
+    <div class="q-text">Unlike traditional banking, which concentrates funds and authority in central institutions, DeFi operates on a ________ network where no single entity controls the ledger.</div>
+    <input class="blank-input" id="b10" placeholder="输入英文单词" oninput="checkBlank(10)">
+    <div class="explanation" id="exp10"><strong>Answer: decentralised.</strong> "Decentralised" (去中心化的) means distributed across many nodes with no central authority. Paragraph 4 describes the "decentralised" architecture of open banking, and the final paragraph references "distributed ledger infrastructure" for CBDCs — both signal this concept.</div>
+  </div>
+
+  <button class="submit-btn" id="submitBtn" onclick="submitAll()">提交全部答案</button>
+
+</main>
+
+<nav class="tabbar">
+  <a class="tab-btn" href="index.html#home"><span class="icon">&#127968;</span>概览</a>
+  <a class="tab-btn" href="index.html#materials"><span class="icon">&#128250;</span>材料</a>
+  <a class="tab-btn active" href="index.html#quizzes"><span class="icon">&#9999;&#65039;</span>测验</a>
+  <a class="tab-btn" href="index.html#plan"><span class="icon">&#128203;</span>计划</a>
+</nav>
+
+<script>
+const answers = {};
+const correctTFNG = {1:'FALSE',2:'TRUE',3:'NOT GIVEN',4:'FALSE',5:'TRUE',6:'NOT GIVEN'};
+const correctBlank = {
+  7: ['fintech'],
+  8: ['financial inclusion'],
+  9: ['contactless'],
+  10: ['decentralised','decentralized']
+};
+let submitted = false;
+
+function updateProgress() {
+  const total = 10;
+  const done = Object.keys(answers).length;
+  document.getElementById('pg').style.width = (done/total*100)+'%';
+}
+
+function choose(qNum, choice, correct) {
+  if (submitted) return;
+  answers[qNum] = choice;
+  const q = document.getElementById('q'+qNum);
+  q.querySelectorAll('.option').forEach(b => {
+    b.classList.remove('selected');
+    if (b.textContent.trim() === choice) b.classList.add('selected');
+  });
+  updateProgress();
+}
+
+function checkBlank(qNum) {
+  if (submitted) return;
+  const val = document.getElementById('b'+qNum).value.trim();
+  if (val.length > 0) answers[qNum] = val;
+  else delete answers[qNum];
+  updateProgress();
+}
+
+function submitAll() {
+  if (submitted) return;
+  submitted = true;
+  let score = 0;
+
+  for (let i = 1; i <= 6; i++) {
+    const q = document.getElementById('q'+i);
+    const userAns = answers[i] || '';
+    const correct = correctTFNG[i];
+    q.querySelectorAll('.option').forEach(b => {
+      const t = b.textContent.trim();
+      if (t === correct) b.classList.add('correct');
+      if (t === userAns && userAns !== correct) b.classList.add('wrong');
+    });
+    if (userAns === correct) score++;
+    document.getElementById('exp'+i).classList.add('show');
+  }
+
+  for (let i = 7; i <= 10; i++) {
+    const inp = document.getElementById('b'+i);
+    const userAns = (inp.value || '').trim().toLowerCase().replace(/\s+/g,' ');
+    const correct = correctBlank[i].map(a => a.toLowerCase());
+    const isCorrect = correct.some(c => userAns === c || userAns.startsWith(c.split(' ')[0]));
+    inp.classList.add(isCorrect ? 'correct' : 'wrong');
+    if (isCorrect) score++;
+    document.getElementById('exp'+i).classList.add('show');
+  }
+
+  const banner = document.getElementById('scoreBanner');
+  banner.classList.add('show');
+  document.getElementById('scoreVal').textContent = score + ' / 10';
+  const pct = score / 10;
+  document.getElementById('scoreSub').textContent = pct >= 0.8 ? '优秀！Band 7+ 水准 🎉 查看每题解析 ↓' :
+    pct >= 0.6 ? '良好，继续加油！查看每题解析 ↓' : '需要加强练习。查看每题解析 ↓';
+  banner.scrollIntoView({behavior:'smooth'});
+  document.getElementById('submitBtn').disabled = true;
+  document.getElementById('pg').style.width = '100%';
+}
+</script>
+</body>
+</html>
