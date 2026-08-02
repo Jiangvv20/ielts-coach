@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>阅读 T/F/NG · 自动驾驶与伦理挑战 · Day 75</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f4f8;color:#1a202c;min-height:100vh}
+.header{background:linear-gradient(135deg,#2d3748,#4a5568);color:#fff;padding:16px 20px;text-align:center}
+.header h1{font-size:1.1rem;font-weight:700;margin-bottom:4px}
+.header p{font-size:.8rem;opacity:.8}
+.progress-bar{height:6px;background:#e2e8f0}
+.progress-fill{height:100%;background:linear-gradient(90deg,#667eea,#764ba2);transition:width .4s;width:0%}
+.score-banner{display:none;margin:16px;padding:16px;border-radius:12px;text-align:center;font-size:1.1rem;font-weight:700;background:#c6f6d5;color:#276749;border:2px solid #9ae6b4}
+.score-banner.poor{background:#fed7d7;color:#9b2c2c;border-color:#fc8181}
+.score-banner.mid{background:#fefcbf;color:#744210;border-color:#f6e05e}
+.passage-box{margin:16px;background:#fff;border-radius:12px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,.08);line-height:1.75;font-size:.92rem}
+.passage-box h2{font-size:1rem;font-weight:700;margin-bottom:12px;color:#2d3748;border-left:4px solid #667eea;padding-left:10px}
+.passage-box p{margin-bottom:10px;color:#2d3748}
+.section-label{margin:16px 16px 8px;font-size:.78rem;font-weight:700;color:#667eea;text-transform:uppercase;letter-spacing:.08em}
+.q-card{background:#fff;border-radius:10px;margin:8px 16px;padding:14px 16px;box-shadow:0 1px 4px rgba(0,0,0,.07)}
+.q-card .q-num{font-size:.72rem;color:#a0aec0;font-weight:600;margin-bottom:4px}
+.q-card .q-text{font-size:.88rem;color:#2d3748;margin-bottom:10px;line-height:1.5}
+.options{display:flex;gap:8px;flex-wrap:wrap}
+.opt-btn{flex:1;min-width:80px;padding:7px 4px;border:2px solid #e2e8f0;border-radius:8px;background:#f7fafc;font-size:.8rem;font-weight:600;cursor:pointer;transition:all .2s;text-align:center;color:#4a5568}
+.opt-btn:hover{border-color:#667eea;background:#ebf4ff;color:#3c366b}
+.opt-btn.selected{border-color:#667eea;background:#667eea;color:#fff}
+.opt-btn.correct{border-color:#48bb78;background:#c6f6d5;color:#22543d}
+.opt-btn.wrong{border-color:#fc8181;background:#fed7d7;color:#742a2a}
+.vocab-card{background:#fff;border-radius:10px;margin:8px 16px;padding:14px 16px;box-shadow:0 1px 4px rgba(0,0,0,.07)}
+.vocab-card .q-num{font-size:.72rem;color:#a0aec0;font-weight:600;margin-bottom:4px}
+.vocab-card .sentence{font-size:.88rem;color:#2d3748;margin-bottom:10px;line-height:1.6}
+.vocab-card .blank-input{border:none;border-bottom:2px solid #667eea;outline:none;font-size:.9rem;padding:2px 6px;width:160px;color:#2d3748;background:transparent}
+.vocab-card .hint{font-size:.75rem;color:#a0aec0;margin-top:4px}
+.vocab-card .result-label{font-size:.78rem;font-weight:600;margin-top:6px;display:none}
+.submit-btn{display:block;margin:20px auto;padding:12px 40px;background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;border:none;border-radius:24px;font-size:1rem;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(102,126,234,.4)}
+.submit-btn:hover{transform:translateY(-2px)}
+.bottom-space{height:32px}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>阅读 T/F/NG · 自动驾驶汽车与伦理挑战</h1>
+  <p>Day 75 · 2026-08-03 · Technology Day 5</p>
+</div>
+<div class="progress-bar"><div class="progress-fill" id="prog"></div></div>
+<div class="score-banner" id="scoreBanner"></div>
+
+<div class="passage-box">
+  <h2>The Promise and Peril of Autonomous Vehicles</h2>
+  <p>Self-driving cars have long been heralded as a technological breakthrough capable of transforming urban mobility. Proponents argue that autonomous vehicles (AVs) will dramatically reduce traffic fatalities, which currently claim more than 1.35 million lives worldwide each year — the vast majority of which stem from human error. By removing the unpredictable element of human judgement from the equation, AVs promise a future in which roads are safer, congestion is reduced, and mobility is extended to elderly and disabled populations who currently lack access to independent transport.</p>
+  <p>Central to the functionality of modern AVs is a technology known as sensor fusion, in which data streams from cameras, lidar, radar, and ultrasonic sensors are combined and processed by onboard algorithms to construct a real-time model of the vehicle's environment. These systems can detect obstacles, read traffic signals, and anticipate the behaviour of pedestrians with a speed and consistency that surpasses most human drivers under normal conditions. However, performance degrades significantly in adverse weather — heavy rain, snow, and dense fog all interfere with optical sensors — raising questions about the reliability of AVs in regions with extreme climates.</p>
+  <p>Ethical concerns about autonomous decision-making have proven particularly contentious. In scenarios where a collision is unavoidable, an AV's algorithm must in effect choose between competing risks — swerving to protect its passenger versus minimising harm to bystanders. Critics argue that encoding such choices into software is a form of premeditated moral judgement, outsourcing life-and-death decisions to engineers and their corporate employers. Algorithmic bias presents a related challenge: studies have found that some pedestrian-detection systems perform less accurately on individuals with darker skin tones, a disparity attributed to biased training datasets that under-represent certain demographic groups.</p>
+  <p>Regulatory frameworks for AVs vary widely across jurisdictions. Several US states permit fully driverless commercial robotaxi services, while the European Union requires a human safety monitor to be available at all times during Level 4 autonomous operations. In China, dedicated smart highway corridors have been established in which AVs communicate directly with road infrastructure — an approach that sidesteps some sensor-reliability issues but depends on costly investment in roadside equipment. Many countries have experimented with geofencing, restricting autonomous operation to clearly mapped areas where infrastructure is known and weather conditions are predictable.</p>
+  <p>Environmental considerations add another dimension to the debate. The electrification of transport is frequently coupled with autonomy, and zero-emission AVs have been promoted as a dual solution to urban air pollution and road-safety crises simultaneously. Sceptics note, however, that the high energy demands of continuous onboard computation, combined with the environmental cost of manufacturing lithium-ion battery packs, complicate the claim that electric AVs are straightforwardly green. Life-cycle analyses suggest that the net environmental benefit depends heavily on the source of electricity used to charge the vehicle fleet.</p>
+  <p>Public trust remains the most significant barrier to AV adoption. High-profile accidents involving autonomous systems have received disproportionate media attention relative to the far larger number of human-caused crashes, creating a perception gap that may slow regulatory approval and commercial rollout. Researchers in human-machine interaction suggest that transparency — giving passengers a clear, understandable account of why the vehicle is making a particular decision — may be key to building the social licence that the industry needs to proceed.</p>
+</div>
+
+<div class="section-label">Part A — True / False / Not Given (Questions 1–6)</div>
+
+<div class="q-card" id="qc1">
+  <div class="q-num">Question 1</div>
+  <div class="q-text">More than 1.35 million road deaths occur globally each year, and the majority are caused by human error.</div>
+  <div class="options">
+    <button class="opt-btn" onclick="choose(1,'T')">TRUE</button>
+    <button class="opt-btn" onclick="choose(1,'F')">FALSE</button>
+    <button class="opt-btn" onclick="choose(1,'NG')">NOT GIVEN</button>
+  </div>
+</div>
+
+<div class="q-card" id="qc2">
+  <div class="q-num">Question 2</div>
+  <div class="q-text">AV sensor systems consistently outperform human drivers in all weather conditions, including heavy rain and snow.</div>
+  <div class="options">
+    <button class="opt-btn" onclick="choose(2,'T')">TRUE</button>
+    <button class="opt-btn" onclick="choose(2,'F')">FALSE</button>
+    <button class="opt-btn" onclick="choose(2,'NG')">NOT GIVEN</button>
+  </div>
+</div>
+
+<div class="q-card" id="qc3">
+  <div class="q-num">Question 3</div>
+  <div class="q-text">Some pedestrian-detection algorithms have been found to perform less accurately on people with darker skin tones due to biased training data.</div>
+  <div class="options">
+    <button class="opt-btn" onclick="choose(3,'T')">TRUE</button>
+    <button class="opt-btn" onclick="choose(3,'F')">FALSE</button>
+    <button class="opt-btn" onclick="choose(3,'NG')">NOT GIVEN</button>
+  </div>
+</div>
+
+<div class="q-card" id="qc4">
+  <div class="q-num">Question 4</div>
+  <div class="q-text">The European Union currently allows fully driverless commercial services to operate without any human safety monitor present.</div>
+  <div class="options">
+    <button class="opt-btn" onclick="choose(4,'T')">TRUE</button>
+    <button class="opt-btn" onclick="choose(4,'F')">FALSE</button>
+    <button class="opt-btn" onclick="choose(4,'NG')">NOT GIVEN</button>
+  </div>
+</div>
+
+<div class="q-card" id="qc5">
+  <div class="q-num">Question 5</div>
+  <div class="q-text">Life-cycle analyses show that the environmental benefit of electric AVs is universally positive, regardless of how the electricity is generated.</div>
+  <div class="options">
+    <button class="opt-btn" onclick="choose(5,'T')">TRUE</button>
+    <button class="opt-btn" onclick="choose(5,'F')">FALSE</button>
+    <button class="opt-btn" onclick="choose(5,'NG')">NOT GIVEN</button>
+  </div>
+</div>
+
+<div class="q-card" id="qc6">
+  <div class="q-num">Question 6</div>
+  <div class="q-text">Researchers propose that making AV decision-making more transparent to passengers could help build public trust in the technology.</div>
+  <div class="options">
+    <button class="opt-btn" onclick="choose(6,'T')">TRUE</button>
+    <button class="opt-btn" onclick="choose(6,'F')">FALSE</button>
+    <button class="opt-btn" onclick="choose(6,'NG')">NOT GIVEN</button>
+  </div>
+</div>
+
+<div class="section-label">Part B — Vocabulary Fill-in (Questions 7–10)</div>
+
+<div class="vocab-card" id="qc7">
+  <div class="q-num">Question 7</div>
+  <div class="sentence">Modern self-driving cars rely on <strong>________</strong>, combining data from cameras, lidar, and radar to build a unified picture of their surroundings.</div>
+  <input class="blank-input" id="b7" placeholder="type here…" oninput="trackBlank()">
+  <div class="hint">Hint: two words, combining different sensor data streams</div>
+  <div class="result-label" id="rl7"></div>
+</div>
+
+<div class="vocab-card" id="qc8">
+  <div class="q-num">Question 8</div>
+  <div class="sentence">The disparity in detection accuracy across demographic groups is an example of <strong>________</strong>, where unrepresentative training data skews model outcomes.</div>
+  <input class="blank-input" id="b8" placeholder="type here…" oninput="trackBlank()">
+  <div class="hint">Hint: two words, systematic unfairness in AI systems</div>
+  <div class="result-label" id="rl8"></div>
+</div>
+
+<div class="vocab-card" id="qc9">
+  <div class="q-num">Question 9</div>
+  <div class="sentence">Many early AV deployments use <strong>________</strong> to limit autonomous operation to specific mapped areas where conditions are predictable and infrastructure is known.</div>
+  <input class="blank-input" id="b9" placeholder="type here…" oninput="trackBlank()">
+  <div class="hint">Hint: one word, virtual geographic boundary</div>
+  <div class="result-label" id="rl9"></div>
+</div>
+
+<div class="vocab-card" id="qc10">
+  <div class="q-num">Question 10</div>
+  <div class="sentence">Advocates promote electric autonomous vehicles as <strong>________</strong> transport solutions that address both air-quality concerns and road-safety crises simultaneously.</div>
+  <input class="blank-input" id="b10" placeholder="type here…" oninput="trackBlank()">
+  <div class="hint">Hint: hyphenated adjective, no tailpipe emissions</div>
+  <div class="result-label" id="rl10"></div>
+</div>
+
+<button class="submit-btn" onclick="submitAll()">Submit All Answers</button>
+<div class="bottom-space"></div>
+
+<script>
+const answers = {};
+const correctTFNG = {1:'T', 2:'F', 3:'T', 4:'F', 5:'F', 6:'T'};
+const correctBlank = {
+  7: ['sensor fusion'],
+  8: ['algorithmic bias'],
+  9: ['geofencing'],
+  10: ['zero-emission']
+};
+
+function choose(n, val) {
+  answers[n] = val;
+  const card = document.getElementById('qc' + n);
+  card.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('selected'));
+  card.querySelectorAll('.opt-btn').forEach(b => { if (b.textContent.trim().startsWith(val)) b.classList.add('selected'); });
+  updateProgress();
+}
+
+function trackBlank() { updateProgress(); }
+
+function updateProgress() {
+  let done = Object.keys(answers).length;
+  for (let i = 7; i <= 10; i++) {
+    const v = document.getElementById('b' + i).value.trim();
+    if (v.length > 0) done++;
+  }
+  const pct = Math.round((done / 10) * 100);
+  document.getElementById('prog').style.width = pct + '%';
+}
+
+function normalize(s) { return s.toLowerCase().replace(/[^a-z0-9\s-]/g,'').trim().replace(/\s+/g,' '); }
+
+function submitAll() {
+  let score = 0;
+  // TFNG
+  for (let i = 1; i <= 6; i++) {
+    const card = document.getElementById('qc' + i);
+    const given = answers[i] || '';
+    const correct = correctTFNG[i];
+    card.querySelectorAll('.opt-btn').forEach(b => {
+      const bval = b.textContent.trim() === 'TRUE' ? 'T' : b.textContent.trim() === 'FALSE' ? 'F' : 'NG';
+      b.classList.remove('selected','correct','wrong');
+      if (bval === correct) b.classList.add('correct');
+      else if (bval === given && bval !== correct) b.classList.add('wrong');
+    });
+    if (given === correct) score++;
+  }
+  // Blank
+  for (let i = 7; i <= 10; i++) {
+    const raw = document.getElementById('b' + i).value.trim();
+    const normed = normalize(raw);
+    const accepted = correctBlank[i].map(normalize);
+    const ok = accepted.includes(normed);
+    if (ok) score++;
+    const rl = document.getElementById('rl' + i);
+    rl.style.display = 'block';
+    if (ok) { rl.textContent = '✓ Correct: ' + correctBlank[i][0]; rl.style.color = '#276749'; }
+    else { rl.textContent = '✗ Answer: ' + correctBlank[i][0]; rl.style.color = '#9b2c2c'; }
+  }
+  const banner = document.getElementById('scoreBanner');
+  banner.style.display = 'block';
+  let emoji, msg, cls;
+  if (score >= 9) { emoji='🏆'; msg='Excellent! Near-perfect score.'; cls=''; }
+  else if (score >= 7) { emoji='🎯'; msg='Great work! Solid Band 7 performance.'; cls=''; }
+  else if (score >= 5) { emoji='📚'; msg='Good effort. Review the passage carefully.'; cls='mid'; }
+  else { emoji='💪'; msg='Keep practising — re-read the passage and try again.'; cls='poor'; }
+  banner.textContent = emoji + ' Score: ' + score + '/10 — ' + msg;
+  banner.className = 'score-banner ' + cls;
+  banner.scrollIntoView({behavior:'smooth', block:'center'});
+  document.getElementById('prog').style.width = '100%';
+}
+</script>
+</body>
+</html>

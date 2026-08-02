@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#2563eb">
+<title>今日 150 词 · 2026-08-03 · Technology</title>
+<style>
+  :root {
+    --bg: #ffffff; --fg: #1a1a1a; --muted: #6b7280;
+    --accent: #2563eb; --ok: #059669; --warn: #d97706;
+    --card: #f9fafb; --border: #e5e7eb;
+    --nav-bg: rgba(255,255,255,0.92);
+    --header-bg: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f172a; --fg: #f1f5f9; --muted: #94a3b8;
+      --accent: #60a5fa; --ok: #34d399; --warn: #fbbf24;
+      --card: #1e293b; --border: #334155;
+      --nav-bg: rgba(15,23,42,0.92);
+      --header-bg: linear-gradient(135deg, #1e40af 0%, #6b21a8 100%);
+    }
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg); }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif;
+    line-height: 1.5;
+    min-height: 100vh;
+    padding-bottom: calc(64px + env(safe-area-inset-bottom, 0));
+  }
+  .app-header {
+    background: var(--header-bg); color: white;
+    padding: calc(env(safe-area-inset-top, 16px) + 12px) 16px 14px;
+    position: sticky; top: 0; z-index: 20;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .back-btn {
+    background: rgba(255,255,255,0.18); border: none; color: white;
+    width: 34px; height: 34px; border-radius: 10px;
+    font-size: 1.1rem; cursor: pointer; flex-shrink: 0;
+    text-decoration: none; display: flex; align-items: center; justify-content: center;
+  }
+  .app-header .ttl { font-size: 1rem; font-weight: 700; }
+  .app-header .sub {
+    font-size: 0.72rem; opacity: 0.85; margin-top: 1px;
+    letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  .stats {
+    background: var(--card); padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px; text-align: center;
+  }
+  .stat .num { font-size: 1.4rem; font-weight: 700; }
+  .stat .num.know { color: var(--ok); }
+  .stat .num.weak { color: var(--warn); }
+  .stat .num.left { color: var(--accent); }
+  .stat .lbl { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; margin-top: 2px; }
+  .progress-bar { height: 4px; background: var(--border); overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--accent); transition: width 0.3s; }
+  .card-stage { margin: 24px 16px; perspective: 1000px; }
+  .card-3d {
+    position: relative; width: 100%; min-height: 260px;
+    transform-style: preserve-3d; transition: transform 0.5s; cursor: pointer;
+  }
+  .card-3d.flipped { transform: rotateY(180deg); }
+  .face {
+    position: absolute; width: 100%; height: 100%;
+    backface-visibility: hidden; -webkit-backface-visibility: hidden;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 18px; padding: 24px 20px;
+    display: flex; flex-direction: column; justify-content: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .face.front { text-align: center; }
+  .face.front .word { font-size: 2rem; font-weight: 700; color: var(--accent); margin-bottom: 8px; word-break: break-word; }
+  .face.front .pos { color: var(--muted); font-size: 0.95rem; font-style: italic; }
+  .face.front .hint { margin-top: 28px; color: var(--muted); font-size: 0.82rem; }
+  .face.back { transform: rotateY(180deg); }
+  .face.back .zh { font-size: 1.3rem; font-weight: 600; color: var(--accent); margin-bottom: 12px; }
+  .face.back .collo { background: var(--bg); padding: 8px 12px; border-radius: 8px; font-size: 0.92rem; color: var(--fg); margin-bottom: 10px; border-left: 3px solid var(--accent); }
+  .face.back .ex { font-size: 0.95rem; font-style: italic; color: var(--fg); line-height: 1.6; }
+  .face.back .ex strong { color: var(--accent); font-style: normal; }
+  .speaker { position: absolute; top: 14px; right: 14px; width: 36px; height: 36px; border-radius: 50%; background: var(--bg); border: 1px solid var(--border); cursor: pointer; font-size: 1.1rem; padding: 0; color: var(--accent); }
+  .view-toggle { display: flex; padding: 12px 16px 0; gap: 8px; }
+  .view-toggle button { flex: 1; padding: 8px; background: var(--card); border: 1px solid var(--border); border-radius: 8px; color: var(--muted); font-size: 0.85rem; cursor: pointer; font-family: inherit; }
+  .view-toggle button.active { background: var(--accent); color: white; border-color: var(--accent); }
+  .list-view { display: none; padding: 12px 16px 24px; }
+  .list-view.active { display: block; }
+  .list-row { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-bottom: 1px solid var(--border); background: var(--card); border-radius: 8px; margin-bottom: 6px; }
+  .list-row .num { flex-shrink: 0; width: 28px; color: var(--muted); font-size: 0.72rem; font-family: "SF Mono", Menlo, monospace; }
+  .list-row .word { flex: 1; min-width: 0; }
+  .list-row .w { font-weight: 600; font-size: 0.95rem; color: var(--fg); }
+  .list-row .w.knew { color: var(--ok); }
+  .list-row .w.weak { color: var(--warn); }
+  .list-row .zh { font-size: 0.78rem; color: var(--muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .list-row .spk { flex-shrink: 0; width: 32px; height: 32px; border-radius: 50%; background: var(--bg); border: 1px solid var(--border); cursor: pointer; color: var(--accent); font-size: 0.9rem; padding: 0; }
+  .list-row .mk { flex-shrink: 0; width: 24px; text-align: center; color: var(--muted); }
+  .list-row .mk.know { color: var(--ok); }
+  .list-row .mk.weak { color: var(--warn); }
+  .curriculum-note { margin: 16px; padding: 12px 14px; background: var(--card); border-left: 3px solid var(--accent); border-radius: 8px; font-size: 0.82rem; color: var(--muted); line-height: 1.5; }
+  .curriculum-note strong { color: var(--fg); }
+  .actions { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; padding: 0 16px; }
+  .btn { padding: 14px 8px; border: 1px solid var(--border); border-radius: 12px; background: var(--card); color: var(--fg); font-size: 0.95rem; font-weight: 600; cursor: pointer; font-family: inherit; -webkit-tap-highlight-color: transparent; }
+  .btn .ico { display: block; font-size: 1.4rem; margin-bottom: 2px; }
+  .btn.weak { color: var(--warn); }
+  .btn.weak:active { background: rgba(217,119,6,0.1); }
+  .btn.flip { color: var(--accent); }
+  .btn.flip:active { background: rgba(37,99,235,0.1); }
+  .btn.know { color: var(--ok); }
+  .btn.know:active { background: rgba(5,150,105,0.1); }
+  .meta { text-align: center; color: var(--muted); font-size: 0.78rem; margin-top: 20px; }
+  .tabbar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--nav-bg); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px); border-top: 1px solid var(--border); display: flex; padding-bottom: env(safe-area-inset-bottom, 0); z-index: 30; }
+  .tab-btn { flex: 1; background: transparent; border: none; padding: 10px 4px 8px; color: var(--muted); font-size: 0.68rem; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 3px; font-family: inherit; text-decoration: none; }
+  .tab-btn .icon { font-size: 1.25rem; line-height: 1; }
+  .tab-btn.active { color: var(--accent); }
+  .done-screen { text-align: center; padding: 60px 24px; display: none; }
+  .done-screen.show { display: block; }
+  .done-screen .big { font-size: 4rem; }
+  .done-screen .ttl { font-size: 1.3rem; font-weight: 700; margin: 8px 0; }
+  .done-screen .sub { color: var(--muted); margin-bottom: 24px; }
+  .done-screen button { background: var(--accent); color: white; border: none; padding: 12px 24px; border-radius: 12px; font-size: 0.95rem; font-weight: 600; cursor: pointer; font-family: inherit; margin: 4px; }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <a class="back-btn" href="index.html#home">&#8592;</a>
+  <div style="flex:1;">
+    <div class="ttl">今日 150 词 · Technology</div>
+    <div class="sub">2026-08-03 · Day 75</div>
+  </div>
+</header>
+
+<div class="stats">
+  <div class="stat"><div class="num know" id="kn">0</div><div class="lbl">知道</div></div>
+  <div class="stat"><div class="num weak" id="wk">0</div><div class="lbl">不熟</div></div>
+  <div class="stat"><div class="num left" id="lf">150</div><div class="lbl">剩余</div></div>
+</div>
+<div class="progress-bar"><div class="progress-fill" id="pg" style="width:0%"></div></div>
+
+<div class="view-toggle">
+  <button id="vtFlash" class="active" onclick="setView('flash')">&#128197; 卡片</button>
+  <button id="vtList" onclick="setView('list')">&#128203; 列表</button>
+</div>
+
+<div id="deck">
+  <div class="card-stage">
+    <div class="card-3d" id="card" onclick="flip()">
+      <div class="face front">
+        <button class="speaker" onclick="event.stopPropagation();speak(document.getElementById('w').textContent)">&#128266;</button>
+        <div class="word" id="w">—</div>
+        <div class="pos" id="p">—</div>
+        <div class="hint">轻触卡片 · 翻看释义</div>
+      </div>
+      <div class="face back">
+        <button class="speaker" onclick="event.stopPropagation();speak(document.getElementById('w').textContent)">&#128266;</button>
+        <div class="zh" id="zh">—</div>
+        <div class="collo" id="cl">—</div>
+        <div class="ex" id="ex">—</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="btn weak" onclick="mark('weak')"><span class="ico">&#128543;</span>不熟</button>
+    <button class="btn flip" onclick="flip()"><span class="ico">&#128260;</span>翻转</button>
+    <button class="btn know" onclick="mark('know')"><span class="ico">&#9989;</span>知道</button>
+  </div>
+
+  <div class="meta" id="meta">1 / 150 · 今日主题 Technology Day 5</div>
+</div>
+
+<div class="list-view" id="listView">
+  <div id="listBody"></div>
+</div>
+
+<div class="curriculum-note">
+  <strong>词汇来源</strong>: 8 大主题轮换，涵盖雅思高频话题。<br>
+  今日 <strong>Technology Day 5 (Cycle 2)</strong>: 自动驾驶/新能源汽车 · 太空商业化 · 数字伦理与算法问责 · 生物识别与数字身份 · 先进制造与工业4.0<br>
+  词汇为 Band 7+ 难度, 每条含 词性 · 中文 · 搭配 · 例句, 由 IELTS 高分话题词库扩展生成。
+</div>
+
+<div class="done-screen" id="done">
+  <div class="big">&#127881;</div>
+  <div class="ttl" id="doneTtl">今日 150 词完成!</div>
+  <div class="sub" id="doneSub">知道 0 · 不熟 0</div>
+  <button onclick="resetAll()">重新开始</button>
+  <button onclick="reviewWeak()">只复习不熟</button>
+  <button onclick="location.href='index.html'">回主页</button>
+</div>
+
+<nav class="tabbar">
+  <a class="tab-btn active" href="index.html#home"><span class="icon">&#127968;</span>概览</a>
+  <a class="tab-btn" href="index.html#materials"><span class="icon">&#128250;</span>材料</a>
+  <a class="tab-btn" href="index.html#quizzes"><span class="icon">&#9999;&#65039;</span>测验</a>
+  <a class="tab-btn" href="index.html#plan"><span class="icon">&#128203;</span>计划</a>
+</nav>
+
+<script>
+const CARDS = [
+{"w":"autonomous vehicle","p":"n.","zh":"自动驾驶汽车","cl":"autonomous vehicle fleet","ex":"Regulators are debating when to permit fully <strong>autonomous vehicle</strong> fleets on public roads."},
+{"w":"self-driving","p":"adj.","zh":"自动驾驶的","cl":"self-driving technology","ex":"<strong>Self-driving</strong> technology promises to reduce road accidents caused by human error."},
+{"w":"electric vehicle","p":"n.","zh":"电动汽车 (EV)","cl":"electric vehicle adoption","ex":"Rapid <strong>electric vehicle</strong> adoption is reshaping the global automotive market."},
+{"w":"lithium-ion battery","p":"n.","zh":"锂离子电池","cl":"recharge a lithium-ion battery","ex":"The energy density of <strong>lithium-ion batteries</strong> is the key bottleneck in extending driving range."},
+{"w":"solid-state battery","p":"n.","zh":"固态电池","cl":"next-generation solid-state battery","ex":"<strong>Solid-state batteries</strong> promise greater safety and energy density than conventional liquid-electrolyte cells."},
+{"w":"range anxiety","p":"n.","zh":"续航焦虑","cl":"overcome range anxiety","ex":"Expanding the charging network is the most effective way to overcome <strong>range anxiety</strong>."},
+{"w":"charging infrastructure","p":"n.","zh":"充电基础设施","cl":"invest in charging infrastructure","ex":"Governments are investing in <strong>charging infrastructure</strong> to accelerate electric vehicle uptake."},
+{"w":"zero-emission","p":"adj.","zh":"零排放的","cl":"zero-emission vehicle","ex":"Cities are introducing congestion zones that only permit <strong>zero-emission</strong> vehicles."},
+{"w":"electrification","p":"n.","zh":"电气化","cl":"electrification of transport","ex":"The <strong>electrification</strong> of public transport is central to many cities' net-zero strategies."},
+{"w":"combustion engine","p":"n.","zh":"内燃机","cl":"phase out combustion engines","ex":"Several governments have pledged to phase out <strong>combustion engines</strong> by 2035."},
+{"w":"lidar","p":"n.","zh":"激光雷达","cl":"lidar sensor array","ex":"<strong>Lidar</strong> sensors emit laser pulses to build a three-dimensional map of a vehicle's surroundings."},
+{"w":"vehicle-to-grid","p":"n.","zh":"车网互动 (V2G)","cl":"vehicle-to-grid technology","ex":"<strong>Vehicle-to-grid</strong> technology allows EV batteries to feed surplus energy back into the electricity grid."},
+{"w":"regenerative braking","p":"n.","zh":"再生制动","cl":"regenerative braking system","ex":"<strong>Regenerative braking</strong> converts kinetic energy into electricity, extending the range of electric vehicles."},
+{"w":"powertrain","p":"n.","zh":"动力传动系统","cl":"electric powertrain","ex":"The electric <strong>powertrain</strong> has fewer moving parts than its combustion counterpart, reducing maintenance costs."},
+{"w":"fuel cell","p":"n.","zh":"燃料电池","cl":"hydrogen fuel cell","ex":"<strong>Fuel cell</strong> vehicles generate electricity by combining hydrogen and oxygen, emitting only water."},
+{"w":"hydrogen-powered","p":"adj.","zh":"氢能驱动的","cl":"hydrogen-powered bus fleet","ex":"Several cities are trialling <strong>hydrogen-powered</strong> bus fleets to decarbonise public transport."},
+{"w":"telematics","p":"n.","zh":"车载信息系统","cl":"telematics data","ex":"Insurers use <strong>telematics</strong> data to price policies based on individual driving behaviour."},
+{"w":"over-the-air update","p":"n.","zh":"空中软件更新 (OTA)","cl":"deliver over-the-air updates","ex":"Manufacturers can deliver <strong>over-the-air updates</strong> to fix software bugs without requiring a workshop visit."},
+{"w":"mobility-as-a-service","p":"n.","zh":"出行即服务 (MaaS)","cl":"shift to mobility-as-a-service","ex":"<strong>Mobility-as-a-service</strong> platforms allow users to plan, book and pay for multi-modal journeys in a single app."},
+{"w":"ride-hailing","p":"n.","zh":"网约车服务","cl":"ride-hailing platform","ex":"<strong>Ride-hailing</strong> platforms have disrupted traditional taxi industries in dozens of countries."},
+{"w":"congestion charge","p":"n.","zh":"拥堵费","cl":"implement a congestion charge","ex":"London's <strong>congestion charge</strong> has reduced traffic in the central zone by roughly 30 per cent."},
+{"w":"low-emission zone","p":"n.","zh":"低排放区","cl":"designate a low-emission zone","ex":"The city has designated a <strong>low-emission zone</strong> where only electric and hybrid vehicles may circulate freely."},
+{"w":"fleet electrification","p":"n.","zh":"车队电气化","cl":"accelerate fleet electrification","ex":"Logistics companies are under pressure to accelerate <strong>fleet electrification</strong> to meet sustainability targets."},
+{"w":"geofencing","p":"n.","zh":"地理围栏技术","cl":"geofencing capability","ex":"<strong>Geofencing</strong> capability allows autonomous vehicles to restrict themselves to pre-approved routes."},
+{"w":"battery recycling","p":"n.","zh":"电池回收","cl":"battery recycling programme","ex":"Scalable <strong>battery recycling</strong> is essential to prevent a surge in toxic waste as EV adoption grows."},
+{"w":"fast-charging","p":"n./adj.","zh":"快速充电","cl":"fast-charging station","ex":"An extensive network of <strong>fast-charging</strong> stations is critical for long-distance electric travel."},
+{"w":"lane-keeping assist","p":"n.","zh":"车道保持辅助","cl":"activate lane-keeping assist","ex":"<strong>Lane-keeping assist</strong> gently corrects the steering when the car begins to drift out of its lane."},
+{"w":"adaptive cruise control","p":"n.","zh":"自适应巡航控制","cl":"adaptive cruise control system","ex":"<strong>Adaptive cruise control</strong> maintains a safe distance from the vehicle ahead without driver input."},
+{"w":"sensor fusion","p":"n.","zh":"传感器融合","cl":"rely on sensor fusion","ex":"Autonomous vehicles rely on <strong>sensor fusion</strong> to integrate data from cameras, radar and lidar simultaneously."},
+{"w":"autonomy level","p":"n.","zh":"自动驾驶等级","cl":"SAE autonomy level","ex":"SAE defines six <strong>autonomy levels</strong> ranging from no automation (Level 0) to full self-driving (Level 5)."},
+{"w":"commercial spaceflight","p":"n.","zh":"商业航天","cl":"commercial spaceflight industry","ex":"The <strong>commercial spaceflight</strong> industry has lowered launch costs dramatically over the past decade."},
+{"w":"reusable launch vehicle","p":"n.","zh":"可复用运载火箭","cl":"reusable launch vehicle technology","ex":"<strong>Reusable launch vehicle</strong> technology has slashed the cost of putting payloads into orbit."},
+{"w":"satellite constellation","p":"n.","zh":"卫星星座","cl":"deploy a satellite constellation","ex":"Companies have begun deploying large <strong>satellite constellations</strong> to provide global broadband coverage."},
+{"w":"low Earth orbit","p":"n.","zh":"近地轨道 (LEO)","cl":"operate in low Earth orbit","ex":"Most broadband satellite networks now operate in <strong>low Earth orbit</strong>, closer to the surface than traditional geostationary satellites."},
+{"w":"space debris","p":"n.","zh":"太空碎片","cl":"mitigate space debris","ex":"Regulatory bodies are developing guidelines to mitigate <strong>space debris</strong> before it poses a catastrophic risk."},
+{"w":"payload capacity","p":"n.","zh":"有效载荷量","cl":"expand payload capacity","ex":"Next-generation rockets are designed to expand <strong>payload capacity</strong> while reducing cost per kilogram."},
+{"w":"microgravity","p":"n.","zh":"微重力","cl":"microgravity environment","ex":"Experiments conducted in a <strong>microgravity</strong> environment may yield materials impossible to produce on Earth."},
+{"w":"geostationary orbit","p":"n.","zh":"地球静止轨道","cl":"geostationary orbit position","ex":"Weather satellites are typically positioned in <strong>geostationary orbit</strong> at 36,000 kilometres above the equator."},
+{"w":"space tourism","p":"n.","zh":"太空旅游","cl":"commercialise space tourism","ex":"<strong>Space tourism</strong> offers wealthy individuals sub-orbital flights, though critics question its environmental credentials."},
+{"w":"in-situ resource utilisation","p":"n.","zh":"就地资源利用 (ISRU)","cl":"in-situ resource utilisation on the Moon","ex":"<strong>In-situ resource utilisation</strong> would allow future lunar settlements to extract water ice and manufacture fuel locally."},
+{"w":"propulsion system","p":"n.","zh":"推进系统","cl":"advanced propulsion system","ex":"Ion-drive <strong>propulsion systems</strong> offer greater fuel efficiency for deep-space missions."},
+{"w":"crewed mission","p":"n.","zh":"载人任务","cl":"crewed mission to Mars","ex":"A <strong>crewed mission</strong> to Mars would require solving formidable challenges in life support and radiation shielding."},
+{"w":"mega-constellation","p":"n.","zh":"巨型卫星星座","cl":"mega-constellation deployment","ex":"Critics warn that <strong>mega-constellation</strong> deployment is degrading the visibility of the night sky for astronomers."},
+{"w":"re-entry vehicle","p":"n.","zh":"再入飞行器","cl":"heat-shielded re-entry vehicle","ex":"A heat-shielded <strong>re-entry vehicle</strong> must withstand temperatures exceeding 1,600 degrees Celsius during atmospheric descent."},
+{"w":"orbital mechanics","p":"n.","zh":"轨道力学","cl":"principles of orbital mechanics","ex":"Understanding <strong>orbital mechanics</strong> is essential for calculating fuel-efficient transfer trajectories between planets."},
+{"w":"extraterrestrial","p":"adj.","zh":"地外的","cl":"extraterrestrial resource","ex":"Scientists are exploring the feasibility of mining <strong>extraterrestrial</strong> asteroids for rare metals essential to technology manufacturing."},
+{"w":"space-based solar power","p":"n.","zh":"空基太阳能","cl":"space-based solar power concept","ex":"<strong>Space-based solar power</strong> concepts envision beaming microwave energy from orbital panels to ground receivers continuously."},
+{"w":"launch cadence","p":"n.","zh":"发射频率","cl":"increase launch cadence","ex":"The ability to increase <strong>launch cadence</strong> is a key competitive advantage for commercial launch providers."},
+{"w":"space colonisation","p":"n.","zh":"太空殖民","cl":"long-term space colonisation","ex":"<strong>Space colonisation</strong> advocates argue that humanity must become a multi-planetary species to ensure its long-term survival."},
+{"w":"launch manifest","p":"n.","zh":"发射计划清单","cl":"published launch manifest","ex":"The company's published <strong>launch manifest</strong> shows more than 40 missions scheduled for the coming year."},
+{"w":"algorithmic bias","p":"n.","zh":"算法偏见","cl":"address algorithmic bias","ex":"Facial recognition systems have faced criticism for <strong>algorithmic bias</strong> that produces less accurate results for darker-skinned individuals."},
+{"w":"explainability","p":"n.","zh":"(AI的) 可解释性","cl":"AI explainability","ex":"<strong>Explainability</strong> refers to the ability to articulate why an AI system reached a particular decision."},
+{"w":"accountability","p":"n.","zh":"问责性","cl":"ensure accountability","ex":"Stricter regulations are needed to ensure <strong>accountability</strong> when automated systems cause harm to individuals."},
+{"w":"digital sovereignty","p":"n.","zh":"数字主权","cl":"assert digital sovereignty","ex":"Governments are increasingly asserting <strong>digital sovereignty</strong> by requiring data generated within their borders to be stored domestically."},
+{"w":"data localisation","p":"n.","zh":"数据本地化","cl":"data localisation requirement","ex":"<strong>Data localisation</strong> requirements oblige companies to store user data on servers located in the country of origin."},
+{"w":"right to erasure","p":"n.","zh":"被遗忘权","cl":"invoke the right to erasure","ex":"GDPR grants EU citizens the <strong>right to erasure</strong>, entitling them to request the deletion of their personal data."},
+{"w":"informed consent","p":"n.","zh":"知情同意","cl":"obtain informed consent","ex":"Platforms must obtain <strong>informed consent</strong> before processing users' sensitive personal information."},
+{"w":"GDPR","p":"n.","zh":"通用数据保护条例","cl":"comply with GDPR","ex":"Companies operating in the EU must comply with <strong>GDPR</strong> or face substantial fines."},
+{"w":"digital rights","p":"n.","zh":"数字权利","cl":"protect digital rights","ex":"Civil society organisations are lobbying for legislation to protect <strong>digital rights</strong> in the age of pervasive data collection."},
+{"w":"platform liability","p":"n.","zh":"平台责任","cl":"extend platform liability","ex":"Policymakers are debating whether to extend <strong>platform liability</strong> to cover harms caused by user-generated content."},
+{"w":"content moderation","p":"n.","zh":"内容审核","cl":"automated content moderation","ex":"<strong>Content moderation</strong> at the scale required by global platforms depends heavily on AI, raising concerns about over-censorship."},
+{"w":"hate speech","p":"n.","zh":"仇恨言论","cl":"detect and remove hate speech","ex":"Social media companies face mounting pressure to detect and remove <strong>hate speech</strong> more consistently across languages."},
+{"w":"misinformation","p":"n.","zh":"错误信息","cl":"combat misinformation","ex":"Governments and platforms are adopting various strategies to combat <strong>misinformation</strong>, from fact-checking labels to algorithm adjustments."},
+{"w":"disinformation","p":"n.","zh":"蓄意虚假信息","cl":"state-sponsored disinformation","ex":"State-sponsored <strong>disinformation</strong> campaigns have intensified with the availability of generative AI tools."},
+{"w":"echo chamber","p":"n.","zh":"信息茧房","cl":"trapped in an echo chamber","ex":"Recommendation algorithms have been blamed for trapping users in an <strong>echo chamber</strong>, exposing them only to views they already hold."},
+{"w":"filter bubble","p":"n.","zh":"过滤气泡","cl":"escape the filter bubble","ex":"Critics argue that personalisation algorithms create a <strong>filter bubble</strong> that undermines informed democratic participation."},
+{"w":"surveillance capitalism","p":"n.","zh":"监控资本主义","cl":"the logic of surveillance capitalism","ex":"The concept of <strong>surveillance capitalism</strong> describes an economic model built on the covert extraction and commercialisation of personal data."},
+{"w":"privacy-by-design","p":"n.","zh":"隐私保护内嵌设计","cl":"adopt privacy-by-design","ex":"Regulators encourage companies to adopt <strong>privacy-by-design</strong> principles from the earliest stages of product development."},
+{"w":"data portability","p":"n.","zh":"数据可携带性","cl":"guarantee data portability","ex":"<strong>Data portability</strong> rules allow consumers to transfer their data from one platform to a competing service with minimal friction."},
+{"w":"ethical AI","p":"n.","zh":"伦理人工智能","cl":"commit to ethical AI","ex":"Tech companies have published <strong>ethical AI</strong> frameworks, though critics question whether self-regulation is sufficient."},
+{"w":"bias mitigation","p":"n.","zh":"偏见消除","cl":"implement bias mitigation","ex":"Developers are exploring training-data diversity and post-hoc correction techniques for <strong>bias mitigation</strong>."},
+{"w":"black-box model","p":"n.","zh":"黑盒模型","cl":"rely on a black-box model","ex":"Courts have questioned whether sentencing recommendations generated by a <strong>black-box model</strong> satisfy due-process requirements."},
+{"w":"dark pattern","p":"n.","zh":"暗模式 (欺骗性UI设计)","cl":"deploy dark patterns","ex":"Regulators have fined companies for deploying <strong>dark patterns</strong> designed to trick users into sharing more data than intended."},
+{"w":"digital footprint","p":"n.","zh":"数字足迹","cl":"leave a digital footprint","ex":"Every online interaction leaves a <strong>digital footprint</strong> that can be aggregated to build a detailed behavioural profile."},
+{"w":"co-regulation","p":"n.","zh":"协同监管","cl":"pursue co-regulation","ex":"Many regulators favour <strong>co-regulation</strong>, in which industry and government jointly devise and enforce standards."},
+{"w":"self-regulation","p":"n.","zh":"自律监管","cl":"rely on self-regulation","ex":"Critics argue that relying on <strong>self-regulation</strong> allows tech companies to prioritise profit over user welfare."},
+{"w":"regtech","p":"n.","zh":"监管科技","cl":"invest in regtech","ex":"Financial institutions are investing in <strong>regtech</strong> solutions to automate compliance reporting and reduce regulatory risk."},
+{"w":"transparency report","p":"n.","zh":"透明度报告","cl":"publish a transparency report","ex":"Major platforms publish annual <strong>transparency reports</strong> disclosing the volume and nature of content removal requests received."},
+{"w":"algorithmic accountability","p":"n.","zh":"算法问责","cl":"demand algorithmic accountability","ex":"Civil liberties groups are demanding <strong>algorithmic accountability</strong> from companies whose systems influence credit, employment and parole decisions."},
+{"w":"data minimisation","p":"n.","zh":"数据最小化原则","cl":"enforce data minimisation","ex":"The principle of <strong>data minimisation</strong> requires organisations to collect only the personal data strictly necessary for a stated purpose."},
+{"w":"biometric authentication","p":"n.","zh":"生物特征认证","cl":"biometric authentication system","ex":"Banks are rolling out <strong>biometric authentication</strong> systems that verify identity through fingerprints or facial scans."},
+{"w":"facial recognition","p":"n.","zh":"人脸识别","cl":"deploy facial recognition","ex":"Several cities have banned the deployment of <strong>facial recognition</strong> technology in public spaces over privacy concerns."},
+{"w":"deepfake","p":"n.","zh":"深度伪造","cl":"detect deepfakes","ex":"Advances in detection technology are struggling to keep pace with increasingly realistic <strong>deepfakes</strong>."},
+{"w":"digital identity","p":"n.","zh":"数字身份","cl":"verify digital identity","ex":"Governments are establishing national <strong>digital identity</strong> frameworks to streamline access to public services."},
+{"w":"identity theft","p":"n.","zh":"身份盗窃","cl":"fall victim to identity theft","ex":"Victims of <strong>identity theft</strong> may spend years restoring their credit records and financial reputation."},
+{"w":"two-factor authentication","p":"n.","zh":"双因素认证","cl":"enforce two-factor authentication","ex":"Organisations are strongly advised to enforce <strong>two-factor authentication</strong> to reduce the risk of account takeover."},
+{"w":"end-to-end encryption","p":"n.","zh":"端到端加密","cl":"implement end-to-end encryption","ex":"Messaging apps that implement <strong>end-to-end encryption</strong> prevent even the service provider from reading user communications."},
+{"w":"zero-trust architecture","p":"n.","zh":"零信任架构","cl":"adopt a zero-trust architecture","ex":"A <strong>zero-trust architecture</strong> assumes that no user or device should be trusted by default, even inside a corporate network."},
+{"w":"liveness detection","p":"n.","zh":"活体检测","cl":"liveness detection algorithm","ex":"<strong>Liveness detection</strong> algorithms distinguish between a real person and a photograph presented to a biometric camera."},
+{"w":"behavioural biometrics","p":"n.","zh":"行为生物特征","cl":"analyse behavioural biometrics","ex":"<strong>Behavioural biometrics</strong>—such as typing rhythm and mouse-movement patterns—can identify individuals without their active cooperation."},
+{"w":"e-KYC","p":"n.","zh":"电子身份核查","cl":"complete e-KYC verification","ex":"<strong>e-KYC</strong> (electronic Know Your Customer) processes allow financial institutions to verify clients' identities remotely and instantly."},
+{"w":"decentralised identity","p":"n.","zh":"去中心化身份","cl":"explore decentralised identity","ex":"<strong>Decentralised identity</strong> systems allow individuals to own and control their credentials without relying on a central authority."},
+{"w":"phishing","p":"n.","zh":"网络钓鱼","cl":"fall for a phishing attack","ex":"Employees who fall for a <strong>phishing</strong> attack can inadvertently hand criminals the credentials they need to breach a network."},
+{"w":"ransomware","p":"n.","zh":"勒索软件","cl":"deploy ransomware","ex":"Hospitals have been paralysed by <strong>ransomware</strong> attacks that encrypted patient records and demanded payment for the decryption key."},
+{"w":"credential stuffing","p":"n.","zh":"凭证填充攻击","cl":"defend against credential stuffing","ex":"<strong>Credential stuffing</strong> attacks use lists of breached passwords to gain unauthorised access to accounts on other platforms."},
+{"w":"additive manufacturing","p":"n.","zh":"增材制造 (3D打印)","cl":"additive manufacturing process","ex":"<strong>Additive manufacturing</strong> enables the production of complex geometries that are impossible to achieve through traditional machining."},
+{"w":"digital twin","p":"n.","zh":"数字孪生","cl":"create a digital twin","ex":"Engineers create a <strong>digital twin</strong> of a physical asset to simulate performance and predict maintenance needs before issues arise."},
+{"w":"smart factory","p":"n.","zh":"智能工厂","cl":"operate a smart factory","ex":"In a <strong>smart factory</strong>, machines communicate autonomously and production parameters adjust in real time to optimise output."},
+{"w":"nanotechnology","p":"n.","zh":"纳米技术","cl":"nanotechnology application","ex":"<strong>Nanotechnology</strong> applications in medicine include drug-delivery particles small enough to target individual cancer cells."},
+{"w":"precision engineering","p":"n.","zh":"精密工程","cl":"precision engineering facility","ex":"High-performance aerospace components demand extraordinary <strong>precision engineering</strong> tolerances measured in microns."},
+{"w":"supply chain resilience","p":"n.","zh":"供应链韧性","cl":"build supply chain resilience","ex":"The pandemic exposed vulnerabilities that have since spurred companies to build greater <strong>supply chain resilience</strong>."},
+{"w":"reshoring","p":"n.","zh":"制造业回流","cl":"promote reshoring","ex":"Governments are offering subsidies to promote <strong>reshoring</strong> of semiconductor production from Asia to domestic facilities."},
+{"w":"Industry 4.0","p":"n.","zh":"工业4.0","cl":"implement Industry 4.0","ex":"<strong>Industry 4.0</strong> describes the integration of cyber-physical systems, IoT and AI into manufacturing processes."},
+{"w":"predictive maintenance","p":"n.","zh":"预测性维护","cl":"implement predictive maintenance","ex":"<strong>Predictive maintenance</strong> uses sensor data to detect equipment anomalies before they escalate into costly breakdowns."},
+{"w":"cobots","p":"n.","zh":"协作机器人","cl":"cobots working alongside humans","ex":"Unlike traditional industrial robots, <strong>cobots</strong> are designed to work safely alongside human operators on shared assembly tasks."},
+{"w":"semiconductor","p":"n.","zh":"半导体","cl":"semiconductor shortage","ex":"A global <strong>semiconductor</strong> shortage halted production lines across the automotive and electronics industries."},
+{"w":"smart grid","p":"n.","zh":"智能电网","cl":"upgrade to a smart grid","ex":"A <strong>smart grid</strong> uses digital sensors and controls to balance supply and demand across the electricity network in real time."},
+{"w":"energy management system","p":"n.","zh":"能源管理系统","cl":"deploy an energy management system","ex":"Industrial facilities deploy <strong>energy management systems</strong> to monitor consumption and identify efficiency savings."},
+{"w":"materials science","p":"n.","zh":"材料科学","cl":"materials science research","ex":"Breakthroughs in <strong>materials science</strong> have yielded lighter, stronger alloys for aerospace and automotive applications."},
+{"w":"lean manufacturing","p":"n.","zh":"精益生产","cl":"embrace lean manufacturing","ex":"<strong>Lean manufacturing</strong> principles prioritise the elimination of waste at every stage of the production process."},
+{"w":"harness","p":"v.","zh":"利用","cl":"harness the power of technology","ex":"Entrepreneurs are learning to <strong>harness</strong> the power of data to identify emerging consumer trends ahead of competitors."},
+{"w":"disruptive innovation","p":"n.","zh":"颠覆性创新","cl":"drive disruptive innovation","ex":"Silicon Valley has long been celebrated as an engine of <strong>disruptive innovation</strong> that upends established industries."},
+{"w":"cutting-edge","p":"adj.","zh":"前沿的","cl":"cutting-edge research","ex":"The university's <strong>cutting-edge</strong> research in autonomous systems attracts top talent from around the globe."},
+{"w":"at the forefront of","p":"prep. phrase","zh":"处于...前沿","cl":"at the forefront of development","ex":"The company positions itself <strong>at the forefront of</strong> sustainable technology development and zero-emission mobility."},
+{"w":"leapfrog","p":"v.","zh":"跨越式超越","cl":"leapfrog older technology","ex":"Mobile payments allowed millions in developing countries to <strong>leapfrog</strong> traditional banking and move directly to digital finance."},
+{"w":"tech-savvy","p":"adj.","zh":"精通科技的","cl":"a tech-savvy generation","ex":"A <strong>tech-savvy</strong> generation of consumers expects seamless digital experiences across all touchpoints and devices."},
+{"w":"roll out","p":"phrasal v.","zh":"推广/铺开","cl":"roll out a new feature","ex":"The company plans to <strong>roll out</strong> the new safety features to all vehicles via a software update next quarter."},
+{"w":"scale up","p":"phrasal v.","zh":"扩大规模","cl":"scale up production","ex":"Manufacturers must invest heavily to <strong>scale up</strong> battery production to meet projected demand for electric vehicles."},
+{"w":"phase out","p":"phrasal v.","zh":"逐步淘汰","cl":"phase out fossil fuels","ex":"The government has committed to <strong>phasing out</strong> all fossil-fuel power plants by 2040 in its net-zero strategy."},
+{"w":"proof of concept","p":"n.","zh":"概念验证","cl":"successful proof of concept","ex":"A successful <strong>proof of concept</strong> opens the door to full-scale product development and investor funding."},
+{"w":"gain traction","p":"v. phrase","zh":"获得势头/关注","cl":"the technology is gaining traction","ex":"The technology is rapidly <strong>gaining traction</strong> among enterprise customers seeking to reduce operational costs."},
+{"w":"early adopter","p":"n.","zh":"早期使用者","cl":"attract early adopters","ex":"<strong>Early adopters</strong> are typically willing to tolerate imperfections in exchange for experiencing the latest technology."},
+{"w":"keep pace with","p":"v. phrase","zh":"跟上步伐","cl":"keep pace with change","ex":"Regulators are struggling to <strong>keep pace with</strong> the speed of technological change in the autonomous vehicle sector."},
+{"w":"paradigm shift","p":"n.","zh":"范式转变","cl":"represent a paradigm shift","ex":"The transition to autonomous vehicles represents a fundamental <strong>paradigm shift</strong> in personal mobility and urban planning."},
+{"w":"watershed moment","p":"n.","zh":"转折性时刻","cl":"a watershed moment for the industry","ex":"The commercial launch of the product marked a <strong>watershed moment</strong> for the entire electric vehicle industry."},
+{"w":"bridge the gap","p":"idiom","zh":"弥合差距","cl":"bridge the gap between","ex":"Vocational training is needed to <strong>bridge the gap</strong> between current skills and the demands of an AI-driven economy."},
+{"w":"future-proof","p":"v./adj.","zh":"使面向未来的","cl":"future-proof the business","ex":"Companies must invest in retraining to <strong>future-proof</strong> their workforce against the disruption caused by automation."},
+{"w":"mission-critical","p":"adj.","zh":"至关重要的","cl":"mission-critical system","ex":"A <strong>mission-critical</strong> communication system cannot afford to go offline for scheduled maintenance."},
+{"w":"plug-and-play","p":"adj.","zh":"即插即用的","cl":"plug-and-play solution","ex":"The startup offers a <strong>plug-and-play</strong> AI module that integrates with existing manufacturing equipment with minimal setup."},
+{"w":"human-in-the-loop","p":"n.","zh":"人在回路","cl":"human-in-the-loop oversight","ex":"High-stakes AI decisions should maintain <strong>human-in-the-loop</strong> oversight to catch errors that automated systems miss."},
+{"w":"on the cusp of","p":"prep. phrase","zh":"处于...临界点","cl":"on the cusp of a breakthrough","ex":"We are <strong>on the cusp of</strong> a breakthrough that could transform how entire cities are powered and connected."},
+{"w":"tip of the iceberg","p":"idiom","zh":"冰山一角","cl":"just the tip of the iceberg","ex":"The data breaches revealed so far may be just <strong>the tip of the iceberg</strong> of a far wider systemic failure."},
+{"w":"double-edged sword","p":"idiom","zh":"双刃剑","cl":"a double-edged sword","ex":"Autonomous vehicles are a <strong>double-edged sword</strong>: they may save lives while also threatening millions of driving jobs."},
+{"w":"race to the bottom","p":"idiom","zh":"竞相逐底","cl":"a race to the bottom","ex":"Weak international coordination could trigger a <strong>race to the bottom</strong> in which countries compete to offer the lightest regulatory burden."},
+{"w":"move the goalposts","p":"idiom","zh":"变更标准","cl":"keep moving the goalposts","ex":"Critics accuse the regulator of <strong>moving the goalposts</strong> every time the industry comes close to meeting the original safety standards."},
+{"w":"reinvent the wheel","p":"idiom","zh":"重复做无用功","cl":"no need to reinvent the wheel","ex":"Rather than <strong>reinventing the wheel</strong>, the start-up built its product on existing open-source frameworks."},
+{"w":"the jury is still out","p":"idiom","zh":"尚无定论","cl":"the jury is still out on","ex":"<strong>The jury is still out on</strong> whether Level 5 autonomous vehicles can ever be made safe enough for unrestricted public roads."},
+{"w":"in the pipeline","p":"idiom","zh":"在筹备中","cl":"projects in the pipeline","ex":"Several breakthrough battery chemistries are currently <strong>in the pipeline</strong>, promising to double energy density within five years."},
+{"w":"stay ahead of the curve","p":"idiom","zh":"走在时代前面","cl":"stay ahead of the curve","ex":"R&D investment is the only reliable way to <strong>stay ahead of the curve</strong> in a fast-evolving technology landscape."},
+{"w":"disrupt the status quo","p":"v. phrase","zh":"颠覆现状","cl":"disrupt the status quo","ex":"Start-ups that <strong>disrupt the status quo</strong> often encounter fierce resistance from incumbent players protecting market share."},
+{"w":"It is no exaggeration to say that","p":"sentence stem","zh":"毫不夸张地说","cl":"it is no exaggeration to say","ex":"<strong>It is no exaggeration to say that</strong> the autonomous vehicle revolution will reshape urban planning for generations to come."},
+{"w":"A direct consequence of this trend","p":"sentence stem","zh":"这一趋势的直接后果","cl":"a direct consequence of this trend is that","ex":"<strong>A direct consequence of this trend is that</strong> traditional car manufacturers must reinvent their business models or risk obsolescence."},
+{"w":"While X undoubtedly has its merits","p":"sentence stem","zh":"让步: 尽管X有其优点","cl":"while autonomous driving undoubtedly has its merits","ex":"<strong>While autonomous driving undoubtedly has its merits</strong>, the transition period—in which human and machine share the road—poses unique safety challenges."},
+{"w":"Not only does X benefit","p":"sentence stem","zh":"倒装强调: X不仅使...受益","cl":"not only does electrification benefit individuals","ex":"<strong>Not only does</strong> electrification benefit individuals by lowering fuel costs, but it also contributes to national energy security."},
+{"w":"responsible innovation","p":"n.","zh":"负责任的创新","cl":"promote responsible innovation","ex":"The EU's regulatory framework aims to promote <strong>responsible innovation</strong> while preventing the deployment of high-risk AI systems."},
+{"w":"pilot programme","p":"n.","zh":"试点项目","cl":"launch a pilot programme","ex":"The city launched a <strong>pilot programme</strong> to trial autonomous minibuses on a dedicated corridor before broader deployment."},
+{"w":"silo mentality","p":"n.","zh":"孤岛思维","cl":"overcome silo mentality","ex":"Effective cybersecurity requires companies to overcome a <strong>silo mentality</strong> and share threat intelligence across departments and industries."}
+];
+
+let state = JSON.parse(localStorage.getItem("ielts_vocab_20260803") || "{}");
+let queue = CARDS.map((c, i) => ({...c, idx: i})).filter(c => !state[c.idx] || state[c.idx] === "review");
+let cur = 0;
+
+function speak(text) {
+  if (!text || !window.speechSynthesis) return;
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = "en-US"; u.rate = 0.85; u.pitch = 1;
+  const voices = speechSynthesis.getVoices();
+  const en = voices.find(v => /en-(US|GB)/.test(v.lang) && /Samantha|Daniel|Alex|Karen|Moira|Google US English|Google UK English/.test(v.name))
+          || voices.find(v => v.lang.startsWith("en"));
+  if (en) u.voice = en;
+  speechSynthesis.speak(u);
+}
+if (window.speechSynthesis) speechSynthesis.onvoiceschanged = () => {};
+
+function render() {
+  if (cur >= queue.length) return showDone();
+  const c = queue[cur];
+  document.getElementById("w").textContent = c.w;
+  document.getElementById("p").textContent = c.p;
+  document.getElementById("zh").textContent = c.zh;
+  document.getElementById("cl").textContent = c.cl;
+  document.getElementById("ex").innerHTML = c.ex;
+  document.getElementById("card").classList.remove("flipped");
+  document.getElementById("meta").textContent = `${cur+1} / ${queue.length} · Technology Day 5`;
+  updateStats();
+  setTimeout(() => speak(c.w), 150);
+}
+
+function setView(v) {
+  document.getElementById("vtFlash").classList.toggle("active", v === "flash");
+  document.getElementById("vtList").classList.toggle("active", v === "list");
+  document.getElementById("deck").style.display = v === "flash" ? "" : "none";
+  document.getElementById("listView").classList.toggle("active", v === "list");
+  if (v === "list") renderList();
+}
+
+function renderList() {
+  const body = document.getElementById("listBody");
+  body.innerHTML = CARDS.map((c, i) => {
+    const mark = state[i] || "";
+    const cls = mark === "know" ? "knew" : mark === "weak" ? "weak" : "";
+    const ico = mark === "know" ? "✓" : mark === "weak" ? "○" : "·";
+    const mcls = mark === "know" ? "know" : mark === "weak" ? "weak" : "";
+    return `<div class="list-row">
+      <div class="num">${String(i+1).padStart(3,'0')}</div>
+      <div class="word"><div class="w ${cls}">${c.w} <span style="color:var(--muted);font-weight:400;font-size:0.78rem;">${c.p}</span></div><div class="zh">${c.zh}</div></div>
+      <button class="spk" onclick="speak('${c.w.replace(/'/g,"\\'").replace(/"/g,'&quot;')}')">&#128266;</button>
+      <div class="mk ${mcls}">${ico}</div>
+    </div>`;
+  }).join("");
+}
+
+function flip() { document.getElementById("card").classList.toggle("flipped"); }
+
+function mark(t) {
+  const c = queue[cur];
+  state[c.idx] = (t === "know" ? "know" : "weak");
+  localStorage.setItem("ielts_vocab_20260803", JSON.stringify(state));
+  cur++;
+  render();
+}
+
+function updateStats() {
+  const kn = Object.values(state).filter(v=>v==="know").length;
+  const wk = Object.values(state).filter(v=>v==="weak").length;
+  const lf = 150 - kn - wk;
+  document.getElementById("kn").textContent = kn;
+  document.getElementById("wk").textContent = wk;
+  document.getElementById("lf").textContent = lf;
+  document.getElementById("pg").style.width = ((kn+wk)/150*100) + "%";
+}
+
+function showDone() {
+  document.getElementById("deck").style.display = "none";
+  document.getElementById("done").classList.add("show");
+  const kn = Object.values(state).filter(v=>v==="know").length;
+  const wk = Object.values(state).filter(v=>v==="weak").length;
+  document.getElementById("doneTtl").textContent = wk > 0 ? `今日 150 词完成! 还有 ${wk} 张不熟` : "今日 150 词全掌握 🎉";
+  document.getElementById("doneSub").textContent = `知道 ${kn} · 不熟 ${wk}`;
+}
+
+function reviewWeak() {
+  queue = CARDS.map((c,i)=>({...c,idx:i})).filter(c => state[c.idx] === "weak");
+  if (queue.length === 0) { alert("没有不熟的卡!"); return; }
+  cur = 0;
+  document.getElementById("done").classList.remove("show");
+  document.getElementById("deck").style.display = "";
+  render();
+}
+
+function resetAll() {
+  if (!confirm("清空今日进度,重新开始?")) return;
+  localStorage.removeItem("ielts_vocab_20260803");
+  state = {};
+  queue = CARDS.map((c,i)=>({...c,idx:i}));
+  cur = 0;
+  document.getElementById("done").classList.remove("show");
+  document.getElementById("deck").style.display = "";
+  render();
+}
+
+render();
+</script>
+
+</body>
+</html>
